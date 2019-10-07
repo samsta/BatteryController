@@ -80,97 +80,99 @@ const float TEMPERATURES[32] =
    24.119400, 23.973000
 };
 
-float sumCells(BMS& m, unsigned from = 0, unsigned to = 95)
+float sumCells(BMS& bms, unsigned from = 0, unsigned to = 95)
 {
    float r = 0;
    for (unsigned i = from; i <= to; i++)
    {
-      r += m.getCellVoltage(i);
+      r += bms.getCellVoltage(i);
    }
    return r;
 }
 
-TEST(Foo, VoltageCells0to3)
+class TestBMS: public testing::Test
 {
-   BMS m;
-   m.receive(TEST_FRAMES[0]);
+public:
+   BMS bms;
+};
 
-   EXPECT_FLOAT_EQ(sumCells(m), m.getVoltage());
-   EXPECT_FLOAT_EQ(CELL_VOLTAGES[0], m.getCellVoltage(0));
-   EXPECT_FLOAT_EQ(CELL_VOLTAGES[1], m.getCellVoltage(1));
-   EXPECT_FLOAT_EQ(CELL_VOLTAGES[2], m.getCellVoltage(2));
-   EXPECT_FLOAT_EQ(CELL_VOLTAGES[3], m.getCellVoltage(3));
-   EXPECT_FLOAT_EQ(0.0, m.getCellVoltage(4)) << "We haven't got that cell yet";
+TEST_F(TestBMS, VoltageCells0to3)
+{
+   bms.receive(TEST_FRAMES[0]);
+
+   EXPECT_FLOAT_EQ(sumCells(bms), bms.getVoltage());
+   EXPECT_FLOAT_EQ(CELL_VOLTAGES[0], bms.getCellVoltage(0));
+   EXPECT_FLOAT_EQ(CELL_VOLTAGES[1], bms.getCellVoltage(1));
+   EXPECT_FLOAT_EQ(CELL_VOLTAGES[2], bms.getCellVoltage(2));
+   EXPECT_FLOAT_EQ(CELL_VOLTAGES[3], bms.getCellVoltage(3));
+   EXPECT_FLOAT_EQ(0.0, bms.getCellVoltage(4)) << "We haven't got that cell yet";
    
-   EXPECT_FLOAT_EQ(0.0, m.getTemperature(0));
+   EXPECT_FLOAT_EQ(0.0, bms.getTemperature(0));
 
-   EXPECT_FLOAT_EQ(sumCells(m, 0, 5), m.getModuleVoltage(0));
-   EXPECT_FLOAT_EQ(0.0, m.getModuleVoltage(1)) << "We haven't got that module yet";
+   EXPECT_FLOAT_EQ(sumCells(bms, 0, 5), bms.getModuleVoltage(0));
+   EXPECT_FLOAT_EQ(0.0, bms.getModuleVoltage(1)) << "We haven't got that module yet";
 }
 
-TEST(Foo, VoltageCells4to7)
+TEST_F(TestBMS, VoltageCells4to7)
 {
-   BMS m;
-   m.receive(TEST_FRAMES[1]);
+   bms.receive(TEST_FRAMES[1]);
 
-   EXPECT_FLOAT_EQ(sumCells(m), m.getVoltage());
-   EXPECT_FLOAT_EQ( 0.0, m.getCellVoltage(3)) << "We haven't got that cell yet";
-   EXPECT_FLOAT_EQ(CELL_VOLTAGES[4], m.getCellVoltage(4));
-   EXPECT_FLOAT_EQ(CELL_VOLTAGES[5], m.getCellVoltage(5));
-   EXPECT_FLOAT_EQ(CELL_VOLTAGES[6], m.getCellVoltage(6));
-   EXPECT_FLOAT_EQ(CELL_VOLTAGES[7], m.getCellVoltage(7));
-   EXPECT_FLOAT_EQ( 0.0, m.getCellVoltage(8)) << "We haven't got that cell yet";
+   EXPECT_FLOAT_EQ(sumCells(bms), bms.getVoltage());
+   EXPECT_FLOAT_EQ( 0.0, bms.getCellVoltage(3)) << "We haven't got that cell yet";
+   EXPECT_FLOAT_EQ(CELL_VOLTAGES[4], bms.getCellVoltage(4));
+   EXPECT_FLOAT_EQ(CELL_VOLTAGES[5], bms.getCellVoltage(5));
+   EXPECT_FLOAT_EQ(CELL_VOLTAGES[6], bms.getCellVoltage(6));
+   EXPECT_FLOAT_EQ(CELL_VOLTAGES[7], bms.getCellVoltage(7));
+   EXPECT_FLOAT_EQ( 0.0, bms.getCellVoltage(8)) << "We haven't got that cell yet";
    
-   EXPECT_FLOAT_EQ( 0.0, m.getTemperature(0)) << "We haven't got temperatures yet";
+   EXPECT_FLOAT_EQ( 0.0, bms.getTemperature(0)) << "We haven't got temperatures yet";
 
-   EXPECT_FLOAT_EQ(sumCells(m, 0,  5), m.getModuleVoltage(0));
-   EXPECT_FLOAT_EQ(sumCells(m, 6, 11), m.getModuleVoltage(1)) << "We haven't got that module yet";
-   EXPECT_FLOAT_EQ( 0.0, m.getModuleVoltage(2)) << "We haven't got that module yet";
+   EXPECT_FLOAT_EQ(sumCells(bms, 0,  5), bms.getModuleVoltage(0));
+   EXPECT_FLOAT_EQ(sumCells(bms, 6, 11), bms.getModuleVoltage(1)) << "We haven't got that module yet";
+   EXPECT_FLOAT_EQ( 0.0, bms.getModuleVoltage(2)) << "We haven't got that module yet";
 }
 
-TEST(Foo, TempSensors0to3)
+TEST_F(TestBMS, TempSensors0to3)
 {
-   BMS m;
-   m.receive(TEST_FRAMES[24]);
+   bms.receive(TEST_FRAMES[24]);
 
-   EXPECT_FLOAT_EQ(0.0, m.getVoltage()) << "We haven't got voltages yet";
-   EXPECT_FLOAT_EQ(0.0, m.getCellVoltage(0)) << "We haven't got voltages yet";
+   EXPECT_FLOAT_EQ(0.0, bms.getVoltage()) << "We haven't got voltages yet";
+   EXPECT_FLOAT_EQ(0.0, bms.getCellVoltage(0)) << "We haven't got voltages yet";
    
-   EXPECT_FLOAT_EQ(TEMPERATURES[0], m.getTemperature(0));
-   EXPECT_FLOAT_EQ(TEMPERATURES[1], m.getTemperature(1));
-   EXPECT_FLOAT_EQ(TEMPERATURES[2], m.getTemperature(2));
-   EXPECT_FLOAT_EQ(TEMPERATURES[3], m.getTemperature(3));
-   EXPECT_FLOAT_EQ(0.0, m.getTemperature(4)) << "We haven't got that sensor yet";
+   EXPECT_FLOAT_EQ(TEMPERATURES[0], bms.getTemperature(0));
+   EXPECT_FLOAT_EQ(TEMPERATURES[1], bms.getTemperature(1));
+   EXPECT_FLOAT_EQ(TEMPERATURES[2], bms.getTemperature(2));
+   EXPECT_FLOAT_EQ(TEMPERATURES[3], bms.getTemperature(3));
+   EXPECT_FLOAT_EQ(0.0, bms.getTemperature(4)) << "We haven't got that sensor yet";
 
-   EXPECT_FLOAT_EQ(0.0, m.getModuleVoltage(0)) << "We haven't got voltages yet";
+   EXPECT_FLOAT_EQ(0.0, bms.getModuleVoltage(0)) << "We haven't got voltages yet";
 }
 
-TEST(Foo, AllVoltagesAndTemperatures)
+TEST_F(TestBMS, AllVoltagesAndTemperatures)
 {
-   BMS m;
    for (unsigned k = 0; k < 32; k++)
    {
-      m.receive(TEST_FRAMES[k]);
+      bms.receive(TEST_FRAMES[k]);
    }
 
-   EXPECT_FLOAT_EQ(sumCells(m), m.getVoltage());
+   EXPECT_FLOAT_EQ(sumCells(bms), bms.getVoltage());
 
    for (unsigned cell = 0; cell < 96; cell++)
    {
       SCOPED_TRACE(testing::Message("cell=") << cell);
-      EXPECT_FLOAT_EQ(CELL_VOLTAGES[cell], m.getCellVoltage(cell));
+      EXPECT_FLOAT_EQ(CELL_VOLTAGES[cell], bms.getCellVoltage(cell));
    }
 
    for (unsigned module = 0, cell = 0; module < 16; module++, cell += 6)
    {
       SCOPED_TRACE(testing::Message("module=") << module << ", cells=" << cell << ".." << cell+5);
-      EXPECT_FLOAT_EQ(sumCells(m, cell, cell+5), m.getModuleVoltage(module));
+      EXPECT_FLOAT_EQ(sumCells(bms, cell, cell+5), bms.getModuleVoltage(module));
    }
 
    for (unsigned sensor = 0; sensor < 32; sensor++)
    {
       SCOPED_TRACE(testing::Message("sensor=") << sensor);
-      EXPECT_FLOAT_EQ(TEMPERATURES[sensor], m.getTemperature(sensor));
+      EXPECT_FLOAT_EQ(TEMPERATURES[sensor], bms.getTemperature(sensor));
    }
       
 }
