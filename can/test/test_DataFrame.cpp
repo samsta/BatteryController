@@ -1,11 +1,15 @@
 #include <gmock/gmock.h>
 #include "DataFrame.hpp"
+#include <array>
 
 using namespace can;
 
+typedef std::array<uint8_t, 8> arr8;
+
+
 TEST(DataFrame, accessBytesAsBitField)
 {
-   DataFrame f(0, {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88});
+   DataFrame f(0, arr8({0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88}).begin());
 
    EXPECT_EQ(0x11, f.getBitField(0,  8));
    EXPECT_EQ(0x22, f.getBitField(8,  8));
@@ -20,7 +24,7 @@ TEST(DataFrame, accessBytesAsBitField)
 
 TEST(DataFrame, accessLessThanByteAsBitField)
 {
-   DataFrame f(0, {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88});
+   DataFrame f(0, arr8({0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88}).begin());
 
    EXPECT_EQ(0x11, f.getBitField(0, 5));
    EXPECT_EQ(0x1, f.getBitField(0, 4));
@@ -33,7 +37,7 @@ TEST(DataFrame, accessLessThanByteAsBitField)
 
 TEST(DataFrame, accessAcrossByteBoundaries)
 {
-   DataFrame f(0, {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88});
+   DataFrame f(0, arr8({0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88}).begin());
 
    EXPECT_EQ(0x21, f.getBitField(4, 8));
    EXPECT_EQ(0x221, f.getBitField(4, 12));
@@ -53,7 +57,7 @@ TEST(DataFrame, accessAcrossByteBoundaries)
 
 TEST(DataFrame, accessSigned)
 {
-   DataFrame f(0, {0x11, 0x22, 0xf0, 0xff, 0x55, 0x66, 0x77, 0x88});
+   DataFrame f(0, arr8({0x11, 0x22, 0xf0, 0xff, 0x55, 0x66, 0x77, 0x88}).begin());
 
    EXPECT_EQ(int8_t(0x11), f.getSignedBitField(0, 8));
    EXPECT_EQ(int8_t(0x88), f.getSignedBitField(56, 8));
@@ -75,7 +79,7 @@ TEST(DataFrame, accessSigned)
 
 TEST(DataFrame, limits)
 {
-   DataFrame f(0, {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff});
+   DataFrame f(0, arr8({0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}).begin());
 
    EXPECT_EQ(0xffffffffffffffffULL, f.getBitField(0, 64));
    EXPECT_EQ(-1, f.getSignedBitField(0, 64));

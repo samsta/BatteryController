@@ -1,7 +1,5 @@
 
 #include "BMS.hpp"
-#include <iostream>
-#include <algorithm>
 
 namespace {
    const float VOLTS_PER_UNIT = 0.000305;

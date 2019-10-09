@@ -2,7 +2,6 @@
 #define _CAN_DATAFRAME_HPP
 
 #include <stdint.h>
-#include <array>
 
 namespace can {
 
@@ -10,7 +9,7 @@ class DataFrame
 {
 public:
    DataFrame();
-   DataFrame(uint16_t id, const std::array<uint8_t, 8>& data);
+   DataFrame(uint16_t id, const uint8_t data[], unsigned length = 8);
    
    uint16_t id;
    uint8_t data[8];

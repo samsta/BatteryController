@@ -1,5 +1,5 @@
 #include "DataFrame.hpp"
-#include <algorithm>
+#include <string.h>
 
 namespace can {
 namespace {
@@ -10,9 +10,9 @@ const unsigned BITS_PER_BYTE = 8;
 
 DataFrame::DataFrame(): id(), data(){}
 
-DataFrame::DataFrame(uint16_t id, const std::array<uint8_t, 8>& data): id(id), data()
+DataFrame::DataFrame(uint16_t id, const uint8_t data[], unsigned length)
 {
-   std::copy(data.begin(), data.end(), this->data);
+   memcpy(this->data, data, length);
 }
    
 uint64_t DataFrame::getBitField(unsigned start_bit, unsigned num_bits) const
