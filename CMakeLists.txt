@@ -7,7 +7,7 @@ set(ARDUINO_BOARD "diecimila" CACHE STRING "Arduino board to build for")
 set(ARDUINO_CPU "atmega328" CACHE STRING "Arduino CPU on ARDUINO_BOARD")
 
 
-set(CMAKE_CXX_FLAGS  "-Wall -g -std=c++0x")
+set(CMAKE_CXX_FLAGS  "-Wall -Werror -Wextra -g -std=c++0x")
 
 if(CMAKE_SYSTEM_NAME MATCHES "Arduino")
   set(BUILD_TESTS FALSE)

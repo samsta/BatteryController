@@ -9,15 +9,22 @@ class DataFrame
 {
 public:
    DataFrame();
-   DataFrame(uint16_t id, const uint8_t data[], unsigned length = 8);
-   
-   uint16_t id;
-   uint8_t data[8];
+   DataFrame(const char*);
+   DataFrame(uint32_t id, const uint8_t data[], unsigned size = 8);
 
+   bool valid() const;
+   unsigned size() const;
+   const uint8_t* data() const;
+   uint32_t id() const;
    uint64_t getBitField(unsigned start_bit, unsigned num_bits) const;
    int64_t  getSignedBitField(unsigned start_bit, unsigned num_bits) const;
+
+private:
+   int32_t m_id;
+   unsigned m_size;
+   uint8_t m_data[8];
 };
-   
+
 }
 
 #endif // _CAN_DATAFRAME_HPP

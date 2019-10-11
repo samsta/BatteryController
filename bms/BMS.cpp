@@ -9,12 +9,12 @@ namespace {
 BMS::BMS():
    m_cell_voltages(),
    m_temperatures()
-{	
+{
 }
 
 void BMS::receive(const can::DataFrame& frame)
 {
-   unsigned msg_index = frame.data[0];
+   unsigned msg_index = frame.data()[0];
    bool is_voltage = msg_index < 24;
    for (unsigned k = 0, bit_index = 8; k < 4; k++, bit_index += 14)
    {
@@ -29,7 +29,7 @@ void BMS::receive(const can::DataFrame& frame)
    }
 }
 
-float BMS::getVoltage()  
+float BMS::getVoltage()
 {
    float voltage = 0;
    for (unsigned i = 0; i < NUM_MODULES; i++)
@@ -39,24 +39,24 @@ float BMS::getVoltage()
    return voltage;
 }
 
-float BMS::getCellVoltage(unsigned index)  
-{  
+float BMS::getCellVoltage(unsigned index)
+{
    if (index >= NUM_CELLS) return -1;
 
    return m_cell_voltages[index];
 }
 
-float BMS::getTemperature(unsigned index)  
-{  
+float BMS::getTemperature(unsigned index)
+{
    if (index >= NUM_TEMPERATURE_SENSORS) return -1;
 
    return m_temperatures[index];
 }
 
-float BMS::getModuleVoltage(unsigned index)  
-{  
+float BMS::getModuleVoltage(unsigned index)
+{
    if (index >= NUM_MODULES) return -1;
-  
+
    float voltage = 0;
    for (unsigned i = index * NUM_CELLS_PER_MODULE; i < (index + 1) * NUM_CELLS_PER_MODULE; i++)
    {
