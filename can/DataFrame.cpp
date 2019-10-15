@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <inttypes.h>
+#include "logging/Hex.hpp"
 
 namespace can {
 namespace {
@@ -18,13 +19,16 @@ DataFrame::DataFrame(const char* str): m_id(INVALID_ID), m_size(0), m_data()
 
    uint32_t id;
    char hash;
-   int num = sscanf(str, "%" SCNx32 "%c%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx",
-         &id, &hash, &m_data[0], &m_data[1], &m_data[2], &m_data[3], &m_data[4], &m_data[5], &m_data[6], &m_data[7]);
-   if (num >= 2 && hash == '#')
-   {
-      m_id = id;
-      m_size = num - 2;
-   }
+   char dummy;
+   int num = sscanf(str, "%" SCNx32 "%c%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%c",
+         &id, &hash, &m_data[0], &m_data[1], &m_data[2], &m_data[3], &m_data[4], &m_data[5], &m_data[6], &m_data[7], &dummy);
+
+   if (num > 10) return;
+   if (num < 2) return;
+   if (hash != '#') return;
+
+   m_id = id;
+   m_size = num - 2;
 }
 
 DataFrame::DataFrame(uint32_t id, const uint8_t data[], unsigned size):
@@ -82,6 +86,16 @@ int64_t DataFrame::getSignedBitField(unsigned start_bit, unsigned num_bits) cons
    uint64_t v = getBitField(start_bit, num_bits);
    uint64_t sign_bit = 1ULL << (num_bits - 1);
    return (v & (sign_bit - 1)) - (v & sign_bit);
+}
+
+logging::ostream& operator<<(logging::ostream& os, const DataFrame& frame)
+{
+   os << logging::Hex(frame.id()) << "#";
+   for (unsigned k = 0; k < frame.size(); k++)
+   {
+      os << logging::HexByte(frame.data()[k]);
+   }
+   return os;
 }
 
 

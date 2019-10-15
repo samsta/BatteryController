@@ -3,13 +3,6 @@
 #include "can/messages/Tesla/DetailedCellData.hpp"
 #include <math.h>
 
-typedef std::array<uint8_t, 8> arr8;
-
-can::DataFrame makeFrame(unsigned id, const std::vector<uint8_t>& data)
-{
-   return can::DataFrame(id, data.data(), data.size());
-}
-
 namespace
 {
 const float VOLT_PER_UNIT = 0.0008;
@@ -21,6 +14,13 @@ const float MIN_TEMPERATURE = -MAX_TEMPERATURE - DEGC_PER_UNIT;
 
 using namespace can;
 using namespace can::messages::Tesla;
+
+std::string toString(const DetailedCellData& d)
+{
+   std::ostringstream out;
+   out << d;
+   return out.str();
+}
 
 TEST(DetailedCellData, Index0IsVoltage)
 {
@@ -154,5 +154,32 @@ TEST(DetailedCellData, Index32IsInvalid)
    EXPECT_FALSE(message.valid());
 }
 
+TEST(DetailedCellData, ShortMessageIsInvalid)
+{
+   DetailedCellData message("6F2#00000000000000");
 
+   EXPECT_FALSE(message.valid());
+}
+
+TEST(DetailedCellData, LongMessageIsInvalid)
+{
+   DetailedCellData message("6F2#000000000000000000");
+
+   EXPECT_FALSE(message.valid());
+}
+
+TEST(DetailedCellData, ToString)
+{
+   EXPECT_EQ("DetailedCellData: invalid", toString(DetailedCellData()));
+   EXPECT_EQ("DetailedCellData: U0=0V, U1=0V, U2=0V, U3=0V", toString(DetailedCellData().setIsVoltage()));
+   EXPECT_EQ("DetailedCellData: T0=0degC, T1=0degC, T2=0degC, T3=0degC", toString(DetailedCellData().setIsTemperature()));
+   EXPECT_EQ("DetailedCellData: U64=0.03V, U65=1.456V, U66=5V, U67=9.001V", toString(DetailedCellData()
+                                                                           .setIsVoltage()
+                                                                           .setBaseIndex(64)
+                                                                           .setValue(0, 0.03)
+                                                                           .setValue(1, 1.456)
+                                                                           .setValue(2, 5.0)
+                                                                           .setValue(3, 9.001)));
+
+}
 

@@ -26,6 +26,7 @@ DetailedCellData::DetailedCellData(const DataFrame& frame):
 
    unsigned msg_index = frame.data()[0];
 
+   if (frame.size() != 8) return;
    if (msg_index > MAX_INDEX) return;
 
    m_is_voltage = msg_index < FIRST_TEMPERATURE_INDEX;
@@ -52,6 +53,14 @@ DetailedCellData::DetailedCellData(const DataFrame& frame):
    m_valid = true;
 }
 
+DetailedCellData::DetailedCellData():
+      m_base_index(),
+      m_is_voltage(),
+      m_values(),
+      m_valid(false)
+{
+}
+
 bool DetailedCellData::isVoltage() const
 {
    return m_is_voltage;
@@ -72,6 +81,57 @@ bool DetailedCellData::valid() const
 {
    return m_valid;
 }
+
+DetailedCellData& DetailedCellData::setIsVoltage()
+{
+   m_valid = true;
+   m_is_voltage = true;
+   return *this;
+}
+
+DetailedCellData& DetailedCellData::setIsTemperature()
+{
+   m_valid = true;
+   m_is_voltage = false;
+   return *this;
+}
+
+DetailedCellData& DetailedCellData::setValue(unsigned index, float value)
+{
+   if (index < VALUES_PER_FRAME)
+   {
+      m_valid = true;
+      m_values[index] = value;
+   }
+   return *this;
+}
+
+DetailedCellData& DetailedCellData::setBaseIndex(unsigned index)
+{
+   m_valid = true;
+   m_base_index = index;
+   return *this;
+}
+
+logging::ostream& operator<<(logging::ostream& os, const DetailedCellData& d)
+{
+   os << "DetailedCellData: ";
+   if (not d.valid()) return os << "invalid";
+
+   const char symbol = d.isTemperature() ? 'T' : 'U';
+   const char* unit =  d.isTemperature() ? "degC" : "V";
+
+   for (unsigned k = 0; k < VALUES_PER_FRAME; k++)
+   {
+      if (k != 0)
+      {
+         os << ", ";
+      }
+      os << symbol << k + d.getBaseIndex() << "=" << d.getValue(k) << unit;
+   }
+   return os;
+}
+
 
 }
 }

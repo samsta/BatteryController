@@ -1,10 +1,16 @@
 #include <gmock/gmock.h>
 #include "DataFrame.hpp"
-#include <array>
+#include "logging/stream.hpp"
+#include <sstream>
 
 using namespace can;
 
-typedef std::array<uint8_t, 8> arr8;
+std::string toString(const DataFrame& f)
+{
+   std::ostringstream out;
+   out << f;
+   return out.str();
+}
 
 TEST(DataFrame, Construct1ByteFromString)
 {
@@ -47,22 +53,11 @@ TEST(DataFrame, Construct8BytesFromStringUpperAndLowerCase)
    EXPECT_EQ(0xEF, f.data()[7]);
 }
 
-TEST(DataFrame, Construct8BytesFromOversizeString)
+TEST(DataFrame, OversizeStringInvalid)
 {
    DataFrame f("12345678#0123456789AbCdEf1234");
 
-   ASSERT_TRUE(f.valid());
-   EXPECT_EQ(0x12345678, f.id());
-
-   ASSERT_EQ(8, f.size());
-   EXPECT_EQ(0x01, f.data()[0]);
-   EXPECT_EQ(0x23, f.data()[1]);
-   EXPECT_EQ(0x45, f.data()[2]);
-   EXPECT_EQ(0x67, f.data()[3]);
-   EXPECT_EQ(0x89, f.data()[4]);
-   EXPECT_EQ(0xAB, f.data()[5]);
-   EXPECT_EQ(0xCD, f.data()[6]);
-   EXPECT_EQ(0xEF, f.data()[7]);
+   ASSERT_FALSE(f.valid());
 }
 
 TEST(DataFrame, ZeroLengthFrameFromString)
@@ -204,3 +199,13 @@ TEST(DataFrame, limits)
    EXPECT_EQ(0xffffffffffffffffULL, f.getBitField(0, 64));
    EXPECT_EQ(-1, f.getSignedBitField(0, 64));
 }
+
+TEST(DataFrame, ToString)
+{
+   EXPECT_EQ("A3F#", toString(DataFrame("a3f#")));
+   EXPECT_EQ("12#23", toString(DataFrame("12#23")));
+   EXPECT_EQ("0#ABCD", toString(DataFrame("0#abCD")));
+   EXPECT_EQ("0#ABCD", toString(DataFrame("0#abCD")));
+   EXPECT_EQ("12345678#0123006789ABFF03", toString(DataFrame("12345678#0123006789Abff03")));
+}
+

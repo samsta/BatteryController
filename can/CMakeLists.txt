@@ -1,6 +1,6 @@
 add_library(can DataFrame.cpp)
-target_include_directories(can PUBLIC ../)
-
+target_include_directories(can PUBLIC ../ ${CMAKE_BINARY_DIR})
+target_link_libraries(can logging)
 add_subdirectory(messages)
 
 if(BUILD_TESTS)

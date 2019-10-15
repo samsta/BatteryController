@@ -2,6 +2,7 @@
 #define _CAN_DATAFRAME_HPP
 
 #include <stdint.h>
+#include "logging/stream.hpp"
 
 namespace can {
 
@@ -24,6 +25,8 @@ private:
    unsigned m_size;
    uint8_t m_data[8];
 };
+
+logging::ostream& operator<<(logging::ostream&, const DataFrame&);
 
 }
 
