@@ -27,3 +27,9 @@ endif()
 add_subdirectory(bms)
 add_subdirectory(can)
 add_subdirectory(logging)
+
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+   # horrible test tool that receives messages
+   add_executable(testcan testcan.cpp)
+   target_link_libraries(testcan can logging)
+endif()
