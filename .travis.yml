@@ -5,16 +5,19 @@ sudo: required
 
 addons:
     apt:
-        update: true
         packages:
             - build-essential
-            - cmake
+
+install:
+    # stock cmake is too old, download a newer version
+    - curl -L https://github.com/Kitware/CMake/releases/download/v3.13.4/cmake-3.13.4-Linux-x86_64.tar.gz -o cmake-3.13.4-Linux-x86_64.tar.gz 
+    - tar xf cmake-3.13.4-Linux-x86_64.tar.gz
+    - export PATH=${PWD}/cmake-3.13.4-Linux-x86_64/bin:${PATH}
 
 matrix:
     include:
         - name: "Native build & test"
           before_script:
-          - sudo apt-get install -y cmake  # stock cmake is too old
           - mkdir build
           - cd build
           - cmake ..
@@ -22,7 +25,6 @@ matrix:
           script: make test
         - name: "Arduino build"
           before_script:
-          - sudo apt-get install -y cmake  # stock cmake is too old
           - mkdir build
           - cd build
           - ../bootstrap_arduino.sh
