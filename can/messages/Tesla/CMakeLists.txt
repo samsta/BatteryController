@@ -1,4 +1,4 @@
-target_sources(can PRIVATE messages/Tesla/DetailedCellData.cpp)
+target_sources(can PRIVATE DetailedCellData.cpp)
 
 if(BUILD_TESTS)
   enable_testing()

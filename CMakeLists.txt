@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.8.2)
 project(BatteryController)
+cmake_policy(SET CMP0076 NEW)
 
 set(BUILD_TESTS TRUE CACHE BOOL "Build tests if true")
 set(HAS_STD_IOSTREAM TRUE CACHE BOOL "std::iostream and friends are available")
