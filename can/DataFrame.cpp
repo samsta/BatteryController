@@ -39,6 +39,16 @@ bool DataFrame::valid() const
    return m_id != INVALID_ID;
 }
 
+DataFrame::const_iterator DataFrame::begin() const
+{
+   return data();
+}
+
+DataFrame::const_iterator DataFrame::end() const
+{
+   return data() + size();
+}
+
 uint64_t DataFrame::getBitField(unsigned start_bit, unsigned num_bits) const
 {
    const uint8_t* start_byte = &data()[start_bit / BITS_PER_BYTE];

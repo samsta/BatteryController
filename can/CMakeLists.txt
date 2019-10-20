@@ -1,4 +1,5 @@
 add_library(can DataFrame.cpp
+                LargeDataFrame.cpp
                 StandardDataFrame.cpp)
 target_include_directories(can PUBLIC ../ ${CMAKE_BINARY_DIR})
 target_link_libraries(can logging)

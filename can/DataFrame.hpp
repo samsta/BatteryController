@@ -22,6 +22,11 @@ public:
       INVALID_ID = -1
    };
 
+   typedef uint8_t value_type;
+   typedef const uint8_t* const_iterator;
+   const_iterator begin() const;
+   const_iterator end() const;
+
 protected:
    DataFrame();
    DataFrame(int32_t id, unsigned size);
