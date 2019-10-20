@@ -1,20 +1,20 @@
 #include <gmock/gmock.h>
-#include "DataFrame.hpp"
+#include "StandardDataFrame.hpp"
 #include "logging/stream.hpp"
 #include <sstream>
 
 using namespace can;
 
-std::string toString(const DataFrame& f)
+std::string toString(const StandardDataFrame& f)
 {
    std::ostringstream out;
    out << f;
    return out.str();
 }
 
-TEST(DataFrame, Construct1ByteFromString)
+TEST(StandardDataFrame, Construct1ByteFromString)
 {
-   DataFrame f("abc#de");
+   StandardDataFrame f("abc#de");
 
    ASSERT_TRUE(f.valid());
    EXPECT_EQ(0xabc, f.id());
@@ -23,9 +23,9 @@ TEST(DataFrame, Construct1ByteFromString)
    EXPECT_EQ(0xde, f.data()[0]);
 }
 
-TEST(DataFrame, Construct2BytesFromString)
+TEST(StandardDataFrame, Construct2BytesFromString)
 {
-   DataFrame f("123#4567");
+   StandardDataFrame f("123#4567");
 
    ASSERT_TRUE(f.valid());
    EXPECT_EQ(0x123, f.id());
@@ -35,9 +35,9 @@ TEST(DataFrame, Construct2BytesFromString)
    EXPECT_EQ(0x67, f.data()[1]);
 }
 
-TEST(DataFrame, Construct8BytesFromStringUpperAndLowerCase)
+TEST(StandardDataFrame, Construct8BytesFromStringUpperAndLowerCase)
 {
-   DataFrame f("12345678#0123456789AbCdEf");
+   StandardDataFrame f("12345678#0123456789AbCdEf");
 
    ASSERT_TRUE(f.valid());
    EXPECT_EQ(0x12345678, f.id());
@@ -53,40 +53,40 @@ TEST(DataFrame, Construct8BytesFromStringUpperAndLowerCase)
    EXPECT_EQ(0xEF, f.data()[7]);
 }
 
-TEST(DataFrame, OversizeStringInvalid)
+TEST(StandardDataFrame, OversizeStringInvalid)
 {
-   DataFrame f("12345678#0123456789AbCdEf1234");
+   StandardDataFrame f("12345678#0123456789AbCdEf1234");
 
    ASSERT_FALSE(f.valid());
 }
 
-TEST(DataFrame, ZeroLengthFrameFromString)
+TEST(StandardDataFrame, ZeroLengthFrameFromString)
 {
-   DataFrame f("123#");
+   StandardDataFrame f("123#");
 
    ASSERT_TRUE(f.valid());
    EXPECT_EQ(0x123, f.id());
    EXPECT_EQ(0, f.size());
 }
 
-TEST(DataFrame, NoHashInvalid)
+TEST(StandardDataFrame, NoHashInvalid)
 {
-   DataFrame f("123x");
+   StandardDataFrame f("123x");
 
    ASSERT_FALSE(f.valid());
 }
 
-TEST(DataFrame, NullStringInvalidAndWontCrash)
+TEST(StandardDataFrame, NullStringInvalidAndWontCrash)
 {
-   DataFrame f(NULL);
+   StandardDataFrame f(NULL);
 
    ASSERT_FALSE(f.valid());
 }
 
-TEST(DataFrame, Construct1Byte)
+TEST(StandardDataFrame, Construct1Byte)
 {
    uint8_t data[] = {0xAB};
-   DataFrame f(1234, data, sizeof(data));
+   StandardDataFrame f(1234, data, sizeof(data));
 
    ASSERT_TRUE(f.valid());
    EXPECT_EQ(1234, f.id());
@@ -95,10 +95,10 @@ TEST(DataFrame, Construct1Byte)
    EXPECT_EQ(0xAB, f.data()[0]);
 }
 
-TEST(DataFrame, Construct8BytesFromOversizeArray)
+TEST(StandardDataFrame, Construct8BytesFromOversizeArray)
 {
    uint8_t data[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-   DataFrame f(1234, data, sizeof(data));
+   StandardDataFrame f(1234, data, sizeof(data));
 
    ASSERT_TRUE(f.valid());
    EXPECT_EQ(1234, f.id());
@@ -114,17 +114,17 @@ TEST(DataFrame, Construct8BytesFromOversizeArray)
    EXPECT_EQ(8, f.data()[7]);
 }
 
-TEST(DataFrame, NullPtrValidZeroLengthDespiteNonZeroLengthSpecified)
+TEST(StandardDataFrame, NullPtrValidZeroLengthDespiteNonZeroLengthSpecified)
 {
-   DataFrame f(1234, NULL, 8);
+   StandardDataFrame f(1234, NULL, 8);
 
    ASSERT_TRUE(f.valid());
    EXPECT_EQ(0, f.size());
 }
 
-TEST(DataFrame, accessBytesAsBitField)
+TEST(StandardDataFrame, accessBytesAsBitField)
 {
-   DataFrame f("0#1122334455667788");
+   StandardDataFrame f("0#1122334455667788");
 
    EXPECT_EQ(0x11, f.getBitField(0,  8));
    EXPECT_EQ(0x22, f.getBitField(8,  8));
@@ -137,9 +137,9 @@ TEST(DataFrame, accessBytesAsBitField)
    EXPECT_EQ(0x8877665544332211ULL, f.getBitField(0, 64));
 }
 
-TEST(DataFrame, accessLessThanByteAsBitField)
+TEST(StandardDataFrame, accessLessThanByteAsBitField)
 {
-   DataFrame f("0#1122334455667788");
+   StandardDataFrame f("0#1122334455667788");
 
    EXPECT_EQ(0x11, f.getBitField(0, 5));
    EXPECT_EQ(0x1, f.getBitField(0, 4));
@@ -150,9 +150,9 @@ TEST(DataFrame, accessLessThanByteAsBitField)
    EXPECT_EQ(0x2, f.getBitField(62, 2));
 }
 
-TEST(DataFrame, accessAcrossByteBoundaries)
+TEST(StandardDataFrame, accessAcrossByteBoundaries)
 {
-   DataFrame f("0#1122334455667788");
+   StandardDataFrame f("0#1122334455667788");
 
    EXPECT_EQ(0x21, f.getBitField(4, 8));
    EXPECT_EQ(0x221, f.getBitField(4, 12));
@@ -170,9 +170,9 @@ TEST(DataFrame, accessAcrossByteBoundaries)
    EXPECT_EQ(0x887, f.getBitField(52, 12));
 }
 
-TEST(DataFrame, accessSigned)
+TEST(StandardDataFrame, accessSigned)
 {
-   DataFrame f("0#1122f0ff55667788");
+   StandardDataFrame f("0#1122f0ff55667788");
 
    EXPECT_EQ(int8_t(0x11), f.getSignedBitField(0, 8));
    EXPECT_EQ(int8_t(0x88), f.getSignedBitField(56, 8));
@@ -192,20 +192,20 @@ TEST(DataFrame, accessSigned)
    EXPECT_EQ(-8, f.getSignedBitField(17, 12));
 }
 
-TEST(DataFrame, limits)
+TEST(StandardDataFrame, limits)
 {
-   DataFrame f("0#ffffffffffffffff");
+   StandardDataFrame f("0#ffffffffffffffff");
 
    EXPECT_EQ(0xffffffffffffffffULL, f.getBitField(0, 64));
    EXPECT_EQ(-1, f.getSignedBitField(0, 64));
 }
 
-TEST(DataFrame, ToString)
+TEST(StandardDataFrame, ToString)
 {
-   EXPECT_EQ("A3F#", toString(DataFrame("a3f#")));
-   EXPECT_EQ("12#23", toString(DataFrame("12#23")));
-   EXPECT_EQ("0#ABCD", toString(DataFrame("0#abCD")));
-   EXPECT_EQ("0#ABCD", toString(DataFrame("0#abCD")));
-   EXPECT_EQ("12345678#0123006789ABFF03", toString(DataFrame("12345678#0123006789Abff03")));
+   EXPECT_EQ("A3F#", toString(StandardDataFrame("a3f#")));
+   EXPECT_EQ("12#23", toString(StandardDataFrame("12#23")));
+   EXPECT_EQ("0#ABCD", toString(StandardDataFrame("0#abCD")));
+   EXPECT_EQ("0#ABCD", toString(StandardDataFrame("0#abCD")));
+   EXPECT_EQ("12345678#0123006789ABFF03", toString(StandardDataFrame("12345678#0123006789Abff03")));
 }
 

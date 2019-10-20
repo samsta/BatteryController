@@ -9,21 +9,28 @@ namespace can {
 class DataFrame
 {
 public:
-   DataFrame();
-   DataFrame(const char*);
-   DataFrame(uint32_t id, const uint8_t data[], unsigned size = 8);
+   virtual ~DataFrame(){};
 
-   bool valid() const;
+   virtual bool valid() const;
    unsigned size() const;
-   const uint8_t* data() const;
+   virtual const uint8_t* data() const = 0;
    uint32_t id() const;
    uint64_t getBitField(unsigned start_bit, unsigned num_bits) const;
    int64_t  getSignedBitField(unsigned start_bit, unsigned num_bits) const;
 
+   enum Constants {
+      INVALID_ID = -1
+   };
+
+protected:
+   DataFrame();
+   DataFrame(int32_t id, unsigned size);
+   void setSize(unsigned size);
+   void setId(int32_t id);
+
 private:
    int32_t m_id;
    unsigned m_size;
-   uint8_t m_data[8];
 };
 
 logging::ostream& operator<<(logging::ostream&, const DataFrame&);

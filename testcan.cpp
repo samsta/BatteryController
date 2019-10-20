@@ -7,7 +7,7 @@
 #include <linux/can/raw.h>
 #include <net/if.h>
 
-#include "can/DataFrame.hpp"
+#include "can/StandardDataFrame.hpp"
 #include "can/messages/Tesla/DetailedCellData.hpp"
 
 int main(int argc, const char** argv)
@@ -50,7 +50,7 @@ int main(int argc, const char** argv)
               return 1;
       }
 
-      can::DataFrame f(frame.can_id, frame.data, frame.can_dlc);
+      can::StandardDataFrame f(frame.can_id, frame.data, frame.can_dlc);
 
       can::messages::Tesla::DetailedCellData d(f);
       if (d.valid())
