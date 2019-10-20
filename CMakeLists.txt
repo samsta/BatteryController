@@ -25,7 +25,6 @@ else()
   message(STATUS "NOT building tests")
 endif()
 
-add_subdirectory(bms)
 add_subdirectory(can)
 add_subdirectory(logging)
 
