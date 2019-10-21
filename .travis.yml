@@ -7,6 +7,7 @@ addons:
     apt:
         packages:
             - build-essential
+            - valgrind
 
 install:
     # stock cmake is too old, download a newer version
@@ -22,7 +23,7 @@ matrix:
           - cd build
           - cmake ..
           - make
-          script: make test
+          script: make memcheck
         - name: "Arduino build"
           before_script:
           - mkdir build

@@ -2,25 +2,29 @@ cmake_minimum_required(VERSION 3.13)
 project(BatteryController)
 cmake_policy(SET CMP0076 NEW)
 
-set(BUILD_TESTS TRUE CACHE BOOL "Build tests if true")
 set(HAS_STD_IOSTREAM TRUE CACHE BOOL "std::iostream and friends are available")
-
 set(ARDUINO_BOARD "diecimila" CACHE STRING "Arduino board to build for")
 set(ARDUINO_CPU "atmega328" CACHE STRING "Arduino CPU on ARDUINO_BOARD")
+set(MEMORYCHECK_SUPPRESSIONS_FILE "${CMAKE_SOURCE_DIR}/valgrind.supp")
 
 set(CMAKE_CXX_FLAGS  "-Wall -Werror -Wextra -g -std=c++0x")
 
+include(CTest)
+
 if(CMAKE_SYSTEM_NAME MATCHES "Arduino")
-  set(BUILD_TESTS FALSE)
+  set(BUILD_TESTING FALSE)
   set(HAS_STD_IOSTREAM FALSE)
   get_board_id(board_id ${ARDUINO_BOARD} ${ARDUINO_CPU})
 endif()
 
 configure_file(config.h.in config.h)
 
-if(BUILD_TESTS)
-  enable_testing()
+if(BUILD_TESTING)
   add_subdirectory(googletest)
+  add_custom_target(memcheck
+    COMMAND ${CMAKE_CTEST_COMMAND}
+        --output-on-failure --force-new-ctest-process --test-action memcheck -DMEMORYCHECK_SUPPRESSIONS_FILE="${CMAKE_SOURCE_DIR}/valgrind.supp"
+    COMMAND cat "${CMAKE_BINARY_DIR}/Testing/Temporary/MemoryChecker.*.log")
 else()
   message(STATUS "NOT building tests")
 endif()

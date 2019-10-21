@@ -1,0 +1,10 @@
+{
+   leak in init
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:*/libstdc++.so*
+   ...
+   fun:_dl_init
+   obj:*/ld-*.so
+}
