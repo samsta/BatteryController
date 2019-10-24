@@ -73,6 +73,12 @@ int64_t DataFrame::getSignedBitField(unsigned start_bit, unsigned num_bits) cons
    return (v & (sign_bit - 1)) - (v & sign_bit);
 }
 
+uint16_t DataFrame::getUnsignedShort(unsigned start_byte) const
+{
+   return (uint16_t(data()[start_byte]) << 8) + data()[start_byte + 1];
+}
+
+
 logging::ostream& operator<<(logging::ostream& os, const DataFrame& frame)
 {
    os << logging::Hex(frame.id()) << "#";

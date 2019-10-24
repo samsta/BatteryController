@@ -38,6 +38,12 @@ void FrameAggregator::restartAggregation()
 
 void FrameAggregator::sink(const DataFrame& input)
 {
+   if (input.id() != 0x7bb)
+   {
+      m_output.sink(input);
+      return;
+   }
+
    if (input.data()[0] != m_expected_sequence_number)
    {
       restartAggregation();

@@ -124,3 +124,10 @@ TEST_F(FrameAggregatorTest, large118ByteMessageThatWrapsSequenceNumber)
    aggregator.sink(StandardDataFrame("7bb#2f00000000000000"));
    aggregator.sink(StandardDataFrame("7bb#2000000000000000"));
 }
+
+TEST_F(FrameAggregatorTest, passesMessagesThatArent7bbVerbatim)
+{
+   EXPECT_CALL(output, sink(AsString("123#456789")));
+
+   aggregator.sink(StandardDataFrame("123#456789"));
+}

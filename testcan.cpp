@@ -8,7 +8,23 @@
 #include <net/if.h>
 
 #include "can/StandardDataFrame.hpp"
+#include "can/services/Nissan/FrameAggregator.hpp"
 #include "can/messages/Tesla/DetailedCellData.hpp"
+#include "can/messages/Nissan/CellVoltages.hpp"
+
+class PrintingSink: public can::FrameSink
+{
+public:
+   virtual void sink(const can::DataFrame& f)
+   {
+      if (f.id() == 0x7bb)
+      {
+         can::messages::Nissan::CellVoltages voltages(f);
+
+         if (voltages.valid()) std::cout << voltages << std::endl;
+      }
+   }
+};
 
 int main(int argc, const char** argv)
 {
@@ -32,6 +48,8 @@ int main(int argc, const char** argv)
 
    bind(s, (struct sockaddr *)&addr, sizeof(addr));
 
+   PrintingSink printing_sink;
+   can::services::Nissan::FrameAggregator aggregator(printing_sink);
 
    struct can_frame frame;
 
@@ -57,6 +75,8 @@ int main(int argc, const char** argv)
       {
          std::cout << d << std::endl;
       }
+
+      aggregator.sink(f);
    }
 
    return 0;

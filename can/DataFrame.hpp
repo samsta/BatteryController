@@ -17,6 +17,7 @@ public:
    uint32_t id() const;
    uint64_t getBitField(unsigned start_bit, unsigned num_bits) const;
    int64_t  getSignedBitField(unsigned start_bit, unsigned num_bits) const;
+   uint16_t getUnsignedShort(unsigned start_byte) const;
 
    enum Constants {
       INVALID_ID = -1

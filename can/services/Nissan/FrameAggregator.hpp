@@ -11,6 +11,13 @@ class LargeDataFrame;
 namespace services {
 namespace Nissan {
 
+/*
+ * This class aggregates Nissan's multi-frame messages into
+ * a single large frame. The only message ID with this
+ * requirement at this stage is 0x7bb, the LBC Data Reply.
+ *
+ * All other messages are passed to the output as is.
+ */
 class FrameAggregator: public FrameSink
 {
 public:
