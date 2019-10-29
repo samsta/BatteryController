@@ -1,4 +1,5 @@
 #include "PackTemperatures.hpp"
+#include "Ids.hpp"
 #include "can/DataFrame.hpp"
 #include <stdint.h>
 #include <math.h>
@@ -8,13 +9,15 @@ namespace messages {
 namespace Nissan {
 namespace {
 
+const unsigned GROUP_SIZE = 16;
+
 }
 
 PackTemperatures::PackTemperatures(const DataFrame& f): m_valid(false)
 {
-   if (f.id() != 0x7bb) return;
-   if (f.size() != 16) return;
-   if (f.data()[1] != 4) return;
+   if (f.id() != ID_LBC_DATA_REPLY) return;
+   if (f.size() != GROUP_SIZE) return;
+   if (f.data()[1] != GROUP_PACK_TEMPERATURES) return;
 
    for (unsigned k = 0; k < NUM_PACKS; k++)
    {

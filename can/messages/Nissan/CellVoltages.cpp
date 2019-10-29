@@ -1,4 +1,5 @@
 #include "CellVoltages.hpp"
+#include "Ids.hpp"
 #include "can/DataFrame.hpp"
 #include <stdint.h>
 #include <math.h>
@@ -9,15 +10,15 @@ namespace Nissan {
 namespace {
 
 const float VOLTS_PER_UNIT = 0.001;
-const unsigned GROUP_ID = 2;
+const unsigned GROUP_SIZE = 198;
 
 }
 
 CellVoltages::CellVoltages(const DataFrame& f): m_valid(false)
 {
-   if (f.id() != 0x7bb) return;
-   if (f.size() != 198) return;
-   if (f.data()[1] != GROUP_ID) return;
+   if (f.id() != ID_LBC_DATA_REPLY) return;
+   if (f.size() != GROUP_SIZE) return;
+   if (f.data()[1] != GROUP_CELL_VOLTAGES) return;
 
    for (unsigned k = 0; k < NUM_CELLS; k++)
    {
