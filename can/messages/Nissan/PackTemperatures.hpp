@@ -12,6 +12,13 @@ class DataFrame;
 namespace messages {
 namespace Nissan {
 
+/*
+ * Pack temperatures as described on https://www.mynissanleaf.com/viewtopic.php?f=44&t=11676
+ *
+ * We only use the 8 bit temperatures and ignore the 16bit raw A/D readings.
+ *
+ * Note that this is using aggregated frames as provided by the FrameAggregator.
+ */
 class PackTemperatures
 {
 public:

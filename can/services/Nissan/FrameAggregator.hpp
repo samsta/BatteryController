@@ -18,6 +18,11 @@ namespace Nissan {
  * a single large frame. The only message ID with this
  * requirement at this stage is 0x7bb, the LBC Data Reply.
  *
+ * https://www.mynissanleaf.com/viewtopic.php?f=44&t=11676
+ * describes how the various groups consist of several lines
+ * in individual frames which is what our aggregation method
+ * is based on.
+ *
  * All other messages are passed to the output as is.
  */
 class FrameAggregator: public FrameSink

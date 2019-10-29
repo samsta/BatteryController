@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
 #include "FrameAggregator.hpp"
+#include "can/messages/Nissan/Ids.hpp"
 #include "can/LargeDataFrame.hpp"
 
 namespace can {
@@ -40,7 +41,7 @@ void FrameAggregator::restartAggregation()
 
 void FrameAggregator::sink(const DataFrame& input)
 {
-   if (input.id() != 0x7bb)
+   if (input.id() != messages::Nissan::ID_LBC_DATA_REPLY)
    {
       m_output.sink(input);
       return;

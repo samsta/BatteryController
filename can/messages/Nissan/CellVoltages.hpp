@@ -12,7 +12,11 @@ class DataFrame;
 namespace messages {
 namespace Nissan {
 
-
+/*
+ * Cell voltages as described on https://www.mynissanleaf.com/viewtopic.php?f=44&t=11676
+ *
+ * Note that this is using aggregated frames as provided by the FrameAggregator.
+ */
 class CellVoltages
 {
 public:
