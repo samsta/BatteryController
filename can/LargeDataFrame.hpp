@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
 #ifndef _CAN_LARGEDATAFRAME_HPP_
 #define _CAN_LARGEDATAFRAME_HPP_
 

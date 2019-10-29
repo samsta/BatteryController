@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
 #ifndef _LOGGING_NO_STL_STREAM_HPP_
 #define _LOGGING_NO_STL_STREAM_HPP_
 

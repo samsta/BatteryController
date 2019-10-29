@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
 #include "PackTemperatures.hpp"
 #include "Ids.hpp"
 #include "can/DataFrame.hpp"

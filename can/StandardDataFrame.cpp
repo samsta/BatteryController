@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
 #include "StandardDataFrame.hpp"
 #include <string.h>
 #include <stdio.h>

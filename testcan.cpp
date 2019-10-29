@@ -7,6 +7,8 @@
 #include <linux/can/raw.h>
 #include <net/if.h>
 
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
 #include "can/StandardDataFrame.hpp"
 #include "can/services/Nissan/FrameAggregator.hpp"
 #include "can/messages/Tesla/DetailedCellData.hpp"
