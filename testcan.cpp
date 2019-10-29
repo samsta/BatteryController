@@ -11,6 +11,7 @@
 #include "can/services/Nissan/FrameAggregator.hpp"
 #include "can/messages/Tesla/DetailedCellData.hpp"
 #include "can/messages/Nissan/CellVoltages.hpp"
+#include "can/messages/Nissan/PackTemperatures.hpp"
 
 class PrintingSink: public can::FrameSink
 {
@@ -21,7 +22,18 @@ public:
       {
          can::messages::Nissan::CellVoltages voltages(f);
 
-         if (voltages.valid()) std::cout << voltages << std::endl;
+         if (voltages.valid())
+         {
+            std::cout << voltages << std::endl;
+            return;
+         }
+
+         can::messages::Nissan::PackTemperatures temperatures(f);
+         if (temperatures.valid())
+         {
+            std::cout << temperatures << std::endl;
+            return;
+         }
       }
    }
 };
