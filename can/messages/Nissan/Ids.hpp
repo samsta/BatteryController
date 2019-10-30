@@ -12,6 +12,7 @@ enum Ids {
 };
 
 enum LbcDataGroups {
+   GROUP_BATTERY_STATE = 1,
    GROUP_CELL_VOLTAGES = 2,
    GROUP_PACK_TEMPERATURES = 4
 };

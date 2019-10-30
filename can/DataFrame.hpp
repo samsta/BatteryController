@@ -20,6 +20,7 @@ public:
    uint64_t getBitField(unsigned start_bit, unsigned num_bits) const;
    int64_t  getSignedBitField(unsigned start_bit, unsigned num_bits) const;
    uint16_t getUnsignedShort(unsigned start_byte) const;
+   uint32_t getUnsignedLong(unsigned start_byte, unsigned num_bytes) const;
 
    enum Constants {
       INVALID_ID = -1

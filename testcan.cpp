@@ -14,6 +14,7 @@
 #include "can/messages/Tesla/DetailedCellData.hpp"
 #include "can/messages/Nissan/CellVoltages.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
+#include "can/messages/Nissan/BatteryState.hpp"
 
 class PrintingSink: public can::FrameSink
 {
@@ -34,6 +35,13 @@ public:
          if (temperatures.valid())
          {
             std::cout << temperatures << std::endl;
+            return;
+         }
+
+         can::messages::Nissan::BatteryState state(f);
+         if (state.valid())
+         {
+            std::cout << state << std::endl;
             return;
          }
       }

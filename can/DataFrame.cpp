@@ -77,7 +77,17 @@ int64_t DataFrame::getSignedBitField(unsigned start_bit, unsigned num_bits) cons
 
 uint16_t DataFrame::getUnsignedShort(unsigned start_byte) const
 {
-   return (uint16_t(data()[start_byte]) << 8) + data()[start_byte + 1];
+   return getUnsignedLong(start_byte, 2);
+}
+
+uint32_t DataFrame::getUnsignedLong(unsigned start_byte, unsigned num_bytes) const
+{
+   uint32_t v = 0;
+   while (num_bytes--)
+   {
+      v = (v<<8) + uint32_t(data()[start_byte++]);
+   }
+   return v;
 }
 
 
