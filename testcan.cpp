@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -6,8 +8,6 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <net/if.h>
-
-/* SPDX-License-Identifier: GPL-3.0-or-later */
 
 #include "can/StandardDataFrame.hpp"
 #include "can/services/Nissan/FrameAggregator.hpp"
