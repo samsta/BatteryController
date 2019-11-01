@@ -8,6 +8,7 @@ namespace messages {
 namespace Nissan {
 
 enum Ids {
+   ID_LBC_DATA_REQUEST = 0x79b,
    ID_LBC_DATA_REPLY = 0x7bb
 };
 
