@@ -20,6 +20,7 @@
 #include "can/services/Nissan/FrameAggregator.hpp"
 #include "can/services/Nissan/GroupPoller.hpp"
 #include "can/messages/Tesla/DetailedCellData.hpp"
+#include "can/messages/Nissan/CellVoltageRange.hpp"
 #include "can/messages/Nissan/CellVoltages.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/BatteryState.hpp"
@@ -51,6 +52,13 @@ public:
          if (state.valid())
          {
             std::cout << "<IN>  " << state << std::endl;
+            return;
+         }
+
+         can::messages::Nissan::CellVoltageRange range(f);
+         if (range.valid())
+         {
+            std::cout << "<IN>  " << range << std::endl;
             return;
          }
       }

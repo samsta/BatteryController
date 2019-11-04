@@ -1,4 +1,5 @@
-target_sources(can PRIVATE CellVoltages.cpp
+target_sources(can PRIVATE CellVoltageRange.cpp
+                           CellVoltages.cpp
                            BatteryState.cpp
                            PackTemperatures.cpp)
 

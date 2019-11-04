@@ -24,7 +24,7 @@ public:
 private:
    FrameSink& m_sender;
    unsigned m_poll_ix;
-   uint8_t m_poll_groups[3];
+   uint8_t m_poll_groups[4];
 };
 
 }

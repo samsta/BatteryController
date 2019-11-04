@@ -50,6 +50,9 @@ TEST_F(GroupPollerTest, pollCyclesThroughGroupsAndRequestsInitialFrame)
       EXPECT_CALL(sender, sink(AsString("79b#0221020000000000")));
       poller.poll();
 
+      EXPECT_CALL(sender, sink(AsString("79b#0221030000000000")));
+      poller.poll();
+
       EXPECT_CALL(sender, sink(AsString("79b#0221040000000000")));
       poller.poll();
    }

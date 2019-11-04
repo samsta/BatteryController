@@ -17,6 +17,7 @@ GroupPoller::GroupPoller(FrameSink& sender):
     m_poll_groups{
       GROUP_BATTERY_STATE,
       GROUP_CELL_VOLTAGES,
+      GROUP_CELL_VOLTAGE_RANGE,
       GROUP_PACK_TEMPERATURES}
 {
 }
