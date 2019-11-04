@@ -45,11 +45,11 @@ DetailedCellData::DetailedCellData(const DataFrame& frame):
    {
       if (m_is_voltage)
       {
-         m_values[k] = frame.getBitField(bit_index, 14) * VOLT_PER_UNIT;
+         m_values[k] = frame.getBitField(bit_index, 13) * VOLT_PER_UNIT;
       }
       else
       {
-         m_values[k] = frame.getSignedBitField(bit_index, 14) * DEGC_PER_UNIT;
+         m_values[k] = frame.getSignedBitField(bit_index, 13) * DEGC_PER_UNIT;
       }
    }
    m_valid = true;
