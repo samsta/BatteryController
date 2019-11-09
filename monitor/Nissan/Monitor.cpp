@@ -18,14 +18,14 @@ struct MaxMin
    float min;
 };
 
-template<class Ty>
-MaxMin findMaxMin(const Ty& instance, float (Ty::*get_value)(unsigned index) const, unsigned num_elements)
+template<typename Class>
+MaxMin findMaxMin(const Class& instance, float (Class::*getter)(unsigned index) const, unsigned num_elements)
 {
-   MaxMin max_min = { (instance.*get_value)(0), (instance.*get_value)(0) };
+   MaxMin max_min = { (instance.*getter)(0), (instance.*getter)(0) };
 
    for (unsigned k = 1; k < num_elements; k++)
    {
-      float v = (instance.*get_value)(k);
+      float v = (instance.*getter)(k);
       if (v > max_min.max) max_min.max = v;
       if (v < max_min.min) max_min.min = v;
    }
