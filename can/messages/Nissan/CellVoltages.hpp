@@ -21,10 +21,12 @@ class CellVoltages
 {
 public:
    CellVoltages(const DataFrame& f);
+   CellVoltages();
 
    bool valid() const;
 
    float getVoltage(unsigned cell_index) const;
+   CellVoltages& setVoltage(unsigned cell_index, float voltage);
 
    enum Constants {
       NUM_CELLS = 96

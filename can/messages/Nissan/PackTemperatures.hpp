@@ -23,10 +23,12 @@ class PackTemperatures
 {
 public:
    PackTemperatures(const DataFrame& f);
+   PackTemperatures();
 
    bool valid() const;
 
    float getTemperature(unsigned pack_index) const;
+   PackTemperatures& setTemperature(unsigned pack_index, float temperature);
 
    enum Constants {
       NUM_PACKS = 4

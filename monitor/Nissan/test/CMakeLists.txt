@@ -1,0 +1,5 @@
+include(GoogleTest)
+
+add_executable(test_monitor_nissan_monitor test_Monitor.cpp)
+target_link_libraries(test_monitor_nissan_monitor monitor can gmock gmock_main)
+add_test(test_monitor_nissan_monitor test_monitor_nissan_monitor)

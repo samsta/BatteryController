@@ -31,6 +31,7 @@ endif()
 
 add_subdirectory(can)
 add_subdirectory(logging)
+add_subdirectory(monitor)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
    # horrible test tool that receives messages

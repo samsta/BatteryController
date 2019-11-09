@@ -28,6 +28,11 @@ PackTemperatures::PackTemperatures(const DataFrame& f): m_valid(false)
    m_valid = true;
 }
 
+PackTemperatures::PackTemperatures(): m_valid(false)
+{
+
+}
+
 bool PackTemperatures::valid() const
 {
    return m_valid;
@@ -37,6 +42,14 @@ float PackTemperatures::getTemperature(unsigned pack_index) const
 {
    if (pack_index >= NUM_PACKS) return NAN;
    return m_temperatures[pack_index];
+}
+
+PackTemperatures& PackTemperatures::setTemperature(unsigned pack_index, float temperature)
+{
+   if (pack_index >= NUM_PACKS) return *this;
+   m_valid = true;
+   m_temperatures[pack_index] = temperature;
+   return *this;
 }
 
 logging::ostream& operator<<(logging::ostream& os, const PackTemperatures& temperatures)

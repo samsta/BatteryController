@@ -30,6 +30,11 @@ CellVoltages::CellVoltages(const DataFrame& f): m_valid(false)
    m_valid = true;
 }
 
+CellVoltages::CellVoltages(): m_valid(false)
+{
+
+}
+
 bool CellVoltages::valid() const
 {
    return m_valid;
@@ -39,6 +44,14 @@ float CellVoltages::getVoltage(unsigned cell_index) const
 {
    if (cell_index >= NUM_CELLS) return NAN;
    return m_voltages[cell_index];
+}
+
+CellVoltages& CellVoltages::setVoltage(unsigned cell_index, float voltage)
+{
+   if (cell_index >= NUM_CELLS) return *this;
+   m_valid = true;
+   m_voltages[cell_index] = voltage;
+   return *this;
 }
 
 logging::ostream& operator<<(logging::ostream& os, const CellVoltages& voltages)
