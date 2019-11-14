@@ -15,6 +15,8 @@
 #include <sys/epoll.h>
 #include <sys/timerfd.h>
 #include <algorithm>
+#include <gpiod.h>
+#include <errno.h>
 
 #include "can/StandardDataFrame.hpp"
 #include "can/services/Nissan/FrameAggregator.hpp"
@@ -25,10 +27,91 @@
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/BatteryState.hpp"
 #include "can/messages/Nissan/Ids.hpp"
+#include "monitor/Nissan/Monitor.hpp"
+
+#include "contactor/Contactor.hpp"
+
+gpiod_line* openOutput(gpiod_chip* chip, unsigned pin, const char* name)
+{
+   gpiod_line* gpio = gpiod_chip_get_line(chip, pin);
+   if (gpio == nullptr)
+   {
+      std::cerr << "failed opening gpiochip pin " << pin << ":" << strerror(errno) << std::endl;
+      return nullptr;
+   }
+   if (gpiod_line_request_output(gpio, name, 0) != 0)
+   {
+      std::cerr << "failed requesting gpiochip pin " << pin << " as output:" << strerror(errno) << std::endl;
+      return nullptr;
+   }
+   return gpio;
+}
+
+class PrintingContactor: public contactor::Contactor
+{
+public:
+   PrintingContactor(int timerfd):
+      m_timerfd(timerfd),
+      m_gpio_chip(nullptr),
+      m_gpio_contactor_neg(nullptr),
+      m_gpio_contactor_pos(nullptr),
+      m_gpio_led1(nullptr)
+   {
+      m_gpio_chip = gpiod_chip_open_by_number(0);
+
+      if(m_gpio_chip == nullptr)
+      {
+         std::cerr << "failed opening gpiochip0:" << strerror(errno) << std::endl;
+         return;
+      }
+
+      m_gpio_contactor_neg = openOutput(m_gpio_chip, 13, "relay_neg");
+      m_gpio_contactor_pos = openOutput(m_gpio_chip, 26, "relay_pos");
+      m_gpio_led1 = openOutput(m_gpio_chip, 4, "led1");
+   }
+
+   virtual void setSafeToOperate(bool safe)
+   {
+      std::cout << ">>> contactor is " << (safe ? "safe" : "unsafe") << " to operate" << std::endl;
+      if (safe)
+      {
+         struct itimerspec its = itimerspec();
+         its.it_value.tv_sec = 3;
+         timerfd_settime(m_timerfd, 0, &its, NULL);
+
+         if (m_gpio_contactor_neg) gpiod_line_set_value(m_gpio_contactor_neg, 1);
+         if (m_gpio_led1) gpiod_line_set_value(m_gpio_led1, 1);
+      }
+      else
+      {
+         if (m_gpio_contactor_neg) gpiod_line_set_value(m_gpio_contactor_neg, 0);
+         if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 0);
+         if (m_gpio_led1) gpiod_line_set_value(m_gpio_led1, 0);
+
+         std::cout << ">>>> contactor opened" << std::endl;
+      }
+   }
+
+   void close()
+   {
+      if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 1);
+      std::cout << ">>>> contactor closed" << std::endl;
+   }
+
+public:
+   int m_timerfd;
+   gpiod_chip* m_gpio_chip;
+   gpiod_line* m_gpio_contactor_neg;
+   gpiod_line* m_gpio_contactor_pos;
+   gpiod_line* m_gpio_led1;
+};
 
 class PrintingSink: public can::FrameSink
 {
 public:
+   PrintingSink(int timerfd): m_contactor(timerfd), m_monitor(m_contactor)
+   {}
+
    virtual void sink(const can::DataFrame& f)
    {
       if (f.id() == 0x7bb)
@@ -38,6 +121,7 @@ public:
          if (voltages.valid())
          {
             std::cout << "<IN>  " << voltages << std::endl;
+            m_monitor.process(voltages);
             return;
          }
 
@@ -45,6 +129,7 @@ public:
          if (temperatures.valid())
          {
             std::cout << "<IN>  " << temperatures << std::endl;
+            m_monitor.process(temperatures);
             return;
          }
 
@@ -63,7 +148,11 @@ public:
          }
       }
    }
+
+   PrintingContactor m_contactor;
+   monitor::Nissan::Monitor m_monitor;
 };
+
 
 class CanSender: public can::FrameSink
 {
@@ -94,7 +183,7 @@ private:
 
 int main(int argc, const char** argv)
 {
-   int s, timer;
+   int s, timer, contactor_timer;
    struct sockaddr_can addr;
    struct ifreq ifr;
 
@@ -147,6 +236,14 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
+   contactor_timer = timerfd_create(CLOCK_MONOTONIC, 0);
+   if (timer == -1)
+   {
+      perror("timerfd_create");
+      exit(EXIT_FAILURE);
+   }
+
+
    struct itimerspec its = itimerspec();
    its.it_interval.tv_nsec = 500000000;
    its.it_value.tv_nsec = 500000000;
@@ -159,7 +256,14 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
-   PrintingSink printing_sink;
+   ev.events = EPOLLIN;
+   ev.data.fd = contactor_timer;
+   if (epoll_ctl(epollfd, EPOLL_CTL_ADD, contactor_timer, &ev) == -1) {
+      perror("epoll_ctl: contactor_timer");
+      exit(EXIT_FAILURE);
+   }
+
+   PrintingSink printing_sink(contactor_timer);
    can::services::Nissan::FrameAggregator aggregator(printing_sink);
    CanSender sender(s);
    can::services::Nissan::GroupPoller poller(sender);
@@ -206,6 +310,12 @@ int main(int argc, const char** argv)
             poller.poll();
             uint64_t num_expirations;
             (void)read(timer, &num_expirations, sizeof(num_expirations));
+         }
+         else if (events[n].data.fd == contactor_timer)
+         {
+            printing_sink.m_contactor.close();
+            uint64_t num_expirations;
+            (void)read(contactor_timer, &num_expirations, sizeof(num_expirations));
          }
       }
    }

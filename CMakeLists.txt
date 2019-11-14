@@ -35,6 +35,19 @@ add_subdirectory(monitor)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
    # horrible test tool that receives messages
+
+   find_file(GPIOD_HEADER gpiod.h)
+   if (GPIOD_HEADER MATCHES "GPIOD_HEADER-NOTFOUND")
+      message(STATUS "Won't build testcan tool because I couldn't find gpiod.h")
+      return()
+   endif()
+
+   find_library(GPIOD_LIBRARY gpiod)
+   if (GPIOD_LIBRARY MATCHES "GPIOD_LIBRARY-NOTFOUND")
+      message(STATUS "Won't build testcan tool because I couldn't find libgpiod")
+      return()
+   endif()
+
    add_executable(testcan testcan.cpp)
-   target_link_libraries(testcan can logging)
+   target_link_libraries(testcan can logging monitor ${GPIOD_LIBRARY})
 endif()
