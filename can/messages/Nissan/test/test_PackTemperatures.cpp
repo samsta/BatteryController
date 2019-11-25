@@ -102,18 +102,34 @@ TEST(PackTemperatures, allTemperaturesMaxAndMin)
    EXPECT_EQ(-128, temperatures.getTemperature(3));
 }
 
+TEST(PackTemperatures, temperature2NaNIfAdcAll1s)
+{
+   DataFrame7bbGroup2 frame;
+   frame.m_data[8] = 0xff;
+   frame.m_data[9] = 0xff;
+
+   PackTemperatures temperatures(frame);
+
+   EXPECT_FALSE(std::isnan(temperatures.getTemperature(0)));
+   EXPECT_FALSE(std::isnan(temperatures.getTemperature(1)));
+   EXPECT_TRUE(std::isnan(temperatures.getTemperature(2)));
+   EXPECT_FALSE(std::isnan(temperatures.getTemperature(3)));
+}
+
+
 TEST(PackTemperatures, toString)
 {
    std::ostringstream string;
    DataFrame7bbGroup2 frame;
    frame.m_data[4]  = -1;
-   frame.m_data[7]  = 2;
+   frame.m_data[5] = 0xff;
+   frame.m_data[6] = 0xff;
    frame.m_data[10] = -3;
    frame.m_data[13] = 4;
 
    PackTemperatures temperatures(frame);
    string << temperatures;
-   EXPECT_EQ(string.str(), "PackTemperatures: -1degC, 2degC, -3degC, 4degC");
+   EXPECT_EQ(string.str(), "PackTemperatures: -1degC, ---, -3degC, 4degC");
 }
 
 

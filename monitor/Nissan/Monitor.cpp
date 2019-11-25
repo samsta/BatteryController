@@ -4,6 +4,7 @@
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/CellVoltages.hpp"
 #include "contactor/Contactor.hpp"
+#include <math.h>
 
 using namespace can::messages::Nissan;
 
@@ -16,18 +17,20 @@ struct MaxMin
 {
    float max;
    float min;
+   int   num_invalid;
 };
 
 template<typename Class>
 MaxMin findMaxMin(const Class& instance, float (Class::*getter)(unsigned index) const, unsigned num_elements)
 {
-   MaxMin max_min = { (instance.*getter)(0), (instance.*getter)(0) };
+   MaxMin max_min = { -100000, 100000, 0 };
 
-   for (unsigned k = 1; k < num_elements; k++)
+   for (unsigned k = 0; k < num_elements; k++)
    {
       float v = (instance.*getter)(k);
       if (v > max_min.max) max_min.max = v;
       if (v < max_min.min) max_min.min = v;
+      if (isnanf(v)) max_min.num_invalid++;
    }
    return max_min;
 }
@@ -69,7 +72,8 @@ void Monitor::process(const can::messages::Nissan::PackTemperatures& temperature
    MaxMin temperature = findMaxMin(temperatures, &PackTemperatures::getTemperature, temperatures.NUM_PACKS);
 
    if (temperature.max < 50 &&
-       temperature.min > 2)
+       temperature.min > 2  &&
+       temperature.num_invalid <= 1)
    {
       m_temperatures_ok = true;
    }

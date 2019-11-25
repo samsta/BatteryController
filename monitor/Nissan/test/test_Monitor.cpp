@@ -103,6 +103,26 @@ TEST_F(MonitorConstructed, contactorDeclaredSafeWithGoodCellVoltagesFollowedByGo
    monitor.process(goodPackTemperatures());
 }
 
+TEST_F(MonitorConstructed, contactorDeclaredSafeWithGoodCellVoltagesFollowedByGoodPackTemperaturesWithOneMissingSensor)
+{
+   EXPECT_CALL(contactor, setSafeToOperate(true));
+
+   monitor.process(goodCellVoltages());
+   monitor.process(goodPackTemperatures()
+                   .setTemperature(0, NAN));
+}
+
+TEST_F(MonitorConstructed, contactorNotDeclaredSafeWithGoodCellVoltagesFollowedByGoodPackTemperaturesWithTwoMissingSensors)
+{
+   EXPECT_CALL(contactor, setSafeToOperate(true)).Times(0);
+
+   monitor.process(goodCellVoltages());
+   monitor.process(goodPackTemperatures()
+                   .setTemperature(0, NAN)
+                   .setTemperature(1, NAN));
+}
+
+
 TEST_F(MonitorConstructed, contactorDeclaredSafeWithGoodPackTemperaturesFollowedByGoodCellVoltages)
 {
    EXPECT_CALL(contactor, setSafeToOperate(true));

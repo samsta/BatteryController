@@ -11,6 +11,11 @@ namespace Nissan {
 namespace {
 
 const unsigned GROUP_SIZE = 16;
+struct __attribute__((__packed__)) Temperature
+{
+   uint16_t raw_adc;
+   int8_t   degc;
+};
 
 }
 
@@ -20,9 +25,19 @@ PackTemperatures::PackTemperatures(const DataFrame& f): m_valid(false)
    if (f.size() != GROUP_SIZE) return;
    if (f.data()[1] != GROUP_PACK_TEMPERATURES) return;
 
+   const Temperature* temperatures(reinterpret_cast<const Temperature*>(&f.data()[2]));
+
    for (unsigned k = 0; k < NUM_PACKS; k++)
    {
-      m_temperatures[k] = int8_t(f.data()[3*k + 4]);
+      if (temperatures[k].raw_adc == 0xFFFF)
+      {
+         // likely no sensor present
+         m_temperatures[k] = NAN;
+      }
+      else
+      {
+         m_temperatures[k] = temperatures[k].degc;
+      }
    }
 
    m_valid = true;
@@ -64,7 +79,14 @@ logging::ostream& operator<<(logging::ostream& os, const PackTemperatures& tempe
       {
          os << ", ";
       }
-      os << temperatures.getTemperature(k) << "degC";
+      if (isnanf(temperatures.getTemperature(k)))
+      {
+         os << "---";
+      }
+      else
+      {
+         os << temperatures.getTemperature(k) << "degC";
+      }
    }
    return os;
 }
