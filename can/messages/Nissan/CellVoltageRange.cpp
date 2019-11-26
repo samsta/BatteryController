@@ -9,38 +9,55 @@ namespace can {
 namespace messages {
 namespace Nissan {
 
-// TODO: get a CAN trace!!!
+namespace {
 
-CellVoltageRange::CellVoltageRange(const DataFrame& f)
+const unsigned BYTE_OFFSET_MAX_VOLTAGE = 12;
+const unsigned BYTE_OFFSET_MIN_VOLTAGE = 14;
+const float VOLTS_PER_UNIT = 0.001;
+const unsigned GROUP_SIZE = 28;
+
+}
+
+CellVoltageRange::CellVoltageRange(const DataFrame& f):
+   m_valid(false),
+   m_min_voltage(NAN),
+   m_max_voltage(NAN)
 {
    if (f.id() != ID_LBC_DATA_REPLY) return;
-//   if (f.size() != GROUP_SIZE) return;
+   if (f.size() != GROUP_SIZE) return;
    if (f.data()[1] != GROUP_CELL_VOLTAGE_RANGE) return;
-#ifdef HAS_STD_IOSTREAM
-   std::cout << "CellVoltageRange size " << f.size();
-   std::cout << " vmax " << f.getUnsignedShort(12) * 0.001;
-   std::cout << " vmin " << f.getUnsignedShort(14) * 0.001;
-   std::cout << std::endl;
-#endif
+   m_max_voltage = f.getUnsignedShort(BYTE_OFFSET_MAX_VOLTAGE) * VOLTS_PER_UNIT;
+   m_min_voltage = f.getUnsignedShort(BYTE_OFFSET_MIN_VOLTAGE) * VOLTS_PER_UNIT;
+   m_valid = true;
 }
 
 bool CellVoltageRange::valid() const
 {
-   return false;
+   return m_valid;
 }
 
 float CellVoltageRange::getMin() const
 {
-   return NAN;
+   return m_min_voltage;
 }
 
 float CellVoltageRange::getMax() const
 {
-   return NAN;
+   return m_max_voltage;
 }
 
-logging::ostream& operator<<(logging::ostream& os, const CellVoltageRange&)
+logging::ostream& operator<<(logging::ostream& os, const CellVoltageRange& v)
 {
+   os << "CellVoltageRange: ";
+   if (v.valid())
+   {
+      os << "min=" << v.getMin() << "V ";
+      os << "max=" << v.getMax() << "V";
+   }
+   else
+   {
+      os << "invalid";
+   }
    return os;
 }
 
