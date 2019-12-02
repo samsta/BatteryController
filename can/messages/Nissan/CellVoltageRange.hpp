@@ -21,11 +21,15 @@ class CellVoltageRange
 {
 public:
    CellVoltageRange(const DataFrame& f);
+   CellVoltageRange();
 
    bool valid() const;
 
    float getMin() const;
+   CellVoltageRange& setMin(float voltage);
+
    float getMax() const;
+   CellVoltageRange& setMax(float voltage);
 
 private:
    bool m_valid;

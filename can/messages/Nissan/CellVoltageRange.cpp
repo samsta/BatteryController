@@ -31,6 +31,13 @@ CellVoltageRange::CellVoltageRange(const DataFrame& f):
    m_valid = true;
 }
 
+CellVoltageRange::CellVoltageRange():
+         m_valid(false),
+         m_min_voltage(NAN),
+         m_max_voltage(NAN)
+{
+}
+
 bool CellVoltageRange::valid() const
 {
    return m_valid;
@@ -41,9 +48,23 @@ float CellVoltageRange::getMin() const
    return m_min_voltage;
 }
 
+CellVoltageRange& CellVoltageRange::setMin(float voltage)
+{
+   m_min_voltage = voltage;
+   m_valid = true;
+   return *this;
+}
+
 float CellVoltageRange::getMax() const
 {
    return m_max_voltage;
+}
+
+CellVoltageRange& CellVoltageRange::setMax(float voltage)
+{
+   m_max_voltage = voltage;
+   m_valid = true;
+   return *this;
 }
 
 logging::ostream& operator<<(logging::ostream& os, const CellVoltageRange& v)

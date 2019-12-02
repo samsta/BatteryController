@@ -31,12 +31,12 @@ public:
    PackTemperatures& setTemperature(unsigned pack_index, float temperature);
 
    enum Constants {
-      NUM_PACKS = 4
+      NUM_SENSORS = 4
    };
 
 private:
    bool m_valid;
-   float m_temperatures[NUM_PACKS];
+   float m_temperatures[NUM_SENSORS];
 };
 
 logging::ostream& operator<<(logging::ostream&, const PackTemperatures&);

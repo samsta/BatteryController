@@ -27,7 +27,7 @@ PackTemperatures::PackTemperatures(const DataFrame& f): m_valid(false)
 
    const Temperature* temperatures(reinterpret_cast<const Temperature*>(&f.data()[2]));
 
-   for (unsigned k = 0; k < NUM_PACKS; k++)
+   for (unsigned k = 0; k < NUM_SENSORS; k++)
    {
       if (temperatures[k].raw_adc == 0xFFFF)
       {
@@ -45,7 +45,6 @@ PackTemperatures::PackTemperatures(const DataFrame& f): m_valid(false)
 
 PackTemperatures::PackTemperatures(): m_valid(false)
 {
-
 }
 
 bool PackTemperatures::valid() const
@@ -55,13 +54,13 @@ bool PackTemperatures::valid() const
 
 float PackTemperatures::getTemperature(unsigned pack_index) const
 {
-   if (pack_index >= NUM_PACKS) return NAN;
+   if (pack_index >= NUM_SENSORS) return NAN;
    return m_temperatures[pack_index];
 }
 
 PackTemperatures& PackTemperatures::setTemperature(unsigned pack_index, float temperature)
 {
-   if (pack_index >= NUM_PACKS) return *this;
+   if (pack_index >= NUM_SENSORS) return *this;
    m_valid = true;
    m_temperatures[pack_index] = temperature;
    return *this;
@@ -73,7 +72,7 @@ logging::ostream& operator<<(logging::ostream& os, const PackTemperatures& tempe
 
    if (not temperatures.valid()) return os << "invalid";
 
-   for (unsigned k = 0; k < PackTemperatures::NUM_PACKS; k++)
+   for (unsigned k = 0; k < PackTemperatures::NUM_SENSORS; k++)
    {
       if (k != 0)
       {

@@ -2,7 +2,7 @@
 
 #include "Monitor.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
-#include "can/messages/Nissan/CellVoltages.hpp"
+#include "can/messages/Nissan/CellVoltageRange.hpp"
 #include "contactor/Contactor.hpp"
 #include <math.h>
 
@@ -13,27 +13,13 @@ namespace Nissan {
 
 namespace {
 
-struct MaxMin
-{
-   float max;
-   float min;
-   int   num_invalid;
-};
+const float CRITICALLY_HIGH_VOLTAGE(4.15);
+const float CRITICALLY_LOW_VOLTAGE(3);
+const float CRITICALLY_HIGH_VOLTAGE_SPREAD(0.1);
 
-template<typename Class>
-MaxMin findMaxMin(const Class& instance, float (Class::*getter)(unsigned index) const, unsigned num_elements)
-{
-   MaxMin max_min = { -100000, 100000, 0 };
-
-   for (unsigned k = 0; k < num_elements; k++)
-   {
-      float v = (instance.*getter)(k);
-      if (v > max_min.max) max_min.max = v;
-      if (v < max_min.min) max_min.min = v;
-      if (isnanf(v)) max_min.num_invalid++;
-   }
-   return max_min;
-}
+const float CRITICALLY_HIGH_TEMPERATURE(50);
+const float CRITICALLY_LOW_TEMPERATURE(2);
+const float MAX_TEMP_SENSORS_MISSING(1);
 
 }
 
@@ -46,15 +32,11 @@ Monitor::Monitor(contactor::Contactor& contactor):
    m_contactor.setSafeToOperate(false);
 }
 
-void Monitor::process(const CellVoltages& voltages)
+void Monitor::process(const CellVoltageRange& voltage_range)
 {
-   if (not voltages.valid()) return;
-
-   MaxMin voltage = findMaxMin(voltages, &CellVoltages::getVoltage, voltages.NUM_CELLS);
-
-   if (voltage.max < 4.15 &&
-       voltage.min > 3    &&
-       (voltage.max - voltage.min) < 0.1)
+   if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE &&
+       voltage_range.getMin() > CRITICALLY_LOW_VOLTAGE    &&
+       (voltage_range.getMax() - voltage_range.getMin()) < CRITICALLY_HIGH_VOLTAGE_SPREAD)
    {
       m_voltages_ok = true;
    }
@@ -69,11 +51,28 @@ void Monitor::process(const can::messages::Nissan::PackTemperatures& temperature
 {
    if (not temperatures.valid()) return;
 
-   MaxMin temperature = findMaxMin(temperatures, &PackTemperatures::getTemperature, temperatures.NUM_PACKS);
+   unsigned num_sensors_missing = 0;
+   float max_temp = NAN, min_temp;
+   for (unsigned k = 0; k < temperatures.NUM_SENSORS; k++)
+   {
+      float temp = temperatures.getTemperature(k);
 
-   if (temperature.max < 50 &&
-       temperature.min > 2  &&
-       temperature.num_invalid <= 1)
+      if (isnanf(max_temp))
+      {
+         min_temp = max_temp = temp;
+      }
+      else
+      {
+         if (temp > max_temp) max_temp = temp;
+         if (temp < min_temp) min_temp = temp;
+      }
+
+      if (isnanf(temp)) num_sensors_missing++;
+   }
+
+   if (max_temp < CRITICALLY_HIGH_TEMPERATURE &&
+       min_temp > CRITICALLY_LOW_TEMPERATURE  &&
+       num_sensors_missing <= MAX_TEMP_SENSORS_MISSING)
    {
       m_temperatures_ok = true;
    }

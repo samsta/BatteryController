@@ -121,7 +121,6 @@ public:
          if (voltages.valid())
          {
             std::cout << "<IN>  " << voltages << std::endl;
-            m_monitor.process(voltages);
             return;
          }
 
@@ -144,6 +143,7 @@ public:
          if (range.valid())
          {
             std::cout << "<IN>  " << range << std::endl;
+            m_monitor.process(range);
             return;
          }
       }
