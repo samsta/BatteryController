@@ -41,4 +41,8 @@ if(SocketCan_FOUND AND LibGpiod_FOUND)
    # horrible test tool that receives messages
    add_executable(testcan testcan.cpp)
    target_link_libraries(testcan can logging monitor ${LibGpiod_LIBRARY})
+   
+   # horrible battery emulator hack
+   add_executable(emulator emulator.cpp)
+   target_link_libraries(emulator can)
 endif()
