@@ -45,4 +45,8 @@ if(SocketCan_FOUND AND LibGpiod_FOUND)
    # horrible battery emulator hack
    add_executable(emulator emulator.cpp)
    target_link_libraries(emulator can)
+
+   # horrible battery emulator hack
+   add_executable(mitm mitm.cpp)
+   target_link_libraries(mitm can)
 endif()
