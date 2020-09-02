@@ -16,6 +16,7 @@
 #include <set>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 uint32_t serial_number = 0;
 std::set<canid_t> filter;
@@ -37,6 +38,56 @@ void redirect(int dest, struct can_frame& frame)
    if (write(dest, &frame, sizeof(frame)) != sizeof(frame))
    {
       perror("Writing CAN frame");
+   }
+}
+
+void processKeyboardInput()
+{
+   char operation;
+   canid_t id;
+   char buf[256] = {0};
+   std::cin.getline(buf, sizeof(buf));
+
+   int count = std::cin.gcount();
+   if (count == 0) return;
+
+   std::stringstream s(buf);
+   s >> operation;
+   s >> std::hex >> id;
+
+   if (s.fail())
+   {
+      std::cout << "Can't extract CAN id from '" << s.str() << "'" << std::endl;
+      return;
+   }
+
+   if (operation == '-')
+   {
+      if (filter.count(id))
+      {
+         std::cout << "Already dropping " << std::hex << std::setfill('0') << std::setw(3) << id << std::dec << std::endl;         
+      }
+      else
+      {
+          filter.insert(id);
+          std::cout << "Going to drop " << std::hex << std::setfill('0') << std::setw(3) << id << std::dec << std::endl;
+      }
+   }
+   else if (operation == '+')
+   {
+      if (filter.count(id))
+      {     
+         filter.erase(id);
+         std::cout << "Won't drop " << std::hex << std::setfill('0') << std::setw(3) << id << std::dec << " anymore" << std::endl;
+      }
+      else
+      {
+         std::cout << "Wasn't dropping " << std::hex << std::setfill('0') << std::setw(3) << id << std::dec << " so no point in enabling it" << std::endl;
+      }
+   }
+   else
+   {
+      std::cout << "Huh?! What did you mean by '" << operation << "'?" << std::endl;
    }
 }
 
@@ -86,7 +137,7 @@ int main(int argc, const char** argv)
       std::cout << "Going to drop " << std::hex << std::setfill('0') << std::setw(3) << id << std::dec << std::endl;
    }
 
-   const unsigned MAX_EVENTS = 2;
+   const unsigned MAX_EVENTS = 4;
    struct epoll_event ev, events[MAX_EVENTS];
    int nfds, epollfd;
 
@@ -109,6 +160,12 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
+   ev.data.fd = fileno(stdin);
+   if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fileno(stdin), &ev) == -1) {
+      perror("epoll_ctl: stdin");
+      exit(EXIT_FAILURE);
+   }
+
    std::cout << "Man in the middle ready on " << argv[1] << " and " << argv[2] << std::endl;
    while (1)
    {
@@ -120,6 +177,12 @@ int main(int argc, const char** argv)
 
       for (int n = 0; n < nfds; ++n)
       {
+         if (events[n].data.fd == fileno(stdin))
+         {
+            processKeyboardInput();
+            continue;
+         }
+
          struct can_frame frame;
          int nbytes = read(events[n].data.fd, &frame, sizeof(struct can_frame));
          
@@ -127,7 +190,7 @@ int main(int argc, const char** argv)
             perror("can raw socket read");
             continue;
          }
-         
+
          if (events[n].data.fd == s1)
          {
             redirect(s2, frame);
