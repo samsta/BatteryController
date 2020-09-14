@@ -73,7 +73,7 @@ TEST(CellVoltages, readNaNForCellsBeyondBounds)
    DataFrame7bbGroup2 frame;
    CellVoltages voltages(frame);
 
-   EXPECT_TRUE(std::isnan(voltages.getVoltage(96)));
+   EXPECT_TRUE(isnan(voltages.getVoltage(96)));
 }
 
 TEST(CellVoltages, unitIs0v001)

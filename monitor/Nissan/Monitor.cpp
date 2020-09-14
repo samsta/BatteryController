@@ -57,7 +57,7 @@ void Monitor::process(const can::messages::Nissan::PackTemperatures& temperature
    {
       float temp = temperatures.getTemperature(k);
 
-      if (isnanf(max_temp))
+      if (isnan(max_temp))
       {
          min_temp = max_temp = temp;
       }
@@ -67,7 +67,7 @@ void Monitor::process(const can::messages::Nissan::PackTemperatures& temperature
          if (temp < min_temp) min_temp = temp;
       }
 
-      if (isnanf(temp)) num_sensors_missing++;
+      if (isnan(temp)) num_sensors_missing++;
    }
 
    if (max_temp < CRITICALLY_HIGH_TEMPERATURE &&

@@ -78,7 +78,7 @@ logging::ostream& operator<<(logging::ostream& os, const PackTemperatures& tempe
       {
          os << ", ";
       }
-      if (isnanf(temperatures.getTemperature(k)))
+      if (isnan(temperatures.getTemperature(k)))
       {
          os << "---";
       }

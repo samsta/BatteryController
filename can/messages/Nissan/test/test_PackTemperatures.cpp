@@ -73,7 +73,7 @@ TEST(PackTemperatures, readNaNForCellsBeyondBounds)
    DataFrame7bbGroup2 frame;
    PackTemperatures temperatures(frame);
 
-   EXPECT_TRUE(std::isnan(temperatures.getTemperature(5)));
+   EXPECT_TRUE(isnan(temperatures.getTemperature(5)));
 }
 
 TEST(PackTemperatures, unitIs1DegC)
@@ -110,10 +110,10 @@ TEST(PackTemperatures, temperature2NaNIfAdcAll1s)
 
    PackTemperatures temperatures(frame);
 
-   EXPECT_FALSE(std::isnan(temperatures.getTemperature(0)));
-   EXPECT_FALSE(std::isnan(temperatures.getTemperature(1)));
-   EXPECT_TRUE(std::isnan(temperatures.getTemperature(2)));
-   EXPECT_FALSE(std::isnan(temperatures.getTemperature(3)));
+   EXPECT_FALSE(isnan(temperatures.getTemperature(0)));
+   EXPECT_FALSE(isnan(temperatures.getTemperature(1)));
+   EXPECT_TRUE(isnan(temperatures.getTemperature(2)));
+   EXPECT_FALSE(isnan(temperatures.getTemperature(3)));
 }
 
 

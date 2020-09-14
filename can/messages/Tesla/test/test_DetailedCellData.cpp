@@ -95,7 +95,7 @@ TEST(DetailedCellData, valueForIndexOutOfBoundReturnsNaN)
 {
    DetailedCellData message(StandardDataFrame("6F2#0000000000000000"));
 
-   EXPECT_TRUE(std::isnan(message.getValue(4)));
+   EXPECT_TRUE(isnan(message.getValue(4)));
 }
 
 TEST(DetailedCellData, Value0AsUnitVoltage)
