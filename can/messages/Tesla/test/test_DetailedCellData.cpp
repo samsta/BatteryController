@@ -14,6 +14,7 @@ const float MIN_TEMPERATURE = -MAX_TEMPERATURE - DEGC_PER_UNIT;
 
 using namespace can;
 using namespace can::messages::Tesla;
+using std::isnan;
 
 std::string toString(const DetailedCellData& d)
 {

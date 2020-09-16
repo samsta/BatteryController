@@ -5,6 +5,7 @@
 
 using namespace can::messages::Nissan;
 using namespace testing;
+using std::isnan;
 
 namespace {
 
