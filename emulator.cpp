@@ -19,6 +19,11 @@
 
 
 #include "can/StandardDataFrame.hpp"
+#include "can/messages/SMA/BatteryAlarms.hpp"
+#include "can/messages/SMA/BatteryErrors.hpp"
+#include "can/messages/SMA/BatteryEvents.hpp"
+
+using namespace can::messages::SMA;
 
 std::deque<can::DataFrame*> send_queue;
 
@@ -52,9 +57,9 @@ void sendPeriodicData()
       can::StandardDataFrame("4D8#1300008000A80200"), // BatteryMeasurements
       can::StandardDataFrame("358#135610FE00A200A2"), // BatteryLimits
       can::StandardDataFrame("3D8#157B2710FFFFFFFF"), // BatteryState
-      can::StandardDataFrame("158#0000000000000000"), // BatteryAlarms
-      can::StandardDataFrame("198#FFFFFFFFFFFFFFFF"), // BatteryErrors
-      can::StandardDataFrame("218#FFFFFFFFFFFFFFFF")  // BatteryEvents
+      BatteryAlarms(),
+      BatteryErrors(),
+      BatteryEvents()
    };
    // periodic data goes to the back of the queue, so we can respond to to
    //  requests from inverter more quickly

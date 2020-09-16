@@ -28,6 +28,21 @@ StandardDataFrame::StandardDataFrame(const char* str): DataFrame(), m_data()
    setSize(num - 2);
 }
 
+StandardDataFrame::StandardDataFrame(uint32_t id, const char* str): DataFrame(), m_data()
+{
+   if (not str) return;
+
+   char dummy;
+   int num = sscanf(str, "%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%c",
+         &m_data[0], &m_data[1], &m_data[2], &m_data[3], &m_data[4], &m_data[5], &m_data[6], &m_data[7], &dummy);
+   
+   if (num > 8) return;
+
+   setId(id);
+   setSize(num);
+}
+
+   
 StandardDataFrame::StandardDataFrame(uint32_t id, const uint8_t data[], unsigned size):
       DataFrame(id, size > sizeof(m_data) ? sizeof(m_data) : size),
       m_data()

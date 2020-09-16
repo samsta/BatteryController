@@ -14,6 +14,7 @@ class StandardDataFrame: public DataFrame
 public:
    StandardDataFrame();
    StandardDataFrame(const char*);
+   StandardDataFrame(uint32_t id, const char*);
    StandardDataFrame(uint32_t id, const uint8_t data[], unsigned size = 8);
 
    virtual const uint8_t* data() const;
