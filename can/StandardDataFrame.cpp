@@ -60,4 +60,9 @@ const uint8_t* StandardDataFrame::data() const
    return m_data;
 }
 
+uint8_t* StandardDataFrame::data()
+{
+   return m_data;
+}
+
 }

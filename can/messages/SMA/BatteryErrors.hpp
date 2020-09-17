@@ -7,9 +7,6 @@
 #include "can/messages/SMA/Ids.hpp"
 
 namespace can {
-
-class DataFrame;
-
 namespace messages {
 namespace SMA {
 

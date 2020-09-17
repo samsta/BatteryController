@@ -6,6 +6,10 @@
 #include <inttypes.h>
 #include "logging/Hex.hpp"
 
+#ifdef HAS_STD_STRING
+#include <sstream>
+#endif
+
 namespace can {
 namespace {
 
@@ -80,6 +84,12 @@ uint16_t DataFrame::getUnsignedShort(unsigned start_byte) const
    return getUnsignedLong(start_byte, 2);
 }
 
+void DataFrame::setUnsignedShort(unsigned start_byte, uint16_t value)
+{
+   data()[start_byte++] = value >> 8;
+   data()[start_byte] = value;
+}
+   
 uint32_t DataFrame::getUnsignedLong(unsigned start_byte, unsigned num_bytes) const
 {
    uint32_t v = 0;
@@ -90,7 +100,15 @@ uint32_t DataFrame::getUnsignedLong(unsigned start_byte, unsigned num_bytes) con
    return v;
 }
 
-
+#ifdef HAS_STD_STRING
+std::string DataFrame::str() const
+{
+   std::stringstream ss;
+   ss << *this;
+   return ss.str();
+}
+#endif
+   
 logging::ostream& operator<<(logging::ostream& os, const DataFrame& frame)
 {
    os << logging::Hex(frame.id()) << "#";

@@ -2,5 +2,6 @@
 #define _CONFIG_H_
 
 #cmakedefine HAS_STD_IOSTREAM
+#cmakedefine HAS_STD_STRING
 
 #endif

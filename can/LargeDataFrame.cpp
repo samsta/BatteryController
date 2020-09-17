@@ -39,6 +39,11 @@ const uint8_t* LargeDataFrame::data() const
    return m_data;
 }
 
+uint8_t* LargeDataFrame::data()
+{
+   return m_data;
+}
+
 bool LargeDataFrame::valid() const
 {
    return m_cur_size == size();

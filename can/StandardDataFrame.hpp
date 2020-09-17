@@ -18,6 +18,7 @@ public:
    StandardDataFrame(uint32_t id, const uint8_t data[], unsigned size = 8);
 
    virtual const uint8_t* data() const;
+   virtual uint8_t* data();
 private:
    uint8_t m_data[8];
 };

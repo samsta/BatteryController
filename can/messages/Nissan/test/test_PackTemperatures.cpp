@@ -23,6 +23,11 @@ public:
       return m_data.data();
    }
 
+   virtual uint8_t* data()
+   {
+      return m_data.data();
+   }
+
    std::vector<uint8_t> m_data;
 };
 

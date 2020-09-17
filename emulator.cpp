@@ -22,6 +22,7 @@
 #include "can/messages/SMA/BatteryAlarms.hpp"
 #include "can/messages/SMA/BatteryErrors.hpp"
 #include "can/messages/SMA/BatteryEvents.hpp"
+#include "can/messages/SMA/BatteryState.hpp"
 
 using namespace can::messages::SMA;
 
@@ -56,7 +57,10 @@ void sendPeriodicData()
    static can::StandardDataFrame periodic_data[] = {
       can::StandardDataFrame("4D8#1300008000A80200"), // BatteryMeasurements
       can::StandardDataFrame("358#135610FE00A200A2"), // BatteryLimits
-      can::StandardDataFrame("3D8#157B2710FFFFFFFF"), // BatteryState
+      BatteryState().setSocPercent(54.5)
+                    .setSohPercent(87.8)
+                    .setEnergyRemainingKwh(46.6)
+                    .setFullChargedEnergyKwh(82.3),
       BatteryAlarms(),
       BatteryErrors(),
       BatteryEvents()

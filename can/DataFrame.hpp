@@ -16,11 +16,14 @@ public:
    virtual bool valid() const;
    unsigned size() const;
    virtual const uint8_t* data() const = 0;
+   virtual uint8_t* data() = 0;
    uint32_t id() const;
    uint64_t getBitField(unsigned start_bit, unsigned num_bits) const;
    int64_t  getSignedBitField(unsigned start_bit, unsigned num_bits) const;
    uint16_t getUnsignedShort(unsigned start_byte) const;
    uint32_t getUnsignedLong(unsigned start_byte, unsigned num_bytes) const;
+
+   void setUnsignedShort(unsigned start_byte, uint16_t val);
 
    enum Constants {
       INVALID_ID = -1
@@ -31,12 +34,16 @@ public:
    const_iterator begin() const;
    const_iterator end() const;
 
+#ifdef HAS_STD_STRING
+   std::string str() const;
+#endif
+   
 protected:
    DataFrame();
    DataFrame(int32_t id, unsigned size);
    void setSize(unsigned size);
    void setId(int32_t id);
-
+   
 private:
    int32_t m_id;
    unsigned m_size;

@@ -16,6 +16,7 @@ public:
 
    void append(const uint8_t* data, unsigned size);
    virtual const uint8_t* data() const;
+   virtual uint8_t* data();
    virtual bool valid() const;
 
 private:
