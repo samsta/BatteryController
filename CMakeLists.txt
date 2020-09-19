@@ -51,4 +51,14 @@ if(SocketCan_FOUND AND LibGpiod_FOUND)
    # horrible battery emulator hack
    add_executable(mitm mitm.cpp)
    target_link_libraries(mitm can)
-endif()
+ endif()
+
+ add_custom_target(vcan_interfaces
+   COMMENT "Bringing up vcan0 and vcan1"
+   COMMAND sudo modprobe vcan
+   COMMAND sudo ip link add dev vcan0 type vcan
+   COMMAND sudo ip link set up vcan0
+   COMMAND sudo ip link add dev vcan1 type vcan
+   COMMAND sudo ip link set up vcan1
+   )
+
