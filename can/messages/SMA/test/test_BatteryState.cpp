@@ -25,5 +25,34 @@ TEST(SmaBatteryState, exampleMessage)
    EXPECT_EQ(StandardDataFrame(ID_BATTERY_STATE, "157B262212342345").str(), battery_state.str());
 }
 
-   
+TEST(SmaBatteryState, percentagesSaturateAtMaximum)
+{
+   BatteryState limit(100, 100, 0, 0);
+   BatteryState below_limit(99.99, 99.99, 0, 0);
+   BatteryState limited(150, 150, 0, 0);
+
+   EXPECT_EQ(limit.str(), limited.str());
+   EXPECT_NE(limit.str(), below_limit.str());
+}
+
+TEST(SmaBatteryState, energiesSaturateAtMaximum)
+{
+   BatteryState limit(0, 0, 655.35, 655.35);
+   BatteryState below_limit(0, 0, 655.34, 655.34);
+   BatteryState limited(0, 0, 1000, 1000);
+
+   EXPECT_EQ(limit.str(), limited.str());
+   EXPECT_NE(limit.str(), below_limit.str());
+   EXPECT_EQ(StandardDataFrame(ID_BATTERY_STATE, "00000000FFFFFFFF").str(), limit.str());
+}
+
+TEST(SmaBatteryState, numbersSaturateAtMinimum)
+{
+   BatteryState limit(0, 0, 0, 0);
+   BatteryState limited(-1, -2, -3, -4);
+
+   EXPECT_EQ(limit.str(), limited.str());
+}
+
+
 }
