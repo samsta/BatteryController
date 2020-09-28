@@ -1,4 +1,5 @@
 target_sources(can PRIVATE BatteryLimits.cpp
+                           BatteryMeasurements.cpp
                            BatteryState.cpp)
 
 if(BUILD_TESTING)

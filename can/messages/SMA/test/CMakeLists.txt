@@ -1,6 +1,7 @@
 include(GoogleTest)
 
 add_executable(test_can_messages_sma test_BatteryEvents.cpp
+                                     test_BatteryMeasurements.cpp
                                      test_BatteryLimits.cpp
                                      test_BatteryState.cpp)
 
