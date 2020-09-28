@@ -23,7 +23,9 @@
 #include "can/messages/SMA/BatteryErrors.hpp"
 #include "can/messages/SMA/BatteryEvents.hpp"
 #include "can/messages/SMA/BatteryLimits.hpp"
+#include "can/messages/SMA/BatteryMeasurements.hpp"
 #include "can/messages/SMA/BatteryState.hpp"
+#include "can/messages/SMA/BatterySystemInfo.hpp"
 
 using namespace can::messages::SMA;
 
@@ -39,7 +41,10 @@ void sendUpdateBlockResponse()
 void sendBatteryIdentification()
 {
    static can::StandardDataFrame battery_id[] = {
-      can::StandardDataFrame("558#1618060400620102"), // BatterySystemInfo
+      BatterySystemInfo().setVersion(370673156)
+                         .setCapacityKwh(9.8)
+                         .setNumberOfModules(1)
+                         .setManufacturerId(2),
       can::StandardDataFrame("598#12345678FFFFFFFF"), // BatteryIdentity
       can::StandardDataFrame("5d8#004D6F6E6B65794C"), // BatteryManufacturer MonkeyL
       can::StandardDataFrame("5d8#0161620000000000"), // BatteryManufacturer ab
@@ -56,7 +61,11 @@ void sendBatteryIdentification()
 void sendPeriodicData()
 {
    static can::StandardDataFrame periodic_data[] = {
-      can::StandardDataFrame("4D8#1300008000A80200"), // BatteryMeasurements
+      BatteryMeasurements().setVoltage(469.9)
+                           .setCurrent(1.6)
+                           .setTemperature(14.1)
+                           .setState(3)
+                           .setInverterControlFlags(0),
       BatteryLimits().setChargeVoltage(495)
                      .setDischargeVoltage(435)
                      .setChargeCurrent(16.2)

@@ -92,7 +92,7 @@ uint16_t DataFrame::getUnsignedShort(unsigned start_byte) const
 void DataFrame::setUnsignedShort(unsigned start_byte, uint16_t value)
 {
    data()[start_byte++] = value >> 8;
-   data()[start_byte] = value;
+   data()[start_byte]   = value;
 }
    
 uint32_t DataFrame::getUnsignedLong(unsigned start_byte, unsigned num_bytes) const
@@ -103,6 +103,14 @@ uint32_t DataFrame::getUnsignedLong(unsigned start_byte, unsigned num_bytes) con
       v = (v<<8) + uint32_t(data()[start_byte++]);
    }
    return v;
+}
+
+void DataFrame::setUnsignedLong(unsigned start_byte, uint32_t value)
+{
+   data()[start_byte++] = value >> 24;
+   data()[start_byte++] = value >> 16;
+   data()[start_byte++] = value >> 8;
+   data()[start_byte]   = value;
 }
 
 #ifdef HAS_STD_STRING

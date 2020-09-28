@@ -24,6 +24,7 @@ public:
    uint32_t getUnsignedLong(unsigned start_byte, unsigned num_bytes) const;
 
    void setUnsignedShort(unsigned start_byte, uint16_t val);
+   void setUnsignedLong(unsigned start_byte, uint32_t val);
    void setByte(unsigned byte_index, uint8_t val);
 
    enum Constants {
