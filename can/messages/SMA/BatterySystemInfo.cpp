@@ -8,26 +8,13 @@ using namespace util;
 namespace can {
 namespace messages {
 namespace SMA {
-namespace {
-
-const float MAX_VALUE = 6553.5;
-const float SCALE = 10;
-
-uint16_t limitAndScale(float v)
-{
-   if (v < 0) return 0;
-   if (v > MAX_VALUE) return 0xFFFF;
-   return v*SCALE;
-}
-
-}
 
 BatterySystemInfo::BatterySystemInfo():
    StandardDataFrame(ID_BATTERY_SYSTEM_INFO, "0000000000000000")
 {
 }
 
-BatterySystemInfo::BatterySystemInfo(unsigned version,
+BatterySystemInfo::BatterySystemInfo(uint32_t version,
                                      float capacity_kwh,
                                      uint8_t number_of_modules,
                                      uint8_t manufacturer_id):
@@ -39,14 +26,14 @@ BatterySystemInfo::BatterySystemInfo(unsigned version,
    setManufacturerId(manufacturer_id);
 }
 
-BatterySystemInfo& BatterySystemInfo::setVersion(unsigned version)
+BatterySystemInfo& BatterySystemInfo::setVersion(uint32_t version)
 {
    setUnsignedLong(0, version);
    return *this;
 }
 BatterySystemInfo& BatterySystemInfo::setCapacityKwh(float capacity_kwh)
 {
-   setUnsignedShort(4, limitAndScale(capacity_kwh));
+   setUnsignedShort(4, limitScaledToUnsignedShort(capacity_kwh, 10));
    return *this;
 }
 

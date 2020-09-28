@@ -17,8 +17,23 @@ template <class T> inline const T& min(const T& a, const T& b) {
 
 template <class T> inline const T& clamp(const T& v, const T& minv, const T& maxv) {
    return min(max(v, minv), maxv);
-}  
-   
+}
+
+inline uint16_t limitScaledToUnsignedShort(float val, unsigned scale)
+{
+   if (val < 0) return 0;
+   if (val*scale > float(UINT16_MAX)) return UINT16_MAX;
+   return val*scale;
+}
+
+inline uint16_t limitScaledToSignedShort(float val, unsigned scale)
+{
+   if (val*scale < float(INT16_MIN)) return INT16_MIN;
+   if (val*scale > float(INT16_MAX)) return INT16_MAX;
+   return val*scale;
+}
+
+
 }
 
 #endif // UTIL_HPP

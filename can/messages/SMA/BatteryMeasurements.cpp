@@ -8,28 +8,6 @@ using namespace util;
 namespace can {
 namespace messages {
 namespace SMA {
-namespace {
-
-const unsigned SCALE = 10;
-const float MAX_UNSIGNED = 6553.5;
-const float MIN_SIGNED = -3276.8;
-const float MAX_SIGNED = 3276.7;
-
-uint16_t limitAndScaleUnsigned(float v)
-{
-   if (v < 0) return 0;
-   if (v > MAX_UNSIGNED) return 0xFFFF;
-   return v*SCALE;
-}
-
-int16_t limitAndScaleSigned(float v)
-{
-   if (v > MAX_SIGNED) return 0x7FFF;
-   if (v < MIN_SIGNED) return 0x8000;
-   return v*SCALE;
-}
-   
-}
 
 BatteryMeasurements::BatteryMeasurements():
    StandardDataFrame(ID_BATTERY_MEASUREMENTS, "0000000000000000")
@@ -52,19 +30,19 @@ BatteryMeasurements::BatteryMeasurements(float voltage,
 
 BatteryMeasurements& BatteryMeasurements::setVoltage(float voltage)
 {
-   setUnsignedShort(0, limitAndScaleUnsigned(voltage));
+   setUnsignedShort(0, limitScaledToUnsignedShort(voltage, 10));
    return *this;
 }
 
 BatteryMeasurements& BatteryMeasurements::setCurrent(float current)
 {
-   setUnsignedShort(2, limitAndScaleSigned(current));
+   setUnsignedShort(2, limitScaledToSignedShort(current, 10));
    return *this;
 }
 
 BatteryMeasurements& BatteryMeasurements::setTemperature(float temperature)
 {
-   setUnsignedShort(4, limitAndScaleSigned(temperature));
+   setUnsignedShort(4, limitScaledToSignedShort(temperature, 10));
    return *this;
 }
 

@@ -14,12 +14,12 @@ class BatterySystemInfo: public StandardDataFrame
 {
 public:
    BatterySystemInfo();
-   BatterySystemInfo(unsigned version,
+   BatterySystemInfo(uint32_t version,
                      float capacity_kwh,
                      uint8_t number_of_modules,
                      uint8_t manufacturer_id);
    
-   BatterySystemInfo& setVersion(unsigned version);
+   BatterySystemInfo& setVersion(uint32_t version);
    BatterySystemInfo& setCapacityKwh(float capacity_kwh);
    BatterySystemInfo& setNumberOfModules(uint8_t number_of_modules);
    BatterySystemInfo& setManufacturerId(uint8_t manufacturer_id);

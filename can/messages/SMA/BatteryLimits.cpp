@@ -8,18 +8,6 @@ using namespace util;
 namespace can {
 namespace messages {
 namespace SMA {
-namespace {
-
-const float MAX_VALUE = 6553.5;
-const unsigned SCALE = 10;
-
-uint16_t limitAndScale(float v)
-{
-   if (v > MAX_VALUE) return 0xFFFF;
-   return max(v, 0.f)*SCALE;
-}
-   
-}
 
 BatteryLimits::BatteryLimits():
    StandardDataFrame(ID_BATTERY_LIMITS, "0000000000000000")
@@ -40,25 +28,25 @@ BatteryLimits::BatteryLimits(float charge_voltage,
 
 BatteryLimits& BatteryLimits::setChargeVoltage(float voltage)
 {
-   setUnsignedShort(0, limitAndScale(voltage));
+   setUnsignedShort(0, limitScaledToUnsignedShort(voltage, 10));
    return *this;
 }
    
 BatteryLimits& BatteryLimits::setDischargeVoltage(float voltage)
 {
-   setUnsignedShort(2, limitAndScale(voltage));
+   setUnsignedShort(2, limitScaledToUnsignedShort(voltage, 10));
    return *this;
 }
    
 BatteryLimits& BatteryLimits::setChargeCurrent(float current)
 {
-   setUnsignedShort(6, limitAndScale(current));
+   setUnsignedShort(6, limitScaledToUnsignedShort(current, 10));
    return *this;
 }
    
 BatteryLimits& BatteryLimits::setDischargeCurrent(float current)
 {
-   setUnsignedShort(4, limitAndScale(current));
+   setUnsignedShort(4, limitScaledToUnsignedShort(current, 10));
    return *this;
 }
 
