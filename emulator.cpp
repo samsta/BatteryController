@@ -24,7 +24,9 @@
 #include "can/messages/SMA/BatteryEvents.hpp"
 #include "can/messages/SMA/BatteryLimits.hpp"
 #include "can/messages/SMA/BatteryIdentity.hpp"
+#include "can/messages/SMA/BatteryManufacturer.hpp"
 #include "can/messages/SMA/BatteryMeasurements.hpp"
+#include "can/messages/SMA/BatteryName.hpp"
 #include "can/messages/SMA/BatteryState.hpp"
 #include "can/messages/SMA/BatterySystemInfo.hpp"
 
@@ -48,10 +50,10 @@ void sendBatteryIdentification()
                          .setManufacturerId(2),
       BatteryIdentity().setSerialNumber(42)
                        .setManufacturingDateUnixTime(1601447304), // Wed Sep 30 19:28:24 NZDT 2020
-      can::StandardDataFrame("5d8#004D6F6E6B65794C"), // BatteryManufacturer MonkeyL
-      can::StandardDataFrame("5d8#0161620000000000"), // BatteryManufacturer ab
-      can::StandardDataFrame("618#0041706553686974"), // BatteryName ApeShit
-      can::StandardDataFrame("618#012044656C757865")  // BatteryName  Deluxe
+      BatteryManufacturer(0, "MonkeyL"),
+      BatteryManufacturer(1, "ab"),
+      BatteryName(0, "ApeShit"),
+      BatteryName(1, " Deluxe")
    };
    for (int k = sizeof(battery_id)/sizeof(*battery_id)-1; k >=0; k--)
    {
