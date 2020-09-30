@@ -1,4 +1,5 @@
-target_sources(can PRIVATE BatteryLimits.cpp
+target_sources(can PRIVATE BatteryIdentity.cpp
+                           BatteryLimits.cpp
                            BatteryMeasurements.cpp
                            BatteryState.cpp
                            BatterySystemInfo.cpp)

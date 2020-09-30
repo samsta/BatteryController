@@ -23,6 +23,7 @@
 #include "can/messages/SMA/BatteryErrors.hpp"
 #include "can/messages/SMA/BatteryEvents.hpp"
 #include "can/messages/SMA/BatteryLimits.hpp"
+#include "can/messages/SMA/BatteryIdentity.hpp"
 #include "can/messages/SMA/BatteryMeasurements.hpp"
 #include "can/messages/SMA/BatteryState.hpp"
 #include "can/messages/SMA/BatterySystemInfo.hpp"
@@ -45,7 +46,8 @@ void sendBatteryIdentification()
                          .setCapacityKwh(9.8)
                          .setNumberOfModules(1)
                          .setManufacturerId(2),
-      can::StandardDataFrame("598#12345678FFFFFFFF"), // BatteryIdentity
+      BatteryIdentity().setSerialNumber(42)
+                       .setManufacturingDateUnixTime(1601447304), // Wed Sep 30 19:28:24 NZDT 2020
       can::StandardDataFrame("5d8#004D6F6E6B65794C"), // BatteryManufacturer MonkeyL
       can::StandardDataFrame("5d8#0161620000000000"), // BatteryManufacturer ab
       can::StandardDataFrame("618#0041706553686974"), // BatteryName ApeShit
