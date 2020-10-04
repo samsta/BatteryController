@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-#ifndef _CAN_FRAMESINK_HPP_
-#define _CAN_FRAMESINK_HPP_
+#ifndef _CAN_FRAMESINK_HPP
+#define _CAN_FRAMESINK_HPP
 
 namespace can {
 

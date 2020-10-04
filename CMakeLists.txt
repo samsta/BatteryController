@@ -37,8 +37,10 @@ else()
 endif()
 
 add_subdirectory(can)
+add_subdirectory(inverter)
 add_subdirectory(logging)
 add_subdirectory(monitor)
+
 
 if(SocketCan_FOUND AND LibGpiod_FOUND)
    # horrible test tool that receives messages
