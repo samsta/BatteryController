@@ -17,11 +17,14 @@ public:
    SunnyBoyStorage(can::FrameSink& sender,
                    core::Timer& timer,
                    monitor::Monitor& monitor);
-   
+   ~SunnyBoyStorage();
 private:
+   void sendBatteryData();
+   
    can::FrameSink&   m_sender;
    core::Timer&      m_timer;
    monitor::Monitor& m_monitor;
+   core::Callback<SunnyBoyStorage> m_periodic_callback;
 };
 
 }

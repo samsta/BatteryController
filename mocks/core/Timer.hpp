@@ -8,8 +8,9 @@ namespace core {
 
 class Timer: public ::core::Timer
 {
-   MOCK_METHOD(void, registerPeriodicCallback, (::core::Invokable& invokable, unsigned period_ms));
-   MOCK_METHOD(void, deregisterCallback, (::core::Invokable& invokable));
+public:
+   MOCK_METHOD(void, registerPeriodicCallback, (::core::Invokable* invokable, unsigned period_ms));
+   MOCK_METHOD(void, deregisterCallback, (::core::Invokable* invokable));
 };
 
 }
