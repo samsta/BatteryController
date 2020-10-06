@@ -132,5 +132,16 @@ logging::ostream& operator<<(logging::ostream& os, const DataFrame& frame)
    return os;
 }
 
+bool DataFrame::operator==(const DataFrame& other) const
+{
+   if (other.id() != id()) return false;
+   if (other.size() != size()) return false;
+   return memcmp(data(), other.data(), size()) == 0;
+}
+
+bool DataFrame::operator!=(const DataFrame& other) const
+{
+   return not operator==(other);
+}
 
 }

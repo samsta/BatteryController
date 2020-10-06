@@ -1,4 +1,7 @@
 #include "SunnyBoyStorage.hpp"
+#include "can/messages/SMA/BatteryState.hpp"
+
+using namespace can::messages::SMA;
 
 namespace inverter {
 namespace SMA {
@@ -21,7 +24,11 @@ SunnyBoyStorage::~SunnyBoyStorage()
 
 void SunnyBoyStorage::sendBatteryData()
 {
-
+   m_sender.sink(BatteryState()
+                 .setSocPercent(m_monitor.getSocPercent())
+                 .setSohPercent(m_monitor.getSohPercent())
+                 .setEnergyRemainingKwh(m_monitor.getEnergyRemainingKwh())
+                 .setFullChargedEnergyKwh(m_monitor.getFullChargedEnergyKwh()));
 }
 
 }

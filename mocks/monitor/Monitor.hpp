@@ -9,7 +9,11 @@ namespace monitor {
 class Monitor: public ::monitor::Monitor
 {
 public:
-   
+
+   MOCK_METHOD(float, getSocPercent, (), (const));
+   MOCK_METHOD(float, getSohPercent, (), (const));
+   MOCK_METHOD(float, getEnergyRemainingKwh, (), (const));
+   MOCK_METHOD(float, getFullChargedEnergyKwh, (), (const));
 };
 
 }

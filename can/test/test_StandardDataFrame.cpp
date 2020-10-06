@@ -220,3 +220,14 @@ TEST(StandardDataFrame, ToString)
    EXPECT_EQ("12345678#0123006789ABFF03", toString(StandardDataFrame("12345678#0123006789Abff03")));
 }
 
+TEST(StandardDataFrame, equality)
+{
+   EXPECT_EQ(StandardDataFrame("123#4567"), StandardDataFrame("123#4567"));
+}
+
+TEST(StandardDataFrame, inequality)
+{
+   EXPECT_NE(StandardDataFrame("12#4567"), StandardDataFrame("123#4567"));
+   EXPECT_NE(StandardDataFrame("123#4566"), StandardDataFrame("123#4567"));
+   EXPECT_NE(StandardDataFrame("123#4567"), StandardDataFrame("123#456789"));
+}

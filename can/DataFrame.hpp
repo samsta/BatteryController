@@ -39,6 +39,9 @@ public:
 #ifdef HAS_STD_STRING
    std::string str() const;
 #endif
+
+   bool operator==(const DataFrame& other) const;
+   bool operator!=(const DataFrame& other) const;
    
 protected:
    DataFrame();
