@@ -3,6 +3,7 @@
 #ifndef _CAN_MESSAGES_NISSAN_PACKTEMPERATURES_HPP_
 #define _CAN_MESSAGES_NISSAN_PACKTEMPERATURES_HPP_
 
+#include "can/messages/Nissan/Message.hpp"
 #include "logging/stream.hpp"
 
 namespace can {
@@ -19,13 +20,11 @@ namespace Nissan {
  *
  * Note that this is using aggregated frames as provided by the FrameAggregator.
  */
-class PackTemperatures
+class PackTemperatures: public Message
 {
 public:
    PackTemperatures(const DataFrame& f);
    PackTemperatures();
-
-   bool valid() const;
 
    float getTemperature(unsigned pack_index) const;
    PackTemperatures& setTemperature(unsigned pack_index, float temperature);
@@ -35,7 +34,6 @@ public:
    };
 
 private:
-   bool m_valid;
    float m_temperatures[NUM_SENSORS];
 };
 

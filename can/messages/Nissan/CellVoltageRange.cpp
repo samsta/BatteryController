@@ -19,28 +19,23 @@ const unsigned GROUP_SIZE = 28;
 }
 
 CellVoltageRange::CellVoltageRange(const DataFrame& f):
-   m_valid(false),
+   Message(GROUP_CELL_VOLTAGE_RANGE),
    m_min_voltage(NAN),
    m_max_voltage(NAN)
 {
    if (f.id() != ID_LBC_DATA_REPLY) return;
    if (f.size() != GROUP_SIZE) return;
-   if (f.data()[1] != GROUP_CELL_VOLTAGE_RANGE) return;
+   if (f.data()[1] != dataGroup()) return;
    m_max_voltage = f.getUnsignedShort(BYTE_OFFSET_MAX_VOLTAGE) * VOLTS_PER_UNIT;
    m_min_voltage = f.getUnsignedShort(BYTE_OFFSET_MIN_VOLTAGE) * VOLTS_PER_UNIT;
-   m_valid = true;
+   setValid();
 }
 
 CellVoltageRange::CellVoltageRange():
-         m_valid(false),
-         m_min_voltage(NAN),
-         m_max_voltage(NAN)
+   Message(GROUP_CELL_VOLTAGE_RANGE),
+   m_min_voltage(NAN),
+   m_max_voltage(NAN)
 {
-}
-
-bool CellVoltageRange::valid() const
-{
-   return m_valid;
 }
 
 float CellVoltageRange::getMin() const
@@ -51,7 +46,7 @@ float CellVoltageRange::getMin() const
 CellVoltageRange& CellVoltageRange::setMin(float voltage)
 {
    m_min_voltage = voltage;
-   m_valid = true;
+   setValid();
    return *this;
 }
 
@@ -63,7 +58,7 @@ float CellVoltageRange::getMax() const
 CellVoltageRange& CellVoltageRange::setMax(float voltage)
 {
    m_max_voltage = voltage;
-   m_valid = true;
+   setValid();
    return *this;
 }
 

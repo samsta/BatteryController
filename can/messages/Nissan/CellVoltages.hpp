@@ -3,6 +3,7 @@
 #ifndef _CAN_MESSAGES_NISSAN_CELLVOLTAGES_HPP_
 #define _CAN_MESSAGES_NISSAN_CELLVOLTAGES_HPP_
 
+#include "can/messages/Nissan/Message.hpp"
 #include "logging/stream.hpp"
 
 namespace can {
@@ -17,13 +18,11 @@ namespace Nissan {
  *
  * Note that this is using aggregated frames as provided by the FrameAggregator.
  */
-class CellVoltages
+class CellVoltages: public Message
 {
 public:
    CellVoltages(const DataFrame& f);
    CellVoltages();
-
-   bool valid() const;
 
    float getVoltage(unsigned cell_index) const;
    CellVoltages& setVoltage(unsigned cell_index, float voltage);
@@ -33,7 +32,6 @@ public:
    };
 
 private:
-   bool m_valid;
    float m_voltages[NUM_CELLS];
 };
 

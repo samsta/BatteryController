@@ -15,7 +15,7 @@ const unsigned GROUP_SIZE = 41;
 }
 
 BatteryState::BatteryState(const DataFrame& f):
-   m_valid(false),
+   Message(GROUP_BATTERY_STATE),
    m_pack_voltage(),
    m_health_pc(),
    m_capacity_ah(),
@@ -23,19 +23,14 @@ BatteryState::BatteryState(const DataFrame& f):
 {
    if (f.id() != ID_LBC_DATA_REPLY) return;
    if (f.size() != GROUP_SIZE) return;
-   if (f.data()[1] != GROUP_BATTERY_STATE) return;
+   if (f.data()[1] != dataGroup()) return;
 
    m_pack_voltage = 0.01 * f.getUnsignedShort(20);
    m_health_pc = 0.01 * f.getUnsignedShort(28);
    m_capacity_ah = 0.0001 * f.getUnsignedLong(35, 3);
    m_soc_pc = 0.0001 * f.getUnsignedLong(31, 3);
 
-   m_valid = true;
-}
-
-bool BatteryState::valid() const
-{
-   return m_valid;
+   setValid();
 }
 
 float BatteryState::getPackVoltage() const

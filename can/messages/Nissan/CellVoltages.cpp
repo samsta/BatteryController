@@ -16,28 +16,22 @@ const unsigned GROUP_SIZE = 198;
 
 }
 
-CellVoltages::CellVoltages(const DataFrame& f): m_valid(false)
+CellVoltages::CellVoltages(const DataFrame& f): Message(GROUP_CELL_VOLTAGES)
 {
    if (f.id() != ID_LBC_DATA_REPLY) return;
    if (f.size() != GROUP_SIZE) return;
-   if (f.data()[1] != GROUP_CELL_VOLTAGES) return;
+   if (f.data()[1] != dataGroup()) return;
 
    for (unsigned k = 0; k < NUM_CELLS; k++)
    {
       m_voltages[k] = VOLTS_PER_UNIT * f.getUnsignedShort((k + 1) * 2);
    }
 
-   m_valid = true;
+   setValid();
 }
 
-CellVoltages::CellVoltages(): m_valid(false)
+CellVoltages::CellVoltages(): Message(GROUP_CELL_VOLTAGES)
 {
-
-}
-
-bool CellVoltages::valid() const
-{
-   return m_valid;
 }
 
 float CellVoltages::getVoltage(unsigned cell_index) const
@@ -49,7 +43,7 @@ float CellVoltages::getVoltage(unsigned cell_index) const
 CellVoltages& CellVoltages::setVoltage(unsigned cell_index, float voltage)
 {
    if (cell_index >= NUM_CELLS) return *this;
-   m_valid = true;
+   setValid();
    m_voltages[cell_index] = voltage;
    return *this;
 }

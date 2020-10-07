@@ -2,6 +2,8 @@
 
 #ifndef _CAN_MESSAGES_NISSAN_BATTERYSTATE_HPP
 #define _CAN_MESSAGES_NISSAN_BATTERYSTATE_HPP
+
+#include "can/messages/Nissan/Message.hpp"
 #include "logging/stream.hpp"
 
 namespace can {
@@ -22,12 +24,10 @@ namespace Nissan {
  *
  * Note that this is using aggregated frames as provided by the FrameAggregator.
  */
-class BatteryState
+class BatteryState: public Message
 {
 public:
    BatteryState(const DataFrame& f);
-
-   bool valid() const;
 
    float getPackVoltage() const;
    float getHealthPercent() const;
@@ -35,7 +35,6 @@ public:
    float getSocPercent() const;
 
 private:
-   float m_valid;
    float m_pack_voltage;
    float m_health_pc;
    float m_capacity_ah;

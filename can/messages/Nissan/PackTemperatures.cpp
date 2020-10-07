@@ -19,11 +19,11 @@ struct __attribute__((__packed__)) Temperature
 
 }
 
-PackTemperatures::PackTemperatures(const DataFrame& f): m_valid(false)
+PackTemperatures::PackTemperatures(const DataFrame& f): Message(GROUP_PACK_TEMPERATURES)
 {
    if (f.id() != ID_LBC_DATA_REPLY) return;
    if (f.size() != GROUP_SIZE) return;
-   if (f.data()[1] != GROUP_PACK_TEMPERATURES) return;
+   if (f.data()[1] != dataGroup()) return;
 
    const Temperature* temperatures(reinterpret_cast<const Temperature*>(&f.data()[2]));
 
@@ -40,16 +40,11 @@ PackTemperatures::PackTemperatures(const DataFrame& f): m_valid(false)
       }
    }
 
-   m_valid = true;
+   setValid();
 }
 
-PackTemperatures::PackTemperatures(): m_valid(false)
+PackTemperatures::PackTemperatures(): Message(GROUP_PACK_TEMPERATURES)
 {
-}
-
-bool PackTemperatures::valid() const
-{
-   return m_valid;
 }
 
 float PackTemperatures::getTemperature(unsigned pack_index) const
@@ -61,7 +56,7 @@ float PackTemperatures::getTemperature(unsigned pack_index) const
 PackTemperatures& PackTemperatures::setTemperature(unsigned pack_index, float temperature)
 {
    if (pack_index >= NUM_SENSORS) return *this;
-   m_valid = true;
+   setValid();
    m_temperatures[pack_index] = temperature;
    return *this;
 }
