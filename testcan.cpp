@@ -128,7 +128,7 @@ public:
          if (temperatures.valid())
          {
             std::cout << "<IN>  " << temperatures << std::endl;
-            m_monitor.process(temperatures);
+            m_monitor.sink(temperatures);
             return;
          }
 
@@ -143,7 +143,7 @@ public:
          if (range.valid())
          {
             std::cout << "<IN>  " << range << std::endl;
-            m_monitor.process(range);
+            m_monitor.sink(range);
             return;
          }
       }

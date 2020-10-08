@@ -32,6 +32,23 @@ Monitor::Monitor(contactor::Contactor& contactor):
    m_contactor.setSafeToOperate(false);
 }
 
+void Monitor::sink(const can::messages::Nissan::Message& message)
+{
+   if (not message.valid()) return;
+
+   switch(message.dataGroup())
+   {
+   case GROUP_CELL_VOLTAGE_RANGE:
+      process(static_cast<const CellVoltageRange&>(message));
+      return;
+   case GROUP_PACK_TEMPERATURES:
+      process(static_cast<const PackTemperatures&>(message));
+      return;
+   default:
+      return;
+   }
+}
+
 void Monitor::process(const CellVoltageRange& voltage_range)
 {
    if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE &&

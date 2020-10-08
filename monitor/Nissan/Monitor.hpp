@@ -10,6 +10,7 @@ class Contactor;
 namespace can {
 namespace messages {
 namespace Nissan {
+class Message;
 class CellVoltageRange;
 class PackTemperatures;
 }
@@ -24,10 +25,11 @@ class Monitor
 public:
    explicit Monitor(contactor::Contactor&);
 
-   void process(const can::messages::Nissan::CellVoltageRange&);
-   void process(const can::messages::Nissan::PackTemperatures&);
+   void sink(const can::messages::Nissan::Message&);
 
 private:
+   void process(const can::messages::Nissan::CellVoltageRange&);
+   void process(const can::messages::Nissan::PackTemperatures&);
    void updateOperationalSafety();
 
    contactor::Contactor& m_contactor;
