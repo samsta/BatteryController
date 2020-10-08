@@ -28,7 +28,7 @@ void SunnyBoyStorage::sendBatteryData()
                  .setSocPercent(m_monitor.getSocPercent())
                  .setSohPercent(m_monitor.getSohPercent())
                  .setEnergyRemainingKwh(m_monitor.getEnergyRemainingKwh())
-                 .setFullChargedEnergyKwh(m_monitor.getFullChargedEnergyKwh()));
+                 .setFullChargedEnergyKwh(m_monitor.getCapacityKwh()));
 }
 
 }

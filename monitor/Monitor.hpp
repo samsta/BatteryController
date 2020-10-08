@@ -13,7 +13,7 @@ public:
    virtual float getSocPercent() const = 0;
    virtual float getSohPercent() const = 0;
    virtual float getEnergyRemainingKwh() const = 0;
-   virtual float getFullChargedEnergyKwh() const = 0;
+   virtual float getCapacityKwh() const = 0;
    
 };
 

@@ -4,10 +4,12 @@
 #include "contactor/Contactor.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/CellVoltageRange.hpp"
+#include "can/messages/Nissan/BatteryState.hpp"
 
 using namespace testing;
 using namespace monitor::Nissan;
 using namespace can::messages::Nissan;
+using std::isnan;
 
 namespace {
 
@@ -255,6 +257,58 @@ TEST_F(MonitorSafeToOperate, contactorDeclaredUnsafeWhenSomeTemperatureInTheMidd
 
    monitor.sink(goodPackTemperatures()
                 .setTemperature(PackTemperatures::NUM_SENSORS / 2, CRITICALLY_LOW_TEMPERATURE));
+}
+
+TEST_F(MonitorConstructed, valuesDefaultToNaN)
+{
+   EXPECT_TRUE(isnan(monitor.getSocPercent()));
+   EXPECT_TRUE(isnan(monitor.getSohPercent()));
+   EXPECT_TRUE(isnan(monitor.getEnergyRemainingKwh()));
+   EXPECT_TRUE(isnan(monitor.getCapacityKwh()));
+}
+
+TEST_F(MonitorConstructed, socCanBeSet)
+{
+   monitor.sink(BatteryState().setSocPercent(12.3));
+   EXPECT_THAT(monitor.getSocPercent(), FloatEq(12.3));
+}
+
+TEST_F(MonitorConstructed, sohCanBeSet)
+{
+   monitor.sink(BatteryState().setHealthPercent(32.1));
+   EXPECT_THAT(monitor.getSohPercent(), FloatEq(32.1));
+}
+
+TEST_F(MonitorConstructed, capacity24kWhAtSoh100pc)
+{
+   monitor.sink(BatteryState().setHealthPercent(100));
+   EXPECT_THAT(monitor.getCapacityKwh(), FloatEq(24));   
+}
+
+TEST_F(MonitorConstructed, capacity2p4kWhAtSoh25pc)
+{
+   monitor.sink(BatteryState().setHealthPercent(10));
+   EXPECT_THAT(monitor.getCapacityKwh(), FloatEq(2.4));   
+}
+
+TEST_F(MonitorConstructed, energyRemaining24kWhAtSoh100pcSoc100pc)
+{
+   monitor.sink(BatteryState().setHealthPercent(100)
+                              .setSocPercent(100));
+   EXPECT_THAT(monitor.getEnergyRemainingKwh(), FloatEq(24));   
+}
+
+TEST_F(MonitorConstructed, energyRemaining12kWhAtSoh50pcSoc100pc)
+{
+   monitor.sink(BatteryState().setHealthPercent(50)
+                              .setSocPercent(100));
+   EXPECT_THAT(monitor.getEnergyRemainingKwh(), FloatEq(12));   
+}
+TEST_F(MonitorConstructed, energyRemaining1p2kWhAtSoh50pcSoc10pc)
+{
+   monitor.sink(BatteryState().setHealthPercent(50)
+                              .setSocPercent(10));
+   EXPECT_THAT(monitor.getEnergyRemainingKwh(), FloatEq(1.2));   
 }
 
 

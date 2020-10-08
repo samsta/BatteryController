@@ -1,8 +1,9 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
 #include "Monitor.hpp"
-#include "can/messages/Nissan/PackTemperatures.hpp"
+#include "can/messages/Nissan/BatteryState.hpp"
 #include "can/messages/Nissan/CellVoltageRange.hpp"
+#include "can/messages/Nissan/PackTemperatures.hpp"
 #include "contactor/Contactor.hpp"
 #include <math.h>
 
@@ -21,13 +22,19 @@ const float CRITICALLY_HIGH_TEMPERATURE(50);
 const float CRITICALLY_LOW_TEMPERATURE(2);
 const float MAX_TEMP_SENSORS_MISSING(1);
 
+const float NOMINAL_CAPACITY_KWH(24);
+
 }
 
 Monitor::Monitor(contactor::Contactor& contactor):
       m_contactor(contactor),
       m_voltages_ok(false),
       m_temperatures_ok(false),
-      m_everything_ok(false)
+      m_everything_ok(false),
+      m_soc_percent(NAN),
+      m_soh_percent(NAN),
+      m_energy_remaining_kwh(NAN),
+      m_capacity_kwh(NAN)
 {
    m_contactor.setSafeToOperate(false);
 }
@@ -43,6 +50,9 @@ void Monitor::sink(const can::messages::Nissan::Message& message)
       return;
    case GROUP_PACK_TEMPERATURES:
       process(static_cast<const PackTemperatures&>(message));
+      return;
+   case GROUP_BATTERY_STATE:
+      process(static_cast<const BatteryState&>(message));
       return;
    default:
       return;
@@ -66,8 +76,6 @@ void Monitor::process(const CellVoltageRange& voltage_range)
 
 void Monitor::process(const can::messages::Nissan::PackTemperatures& temperatures)
 {
-   if (not temperatures.valid()) return;
-
    unsigned num_sensors_missing = 0;
    float max_temp = NAN, min_temp;
    for (unsigned k = 0; k < temperatures.NUM_SENSORS; k++)
@@ -100,6 +108,14 @@ void Monitor::process(const can::messages::Nissan::PackTemperatures& temperature
    updateOperationalSafety();
 }
 
+void Monitor::process(const can::messages::Nissan::BatteryState& battery_state)
+{
+   m_soc_percent = battery_state.getSocPercent();
+   m_soh_percent = battery_state.getHealthPercent();
+   m_capacity_kwh = (NOMINAL_CAPACITY_KWH/100) * m_soh_percent;
+   m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
+}
+
 void Monitor::updateOperationalSafety()
 {
    bool everything_ok = m_voltages_ok && m_temperatures_ok;
@@ -109,6 +125,28 @@ void Monitor::updateOperationalSafety()
    }
    m_everything_ok = everything_ok;
 }
+
+float Monitor::getSocPercent() const
+{
+   return m_soc_percent;
+}
+
+float Monitor::getSohPercent() const
+{
+   return m_soh_percent;
+}
+
+float Monitor::getEnergyRemainingKwh() const
+{
+   return m_energy_remaining_kwh;
+}
+
+float Monitor::getCapacityKwh() const
+{
+   return m_capacity_kwh;
+}
+
+
 
 }
 }

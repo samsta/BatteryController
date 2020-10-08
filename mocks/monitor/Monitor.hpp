@@ -13,7 +13,7 @@ public:
    MOCK_METHOD(float, getSocPercent, (), (const));
    MOCK_METHOD(float, getSohPercent, (), (const));
    MOCK_METHOD(float, getEnergyRemainingKwh, (), (const));
-   MOCK_METHOD(float, getFullChargedEnergyKwh, (), (const));
+   MOCK_METHOD(float, getCapacityKwh, (), (const));
 };
 
 }

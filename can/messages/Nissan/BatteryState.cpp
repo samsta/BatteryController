@@ -33,6 +33,11 @@ BatteryState::BatteryState(const DataFrame& f):
    setValid();
 }
 
+BatteryState::BatteryState():
+   Message(GROUP_BATTERY_STATE)
+{
+}
+
 float BatteryState::getPackVoltage() const
 {
    return m_pack_voltage;
@@ -43,6 +48,13 @@ float BatteryState::getHealthPercent() const
    return m_health_pc;
 }
 
+BatteryState& BatteryState::setHealthPercent(float health)
+{
+   m_health_pc = health;
+   setValid();
+   return *this;
+}
+
 float BatteryState::getCapacityAh() const
 {
    return m_capacity_ah;
@@ -51,6 +63,13 @@ float BatteryState::getCapacityAh() const
 float BatteryState::getSocPercent() const
 {
    return m_soc_pc;
+}
+
+BatteryState& BatteryState::setSocPercent(float soc)
+{
+   m_soc_pc = soc;
+   setValid();
+   return *this;
 }
 
 logging::ostream& operator<<(logging::ostream& os, const BatteryState& state)

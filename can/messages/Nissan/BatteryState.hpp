@@ -28,12 +28,16 @@ class BatteryState: public Message
 {
 public:
    BatteryState(const DataFrame& f);
+   BatteryState();
 
    float getPackVoltage() const;
    float getHealthPercent() const;
    float getCapacityAh() const;
    float getSocPercent() const;
 
+   BatteryState& setHealthPercent(float);
+   BatteryState& setSocPercent(float);
+   
 private:
    float m_pack_voltage;
    float m_health_pc;

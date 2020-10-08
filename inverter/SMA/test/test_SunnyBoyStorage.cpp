@@ -63,7 +63,7 @@ TEST_F(SunnyBoyStorageTest, publishesBatteryStateUponBroadcast)
    EXPECT_CALL(monitor, getSocPercent()).WillOnce(Return(87.6));
    EXPECT_CALL(monitor, getSohPercent()).WillOnce(Return(67.8));
    EXPECT_CALL(monitor, getEnergyRemainingKwh()).WillOnce(Return(123.4));
-   EXPECT_CALL(monitor, getFullChargedEnergyKwh()).WillOnce(Return(567.8));
+   EXPECT_CALL(monitor, getCapacityKwh()).WillOnce(Return(567.8));
 
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryState(87.6, 67.8, 123.4, 567.8))));
    
