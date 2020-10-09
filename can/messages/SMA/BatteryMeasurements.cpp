@@ -17,7 +17,7 @@ BatteryMeasurements::BatteryMeasurements():
 BatteryMeasurements::BatteryMeasurements(float voltage,
                                          float current,
                                          float temperature,
-                                         unsigned state,
+                                         State state,
                                          unsigned inverter_control_flags):
    StandardDataFrame(ID_BATTERY_MEASUREMENTS, "0000000000000000")
 {
@@ -46,7 +46,7 @@ BatteryMeasurements& BatteryMeasurements::setTemperature(float temperature)
    return *this;
 }
 
-BatteryMeasurements& BatteryMeasurements::setState(unsigned state)
+BatteryMeasurements& BatteryMeasurements::setState(State state)
 {
    setByte(6, state);
    return *this;

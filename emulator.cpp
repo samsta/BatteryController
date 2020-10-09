@@ -68,7 +68,7 @@ void sendPeriodicData()
       BatteryMeasurements().setVoltage(469.9)
                            .setCurrent(1.6)
                            .setTemperature(14.1)
-                           .setState(3)
+                           .setState(BatteryMeasurements::CONNECTED)
                            .setInverterControlFlags(0),
       BatteryLimits().setChargeVoltage(495)
                      .setDischargeVoltage(435)

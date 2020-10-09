@@ -20,7 +20,7 @@ TEST(SmaBatteryMeasurements, defaultInitialises)
 
 TEST(SmaBatteryMeasurements, exampleMessage)
 {
-   BatteryMeasurements measurements(469.9, 1.6, 14.1, 3, 0x16);
+   BatteryMeasurements measurements(469.9, 1.6, 14.1, BatteryMeasurements::CONNECTED, 0x16);
 
    EXPECT_EQ(StandardDataFrame(ID_BATTERY_MEASUREMENTS, "125B0010008D0316").str(), measurements.str());
 }

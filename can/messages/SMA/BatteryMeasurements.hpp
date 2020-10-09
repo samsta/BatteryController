@@ -13,17 +13,23 @@ namespace SMA {
 class BatteryMeasurements: public StandardDataFrame
 {
 public:
+   enum State {
+      DISCONNECTED = 2,
+      CONNECTED    = 3,
+      FAULT        = 5
+   };
+
    BatteryMeasurements();
    BatteryMeasurements(float voltage,
                        float current,
                        float temperature,
-                       unsigned state,
+                       State state,
                        unsigned inverter_control_flags);
    
    BatteryMeasurements& setVoltage(float voltage);
    BatteryMeasurements& setCurrent(float current);
    BatteryMeasurements& setTemperature(float temperature);
-   BatteryMeasurements& setState(unsigned state);
+   BatteryMeasurements& setState(State state);
    BatteryMeasurements& setInverterControlFlags(unsigned inverter_control_flags);
 };
 
