@@ -17,7 +17,9 @@ enum Ids {
    ID_BATTERY_SYSTEM_INFO  = 0x558,
    ID_BATTERY_IDENTITY     = 0x598,
    ID_BATTERY_MANUFACTURER = 0x5d8,
-   ID_BATTERY_NAME         = 0x618
+   ID_BATTERY_NAME         = 0x618,
+
+   ID_INVERTER_COMMAND     = 0x360
 };
 
 }

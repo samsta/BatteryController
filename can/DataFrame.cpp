@@ -89,6 +89,11 @@ uint16_t DataFrame::getUnsignedShort(unsigned start_byte) const
    return getUnsignedLong(start_byte, 2);
 }
 
+int16_t DataFrame::getSignedShort(unsigned start_byte) const
+{
+   return getUnsignedShort(start_byte);
+}
+
 void DataFrame::setUnsignedShort(unsigned start_byte, uint16_t value)
 {
    data()[start_byte++] = value >> 8;
