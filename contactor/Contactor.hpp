@@ -11,6 +11,9 @@ public:
    virtual ~Contactor(){}
 
    virtual void setSafeToOperate(bool) = 0;
+   virtual bool isClosed() const = 0;
+   virtual void close() = 0;
+   virtual void open() = 0;
 };
 
 }

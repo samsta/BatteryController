@@ -19,8 +19,11 @@ public:
    };
 
    InverterCommand(const DataFrame&);
+   InverterCommand();
 
    Command getCommand() const;
+   InverterCommand& setCommand(Command);
+   
    float getMeasuredBatteryVoltage() const;
    float getMeasuredBatteryCurrent() const;
    float getMeasuredBatteryTemperature() const;

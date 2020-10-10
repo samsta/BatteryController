@@ -92,7 +92,16 @@ public:
       }
    }
 
-   void close()
+   virtual bool isClosed() const
+   {
+      return false;
+   }
+   
+   virtual void open()
+   {
+   }
+   
+   virtual void close()
    {
       if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 1);
       std::cout << ">>>> contactor closed" << std::endl;

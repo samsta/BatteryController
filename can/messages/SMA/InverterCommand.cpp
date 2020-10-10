@@ -26,10 +26,27 @@ InverterCommand::InverterCommand(const DataFrame& frame):
    m_valid = true;
 }
 
+InverterCommand::InverterCommand():
+      m_command(),
+      m_voltage(),
+      m_current(),
+      m_temperature(),
+      m_valid(false)
+{
+}
+
 InverterCommand::Command InverterCommand::getCommand() const
 {
    return m_command;
 }
+
+InverterCommand& InverterCommand::setCommand(Command command)
+{
+   m_command = command;
+   m_valid = true;
+   return *this;
+}
+      
 
 float InverterCommand::getMeasuredBatteryVoltage() const
 {

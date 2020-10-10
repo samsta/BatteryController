@@ -1,10 +1,12 @@
 #include <gmock/gmock.h>
+#include "can/messages/SMA/BatteryState.hpp"
+#include "can/messages/SMA/InverterCommand.hpp"
+#include "core/Callback.hpp"
 #include "inverter/SMA/SunnyBoyStorage.hpp"
 #include "mocks/can/FrameSink.hpp"
+#include "mocks/contactor/Contactor.hpp"
 #include "mocks/core/Timer.hpp"
 #include "mocks/monitor/Monitor.hpp"
-#include "core/Callback.hpp"
-#include "can/messages/SMA/BatteryState.hpp"
 
 using namespace testing;
 using namespace can::messages::SMA;
@@ -23,11 +25,12 @@ TEST(SunnyBoyStorage, registersAndDeregistersTimerCallbackFor5000MillisecondPeri
    mocks::can::FrameSink sink;
    mocks::core::Timer timer;
    mocks::monitor::Monitor monitor;
-
+   mocks::contactor::Contactor contactor;
+   
    {
       core::Invokable* invokable;
       EXPECT_CALL(timer, registerPeriodicCallback(_, 5000)).WillOnce(SaveArg<0>(&invokable));
-      SunnyBoyStorage sbs(sink, timer, monitor);
+      SunnyBoyStorage sbs(sink, timer, monitor, contactor);
       EXPECT_CALL(timer, deregisterCallback(invokable));
    }
 }
@@ -37,14 +40,15 @@ class SunnyBoyStorageTest: public Test
 public:
    SunnyBoyStorageTest():
       constructor_expectation(timer, &broadcast_callback),
-      sbs(sink, timer, monitor)
+      sbs(sink, timer, monitor, contactor)
    {
    }
 
-   NiceMock<mocks::can::FrameSink>   sink;
-   NiceMock<mocks::core::Timer>      timer;
-   NiceMock<mocks::monitor::Monitor> monitor;
-   core::Invokable*                  broadcast_callback;
+   NiceMock<mocks::can::FrameSink>       sink;
+   NiceMock<mocks::core::Timer>          timer;
+   NiceMock<mocks::monitor::Monitor>     monitor;
+   NiceMock<mocks::contactor::Contactor> contactor;
+   core::Invokable*                      broadcast_callback;
 
    class ConstructorExpectation
    {
@@ -69,6 +73,28 @@ TEST_F(SunnyBoyStorageTest, publishesBatteryStateUponBroadcast)
    
    broadcast_callback->invoke();
 }
+
+TEST_F(SunnyBoyStorageTest, requestsToOpenContactor)
+{
+   EXPECT_CALL(contactor, open());
+
+   sbs.process(InverterCommand().setCommand(InverterCommand::CONNECT));
+}
+
+TEST_F(SunnyBoyStorageTest, requestsToCloseContactor)
+{
+   EXPECT_CALL(contactor, close());
+
+   sbs.process(InverterCommand().setCommand(InverterCommand::DISCONNECT));
+}
+
+TEST_F(SunnyBoyStorageTest, requestsToCloseContactorOnGarbageCommand)
+{
+   EXPECT_CALL(contactor, close());
+
+   sbs.process(InverterCommand().setCommand(InverterCommand::Command(77)));
+}
+
 
 }
 }

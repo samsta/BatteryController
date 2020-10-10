@@ -1,7 +1,7 @@
 #include <gmock/gmock.h>
 #include <limits>
 #include "monitor/Nissan/Monitor.hpp"
-#include "contactor/Contactor.hpp"
+#include "mocks/contactor/Contactor.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/CellVoltageRange.hpp"
 #include "can/messages/Nissan/BatteryState.hpp"
@@ -23,13 +23,6 @@ const float CRITICALLY_HIGH_TEMPERATURE = 50;
 const float CRITICALLY_LOW_TEMPERATURE = 2;
 
 const float TOLERANCE = 0.0001;
-
-
-class TestContactor: public NiceMock<contactor::Contactor>
-{
-public:
-   MOCK_METHOD1(setSafeToOperate, void(bool));
-};
 
 CellVoltageRange goodCellVoltageRange()
 {
@@ -53,7 +46,7 @@ PackTemperatures goodPackTemperatures()
 
 TEST(Monitor, contactorDeclaredUnsafeUponConstruction)
 {
-   TestContactor contactor;
+   NiceMock<mocks::contactor::Contactor> contactor;
 
    EXPECT_CALL(contactor, setSafeToOperate(false));
 
@@ -67,7 +60,7 @@ public:
    {
    }
 
-   TestContactor contactor;
+   NiceMock<mocks::contactor::Contactor> contactor;
    Monitor monitor;
 };
 
