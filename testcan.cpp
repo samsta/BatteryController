@@ -26,10 +26,14 @@
 #include "can/messages/Nissan/CellVoltages.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/BatteryState.hpp"
+#include "can/messages/SMA/InverterCommand.hpp"
 #include "can/messages/Nissan/Ids.hpp"
 #include "monitor/Nissan/Monitor.hpp"
+#include "inverter/SMA/SunnyBoyStorage.hpp"
 
 #include "contactor/Contactor.hpp"
+#include "core/Timer.hpp"
+#include "core/Callback.hpp"
 
 gpiod_line* openOutput(gpiod_chip* chip, unsigned pin, const char* name)
 {
@@ -50,12 +54,21 @@ gpiod_line* openOutput(gpiod_chip* chip, unsigned pin, const char* name)
 class PrintingContactor: public contactor::Contactor
 {
 public:
+   enum State {
+      OPEN,
+      CLOSING,
+      CLOSED
+   };
+   
    PrintingContactor(int timerfd):
       m_timerfd(timerfd),
       m_gpio_chip(nullptr),
       m_gpio_contactor_neg(nullptr),
       m_gpio_contactor_pos(nullptr),
-      m_gpio_led1(nullptr)
+      m_gpio_led1(nullptr),
+      m_safe_to_operate(false),
+      m_requested_state(OPEN),
+      m_state(OPEN)
    {
       m_gpio_chip = gpiod_chip_open_by_number(0);
 
@@ -73,38 +86,67 @@ public:
    virtual void setSafeToOperate(bool safe)
    {
       std::cout << ">>> contactor is " << (safe ? "safe" : "unsafe") << " to operate" << std::endl;
-      if (safe)
-      {
-         struct itimerspec its = itimerspec();
-         its.it_value.tv_sec = 3;
-         timerfd_settime(m_timerfd, 0, &its, NULL);
-
-         if (m_gpio_contactor_neg) gpiod_line_set_value(m_gpio_contactor_neg, 1);
-         if (m_gpio_led1) gpiod_line_set_value(m_gpio_led1, 1);
-      }
-      else
-      {
-         if (m_gpio_contactor_neg) gpiod_line_set_value(m_gpio_contactor_neg, 0);
-         if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 0);
-         if (m_gpio_led1) gpiod_line_set_value(m_gpio_led1, 0);
-
-         std::cout << ">>>> contactor opened" << std::endl;
-      }
+      m_safe_to_operate = safe;
+      update();
    }
 
    virtual bool isClosed() const
    {
-      return false;
+      return m_state == CLOSED;
    }
    
    virtual void open()
    {
+      m_requested_state = OPEN;
+      update();
    }
    
    virtual void close()
    {
+      m_requested_state = CLOSED;
+      update();
+   }
+
+   void openBoth()
+   {
+      if (m_gpio_contactor_neg) gpiod_line_set_value(m_gpio_contactor_neg, 0);
+      if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 0);
+      if (m_gpio_led1) gpiod_line_set_value(m_gpio_led1, 0);
+      
+      std::cout << ">>>> contactor opened" << std::endl;
+      m_state = OPEN;
+   }
+
+   void update()
+   {
+      std::cout << m_safe_to_operate << m_requested_state << m_state << std::endl;
+      if (m_safe_to_operate && m_requested_state == CLOSED)
+      {
+         if (m_state == OPEN) closeNegative();
+      }
+      else if (not m_safe_to_operate or m_requested_state == OPEN)
+      {
+         if (m_state != OPEN) openBoth();
+      }
+   }
+   
+   void closeNegative()
+   {
+      m_state = CLOSING;
+      std::cout << ">>>> contactor closing..." << std::endl;
+      struct itimerspec its = itimerspec();
+      its.it_value.tv_sec = 3;
+      timerfd_settime(m_timerfd, 0, &its, NULL);
+      
+      if (m_gpio_contactor_neg) gpiod_line_set_value(m_gpio_contactor_neg, 1);
+      if (m_gpio_led1) gpiod_line_set_value(m_gpio_led1, 1);
+   }
+   
+   void closePositive()
+   {
       if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 1);
       std::cout << ">>>> contactor closed" << std::endl;
+      m_state = CLOSED;
    }
 
 public:
@@ -113,66 +155,101 @@ public:
    gpiod_line* m_gpio_contactor_neg;
    gpiod_line* m_gpio_contactor_pos;
    gpiod_line* m_gpio_led1;
+   bool m_safe_to_operate;
+   State m_requested_state;
+   State m_state;
 };
 
-class PrintingSink: public can::FrameSink
+class NissanSink: public can::FrameSink
 {
 public:
-   PrintingSink(int timerfd): m_contactor(timerfd), m_monitor(m_contactor)
+   NissanSink(monitor::Nissan::Monitor& monitor): m_monitor(monitor)
    {}
 
    virtual void sink(const can::DataFrame& f)
    {
       if (f.id() == 0x7bb)
       {
-         can::messages::Nissan::CellVoltages voltages(f);
-
-         if (voltages.valid())
          {
-            std::cout << "<IN>  " << voltages << std::endl;
-            return;
+            can::messages::Nissan::CellVoltages voltages(f);
+            if (voltages.valid())
+            {
+               std::cout << "<BAT IN>  " << voltages << std::endl;
+               m_monitor.sink(voltages);
+               return;
+            }
          }
 
-         can::messages::Nissan::PackTemperatures temperatures(f);
-         if (temperatures.valid())
          {
-            std::cout << "<IN>  " << temperatures << std::endl;
-            m_monitor.sink(temperatures);
-            return;
+            can::messages::Nissan::PackTemperatures temperatures(f);
+            if (temperatures.valid())
+            {
+               std::cout << "<BAT IN>  " << temperatures << std::endl;
+               m_monitor.sink(temperatures);
+               return;
+            }
          }
 
-         can::messages::Nissan::BatteryState state(f);
-         if (state.valid())
          {
-            std::cout << "<IN>  " << state << std::endl;
-            return;
+            can::messages::Nissan::BatteryState state(f);
+            if (state.valid())
+            {
+               std::cout << "<BAT IN>  " << state << std::endl;
+               m_monitor.sink(state);
+               return;
+            }
          }
 
-         can::messages::Nissan::CellVoltageRange range(f);
-         if (range.valid())
          {
-            std::cout << "<IN>  " << range << std::endl;
-            m_monitor.sink(range);
-            return;
+            can::messages::Nissan::CellVoltageRange range(f);
+            if (range.valid())
+            {
+               std::cout << "<BAT IN>  " << range << std::endl;
+               m_monitor.sink(range);
+               return;
+            }
          }
       }
    }
 
-   PrintingContactor m_contactor;
-   monitor::Nissan::Monitor m_monitor;
+   monitor::Nissan::Monitor& m_monitor;
+};
+
+class SmaSink: public can::FrameSink
+{
+public:
+   SmaSink(inverter::SMA::SunnyBoyStorage& inverter): m_inverter(inverter)
+   {
+   }
+   
+   virtual void sink(const can::DataFrame& f)
+   {
+      {
+         can::messages::SMA::InverterCommand command(f);
+         if (command.valid())
+         {
+            std::cout << "<INV IN>  " << command << std::endl;
+            m_inverter.process(command);
+            return;
+         }
+      }
+
+   }
+
+   inverter::SMA::SunnyBoyStorage& m_inverter;
 };
 
 
 class CanSender: public can::FrameSink
 {
 public:
-   CanSender(int fd): m_fd(fd)
+   CanSender(int fd, const char* name): m_fd(fd), m_name(name)
    {
    }
 
    virtual void sink(const can::DataFrame& f)
    {
-      std::cout << "<OUT> " << f << std::endl;
+      std::cout << "<" << m_name << " OUT> " << f << std::endl;
 
       struct can_frame frame;
       frame.can_id = f.id();
@@ -185,43 +262,97 @@ public:
       }
    }
 
-
 private:
    int m_fd;
+   const char* m_name;
 };
 
-int main(int argc, const char** argv)
+class EpollTimer: public core::Timer
 {
-   int s, timer, contactor_timer;
-   struct sockaddr_can addr;
-   struct ifreq ifr;
-
-   if (argc != 2)
+public:
+   EpollTimer(int epoll_fd):
+      m_epoll_fd(epoll_fd)
    {
-      fprintf(stderr, "usage: %s <can_interface>\n", argv[0]);
-      return 1;
+      m_fd = timerfd_create(CLOCK_MONOTONIC, 0);
+   }
+   
+   virtual void registerPeriodicCallback(core::Invokable* invokable, unsigned period_ms)
+   {
+      int sec = period_ms / 1000;
+      int ms  = period_ms % 1000;
+      struct itimerspec its = itimerspec();
+      its.it_interval.tv_nsec = ms * 1000000;
+      its.it_interval.tv_sec  = sec;
+      its.it_value = its.it_interval;
+      timerfd_settime(m_fd, 0, &its, NULL);
+      
+      struct epoll_event ev;
+      ev.events = EPOLLIN;
+      ev.data.fd = m_fd;
+      if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_fd, &ev) == -1) {
+         perror("epoll_ctl: timer");
+         exit(EXIT_FAILURE);
+      }
+      m_invokable = invokable;
+   }
+   
+   virtual void deregisterCallback(core::Invokable*){}
+
+   void expired()
+   {
+      uint64_t num_expirations;
+      (void)read(m_fd, &num_expirations, sizeof(num_expirations));
+      m_invokable->invoke();
    }
 
-   s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+   int m_epoll_fd;
+   int m_fd;
+   core::Invokable* m_invokable;
+};
 
-   strcpy(ifr.ifr_name, argv[1] );
-   ioctl(s, SIOCGIFINDEX, &ifr);
+int openSocket(const char* name)
+{
+   struct sockaddr_can addr;
+   struct ifreq ifr;
+   int s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
 
+   strcpy(ifr.ifr_name, name);
+   if (ioctl(s, SIOCGIFINDEX, &ifr) != 0)
+   {
+      std::cerr << "Error ioctl'ing on socket " << name << ":" << strerror(errno) << std::endl;
+      exit(EXIT_FAILURE);
+   }
    addr.can_family = AF_CAN;
    addr.can_ifindex = ifr.ifr_ifindex;
 
-   bind(s, (struct sockaddr *)&addr, sizeof(addr));
+   if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) != 0)
+   {
+      std::cerr << "Error binding to socket " << name << ":" << strerror(errno) << std::endl;
+      exit(EXIT_FAILURE);
+   }
+   return s;
+}
 
-   struct can_filter rfilter[2];
+int main(int argc, const char** argv)
+{
+   int battery_socket, inverter_socket, contactor_timer, poll_timer;
+
+   if (argc != 3)
+   {
+      fprintf(stderr, "usage: %s <can_interface_battery> <can_interface_inverter>\n", argv[0]);
+      return 1;
+   }
+
+   battery_socket = openSocket(argv[1]);
+   inverter_socket = openSocket(argv[2]);
+
+   struct can_filter rfilter[1];
    rfilter[0].can_id   = 0x7bb;
    rfilter[0].can_mask = CAN_SFF_MASK;
-   rfilter[1].can_id   = 0x6f2;
-   rfilter[1].can_mask = CAN_SFF_MASK;
 
-   setsockopt(s, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
+   setsockopt(battery_socket, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
 
-
-   const unsigned MAX_EVENTS = 2;
+   const unsigned MAX_EVENTS = 10;
    struct epoll_event ev, events[MAX_EVENTS];
    int nfds, epollfd;
 
@@ -232,36 +363,21 @@ int main(int argc, const char** argv)
    }
 
    ev.events = EPOLLIN;
-   ev.data.fd = s;
-   if (epoll_ctl(epollfd, EPOLL_CTL_ADD, s, &ev) == -1) {
+   ev.data.fd = battery_socket;
+   if (epoll_ctl(epollfd, EPOLL_CTL_ADD, battery_socket, &ev) == -1) {
+      perror("epoll_ctl: can socket");
+      exit(EXIT_FAILURE);
+   }
+   ev.data.fd = inverter_socket;
+   if (epoll_ctl(epollfd, EPOLL_CTL_ADD, inverter_socket, &ev) == -1) {
       perror("epoll_ctl: can socket");
       exit(EXIT_FAILURE);
    }
 
-   timer = timerfd_create(CLOCK_MONOTONIC, 0);
-   if (timer == -1)
-   {
-      perror("timerfd_create");
-      exit(EXIT_FAILURE);
-   }
-
    contactor_timer = timerfd_create(CLOCK_MONOTONIC, 0);
-   if (timer == -1)
+   if (contactor_timer == -1)
    {
       perror("timerfd_create");
-      exit(EXIT_FAILURE);
-   }
-
-
-   struct itimerspec its = itimerspec();
-   its.it_interval.tv_nsec = 500000000;
-   its.it_value.tv_nsec = 500000000;
-   timerfd_settime(timer, 0, &its, NULL);
-
-   ev.events = EPOLLIN;
-   ev.data.fd = timer;
-   if (epoll_ctl(epollfd, EPOLL_CTL_ADD, timer, &ev) == -1) {
-      perror("epoll_ctl: timer");
       exit(EXIT_FAILURE);
    }
 
@@ -272,11 +388,37 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
-   PrintingSink printing_sink(contactor_timer);
-   can::services::Nissan::FrameAggregator aggregator(printing_sink);
-   CanSender sender(s);
-   can::services::Nissan::GroupPoller poller(sender);
+   poll_timer = timerfd_create(CLOCK_MONOTONIC, 0);
+   if (poll_timer == -1)
+   {
+      perror("timerfd_create");
+      exit(EXIT_FAILURE);
+   }
+   struct itimerspec its = itimerspec();
+   its.it_interval.tv_nsec = 0;
+   its.it_interval.tv_sec = 1;
+   its.it_value = its.it_interval;
+   timerfd_settime(poll_timer, 0, &its, NULL);
 
+   ev.events = EPOLLIN;
+   ev.data.fd = poll_timer;
+   if (epoll_ctl(epollfd, EPOLL_CTL_ADD, poll_timer, &ev) == -1) {
+      perror("epoll_ctl: poll_timer");
+      exit(EXIT_FAILURE);
+   }
+   
+   PrintingContactor contactor(contactor_timer);
+   monitor::Nissan::Monitor monitor(contactor);
+   NissanSink battery_sink(monitor);
+   can::services::Nissan::FrameAggregator aggregator(battery_sink);
+   CanSender battery_sender(battery_socket, "BAT");
+   can::services::Nissan::GroupPoller poller(battery_sender);
+
+   CanSender inverter_sender(inverter_socket, "INV");
+   EpollTimer inverter_timer(epollfd);
+   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, inverter_timer, monitor, contactor);
+   SmaSink inverter_sink(inverter);
+   
    while (1)
    {
       nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
@@ -287,10 +429,11 @@ int main(int argc, const char** argv)
 
       for (int n = 0; n < nfds; ++n)
       {
-         if (events[n].data.fd == s)
+         if (events[n].data.fd == battery_socket ||
+             events[n].data.fd == inverter_socket)
          {
             struct can_frame frame;
-            int nbytes = read(s, &frame, sizeof(struct can_frame));
+            int nbytes = read(events[n].data.fd, &frame, sizeof(struct can_frame));
 
             if (nbytes < 0) {
                     perror("can raw socket read");
@@ -302,27 +445,32 @@ int main(int argc, const char** argv)
                     fprintf(stderr, "read: incomplete CAN frame\n");
                     return 1;
             }
-
+            
             can::StandardDataFrame f(frame.can_id, frame.data, frame.can_dlc);
 
-            can::messages::Tesla::DetailedCellData d(f);
-            if (d.valid())
-            {
-               std::cout << d << std::endl;
+            if (events[n].data.fd == battery_socket)
+            {            
+               poller.received(f);
+               aggregator.sink(f);
             }
-
-            poller.received(f);
-            aggregator.sink(f);
+            else
+            {
+               inverter_sink.sink(f);
+            }
          }
-         else if (events[n].data.fd == timer)
+         else if (events[n].data.fd == inverter_timer.m_fd)
+         {
+            inverter_timer.expired();
+         }
+         else if (events[n].data.fd == poll_timer)
          {
             poller.poll();
             uint64_t num_expirations;
-            (void)read(timer, &num_expirations, sizeof(num_expirations));
+            (void)read(poll_timer, &num_expirations, sizeof(num_expirations));
          }
          else if (events[n].data.fd == contactor_timer)
          {
-            printing_sink.m_contactor.close();
+            contactor.closePositive();
             uint64_t num_expirations;
             (void)read(contactor_timer, &num_expirations, sizeof(num_expirations));
          }
