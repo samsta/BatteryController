@@ -74,23 +74,23 @@ TEST_F(SunnyBoyStorageTest, publishesBatteryStateUponBroadcast)
    broadcast_callback->invoke();
 }
 
-TEST_F(SunnyBoyStorageTest, requestsToOpenContactor)
-{
-   EXPECT_CALL(contactor, open());
-
-   sbs.process(InverterCommand().setCommand(InverterCommand::CONNECT));
-}
-
 TEST_F(SunnyBoyStorageTest, requestsToCloseContactor)
 {
    EXPECT_CALL(contactor, close());
 
+   sbs.process(InverterCommand().setCommand(InverterCommand::CONNECT));
+}
+
+TEST_F(SunnyBoyStorageTest, requestsToOpenContactor)
+{
+   EXPECT_CALL(contactor, open());
+
    sbs.process(InverterCommand().setCommand(InverterCommand::DISCONNECT));
 }
 
-TEST_F(SunnyBoyStorageTest, requestsToCloseContactorOnGarbageCommand)
+TEST_F(SunnyBoyStorageTest, requestsToOpenContactorOnGarbageCommand)
 {
-   EXPECT_CALL(contactor, close());
+   EXPECT_CALL(contactor, open());
 
    sbs.process(InverterCommand().setCommand(InverterCommand::Command(77)));
 }

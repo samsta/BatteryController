@@ -38,11 +38,11 @@ void SunnyBoyStorage::process(const InverterCommand& command)
 {
    if (command.getCommand() == InverterCommand::CONNECT)
    {
-      m_contactor.open();
+      m_contactor.close();
    }
    else
    {
-      m_contactor.close();
+      m_contactor.open();
    }
 }
 
