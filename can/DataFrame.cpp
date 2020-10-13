@@ -84,6 +84,11 @@ void DataFrame::setByte(unsigned byte_index, uint8_t value)
    data()[byte_index] = value;
 }
 
+uint8_t DataFrame::getByte(unsigned byte_index) const
+{
+   return data()[byte_index];
+}
+
 uint16_t DataFrame::getUnsignedShort(unsigned start_byte) const
 {
    return getUnsignedLong(start_byte, 2);

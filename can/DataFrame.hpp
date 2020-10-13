@@ -19,9 +19,10 @@ public:
    virtual uint8_t* data() = 0;
    uint32_t id() const;
    uint64_t getBitField(unsigned start_bit, unsigned num_bits) const;
+   uint8_t  getByte(unsigned byte_index) const;
    int64_t  getSignedBitField(unsigned start_bit, unsigned num_bits) const;
    uint16_t getUnsignedShort(unsigned start_byte) const;
-   int16_t getSignedShort(unsigned start_byte) const;
+   int16_t  getSignedShort(unsigned start_byte) const;
    uint32_t getUnsignedLong(unsigned start_byte, unsigned num_bytes) const;
 
    void setUnsignedShort(unsigned start_byte, uint16_t val);
