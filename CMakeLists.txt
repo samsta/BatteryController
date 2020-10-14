@@ -8,7 +8,6 @@ set(HAS_STD_STRING   TRUE CACHE BOOL "std::string is available")
 set(ARDUINO_BOARD "diecimila" CACHE STRING "Arduino board to build for")
 set(ARDUINO_CPU "atmega328" CACHE STRING "Arduino CPU on ARDUINO_BOARD")
 set(MEMORYCHECK_SUPPRESSIONS_FILE "${CMAKE_SOURCE_DIR}/valgrind.supp")
-set(CTEST_OUTPUT_ON_FAILURE TRUE)
 
 find_package(SocketCan)
 find_package(LibGpiod)
@@ -32,6 +31,8 @@ if(BUILD_TESTING)
     COMMAND ${CMAKE_CTEST_COMMAND}
         --output-on-failure --force-new-ctest-process --test-action memcheck -DMEMORYCHECK_SUPPRESSIONS_FILE="${CMAKE_SOURCE_DIR}/valgrind.supp"
     COMMAND cat "${CMAKE_BINARY_DIR}/Testing/Temporary/MemoryChecker.*.log")
+  add_custom_target(check
+    COMMAND env GTEST_COLOR=1 ${CMAKE_CTEST_COMMAND} --output-on-failure)
 else()
   message(STATUS "NOT building tests")
 endif()
