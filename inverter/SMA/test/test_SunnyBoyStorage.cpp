@@ -1,6 +1,12 @@
 #include <gmock/gmock.h>
+#include "can/messages/SMA/BatteryIdentity.hpp"
+#include "can/messages/SMA/BatteryManufacturer.hpp"
+#include "can/messages/SMA/BatteryName.hpp"
 #include "can/messages/SMA/BatteryState.hpp"
+#include "can/messages/SMA/BatterySystemInfo.hpp"
+#include "can/messages/SMA/Ids.hpp"
 #include "can/messages/SMA/InverterCommand.hpp"
+#include "can/messages/SMA/InverterIdentity.hpp"
 #include "core/Callback.hpp"
 #include "inverter/SMA/SunnyBoyStorage.hpp"
 #include "mocks/can/FrameSink.hpp"
@@ -10,6 +16,7 @@
 
 using namespace testing;
 using namespace can::messages::SMA;
+using namespace can;
 
 namespace inverter {
 namespace SMA {
@@ -93,6 +100,62 @@ TEST_F(SunnyBoyStorageTest, requestsToOpenContactorOnGarbageCommand)
    EXPECT_CALL(contactor, open());
 
    sbs.process(InverterCommand().setCommand(InverterCommand::Command(77)));
+}
+
+TEST_F(SunnyBoyStorageTest, sendsBatterySystemInfoOnInverterIdentityReceived)
+{
+   EXPECT_CALL(monitor, getSystemVersion()).WillOnce(Return(123456));
+   EXPECT_CALL(monitor, getNominalCapacityKwh()).WillOnce(Return(42));
+   EXPECT_CALL(monitor, getNumberOfModules()).WillOnce(Return(7));
+   
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatterySystemInfo(123456, 42, 7, 2))));
+   
+   sbs.process(InverterIdentity());
+}
+
+TEST_F(SunnyBoyStorageTest, sendsIdentityOnInverterIdentityReceived)
+{
+   EXPECT_CALL(monitor, getSerialNumber()).WillOnce(Return(123456));
+   EXPECT_CALL(monitor, getManufacturingDateUnixTime()).WillOnce(Return(987654));
+   
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryIdentity(123456, 987654))));
+   
+   sbs.process(InverterIdentity());
+}
+
+TEST_F(SunnyBoyStorageTest, sendsManufacturerNameOnInverterIdentityReceived)
+{
+   EXPECT_CALL(monitor, getManufacturerName()).WillOnce(Return("abcdefghijklmnop"));
+   
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(0, "abcdefg"))));
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(1, "hijklmn"))));
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(2, "op"))));
+   
+   sbs.process(InverterIdentity());
+}
+
+TEST_F(SunnyBoyStorageTest, sendsShortManufacturerNameOnInverterIdentityReceived)
+{
+   EXPECT_CALL(monitor, getManufacturerName()).WillOnce(Return("ab"));
+   
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(0, "ab"))));
+   
+   sbs.process(InverterIdentity());
+}
+
+TEST_F(SunnyBoyStorageTest, sendBatteryNameOnInverterIdentityReceived)
+{
+   EXPECT_CALL(monitor, getBatteryName()).WillOnce(Return("qwertyuiop"));
+   
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryName(0, "qwertyu"))));
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryName(1, "iop"))));
+   
+   sbs.process(InverterIdentity());
 }
 
 

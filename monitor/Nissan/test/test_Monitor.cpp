@@ -297,12 +297,14 @@ TEST_F(MonitorConstructed, energyRemaining12kWhAtSoh50pcSoc100pc)
                               .setSocPercent(100));
    EXPECT_THAT(monitor.getEnergyRemainingKwh(), FloatEq(12));   
 }
+
 TEST_F(MonitorConstructed, energyRemaining1p2kWhAtSoh50pcSoc10pc)
 {
    monitor.sink(BatteryState().setHealthPercent(50)
                               .setSocPercent(10));
    EXPECT_THAT(monitor.getEnergyRemainingKwh(), FloatEq(1.2));   
 }
+
 
 
 }

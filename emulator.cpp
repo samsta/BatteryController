@@ -178,7 +178,7 @@ int main(int argc, const char** argv)
    ev.events = EPOLLIN;
    ev.data.fd = refill_timer;
    if (epoll_ctl(epollfd, EPOLL_CTL_ADD, refill_timer, &ev) == -1) {
-      perror("epoll_ctl: contactor_timer");
+      perror("epoll_ctl: refill_timer");
       exit(EXIT_FAILURE);
    }
 

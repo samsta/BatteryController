@@ -23,6 +23,7 @@ const float CRITICALLY_LOW_TEMPERATURE(2);
 const float MAX_TEMP_SENSORS_MISSING(1);
 
 const float NOMINAL_CAPACITY_KWH(24);
+const unsigned NUM_MODULES(24);
 
 }
 
@@ -145,6 +146,42 @@ float Monitor::getCapacityKwh() const
 {
    return m_capacity_kwh;
 }
+
+uint32_t Monitor::getSystemVersion() const
+{
+   return 1; // TODO - come up with a versioning scheme
+}
+
+uint32_t Monitor::getSerialNumber() const
+{
+   return 1; // TODO - do we configure this, or can we get it from the battery?
+}
+
+float Monitor::getNominalCapacityKwh() const
+{
+   return NOMINAL_CAPACITY_KWH; // TODO - configurable
+}
+
+unsigned Monitor::getNumberOfModules() const
+{
+   return NUM_MODULES; // TODO - configurable
+}
+
+uint32_t Monitor::getManufacturingDateUnixTime() const
+{
+   return 0; // TODO - where do we get this from?
+}
+
+const char* Monitor::getManufacturerName() const
+{
+   return "Nissan";
+}
+
+const char* Monitor::getBatteryName() const
+{
+   return "Leaf 24kWh"; // TODO - configurable
+}
+
 
 
 

@@ -37,6 +37,14 @@ public:
    virtual float getEnergyRemainingKwh() const;
    virtual float getCapacityKwh() const;
 
+   virtual uint32_t getSystemVersion() const;
+   virtual uint32_t getSerialNumber() const;
+   virtual float getNominalCapacityKwh() const;
+   virtual unsigned getNumberOfModules() const;
+   virtual uint32_t getManufacturingDateUnixTime() const;
+   virtual const char* getManufacturerName() const;
+   virtual const char* getBatteryName() const;
+   
 private:
    void process(const can::messages::Nissan::CellVoltageRange&);
    void process(const can::messages::Nissan::PackTemperatures&);

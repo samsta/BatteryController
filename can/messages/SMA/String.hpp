@@ -7,6 +7,7 @@
 #include "can/messages/SMA/Ids.hpp"
 
 namespace can {
+class FrameSink;
 namespace messages {
 namespace SMA {
 
@@ -16,6 +17,8 @@ public:
    String(Ids id);
    String(Ids id, uint8_t index, const char* string);
 };
+
+void sendString(FrameSink& sender, Ids id, const char* string);
 
 }
 }

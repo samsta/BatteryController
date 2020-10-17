@@ -14,6 +14,15 @@ public:
    MOCK_METHOD(float, getSohPercent, (), (const));
    MOCK_METHOD(float, getEnergyRemainingKwh, (), (const));
    MOCK_METHOD(float, getCapacityKwh, (), (const));
+
+   MOCK_METHOD(uint32_t, getSystemVersion, (),  (const));
+   MOCK_METHOD(uint32_t, getSerialNumber, (), (const));
+   MOCK_METHOD(float, getNominalCapacityKwh, (), (const));
+   MOCK_METHOD(unsigned, getNumberOfModules, (), (const));
+   MOCK_METHOD(uint32_t, getManufacturingDateUnixTime, (), (const));
+   MOCK_METHOD(const char*, getManufacturerName, (), (const));
+   MOCK_METHOD(const char*, getBatteryName, (), (const));
+
 };
 
 }

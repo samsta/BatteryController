@@ -27,6 +27,7 @@
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/BatteryState.hpp"
 #include "can/messages/SMA/InverterCommand.hpp"
+#include "can/messages/SMA/InverterIdentity.hpp"
 #include "can/messages/Nissan/Ids.hpp"
 #include "monitor/Nissan/Monitor.hpp"
 #include "inverter/SMA/SunnyBoyStorage.hpp"
@@ -233,6 +234,16 @@ public:
             return;
          }
       }
+      {
+         can::messages::SMA::InverterIdentity identity(f);
+         if (identity.valid())
+         {
+            std::cout << "<INV IN>  " << identity << std::endl;
+            m_inverter.process(identity);
+            return;
+         }
+      }
+
 
    }
 
