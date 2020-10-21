@@ -8,8 +8,9 @@ namespace messages {
 namespace Nissan {
 
 enum Ids {
+   ID_BATTERY_STATUS   = 0x1db,
    ID_LBC_DATA_REQUEST = 0x79b,
-   ID_LBC_DATA_REPLY = 0x7bb
+   ID_LBC_DATA_REPLY   = 0x7bb,
 };
 
 enum LbcDataGroups {

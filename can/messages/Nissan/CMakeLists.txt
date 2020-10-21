@@ -1,6 +1,7 @@
 target_sources(can PRIVATE CellVoltageRange.cpp
                            CellVoltages.cpp
                            BatteryState.cpp
+                           BatteryStatus.cpp
                            Message.cpp
                            PackTemperatures.cpp)
 
