@@ -167,60 +167,47 @@ public:
    NissanSink(monitor::Nissan::Monitor& monitor): m_monitor(monitor)
    {}
 
+   void* mem()
+   {
+      return m_message_memory;
+   }
+   
+   const can::messages::Nissan::Message* decode(const can::DataFrame& f)
+   {
+      using namespace can::messages::Nissan;
+      Message* msg;
+
+      msg = new(mem()) BatteryStatus(f);
+      if (msg->valid()) return msg;
+
+      msg = new(mem()) CellVoltages(f);
+      if (msg->valid()) return msg;
+
+      msg = new(mem()) PackTemperatures(f);
+      if (msg->valid()) return msg;
+
+      msg = new(mem()) CellVoltageRange(f);
+      if (msg->valid()) return msg;
+
+      msg = new(mem()) BatteryState(f);
+      if (msg->valid()) return msg;
+
+      return NULL;
+   }
+   
    virtual void sink(const can::DataFrame& f)
    {
+      const can::messages::Nissan::Message* msg = decode(f);
+
+      if (msg)
       {
-         can::messages::Nissan::CellVoltages voltages(f);
-         if (voltages.valid())
-         {
-            std::cout << "<BAT IN>  " << voltages << std::endl;
-            m_monitor.sink(voltages);
-            return;
-         }
-      }
-      
-      {
-         can::messages::Nissan::PackTemperatures temperatures(f);
-         if (temperatures.valid())
-         {
-            std::cout << "<BAT IN>  " << temperatures << std::endl;
-            m_monitor.sink(temperatures);
-            return;
-         }
-      }
-      
-      {
-         can::messages::Nissan::BatteryStatus status(f);
-         if (status.valid())
-         {
-            std::cout << "<BAT IN>  " << status << std::endl;
-            m_monitor.sink(status);
-            return;
-         }
-      }
-      
-      {
-         can::messages::Nissan::CellVoltageRange range(f);
-         if (range.valid())
-         {
-            std::cout << "<BAT IN>  " << range << std::endl;
-            m_monitor.sink(range);
-            return;
-         }
-      }
-      
-      {
-         can::messages::Nissan::BatteryState state(f);
-         if (state.valid())
-         {
-            std::cout << "<BAT IN>  " << state << std::endl;
-            m_monitor.sink(state);
-            return;
-         }
+         std::cout << "<BAT IN> " << *msg << std::endl;
+         m_monitor.sink(*msg);
       }
    }
 
    monitor::Nissan::Monitor& m_monitor;
+   uint8_t m_message_memory[1024];
 };
 
 class SmaSink: public can::FrameSink

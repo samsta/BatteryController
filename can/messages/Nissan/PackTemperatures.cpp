@@ -61,28 +61,31 @@ PackTemperatures& PackTemperatures::setTemperature(unsigned pack_index, float te
    return *this;
 }
 
-logging::ostream& operator<<(logging::ostream& os, const PackTemperatures& temperatures)
+void PackTemperatures::toStream(logging::ostream& os) const
 {
    os << "PackTemperatures: ";
 
-   if (not temperatures.valid()) return os << "invalid";
-
+   if (not valid())
+   {
+      os << "invalid";
+      return;
+   }
+   
    for (unsigned k = 0; k < PackTemperatures::NUM_SENSORS; k++)
    {
       if (k != 0)
       {
          os << ", ";
       }
-      if (isnan(temperatures.getTemperature(k)))
+      if (isnan(getTemperature(k)))
       {
          os << "---";
       }
       else
       {
-         os << temperatures.getTemperature(k) << "degC";
+         os << getTemperature(k) << "degC";
       }
    }
-   return os;
 }
 
 

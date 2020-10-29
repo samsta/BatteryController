@@ -24,14 +24,14 @@ public:
    uint8_t getSecurityByte() const;
    uint8_t getMultiplexByte() const;
 
+   virtual void toStream(logging::ostream&) const;
+
 private:
    float m_voltage;
    float m_current;
    uint8_t m_security_byte;
    uint8_t m_multiplex_byte;
 };
-
-logging::ostream& operator<<(logging::ostream&, const BatteryStatus&);
 
 }
 }

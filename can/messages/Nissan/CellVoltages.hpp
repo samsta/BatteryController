@@ -4,7 +4,6 @@
 #define _CAN_MESSAGES_NISSAN_CELLVOLTAGES_HPP_
 
 #include "can/messages/Nissan/Message.hpp"
-#include "logging/stream.hpp"
 
 namespace can {
 
@@ -27,6 +26,8 @@ public:
    float getVoltage(unsigned cell_index) const;
    CellVoltages& setVoltage(unsigned cell_index, float voltage);
 
+   virtual void toStream(logging::ostream&) const;
+   
    enum Constants {
       NUM_CELLS = 96
    };
@@ -34,8 +35,6 @@ public:
 private:
    float m_voltages[NUM_CELLS];
 };
-
-logging::ostream& operator<<(logging::ostream&, const CellVoltages&);
 
 }
 }

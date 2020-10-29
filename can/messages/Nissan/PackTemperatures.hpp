@@ -29,6 +29,8 @@ public:
    float getTemperature(unsigned pack_index) const;
    PackTemperatures& setTemperature(unsigned pack_index, float temperature);
 
+   virtual void toStream(logging::ostream&) const;
+
    enum Constants {
       NUM_SENSORS = 4
    };
@@ -36,8 +38,6 @@ public:
 private:
    float m_temperatures[NUM_SENSORS];
 };
-
-logging::ostream& operator<<(logging::ostream&, const PackTemperatures&);
 
 }
 }

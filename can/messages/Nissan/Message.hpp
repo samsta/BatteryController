@@ -4,6 +4,7 @@
 #define _CAN_MESSAGES_NISSAN_MESSAGE_HPP
 
 #include "Ids.hpp"
+#include "logging/stream.hpp"
 
 namespace can {
 namespace messages {
@@ -17,6 +18,8 @@ public:
    bool valid() const;
    LbcDataGroups dataGroup() const;
    Ids id() const;
+
+   virtual void toStream(logging::ostream&) const = 0;
    
 protected:
    void setValid();
@@ -26,6 +29,8 @@ private:
    LbcDataGroups m_data_group;
    Ids m_id;
 };
+
+logging::ostream& operator<<(logging::ostream&, const Message&);
 
 }
 }

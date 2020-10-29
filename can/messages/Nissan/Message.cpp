@@ -33,6 +33,13 @@ void Message::setValid()
    m_valid = true;
 }
 
+
+logging::ostream& operator<<(logging::ostream& os, const Message& msg)
+{
+   msg.toStream(os);
+   return os;
+}
+
 }
 }
 }

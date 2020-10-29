@@ -38,14 +38,14 @@ public:
    BatteryState& setHealthPercent(float);
    BatteryState& setSocPercent(float);
    
+   virtual void toStream(logging::ostream&) const;
+
 private:
    float m_pack_voltage;
    float m_health_pc;
    float m_capacity_ah;
    float m_soc_pc;
 };
-
-logging::ostream& operator<<(logging::ostream&, const BatteryState&);
 
 }
 }

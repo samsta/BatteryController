@@ -30,12 +30,12 @@ public:
    float getMax() const;
    CellVoltageRange& setMax(float voltage);
 
+   virtual void toStream(logging::ostream&) const;
+
 private:
    float m_min_voltage;
    float m_max_voltage;
 };
-
-logging::ostream& operator<<(logging::ostream&, const CellVoltageRange&);
 
 }
 }

@@ -48,11 +48,15 @@ CellVoltages& CellVoltages::setVoltage(unsigned cell_index, float voltage)
    return *this;
 }
 
-logging::ostream& operator<<(logging::ostream& os, const CellVoltages& voltages)
+void CellVoltages::toStream(logging::ostream& os) const
 {
    os << "CellVoltages: ";
 
-   if (not voltages.valid()) return os << "invalid";
+   if (not valid())
+   {
+      os << "invalid";
+      return;
+   }
 
    for (unsigned k = 0; k < CellVoltages::NUM_CELLS; k++)
    {
@@ -60,9 +64,8 @@ logging::ostream& operator<<(logging::ostream& os, const CellVoltages& voltages)
       {
          os << ", ";
       }
-      os << voltages.getVoltage(k) << 'V';
+      os << getVoltage(k) << 'V';
    }
-   return os;
 }
 
 }

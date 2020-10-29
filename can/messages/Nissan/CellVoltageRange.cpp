@@ -62,19 +62,18 @@ CellVoltageRange& CellVoltageRange::setMax(float voltage)
    return *this;
 }
 
-logging::ostream& operator<<(logging::ostream& os, const CellVoltageRange& v)
+void CellVoltageRange::toStream(logging::ostream& os) const
 {
    os << "CellVoltageRange: ";
-   if (v.valid())
+   if (valid())
    {
-      os << "min=" << v.getMin() << "V ";
-      os << "max=" << v.getMax() << "V";
+      os << "min=" << getMin() << "V ";
+      os << "max=" << getMax() << "V";
    }
    else
    {
       os << "invalid";
    }
-   return os;
 }
 
 }

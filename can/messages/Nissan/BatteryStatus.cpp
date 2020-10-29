@@ -75,19 +75,19 @@ uint8_t BatteryStatus::getMultiplexByte() const
    return m_multiplex_byte;
 }
 
-logging::ostream& operator<<(logging::ostream& os, const BatteryStatus& status)
+void BatteryStatus::toStream(logging::ostream& os) const
 {
    os << "BatteryStatus: ";
-   if (status.valid())
+   if (valid())
    {
-      return os << "Current=" << status.getCurrent()
-                << "A Voltage=" << status.getVoltage()
-                << "V SecurityByte=0x" << logging::HexByte(status.getSecurityByte())
-                << " MultiplexByte=0x" << logging::HexByte(status.getMultiplexByte());
+      os << "Current=" << getCurrent()
+         << "A Voltage=" << getVoltage()
+         << "V SecurityByte=0x" << logging::HexByte(getSecurityByte())
+         << " MultiplexByte=0x" << logging::HexByte(getMultiplexByte());
    }
    else
    {
-      return os << "invalid";
+      os << "invalid";
    }
 }
 

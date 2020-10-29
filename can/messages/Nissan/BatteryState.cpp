@@ -72,17 +72,20 @@ BatteryState& BatteryState::setSocPercent(float soc)
    return *this;
 }
 
-logging::ostream& operator<<(logging::ostream& os, const BatteryState& state)
+void BatteryState::toStream(logging::ostream& os) const
 {
    os << "BatteryState: ";
 
-   if (not state.valid()) return os << "invalid";
+   if (not valid())
+   {
+      os << "invalid";
+      return;
+   }
 
-   os << "Voltage=" << state.getPackVoltage() << "V "
-      << "Health=" << state.getHealthPercent() << "% "
-      << "SOC=" << state.getSocPercent() << "% "
-      << "Capacity=" << state.getCapacityAh() << "Ah";
-   return os;
+   os << "Voltage=" << getPackVoltage() << "V "
+      << "Health=" << getHealthPercent() << "% "
+      << "SOC=" << getSocPercent() << "% "
+      << "Capacity=" << getCapacityAh() << "Ah";
 }
 
 
