@@ -17,6 +17,7 @@ class Message;
 class CellVoltageRange;
 class PackTemperatures;
 class BatteryState;
+class BatteryStatus;
 }
 }
 }
@@ -32,6 +33,9 @@ public:
    void sink(const can::messages::Nissan::Message&);
 
    // monitor::Monitor
+   virtual float getVoltage() const;
+   virtual float getCurrent() const;
+   virtual float getTemperature() const;
    virtual float getSocPercent() const;
    virtual float getSohPercent() const;
    virtual float getEnergyRemainingKwh() const;
@@ -49,6 +53,7 @@ private:
    void process(const can::messages::Nissan::CellVoltageRange&);
    void process(const can::messages::Nissan::PackTemperatures&);
    void process(const can::messages::Nissan::BatteryState&);
+   void process(const can::messages::Nissan::BatteryStatus&);
    void updateOperationalSafety();
 
    contactor::Contactor& m_contactor;
@@ -60,6 +65,10 @@ private:
    float m_soh_percent;
    float m_energy_remaining_kwh;
    float m_capacity_kwh;
+
+   float m_current;
+   float m_voltage;
+   float m_average_temperature;
 };
 
 }

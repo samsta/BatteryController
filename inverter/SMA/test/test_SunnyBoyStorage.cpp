@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 #include "can/messages/SMA/BatteryIdentity.hpp"
 #include "can/messages/SMA/BatteryManufacturer.hpp"
+#include "can/messages/SMA/BatteryMeasurements.hpp"
 #include "can/messages/SMA/BatteryName.hpp"
 #include "can/messages/SMA/BatteryState.hpp"
 #include "can/messages/SMA/BatterySystemInfo.hpp"
@@ -76,8 +77,39 @@ TEST_F(SunnyBoyStorageTest, publishesBatteryStateUponBroadcast)
    EXPECT_CALL(monitor, getEnergyRemainingKwh()).WillOnce(Return(123.4));
    EXPECT_CALL(monitor, getCapacityKwh()).WillOnce(Return(567.8));
 
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryState(87.6, 67.8, 123.4, 567.8))));
    
+   broadcast_callback->invoke();
+}
+
+TEST_F(SunnyBoyStorageTest, publishesBatteryMeasurementsUponBroadcast)
+{
+   EXPECT_CALL(monitor, getVoltage()).WillOnce(Return(469.9));
+   EXPECT_CALL(monitor, getCurrent()).WillOnce(Return(1.6));
+   EXPECT_CALL(monitor, getTemperature()).WillOnce(Return(14.1));
+
+   EXPECT_CALL(contactor, isClosed()).WillOnce(Return(true));
+   
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryMeasurements()
+                                         .setVoltage(469.9)
+                                         .setCurrent(1.6)
+                                         .setTemperature(14.1)
+                                         .setState(BatteryMeasurements::CONNECTED)
+                                         .setInverterControlFlags(0))));
+
+   broadcast_callback->invoke();
+}
+
+TEST_F(SunnyBoyStorageTest, publishesBatteryMeasurementsUponBroadcastWithContactorOpen)
+{
+   ON_CALL(contactor, isClosed()).WillByDefault(Return(false));
+   
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryMeasurements()
+                                         .setState(BatteryMeasurements::DISCONNECTED))));
+
    broadcast_callback->invoke();
 }
 

@@ -12,6 +12,9 @@ class Monitor
 public:
    virtual ~Monitor(){};
 
+   virtual float getVoltage() const = 0;
+   virtual float getCurrent() const = 0;
+   virtual float getTemperature() const = 0;
    virtual float getSocPercent() const = 0;
    virtual float getSohPercent() const = 0;
    virtual float getEnergyRemainingKwh() const = 0;

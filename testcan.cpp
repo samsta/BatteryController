@@ -26,6 +26,7 @@
 #include "can/messages/Nissan/CellVoltages.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/BatteryState.hpp"
+#include "can/messages/Nissan/BatteryStatus.hpp"
 #include "can/messages/SMA/InverterCommand.hpp"
 #include "can/messages/SMA/InverterIdentity.hpp"
 #include "can/messages/Nissan/Ids.hpp"
@@ -120,7 +121,6 @@ public:
 
    void update()
    {
-      std::cout << m_safe_to_operate << m_requested_state << m_state << std::endl;
       if (m_safe_to_operate && m_requested_state == CLOSED)
       {
          if (m_state == OPEN) closeNegative();
@@ -169,46 +169,53 @@ public:
 
    virtual void sink(const can::DataFrame& f)
    {
-      if (f.id() == 0x7bb)
       {
+         can::messages::Nissan::CellVoltages voltages(f);
+         if (voltages.valid())
          {
-            can::messages::Nissan::CellVoltages voltages(f);
-            if (voltages.valid())
-            {
-               std::cout << "<BAT IN>  " << voltages << std::endl;
-               m_monitor.sink(voltages);
-               return;
-            }
+            std::cout << "<BAT IN>  " << voltages << std::endl;
+            m_monitor.sink(voltages);
+            return;
          }
-
+      }
+      
+      {
+         can::messages::Nissan::PackTemperatures temperatures(f);
+         if (temperatures.valid())
          {
-            can::messages::Nissan::PackTemperatures temperatures(f);
-            if (temperatures.valid())
-            {
-               std::cout << "<BAT IN>  " << temperatures << std::endl;
-               m_monitor.sink(temperatures);
-               return;
-            }
+            std::cout << "<BAT IN>  " << temperatures << std::endl;
+            m_monitor.sink(temperatures);
+            return;
          }
-
+      }
+      
+      {
+         can::messages::Nissan::BatteryStatus status(f);
+         if (status.valid())
          {
-            can::messages::Nissan::BatteryState state(f);
-            if (state.valid())
-            {
-               std::cout << "<BAT IN>  " << state << std::endl;
-               m_monitor.sink(state);
-               return;
-            }
+            std::cout << "<BAT IN>  " << status << std::endl;
+            m_monitor.sink(status);
+            return;
          }
-
+      }
+      
+      {
+         can::messages::Nissan::CellVoltageRange range(f);
+         if (range.valid())
          {
-            can::messages::Nissan::CellVoltageRange range(f);
-            if (range.valid())
-            {
-               std::cout << "<BAT IN>  " << range << std::endl;
-               m_monitor.sink(range);
-               return;
-            }
+            std::cout << "<BAT IN>  " << range << std::endl;
+            m_monitor.sink(range);
+            return;
+         }
+      }
+      
+      {
+         can::messages::Nissan::BatteryState state(f);
+         if (state.valid())
+         {
+            std::cout << "<BAT IN>  " << state << std::endl;
+            m_monitor.sink(state);
+            return;
          }
       }
    }
@@ -356,12 +363,6 @@ int main(int argc, const char** argv)
 
    battery_socket = openSocket(argv[1]);
    inverter_socket = openSocket(argv[2]);
-
-   struct can_filter rfilter[1];
-   rfilter[0].can_id   = 0x7bb;
-   rfilter[0].can_mask = CAN_SFF_MASK;
-
-   setsockopt(battery_socket, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
 
    const unsigned MAX_EVENTS = 10;
    struct epoll_event ev, events[MAX_EVENTS];

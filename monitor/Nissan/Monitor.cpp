@@ -2,6 +2,7 @@
 
 #include "Monitor.hpp"
 #include "can/messages/Nissan/BatteryState.hpp"
+#include "can/messages/Nissan/BatteryStatus.hpp"
 #include "can/messages/Nissan/CellVoltageRange.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "contactor/Contactor.hpp"
@@ -24,6 +25,7 @@ const float MAX_TEMP_SENSORS_MISSING(1);
 
 const float NOMINAL_CAPACITY_KWH(24);
 const unsigned NUM_MODULES(24);
+const unsigned NUM_CELLS(26);
 
 }
 
@@ -35,7 +37,9 @@ Monitor::Monitor(contactor::Contactor& contactor):
       m_soc_percent(NAN),
       m_soh_percent(NAN),
       m_energy_remaining_kwh(NAN),
-      m_capacity_kwh(NAN)
+      m_capacity_kwh(NAN),
+      m_current(NAN),
+      m_voltage(NAN)
 {
    m_contactor.setSafeToOperate(false);
 }
@@ -43,6 +47,19 @@ Monitor::Monitor(contactor::Contactor& contactor):
 void Monitor::sink(const can::messages::Nissan::Message& message)
 {
    if (not message.valid()) return;
+
+   switch(message.id())
+   {
+   case ID_BATTERY_STATUS:
+      process(static_cast<const BatteryStatus&>(message));
+      break;
+   case ID_LBC_DATA_REPLY:
+      // handled in next switch
+      break;
+   default:
+      // unknown id
+      return;
+   }
 
    switch(message.dataGroup())
    {
@@ -56,7 +73,7 @@ void Monitor::sink(const can::messages::Nissan::Message& message)
       process(static_cast<const BatteryState&>(message));
       return;
    default:
-      return;
+      break;
    }
 }
 
@@ -75,10 +92,10 @@ void Monitor::process(const CellVoltageRange& voltage_range)
    updateOperationalSafety();
 }
 
-void Monitor::process(const can::messages::Nissan::PackTemperatures& temperatures)
+void Monitor::process(const PackTemperatures& temperatures)
 {
    unsigned num_sensors_missing = 0;
-   float max_temp = NAN, min_temp;
+   float max_temp = NAN, min_temp, accumulated_temp = NAN;
    for (unsigned k = 0; k < temperatures.NUM_SENSORS; k++)
    {
       float temp = temperatures.getTemperature(k);
@@ -93,8 +110,21 @@ void Monitor::process(const can::messages::Nissan::PackTemperatures& temperature
          if (temp < min_temp) min_temp = temp;
       }
 
-      if (isnan(temp)) num_sensors_missing++;
+      if (isnan(temp))
+      {
+         num_sensors_missing++;
+      }
+      else if (isnan(accumulated_temp))
+      {
+         accumulated_temp = temp;
+      }
+      else
+      {
+         accumulated_temp += temp;
+      }
    }
+
+   m_average_temperature = accumulated_temp / (temperatures.NUM_SENSORS - num_sensors_missing);
 
    if (max_temp < CRITICALLY_HIGH_TEMPERATURE &&
        min_temp > CRITICALLY_LOW_TEMPERATURE  &&
@@ -109,12 +139,18 @@ void Monitor::process(const can::messages::Nissan::PackTemperatures& temperature
    updateOperationalSafety();
 }
 
-void Monitor::process(const can::messages::Nissan::BatteryState& battery_state)
+void Monitor::process(const BatteryState& battery_state)
 {
    m_soc_percent = battery_state.getSocPercent();
    m_soh_percent = battery_state.getHealthPercent();
    m_capacity_kwh = (NOMINAL_CAPACITY_KWH/100) * m_soh_percent;
    m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
+}
+
+void Monitor::process(const BatteryStatus& battery_status)
+{
+   m_current = battery_status.getCurrent();
+   m_voltage = battery_status.getVoltage();
 }
 
 void Monitor::updateOperationalSafety()
@@ -125,6 +161,21 @@ void Monitor::updateOperationalSafety()
       m_contactor.setSafeToOperate(everything_ok);
    }
    m_everything_ok = everything_ok;
+}
+
+float Monitor::getVoltage() const
+{
+   return m_voltage;
+}
+
+float Monitor::getCurrent() const
+{
+   return m_current;
+}
+
+float Monitor::getTemperature() const
+{
+   return m_average_temperature;
 }
 
 float Monitor::getSocPercent() const

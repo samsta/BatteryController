@@ -19,9 +19,9 @@ struct __attribute__((__packed__)) Temperature
 
 }
 
-PackTemperatures::PackTemperatures(const DataFrame& f): Message(GROUP_PACK_TEMPERATURES)
+PackTemperatures::PackTemperatures(const DataFrame& f): Message(ID_LBC_DATA_REPLY, GROUP_PACK_TEMPERATURES)
 {
-   if (f.id() != ID_LBC_DATA_REPLY) return;
+   if (f.id() != id()) return;
    if (f.size() != GROUP_SIZE) return;
    if (f.data()[1] != dataGroup()) return;
 
@@ -43,7 +43,7 @@ PackTemperatures::PackTemperatures(const DataFrame& f): Message(GROUP_PACK_TEMPE
    setValid();
 }
 
-PackTemperatures::PackTemperatures(): Message(GROUP_PACK_TEMPERATURES)
+PackTemperatures::PackTemperatures(): Message(ID_LBC_DATA_REPLY, GROUP_PACK_TEMPERATURES)
 {
 }
 

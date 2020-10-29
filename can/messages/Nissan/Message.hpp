@@ -11,11 +11,12 @@ namespace Nissan {
 
 class Message {
 public:
-   Message(LbcDataGroups data_group);
+   Message(Ids id, LbcDataGroups data_group);
    virtual ~Message(){}
    
    bool valid() const;
    LbcDataGroups dataGroup() const;
+   Ids id() const;
    
 protected:
    void setValid();
@@ -23,6 +24,7 @@ protected:
 private:
    bool m_valid;
    LbcDataGroups m_data_group;
+   Ids m_id;
 };
 
 }

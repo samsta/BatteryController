@@ -16,9 +16,9 @@ const unsigned GROUP_SIZE = 198;
 
 }
 
-CellVoltages::CellVoltages(const DataFrame& f): Message(GROUP_CELL_VOLTAGES)
+CellVoltages::CellVoltages(const DataFrame& f): Message(ID_LBC_DATA_REPLY, GROUP_CELL_VOLTAGES)
 {
-   if (f.id() != ID_LBC_DATA_REPLY) return;
+   if (f.id() != id()) return;
    if (f.size() != GROUP_SIZE) return;
    if (f.data()[1] != dataGroup()) return;
 
@@ -30,7 +30,7 @@ CellVoltages::CellVoltages(const DataFrame& f): Message(GROUP_CELL_VOLTAGES)
    setValid();
 }
 
-CellVoltages::CellVoltages(): Message(GROUP_CELL_VOLTAGES)
+CellVoltages::CellVoltages(): Message(ID_LBC_DATA_REPLY, GROUP_CELL_VOLTAGES)
 {
 }
 

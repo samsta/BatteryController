@@ -8,23 +8,23 @@ namespace messages {
 namespace Nissan {
 
 BatteryStatus::BatteryStatus():
+      Message(ID_BATTERY_STATUS, GROUP_NONE),
       m_voltage(),
       m_current(),
       m_security_byte(),
-      m_multiplex_byte(),
-      m_valid(false)
+      m_multiplex_byte()
 {
 
 }
 
 BatteryStatus::BatteryStatus(const DataFrame& frame):
+      Message(ID_BATTERY_STATUS, GROUP_NONE),
       m_voltage(),
       m_current(),
       m_security_byte(),
-      m_multiplex_byte(),
-      m_valid(false)
+      m_multiplex_byte()
 {
-   if (frame.id() != ID_BATTERY_STATUS) return;
+   if (frame.id() != id()) return;
    if (frame.size() != 8) return;
 
    // TODO: verify that current and voltage are correct!
@@ -38,7 +38,7 @@ BatteryStatus::BatteryStatus(const DataFrame& frame):
    m_security_byte = frame.getByte(7);
    m_multiplex_byte = frame.getByte(6);
    
-   m_valid = true;
+   setValid();
 }
    
 float BatteryStatus::getVoltage() const
@@ -46,9 +46,23 @@ float BatteryStatus::getVoltage() const
    return m_voltage;
 }
 
+BatteryStatus& BatteryStatus::setVoltage(float voltage)
+{
+   m_voltage = voltage;
+   setValid();
+   return *this;
+}
+
 float BatteryStatus::getCurrent() const
 {
    return m_current;
+}
+
+BatteryStatus& BatteryStatus::setCurrent(float current)
+{
+   m_current = current;
+   setValid();
+   return *this;
 }
 
 uint8_t BatteryStatus::getSecurityByte() const
@@ -59,11 +73,6 @@ uint8_t BatteryStatus::getSecurityByte() const
 uint8_t BatteryStatus::getMultiplexByte() const
 {
    return m_multiplex_byte;
-}
-
-bool BatteryStatus::valid() const
-{
-   return m_valid;
 }
 
 logging::ostream& operator<<(logging::ostream& os, const BatteryStatus& status)

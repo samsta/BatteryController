@@ -2,6 +2,7 @@
 #include "can/messages/SMA/BatteryIdentity.hpp"
 #include "can/messages/SMA/BatteryName.hpp"
 #include "can/messages/SMA/BatteryManufacturer.hpp"
+#include "can/messages/SMA/BatteryMeasurements.hpp"
 #include "can/messages/SMA/BatteryState.hpp"
 #include "can/messages/SMA/BatterySystemInfo.hpp"
 #include "can/messages/SMA/InverterCommand.hpp"
@@ -40,6 +41,14 @@ SunnyBoyStorage::~SunnyBoyStorage()
 
 void SunnyBoyStorage::sendBatteryData()
 {
+   m_sender.sink(BatteryMeasurements()
+                 .setVoltage(m_monitor.getVoltage())
+                 .setCurrent(m_monitor.getCurrent())
+                 .setTemperature(m_monitor.getTemperature())
+                 .setState(m_contactor.isClosed() ?
+                           BatteryMeasurements::CONNECTED :
+                           BatteryMeasurements::DISCONNECTED)
+                 .setInverterControlFlags(0));
    m_sender.sink(BatteryState()
                  .setSocPercent(m_monitor.getSocPercent())
                  .setSohPercent(m_monitor.getSohPercent())

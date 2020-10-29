@@ -19,11 +19,11 @@ const unsigned GROUP_SIZE = 28;
 }
 
 CellVoltageRange::CellVoltageRange(const DataFrame& f):
-   Message(GROUP_CELL_VOLTAGE_RANGE),
+   Message(ID_LBC_DATA_REPLY, GROUP_CELL_VOLTAGE_RANGE),
    m_min_voltage(NAN),
    m_max_voltage(NAN)
 {
-   if (f.id() != ID_LBC_DATA_REPLY) return;
+   if (f.id() != id()) return;
    if (f.size() != GROUP_SIZE) return;
    if (f.data()[1] != dataGroup()) return;
    m_max_voltage = f.getUnsignedShort(BYTE_OFFSET_MAX_VOLTAGE) * VOLTS_PER_UNIT;
@@ -32,7 +32,7 @@ CellVoltageRange::CellVoltageRange(const DataFrame& f):
 }
 
 CellVoltageRange::CellVoltageRange():
-   Message(GROUP_CELL_VOLTAGE_RANGE),
+   Message(ID_LBC_DATA_REPLY, GROUP_CELL_VOLTAGE_RANGE),
    m_min_voltage(NAN),
    m_max_voltage(NAN)
 {

@@ -6,9 +6,10 @@ namespace can {
 namespace messages {
 namespace Nissan {
 
-Message::Message(LbcDataGroups data_group):
+Message::Message(Ids id, LbcDataGroups data_group):
       m_valid(false),
-      m_data_group(data_group)
+      m_data_group(data_group),
+      m_id(id)
 {
 }
   
@@ -20,6 +21,11 @@ bool Message::valid() const
 LbcDataGroups Message::dataGroup() const
 {
    return m_data_group;
+}
+
+Ids Message::id() const
+{
+   return m_id;
 }
    
 void Message::setValid()

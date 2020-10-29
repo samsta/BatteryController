@@ -15,13 +15,13 @@ const unsigned GROUP_SIZE = 41;
 }
 
 BatteryState::BatteryState(const DataFrame& f):
-   Message(GROUP_BATTERY_STATE),
+   Message(ID_LBC_DATA_REPLY, GROUP_BATTERY_STATE),
    m_pack_voltage(),
    m_health_pc(),
    m_capacity_ah(),
    m_soc_pc()
 {
-   if (f.id() != ID_LBC_DATA_REPLY) return;
+   if (f.id() != id()) return;
    if (f.size() != GROUP_SIZE) return;
    if (f.data()[1] != dataGroup()) return;
 
@@ -34,7 +34,7 @@ BatteryState::BatteryState(const DataFrame& f):
 }
 
 BatteryState::BatteryState():
-   Message(GROUP_BATTERY_STATE)
+   Message(ID_LBC_DATA_REPLY, GROUP_BATTERY_STATE)
 {
 }
 

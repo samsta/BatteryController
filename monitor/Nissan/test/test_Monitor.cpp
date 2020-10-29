@@ -5,6 +5,7 @@
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/CellVoltageRange.hpp"
 #include "can/messages/Nissan/BatteryState.hpp"
+#include "can/messages/Nissan/BatteryStatus.hpp"
 
 using namespace testing;
 using namespace monitor::Nissan;
@@ -258,6 +259,8 @@ TEST_F(MonitorConstructed, valuesDefaultToNaN)
    EXPECT_TRUE(isnan(monitor.getSohPercent()));
    EXPECT_TRUE(isnan(monitor.getEnergyRemainingKwh()));
    EXPECT_TRUE(isnan(monitor.getCapacityKwh()));
+   EXPECT_TRUE(isnan(monitor.getCurrent()));
+   EXPECT_TRUE(isnan(monitor.getVoltage()));
 }
 
 TEST_F(MonitorConstructed, socCanBeSet)
@@ -305,6 +308,44 @@ TEST_F(MonitorConstructed, energyRemaining1p2kWhAtSoh50pcSoc10pc)
    EXPECT_THAT(monitor.getEnergyRemainingKwh(), FloatEq(1.2));   
 }
 
+TEST_F(MonitorConstructed, current)
+{
+   monitor.sink(BatteryStatus().setCurrent(-12.3));
+   EXPECT_THAT(monitor.getCurrent(), FloatEq(-12.3));
+}
+
+TEST_F(MonitorConstructed, voltage)
+{
+   monitor.sink(BatteryStatus().setVoltage(231.9));
+   EXPECT_THAT(monitor.getVoltage(), FloatEq(231.9));
+}
+
+TEST_F(MonitorConstructed, averageTemperature)
+{
+   monitor.sink(PackTemperatures().setTemperature(0, 20.2)
+                                  .setTemperature(1, -20.2)
+                                  .setTemperature(2, -5)
+                                  .setTemperature(3,  11));
+   EXPECT_THAT(monitor.getTemperature(), FloatEq(1.5));
+}
+
+TEST_F(MonitorConstructed, averageTemperatureOneSensorMissing)
+{
+   monitor.sink(PackTemperatures().setTemperature(0, 20.2)
+                                  .setTemperature(1, -20.2)
+                                  .setTemperature(2, -6)
+                                  .setTemperature(3, NAN));
+   EXPECT_THAT(monitor.getTemperature(), FloatEq(-2));
+}
+
+TEST_F(MonitorConstructed, averageTemperatureNanIfAllSensorsMissing)
+{
+   monitor.sink(PackTemperatures().setTemperature(0, NAN)
+                                  .setTemperature(1, NAN)
+                                  .setTemperature(2, NAN)
+                                  .setTemperature(3, NAN));
+   EXPECT_TRUE(isnan(monitor.getTemperature()));
+}
 
 
 }

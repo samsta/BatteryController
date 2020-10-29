@@ -10,6 +10,10 @@ class Monitor: public ::monitor::Monitor
 {
 public:
 
+   MOCK_METHOD(float, getVoltage, (), (const));
+   MOCK_METHOD(float, getCurrent, (), (const));
+   MOCK_METHOD(float, getTemperature, (), (const));
+
    MOCK_METHOD(float, getSocPercent, (), (const));
    MOCK_METHOD(float, getSohPercent, (), (const));
    MOCK_METHOD(float, getEnergyRemainingKwh, (), (const));
