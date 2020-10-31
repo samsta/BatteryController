@@ -40,6 +40,8 @@ public:
    virtual float getSohPercent() const;
    virtual float getEnergyRemainingKwh() const;
    virtual float getCapacityKwh() const;
+   virtual float getChargeCurrentLimit() const;
+   virtual float getDischargeCurrentLimit() const;
 
    virtual uint32_t getSystemVersion() const;
    virtual uint32_t getSerialNumber() const;
@@ -56,6 +58,8 @@ private:
    void process(const can::messages::Nissan::BatteryStatus&);
    void updateOperationalSafety();
 
+   void calculateTemperatureLimitFactor(float min, float max);
+
    contactor::Contactor& m_contactor;
    bool m_voltages_ok;
    bool m_temperatures_ok;
@@ -69,6 +73,8 @@ private:
    float m_current;
    float m_voltage;
    float m_average_temperature;
+
+   float m_temperature_limit_factor;
 };
 
 }

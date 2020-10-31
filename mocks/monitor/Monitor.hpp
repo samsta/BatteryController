@@ -27,6 +27,8 @@ public:
    MOCK_METHOD(const char*, getManufacturerName, (), (const));
    MOCK_METHOD(const char*, getBatteryName, (), (const));
 
+   MOCK_METHOD(float, getChargeCurrentLimit, (), (const));
+   MOCK_METHOD(float, getDischargeCurrentLimit, (), (const));
 };
 
 }

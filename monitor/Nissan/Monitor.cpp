@@ -20,12 +20,18 @@ const float CRITICALLY_LOW_VOLTAGE(3);
 const float CRITICALLY_HIGH_VOLTAGE_SPREAD(0.1);
 
 const float CRITICALLY_HIGH_TEMPERATURE(50);
+const float WARN_HIGH_TEMPERATURE(40);
+const float WARN_LOW_TEMPERATURE(5);
 const float CRITICALLY_LOW_TEMPERATURE(2);
 const float MAX_TEMP_SENSORS_MISSING(1);
 
 const float NOMINAL_CAPACITY_KWH(24);
+const float NOMINAL_CURRENT_LIMIT(20);
+
 const unsigned NUM_MODULES(24);
 const unsigned NUM_CELLS(26);
+
+const float TEMPERATURE_LIMIT_RESOLUTION(1);
 
 }
 
@@ -39,7 +45,8 @@ Monitor::Monitor(contactor::Contactor& contactor):
       m_energy_remaining_kwh(NAN),
       m_capacity_kwh(NAN),
       m_current(NAN),
-      m_voltage(NAN)
+      m_voltage(NAN),
+      m_temperature_limit_factor(0)
 {
    m_contactor.setSafeToOperate(false);
 }
@@ -136,6 +143,8 @@ void Monitor::process(const PackTemperatures& temperatures)
    {
       m_temperatures_ok = false;
    }
+
+   calculateTemperatureLimitFactor(min_temp, max_temp);
    updateOperationalSafety();
 }
 
@@ -151,6 +160,32 @@ void Monitor::process(const BatteryStatus& battery_status)
 {
    m_current = battery_status.getCurrent();
    m_voltage = battery_status.getVoltage();
+}
+
+void Monitor::calculateTemperatureLimitFactor(float min_temp, float max_temp)
+{
+   if (max_temp < CRITICALLY_HIGH_TEMPERATURE &&
+       min_temp > CRITICALLY_LOW_TEMPERATURE)
+   {
+      if (max_temp >= WARN_HIGH_TEMPERATURE)
+      {
+         const float RANGE = 1 + (CRITICALLY_HIGH_TEMPERATURE - WARN_HIGH_TEMPERATURE)/TEMPERATURE_LIMIT_RESOLUTION;
+         m_temperature_limit_factor = (CRITICALLY_HIGH_TEMPERATURE - max_temp) / RANGE;
+      }
+      else if (min_temp <= WARN_LOW_TEMPERATURE)
+      {
+         const float RANGE = 1 + (WARN_LOW_TEMPERATURE - CRITICALLY_LOW_TEMPERATURE)/TEMPERATURE_LIMIT_RESOLUTION;
+         m_temperature_limit_factor = (min_temp - CRITICALLY_LOW_TEMPERATURE) / RANGE;
+      }
+      else
+      {
+         m_temperature_limit_factor = 1;
+      }
+   }
+   else
+   {
+      m_temperature_limit_factor = 0;
+   }
 }
 
 void Monitor::updateOperationalSafety()
@@ -233,7 +268,15 @@ const char* Monitor::getBatteryName() const
    return "Leaf 24kWh"; // TODO - configurable
 }
 
+float Monitor::getChargeCurrentLimit() const
+{
+   return m_temperature_limit_factor * NOMINAL_CURRENT_LIMIT;
+}
 
+float Monitor::getDischargeCurrentLimit() const
+{
+   return m_temperature_limit_factor * NOMINAL_CURRENT_LIMIT;
+}
 
 
 }

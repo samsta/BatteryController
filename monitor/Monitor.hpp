@@ -27,6 +27,9 @@ public:
    virtual uint32_t getManufacturingDateUnixTime() const = 0;
    virtual const char* getManufacturerName() const = 0;
    virtual const char* getBatteryName() const = 0;
+
+   virtual float getChargeCurrentLimit() const = 0;
+   virtual float getDischargeCurrentLimit() const = 0;
 };
 
 }

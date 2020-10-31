@@ -22,6 +22,10 @@ const float CRITICAL_SPREAD_VOLTAGE = 0.1;
 const float ARBITRARY_SAFE_TEMPERATURE = 20.0;
 const float CRITICALLY_HIGH_TEMPERATURE = 50;
 const float CRITICALLY_LOW_TEMPERATURE = 2;
+const float WARN_HIGH_TEMPERATURE = 40;
+const float WARN_LOW_TEMPERATURE = 5;
+
+const float NOMINAL_CURRENT_LIMIT = 20;
 
 const float TOLERANCE = 0.0001;
 
@@ -183,7 +187,7 @@ TEST_F(MonitorSafeToOperate, contactorNotDeclaredUnsafeWhenVoltageJustAboveCriti
                 .setMax(CRITICALLY_LOW_VOLTAGE + TOLERANCE));
 }
 
-TEST_F(MonitorSafeToOperate, contactorDeclaredUnsafeWhenVoltageRangepreadCritical)
+TEST_F(MonitorSafeToOperate, contactorDeclaredUnsafeWhenVoltageRangeSpreadCritical)
 {
    EXPECT_CALL(contactor, setSafeToOperate(false));
 
@@ -192,7 +196,7 @@ TEST_F(MonitorSafeToOperate, contactorDeclaredUnsafeWhenVoltageRangepreadCritica
                 .setMax(ARBITRARY_SAFE_VOLTAGE + CRITICAL_SPREAD_VOLTAGE + TOLERANCE));
 }
 
-TEST_F(MonitorSafeToOperate, contactorNotDeclaredUnsafeWhenVoltageRangepreadJustBelowCritical)
+TEST_F(MonitorSafeToOperate, contactorNotDeclaredUnsafeWhenVoltageRangeSpreadJustBelowCritical)
 {
    EXPECT_CALL(contactor, setSafeToOperate(false)).Times(0);
 
@@ -345,6 +349,86 @@ TEST_F(MonitorConstructed, averageTemperatureNanIfAllSensorsMissing)
                                   .setTemperature(2, NAN)
                                   .setTemperature(3, NAN));
    EXPECT_TRUE(isnan(monitor.getTemperature()));
+}
+
+
+class MonitorLimits: public MonitorConstructed {};
+
+TEST_F(MonitorLimits, currentLimitsZeroInitially)
+{
+   EXPECT_THAT(monitor.getChargeCurrentLimit(), 0);
+   EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0);
+}
+
+TEST_F(MonitorLimits, currentUnlimitedAtNominalValues)
+{
+   monitor.sink(goodPackTemperatures());
+   monitor.sink(goodCellVoltageRange());
+   
+   EXPECT_THAT(monitor.getChargeCurrentLimit(), NOMINAL_CURRENT_LIMIT);
+   EXPECT_THAT(monitor.getDischargeCurrentLimit(), NOMINAL_CURRENT_LIMIT);
+}
+
+TEST_F(MonitorLimits, currentsLimitedWhenTemperatureAtHighWarnLimit)
+{
+   // We have 10 degrees from warn to critical, and 1 degree resolution,
+   // so at warning level we're at 10/11 of the current
+   monitor.sink(goodPackTemperatures().setTemperature(0, WARN_HIGH_TEMPERATURE));
+   monitor.sink(goodCellVoltageRange());
+   
+   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*10/11));
+   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*10/11));
+}
+
+TEST_F(MonitorLimits, currentsLimitedWhenTemperatureJustBelowCriticallyHighLimit)
+{
+   // We have 10 degrees from warn to critical, and 1 degree resolution,
+   // so just below critical level we're at 1/11 of the current
+   monitor.sink(goodPackTemperatures().setTemperature(0, CRITICALLY_HIGH_TEMPERATURE - 1));
+   monitor.sink(goodCellVoltageRange());
+   
+   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*1/11));
+   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*1/11));
+}
+
+TEST_F(MonitorLimits, currentLimitsZeroWhenTemperatureAtCriticallyHighLimit)
+{
+   monitor.sink(goodPackTemperatures().setTemperature(0, CRITICALLY_HIGH_TEMPERATURE));
+   monitor.sink(goodCellVoltageRange());
+   
+   EXPECT_THAT(monitor.getChargeCurrentLimit(), 0);
+   EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0);
+}
+
+TEST_F(MonitorLimits, currentsLimitedWhenTemperatureAtLowWarnLimit)
+{
+   // We have 3 degrees from warn to critical, and 1 degree resolution,
+   // so at warning level we're at 3/4 of the current
+   monitor.sink(goodPackTemperatures().setTemperature(0, WARN_LOW_TEMPERATURE));
+   monitor.sink(goodCellVoltageRange());
+   
+   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*3/4));
+   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*3/4));
+}
+
+TEST_F(MonitorLimits, currentsLimitedWhenTemperatureJustAboveCriticallyLowLimit)
+{
+   // We have 3 degrees from warn to critical, and 1 degree resolution,
+   // so at warning level we're at 1/4 of the current
+   monitor.sink(goodPackTemperatures().setTemperature(0, CRITICALLY_LOW_TEMPERATURE + 1));
+   monitor.sink(goodCellVoltageRange());
+   
+   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*1/4));
+   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*1/4));
+}
+
+TEST_F(MonitorLimits, currentLimitsZeroWhenTemperatureAtCriticallyLowLimit)
+{
+   monitor.sink(goodPackTemperatures().setTemperature(0, CRITICALLY_LOW_TEMPERATURE));
+   monitor.sink(goodCellVoltageRange());
+   
+   EXPECT_THAT(monitor.getChargeCurrentLimit(), 0);
+   EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0);
 }
 
 
