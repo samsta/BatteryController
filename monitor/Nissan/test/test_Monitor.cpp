@@ -369,7 +369,7 @@ TEST_F(MonitorLimits, currentUnlimitedAtNominalValues)
    EXPECT_THAT(monitor.getDischargeCurrentLimit(), NOMINAL_CURRENT_LIMIT);
 }
 
-TEST_F(MonitorLimits, currentsLimitedWhenTemperatureAtHighWarnLimit)
+TEST_F(MonitorLimits, currentLimitedWhenTemperatureAtHighWarnLimit)
 {
    // We have 10 degrees from warn to critical, and 1 degree resolution,
    // so at warning level we're at 10/11 of the current
@@ -380,7 +380,7 @@ TEST_F(MonitorLimits, currentsLimitedWhenTemperatureAtHighWarnLimit)
    EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*10/11));
 }
 
-TEST_F(MonitorLimits, currentsLimitedWhenTemperatureJustBelowCriticallyHighLimit)
+TEST_F(MonitorLimits, currentLimitedWhenTemperatureJustBelowCriticallyHighLimit)
 {
    // We have 10 degrees from warn to critical, and 1 degree resolution,
    // so just below critical level we're at 1/11 of the current
@@ -400,7 +400,7 @@ TEST_F(MonitorLimits, currentLimitsZeroWhenTemperatureAtCriticallyHighLimit)
    EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0);
 }
 
-TEST_F(MonitorLimits, currentsLimitedWhenTemperatureAtLowWarnLimit)
+TEST_F(MonitorLimits, currentLimitedWhenTemperatureAtLowWarnLimit)
 {
    // We have 3 degrees from warn to critical, and 1 degree resolution,
    // so at warning level we're at 3/4 of the current
@@ -411,7 +411,7 @@ TEST_F(MonitorLimits, currentsLimitedWhenTemperatureAtLowWarnLimit)
    EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*3/4));
 }
 
-TEST_F(MonitorLimits, currentsLimitedWhenTemperatureJustAboveCriticallyLowLimit)
+TEST_F(MonitorLimits, currentLimitedWhenTemperatureJustAboveCriticallyLowLimit)
 {
    // We have 3 degrees from warn to critical, and 1 degree resolution,
    // so at warning level we're at 1/4 of the current
