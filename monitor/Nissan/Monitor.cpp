@@ -16,6 +16,8 @@ namespace Nissan {
 namespace {
 
 const float CRITICALLY_HIGH_VOLTAGE(4.15);
+const float WARN_HIGH_VOLTAGE(4.1);
+const float WARN_LOW_VOLTAGE(3.3);
 const float CRITICALLY_LOW_VOLTAGE(3);
 const float CRITICALLY_HIGH_VOLTAGE_SPREAD(0.1);
 
@@ -32,6 +34,18 @@ const unsigned NUM_MODULES(24);
 const unsigned NUM_CELLS(26);
 
 const float TEMPERATURE_LIMIT_RESOLUTION(1);
+const float VOLTAGE_LIMIT_RESOLUTION(0.001);
+
+inline float upper_limit(float value, const float warn_limit, const float critical_limit, const float resolution)
+{
+   return (critical_limit - value) / (critical_limit - warn_limit + resolution);
+}
+
+inline float lower_limit(float value, const float warn_limit, const float critical_limit, const float resolution)
+{
+   return (value - critical_limit) / (warn_limit - critical_limit + resolution);
+}
+
 
 }
 
@@ -46,7 +60,9 @@ Monitor::Monitor(contactor::Contactor& contactor):
       m_capacity_kwh(NAN),
       m_current(NAN),
       m_voltage(NAN),
-      m_temperature_limit_factor(0)
+      m_cur_fac_by_temperature(0),
+      m_charge_cur_fac_by_voltage(0),
+      m_discharge_cur_fac_by_voltage(0)
 {
    m_contactor.setSafeToOperate(false);
 }
@@ -96,6 +112,7 @@ void Monitor::process(const CellVoltageRange& voltage_range)
    {
       m_voltages_ok = false;
    }
+   calculateCurrentLimitByVoltage(voltage_range.getMin(), voltage_range.getMax());
    updateOperationalSafety();
 }
 
@@ -169,24 +186,64 @@ void Monitor::calculateTemperatureLimitFactor(float min_temp, float max_temp)
    {
       if (max_temp >= WARN_HIGH_TEMPERATURE)
       {
-         const float RANGE = 1 + (CRITICALLY_HIGH_TEMPERATURE - WARN_HIGH_TEMPERATURE)/TEMPERATURE_LIMIT_RESOLUTION;
-         m_temperature_limit_factor = (CRITICALLY_HIGH_TEMPERATURE - max_temp) / RANGE;
+         m_cur_fac_by_temperature = upper_limit(max_temp,
+                                                WARN_HIGH_TEMPERATURE,
+                                                CRITICALLY_HIGH_TEMPERATURE,
+                                                TEMPERATURE_LIMIT_RESOLUTION);
       }
       else if (min_temp <= WARN_LOW_TEMPERATURE)
       {
-         const float RANGE = 1 + (WARN_LOW_TEMPERATURE - CRITICALLY_LOW_TEMPERATURE)/TEMPERATURE_LIMIT_RESOLUTION;
-         m_temperature_limit_factor = (min_temp - CRITICALLY_LOW_TEMPERATURE) / RANGE;
+         m_cur_fac_by_temperature = lower_limit(min_temp,
+                                                WARN_LOW_TEMPERATURE,
+                                                CRITICALLY_LOW_TEMPERATURE,
+                                                TEMPERATURE_LIMIT_RESOLUTION);
       }
       else
       {
-         m_temperature_limit_factor = 1;
+         m_cur_fac_by_temperature = 1;
       }
    }
    else
    {
-      m_temperature_limit_factor = 0;
+      m_cur_fac_by_temperature = 0;
    }
 }
+
+void Monitor::calculateCurrentLimitByVoltage(float min_voltage, float max_voltage)
+{
+   if (max_voltage > CRITICALLY_HIGH_VOLTAGE)
+   {
+      m_charge_cur_fac_by_voltage = 0;
+   }
+   else if (max_voltage >= WARN_HIGH_VOLTAGE)
+   {
+      m_charge_cur_fac_by_voltage = upper_limit(max_voltage,
+                                                WARN_HIGH_VOLTAGE,
+                                                CRITICALLY_HIGH_VOLTAGE,
+                                                VOLTAGE_LIMIT_RESOLUTION);
+   }
+   else
+   {
+      m_charge_cur_fac_by_voltage = 1;
+   }
+
+   if (min_voltage < CRITICALLY_LOW_VOLTAGE)
+   {
+      m_discharge_cur_fac_by_voltage = 0;
+   }
+   else if (min_voltage <= WARN_LOW_VOLTAGE)
+   {
+      m_discharge_cur_fac_by_voltage = lower_limit(min_voltage,
+                                                   WARN_LOW_VOLTAGE,
+                                                   CRITICALLY_LOW_VOLTAGE,
+                                                   VOLTAGE_LIMIT_RESOLUTION);
+   }
+   else
+   {
+      m_discharge_cur_fac_by_voltage = 1;
+   }
+}
+
 
 void Monitor::updateOperationalSafety()
 {
@@ -270,12 +327,12 @@ const char* Monitor::getBatteryName() const
 
 float Monitor::getChargeCurrentLimit() const
 {
-   return m_temperature_limit_factor * NOMINAL_CURRENT_LIMIT;
+   return m_charge_cur_fac_by_voltage * m_cur_fac_by_temperature * NOMINAL_CURRENT_LIMIT;
 }
 
 float Monitor::getDischargeCurrentLimit() const
 {
-   return m_temperature_limit_factor * NOMINAL_CURRENT_LIMIT;
+   return m_discharge_cur_fac_by_voltage * m_cur_fac_by_temperature * NOMINAL_CURRENT_LIMIT;
 }
 
 
