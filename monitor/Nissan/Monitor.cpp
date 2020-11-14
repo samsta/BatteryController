@@ -31,7 +31,7 @@ const float NOMINAL_CAPACITY_KWH(24);
 const float NOMINAL_CURRENT_LIMIT(20);
 
 const unsigned NUM_MODULES(24);
-const unsigned NUM_CELLS(26);
+const unsigned NUM_CELLS(96);
 
 const float TEMPERATURE_LIMIT_RESOLUTION(1);
 const float VOLTAGE_LIMIT_RESOLUTION(0.001);
@@ -323,6 +323,16 @@ const char* Monitor::getManufacturerName() const
 const char* Monitor::getBatteryName() const
 {
    return "Leaf 24kWh"; // TODO - configurable
+}
+
+float Monitor::getMaxChargeVoltage() const
+{
+   return CRITICALLY_HIGH_VOLTAGE * NUM_CELLS;
+}
+
+float Monitor::getMinDischargeVoltage() const
+{
+   return CRITICALLY_LOW_VOLTAGE * NUM_CELLS;
 }
 
 float Monitor::getChargeCurrentLimit() const

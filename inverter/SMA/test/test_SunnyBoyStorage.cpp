@@ -1,5 +1,6 @@
 #include <gmock/gmock.h>
 #include "can/messages/SMA/BatteryIdentity.hpp"
+#include "can/messages/SMA/BatteryLimits.hpp"
 #include "can/messages/SMA/BatteryManufacturer.hpp"
 #include "can/messages/SMA/BatteryMeasurements.hpp"
 #include "can/messages/SMA/BatteryName.hpp"
@@ -99,6 +100,23 @@ TEST_F(SunnyBoyStorageTest, publishesBatteryMeasurementsUponBroadcast)
                                          .setState(BatteryMeasurements::CONNECTED)
                                          .setInverterControlFlags(0))));
 
+   broadcast_callback->invoke();
+}
+
+TEST_F(SunnyBoyStorageTest, publishesBatteryLimitsUponBroadcast)
+{
+   EXPECT_CALL(monitor, getMaxChargeVoltage()).WillOnce(Return(432.1));
+   EXPECT_CALL(monitor, getMinDischargeVoltage()).WillOnce(Return(345.6));
+   EXPECT_CALL(monitor, getChargeCurrentLimit()).WillOnce(Return(21.3));
+   EXPECT_CALL(monitor, getDischargeCurrentLimit()).WillOnce(Return(32.1));
+
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryLimits()
+                                         .setChargeVoltage(432.1)
+                                         .setDischargeVoltage(345.6)
+                                         .setChargeCurrent(21.3)
+                                         .setDischargeCurrent(32.1))));
+   
    broadcast_callback->invoke();
 }
 

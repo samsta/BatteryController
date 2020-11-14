@@ -1,8 +1,9 @@
 #include "SunnyBoyStorage.hpp"
 #include "can/messages/SMA/BatteryIdentity.hpp"
-#include "can/messages/SMA/BatteryName.hpp"
+#include "can/messages/SMA/BatteryLimits.hpp"
 #include "can/messages/SMA/BatteryManufacturer.hpp"
 #include "can/messages/SMA/BatteryMeasurements.hpp"
+#include "can/messages/SMA/BatteryName.hpp"
 #include "can/messages/SMA/BatteryState.hpp"
 #include "can/messages/SMA/BatterySystemInfo.hpp"
 #include "can/messages/SMA/InverterCommand.hpp"
@@ -54,6 +55,11 @@ void SunnyBoyStorage::sendBatteryData()
                  .setSohPercent(m_monitor.getSohPercent())
                  .setEnergyRemainingKwh(m_monitor.getEnergyRemainingKwh())
                  .setFullChargedEnergyKwh(m_monitor.getCapacityKwh()));
+   m_sender.sink(BatteryLimits()
+                 .setChargeVoltage(m_monitor.getMaxChargeVoltage())
+                 .setDischargeVoltage(m_monitor.getMinDischargeVoltage())
+                 .setChargeCurrent(m_monitor.getChargeCurrentLimit())
+                 .setDischargeCurrent(m_monitor.getDischargeCurrentLimit()));
 }
 
 void SunnyBoyStorage::process(const InverterCommand& command)

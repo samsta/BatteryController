@@ -40,6 +40,8 @@ public:
    virtual float getSohPercent() const;
    virtual float getEnergyRemainingKwh() const;
    virtual float getCapacityKwh() const;
+   virtual float getMaxChargeVoltage() const;
+   virtual float getMinDischargeVoltage() const;
    virtual float getChargeCurrentLimit() const;
    virtual float getDischargeCurrentLimit() const;
 

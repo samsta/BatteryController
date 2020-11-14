@@ -28,6 +28,8 @@ public:
    virtual const char* getManufacturerName() const = 0;
    virtual const char* getBatteryName() const = 0;
 
+   virtual float getMaxChargeVoltage() const = 0;
+   virtual float getMinDischargeVoltage() const = 0;
    virtual float getChargeCurrentLimit() const = 0;
    virtual float getDischargeCurrentLimit() const = 0;
 };
