@@ -317,12 +317,12 @@ uint32_t Monitor::getManufacturingDateUnixTime() const
 
 const char* Monitor::getManufacturerName() const
 {
-   return "Nissan";
+   return "LG CHEM";
 }
 
 const char* Monitor::getBatteryName() const
 {
-   return "Leaf 24kWh"; // TODO - configurable
+   return "RESU10H";
 }
 
 float Monitor::getMaxChargeVoltage() const
