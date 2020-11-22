@@ -3,14 +3,15 @@
 #ifndef _CAN_MESSAGES_SMA_INVERTERCOMMAND_HPP
 #define _CAN_MESSAGES_SMA_INVERTERCOMMAND_HPP
 
-#include "can/StandardDataFrame.hpp"
+#include "can/DataFrame.hpp"
+#include "can/messages/Message.hpp"
 #include "can/messages/SMA/Ids.hpp"
 
 namespace can {
 namespace messages {
 namespace SMA {
 
-class InverterCommand
+class InverterCommand: public Message
 {
 public:
    enum Command {
@@ -28,16 +29,15 @@ public:
    float getMeasuredBatteryCurrent() const;
    float getMeasuredBatteryTemperature() const;
 
-   bool valid() const;
+   virtual void toStream(logging::ostream&) const;
+   
 private:
    Command m_command;
    float m_voltage;
    float m_current;
    float m_temperature;
-   bool m_valid;
 };
 
-logging::ostream& operator<<(logging::ostream&, const InverterCommand&);
 logging::ostream& operator<<(logging::ostream&, const InverterCommand::Command&);
 
 }

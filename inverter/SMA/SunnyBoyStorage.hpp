@@ -11,6 +11,7 @@
 
 namespace can {
 namespace messages {
+class Message;
 namespace SMA {
 class InverterCommand;
 class InverterIdentity;
@@ -29,10 +30,11 @@ public:
                    contactor::Contactor& contactor);
    ~SunnyBoyStorage();
 
-   void process(const can::messages::SMA::InverterCommand&);
-   void process(const can::messages::SMA::InverterIdentity&);
+   void sink(const can::messages::Message&);
    
 private:
+   void process(const can::messages::SMA::InverterCommand&);
+   void process(const can::messages::SMA::InverterIdentity&);
    void sendBatteryData();
    
    can::FrameSink&       m_sender;

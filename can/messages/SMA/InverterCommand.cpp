@@ -9,13 +9,13 @@ namespace messages {
 namespace SMA {
 
 InverterCommand::InverterCommand(const DataFrame& frame):
+      Message(ID_INVERTER_COMMAND),
       m_command(),
       m_voltage(),
       m_current(),
-      m_temperature(),
-      m_valid(false)
+      m_temperature()
 {
-   if (frame.id() != ID_INVERTER_COMMAND) return;
+   if (frame.id() != id()) return;
    if (frame.size() != 8) return;
 
    m_command = frame.data()[6] == CONNECT ? CONNECT : DISCONNECT;
@@ -23,15 +23,15 @@ InverterCommand::InverterCommand(const DataFrame& frame):
    m_current = frame.getSignedShort(2) * 0.1;
    m_temperature = frame.getSignedShort(4) * 0.1;
    
-   m_valid = true;
+   setValid();
 }
 
 InverterCommand::InverterCommand():
+      Message(ID_INVERTER_COMMAND),
       m_command(),
       m_voltage(),
       m_current(),
-      m_temperature(),
-      m_valid(false)
+      m_temperature()
 {
 }
 
@@ -43,7 +43,7 @@ InverterCommand::Command InverterCommand::getCommand() const
 InverterCommand& InverterCommand::setCommand(Command command)
 {
    m_command = command;
-   m_valid = true;
+   setValid();
    return *this;
 }
       
@@ -63,23 +63,22 @@ float InverterCommand::getMeasuredBatteryTemperature() const
    return m_temperature;
 }
 
-bool InverterCommand::valid() const
-{
-   return m_valid;
-}
-
-logging::ostream& operator<<(logging::ostream& os, const InverterCommand& command)
+void InverterCommand::toStream(logging::ostream& os) const
 {
    os << "InverterCommand: ";
 
-   if (not command.valid()) return os << "invalid";
-
-   os << "Command=" << command.getCommand()
-      << " MeasuredBatteryVoltage=" << command.getMeasuredBatteryVoltage()
-      << "V MeasuredBatteryCurrent=" << command.getMeasuredBatteryCurrent()
-      << "A MeasuredBatteryTemperature=" << command.getMeasuredBatteryTemperature()
-      << "degC";
-   return os;
+   if (not valid())
+   {
+      os << "invalid";
+   }
+   else
+   {
+      os << "Command=" << getCommand()
+         << " MeasuredBatteryVoltage=" << getMeasuredBatteryVoltage()
+         << "V MeasuredBatteryCurrent=" << getMeasuredBatteryCurrent()
+         << "A MeasuredBatteryTemperature=" << getMeasuredBatteryTemperature()
+         << "degC";
+   }
 }
 
 logging::ostream& operator<<(logging::ostream& os, const InverterCommand::Command& c)

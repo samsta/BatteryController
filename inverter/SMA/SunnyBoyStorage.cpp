@@ -1,4 +1,5 @@
 #include "SunnyBoyStorage.hpp"
+#include "can/messages/Message.hpp"
 #include "can/messages/SMA/BatteryIdentity.hpp"
 #include "can/messages/SMA/BatteryLimits.hpp"
 #include "can/messages/SMA/BatteryManufacturer.hpp"
@@ -7,8 +8,10 @@
 #include "can/messages/SMA/BatteryState.hpp"
 #include "can/messages/SMA/BatterySystemInfo.hpp"
 #include "can/messages/SMA/InverterCommand.hpp"
+#include "can/messages/SMA/InverterIdentity.hpp"
 #include <string.h>
 
+using namespace can::messages;
 using namespace can::messages::SMA;
 
 namespace inverter {
@@ -61,6 +64,20 @@ void SunnyBoyStorage::sendBatteryData()
                  .setChargeCurrent(m_monitor.getChargeCurrentLimit())
                  .setDischargeCurrent(m_monitor.getDischargeCurrentLimit()));
 }
+
+void SunnyBoyStorage::sink(const Message& message)
+{
+   switch (message.id())
+   {
+   case ID_INVERTER_COMMAND:
+      process(static_cast<const InverterCommand&>(message));
+      break;
+   case ID_INVERTER_IDENTITY:
+      process(static_cast<const InverterIdentity&>(message));
+      break;
+   }
+}
+
 
 void SunnyBoyStorage::process(const InverterCommand& command)
 {

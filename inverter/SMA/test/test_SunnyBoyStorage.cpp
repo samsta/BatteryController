@@ -135,21 +135,21 @@ TEST_F(SunnyBoyStorageTest, requestsToCloseContactor)
 {
    EXPECT_CALL(contactor, close());
 
-   sbs.process(InverterCommand().setCommand(InverterCommand::CONNECT));
+   sbs.sink(InverterCommand().setCommand(InverterCommand::CONNECT));
 }
 
 TEST_F(SunnyBoyStorageTest, requestsToOpenContactor)
 {
    EXPECT_CALL(contactor, open());
 
-   sbs.process(InverterCommand().setCommand(InverterCommand::DISCONNECT));
+   sbs.sink(InverterCommand().setCommand(InverterCommand::DISCONNECT));
 }
 
 TEST_F(SunnyBoyStorageTest, requestsToOpenContactorOnGarbageCommand)
 {
    EXPECT_CALL(contactor, open());
 
-   sbs.process(InverterCommand().setCommand(InverterCommand::Command(77)));
+   sbs.sink(InverterCommand().setCommand(InverterCommand::Command(77)));
 }
 
 TEST_F(SunnyBoyStorageTest, sendsBatterySystemInfoOnInverterIdentityReceived)
@@ -161,7 +161,7 @@ TEST_F(SunnyBoyStorageTest, sendsBatterySystemInfoOnInverterIdentityReceived)
    EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
    EXPECT_CALL(sink, sink(MatchesMessage(BatterySystemInfo(123456, 42, 7, 2))));
    
-   sbs.process(InverterIdentity());
+   sbs.sink(InverterIdentity());
 }
 
 TEST_F(SunnyBoyStorageTest, sendsIdentityOnInverterIdentityReceived)
@@ -172,7 +172,7 @@ TEST_F(SunnyBoyStorageTest, sendsIdentityOnInverterIdentityReceived)
    EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryIdentity(123456, 987654))));
    
-   sbs.process(InverterIdentity());
+   sbs.sink(InverterIdentity());
 }
 
 TEST_F(SunnyBoyStorageTest, sendsManufacturerNameOnInverterIdentityReceived)
@@ -184,7 +184,7 @@ TEST_F(SunnyBoyStorageTest, sendsManufacturerNameOnInverterIdentityReceived)
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(1, "hijklmn"))));
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(2, "op"))));
    
-   sbs.process(InverterIdentity());
+   sbs.sink(InverterIdentity());
 }
 
 TEST_F(SunnyBoyStorageTest, sendsShortManufacturerNameOnInverterIdentityReceived)
@@ -194,7 +194,7 @@ TEST_F(SunnyBoyStorageTest, sendsShortManufacturerNameOnInverterIdentityReceived
    EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(0, "ab"))));
    
-   sbs.process(InverterIdentity());
+   sbs.sink(InverterIdentity());
 }
 
 TEST_F(SunnyBoyStorageTest, sendBatteryNameOnInverterIdentityReceived)
@@ -205,7 +205,7 @@ TEST_F(SunnyBoyStorageTest, sendBatteryNameOnInverterIdentityReceived)
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryName(0, "qwertyu"))));
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryName(1, "iop"))));
    
-   sbs.process(InverterIdentity());
+   sbs.sink(InverterIdentity());
 }
 
 

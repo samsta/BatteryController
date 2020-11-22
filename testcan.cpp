@@ -216,32 +216,39 @@ public:
    SmaSink(inverter::SMA::SunnyBoyStorage& inverter): m_inverter(inverter)
    {
    }
+
+   void* mem()
+   {
+      return m_message_memory;
+   }
+
+   const can::messages::Message* decode(const can::DataFrame& f)
+   {
+      using namespace can::messages::SMA;
+      can::messages::Message* msg;
+
+      msg = new(mem()) InverterCommand(f);
+      if (msg->valid()) return msg;
+
+      msg = new(mem()) InverterIdentity(f);
+      if (msg->valid()) return msg;
+
+      return NULL;
+   }
    
    virtual void sink(const can::DataFrame& f)
    {
+      const can::messages::Message* msg = decode(f);
+      
+      if (msg)
       {
-         can::messages::SMA::InverterCommand command(f);
-         if (command.valid())
-         {
-            std::cout << "<INV IN>  " << command << std::endl;
-            m_inverter.process(command);
-            return;
-         }
+         std::cout << "<INV IN>  " << *msg << std::endl;
+         m_inverter.sink(*msg);
       }
-      {
-         can::messages::SMA::InverterIdentity identity(f);
-         if (identity.valid())
-         {
-            std::cout << "<INV IN>  " << identity << std::endl;
-            m_inverter.process(identity);
-            return;
-         }
-      }
-
-
    }
 
    inverter::SMA::SunnyBoyStorage& m_inverter;
+   uint8_t m_message_memory[1024];
 };
 
 

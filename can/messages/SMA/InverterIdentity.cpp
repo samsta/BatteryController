@@ -10,10 +10,10 @@ namespace messages {
 namespace SMA {
 
 InverterIdentity::InverterIdentity(const DataFrame& frame):
+      Message(ID_INVERTER_IDENTITY),
       m_software_version(),
       m_inverter_id(),
-      m_configuration(),
-      m_valid(false)
+      m_configuration()
 {
    if (frame.id() != ID_INVERTER_IDENTITY) return;
    if (frame.size() != 8) return;
@@ -22,14 +22,14 @@ InverterIdentity::InverterIdentity(const DataFrame& frame):
    m_inverter_id = frame.getUnsignedShort(4);
    m_configuration = frame.getByte(6);
    
-   m_valid = true;
+   setValid();
 }
 
 InverterIdentity::InverterIdentity():
+      Message(ID_INVERTER_IDENTITY),
       m_software_version(),
       m_inverter_id(),
-      m_configuration(),
-      m_valid(false)
+      m_configuration()
 {
 }
 
@@ -48,21 +48,20 @@ uint8_t  InverterIdentity::getConfiguration() const
    return m_configuration;
 }
 
-bool InverterIdentity::valid() const
-{
-   return m_valid;
-}
-
-logging::ostream& operator<<(logging::ostream& os, const InverterIdentity& identity)
+void InverterIdentity::toStream(logging::ostream& os) const
 {
    os << "InverterIdentity: ";
 
-   if (not identity.valid()) return os << "invalid";
-
-   os << "SoftwareVersion=" << identity.getSoftwareVersion()
-      << " InverterId=" << identity.getInverterId()
-      << " Configuration=0x" << logging::HexByte(identity.getConfiguration());
-   return os;
+   if (not valid())
+   {
+      os << "invalid";
+   }
+   else
+   {
+      os << "SoftwareVersion=" << getSoftwareVersion()
+         << " InverterId=" << getInverterId()
+         << " Configuration=0x" << logging::HexByte(getConfiguration());
+   }
 }
 
 }
