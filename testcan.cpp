@@ -38,6 +38,16 @@
 #include "core/Timer.hpp"
 #include "core/Callback.hpp"
 
+namespace color {
+const char* red   = "\x1b[31m";
+const char* bright_red   = "\x1b[91m";
+const char* green = "\x1b[32m";
+const char* bright_green = "\x1b[92m";
+const char* blue  = "\x1b[34m";
+const char* bright_blue  = "\x1b[94m";
+const char* reset = "\x1b[0m";
+}
+              
 gpiod_line* openOutput(gpiod_chip* chip, unsigned pin, const char* name)
 {
    gpiod_line* gpio = gpiod_chip_get_line(chip, pin);
@@ -88,7 +98,7 @@ public:
 
    virtual void setSafeToOperate(bool safe)
    {
-      std::cout << ">>> contactor is " << (safe ? "safe" : "unsafe") << " to operate" << std::endl;
+      std::cout << color::red << ">>> contactor is " << (safe ? "safe" : "unsafe") << " to operate" << color::reset << std::endl;
       m_safe_to_operate = safe;
       update();
    }
@@ -116,7 +126,7 @@ public:
       if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 0);
       if (m_gpio_led1) gpiod_line_set_value(m_gpio_led1, 0);
       
-      std::cout << ">>>> contactor opened" << std::endl;
+      std::cout << color::bright_red << ">>>> contactor opened" << color::reset << std::endl;
       m_state = OPEN;
    }
 
@@ -135,7 +145,7 @@ public:
    void closeNegative()
    {
       m_state = CLOSING;
-      std::cout << ">>>> contactor closing..." << std::endl;
+      std::cout << color::bright_red << ">>>> contactor closing..." << color::reset << std::endl;
       struct itimerspec its = itimerspec();
       its.it_value.tv_sec = 3;
       timerfd_settime(m_timerfd, 0, &its, NULL);
@@ -147,7 +157,7 @@ public:
    void closePositive()
    {
       if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 1);
-      std::cout << ">>>> contactor closed" << std::endl;
+      std::cout << color::bright_red <<  ">>>> contactor closed" << color::reset << std::endl;
       m_state = CLOSED;
    }
 
@@ -202,7 +212,7 @@ public:
 
       if (msg)
       {
-         std::cout << "<BAT IN> " << *msg << std::endl;
+         std::cout << color::bright_blue << "<BAT IN> " << *msg << color::reset << std::endl;
          m_monitor.sink(*msg);
       }
    }
@@ -246,7 +256,7 @@ public:
       
       if (msg)
       {
-         std::cout << "<INV IN>  " << *msg << std::endl;
+         std::cout << color::bright_green << "<INV IN>  " << *msg << color::reset << std::endl;
          m_inverter.sink(*msg);
       }
    }
@@ -259,13 +269,13 @@ public:
 class CanSender: public can::FrameSink
 {
 public:
-   CanSender(int fd, const char* name): m_fd(fd), m_name(name)
+   CanSender(int fd, const char* name, const char* color): m_fd(fd), m_name(name), m_color(color)
    {
    }
 
    virtual void sink(const can::DataFrame& f)
    {
-      std::cout << "<" << m_name << " OUT> " << f << std::endl;
+      std::cout << m_color << "<" << m_name << " OUT> " << f << color::reset << std::endl;
 
       struct can_frame frame;
       frame.can_id = f.id();
@@ -281,6 +291,7 @@ public:
 private:
    int m_fd;
    const char* m_name;
+   const char* m_color;
 };
 
 class EpollTimer: public core::Timer
@@ -421,10 +432,10 @@ int main(int argc, const char** argv)
    monitor::Nissan::Monitor monitor(contactor);
    NissanSink battery_sink(monitor);
    can::services::Nissan::FrameAggregator aggregator(battery_sink);
-   CanSender battery_sender(battery_socket, "BAT");
+   CanSender battery_sender(battery_socket, "BAT", color::blue);
    can::services::Nissan::GroupPoller poller(battery_sender);
 
-   CanSender inverter_sender(inverter_socket, "INV");
+   CanSender inverter_sender(inverter_socket, "INV", color::green);
    EpollTimer inverter_timer(epollfd);
    inverter::SMA::SunnyBoyStorage inverter(inverter_sender, inverter_timer, monitor, contactor);
    SmaSink inverter_sink(inverter);
