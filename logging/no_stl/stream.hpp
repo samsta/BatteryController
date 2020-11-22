@@ -3,6 +3,7 @@
 #ifndef _LOGGING_NO_STL_STREAM_HPP_
 #define _LOGGING_NO_STL_STREAM_HPP_
 
+#include "config.h"
 #include <stdint.h>
 
 namespace logging {
@@ -23,5 +24,11 @@ inline ostream& operator<<(ostream& os, const uint32_t&){ return os; }
 }
 }
 
+#ifndef HAS_STD_IOSTREAM
+namespace std {
+logging::no_stl::ostream cout;
+const char* endl;
+}
+#endif
 
 #endif // _LOGGING_NO_STL_STREAM_HPP_
