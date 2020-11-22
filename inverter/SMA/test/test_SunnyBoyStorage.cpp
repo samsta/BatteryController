@@ -9,6 +9,7 @@
 #include "can/messages/SMA/Ids.hpp"
 #include "can/messages/SMA/InverterCommand.hpp"
 #include "can/messages/SMA/InverterIdentity.hpp"
+#include "can/messages/SMA/InverterManufacturer.hpp"
 #include "core/Callback.hpp"
 #include "inverter/SMA/SunnyBoyStorage.hpp"
 #include "mocks/can/FrameSink.hpp"
@@ -29,6 +30,18 @@ MATCHER_P(MatchesMessage, m, "")
    return arg == m;
 }
 
+#define EXPECT_NO_CALL(o, m) EXPECT_CALL(o, m).Times(0)
+
+class Nonsense: public can::messages::Message
+{
+public:
+   Nonsense(): Message(0x00){}
+   virtual void toStream(logging::ostream& os) const
+   {
+      os << "Nonsense";
+   }    
+};
+
 TEST(SunnyBoyStorage, registersAndDeregistersTimerCallbackFor5000MillisecondPeriod)
 {
    mocks::can::FrameSink sink;
@@ -44,10 +57,10 @@ TEST(SunnyBoyStorage, registersAndDeregistersTimerCallbackFor5000MillisecondPeri
    }
 }
 
-class SunnyBoyStorageTest: public Test
+class SunnyBoyStorageAtStartupTest: public Test
 {
 public:
-   SunnyBoyStorageTest():
+   SunnyBoyStorageAtStartupTest():
       constructor_expectation(timer, &broadcast_callback),
       sbs(sink, timer, monitor, contactor)
    {
@@ -69,6 +82,85 @@ public:
    } constructor_expectation;
    
    SunnyBoyStorage sbs;
+};
+
+TEST_F(SunnyBoyStorageAtStartupTest, doesntBroadcastIfNothingReceivedFromInverter)
+{
+   EXPECT_NO_CALL(sink, sink(_));
+
+   broadcast_callback->invoke();
+}
+
+TEST_F(SunnyBoyStorageAtStartupTest, broadcastsAfterReceivingInverterManufacturer)
+{
+   sbs.sink(InverterManufacturer(0, "SMA"));
+
+   EXPECT_CALL(sink, sink(_)).Times(AtLeast(1));
+   broadcast_callback->invoke();
+}
+
+TEST_F(SunnyBoyStorageAtStartupTest, broadcastsAfterReceivingInverterCommand)
+{
+   sbs.sink(InverterCommand());
+
+   EXPECT_CALL(sink, sink(_)).Times(AtLeast(1));
+   broadcast_callback->invoke();
+}
+
+TEST_F(SunnyBoyStorageAtStartupTest, broadcastsAfterReceivingInverterIdentity)
+{
+   sbs.sink(InverterIdentity());
+
+   EXPECT_CALL(sink, sink(_)).Times(AtLeast(1));
+   broadcast_callback->invoke();
+}
+
+TEST_F(SunnyBoyStorageAtStartupTest, doesntBroadcastAfterReceivingUnrecognisedMessage)
+{
+   sbs.sink(Nonsense());
+
+   EXPECT_NO_CALL(sink, sink(_));
+   broadcast_callback->invoke();
+}
+
+TEST_F(SunnyBoyStorageAtStartupTest, broadcastsStopsAfterNotReceivingMessageFor4Intervals)
+{
+   sbs.sink(InverterManufacturer(0, "SMA"));
+
+   // 4 intervals means 4 x 5s = 20s
+   for (unsigned k = 0; k < 4; k++)
+   {
+      EXPECT_CALL(sink, sink(_)).Times(AtLeast(1));
+      broadcast_callback->invoke();
+   }
+
+   EXPECT_NO_CALL(sink, sink(_));
+   broadcast_callback->invoke();
+}
+
+TEST_F(SunnyBoyStorageAtStartupTest, broadcastsResumeAfterReceivingMessage)
+{
+   sbs.sink(InverterManufacturer(0, "SMA"));
+
+   for (unsigned k = 0; k < 10; k++)
+   {
+      broadcast_callback->invoke();
+   }
+
+   sbs.sink(InverterManufacturer(0, "SMA"));
+
+   EXPECT_CALL(sink, sink(_)).Times(AtLeast(1));
+   broadcast_callback->invoke();
+}
+
+
+class SunnyBoyStorageTest: public SunnyBoyStorageAtStartupTest
+{
+public:
+   SunnyBoyStorageTest(): SunnyBoyStorageAtStartupTest()
+   {
+      sbs.sink(InverterManufacturer(0, "SMA"));
+   }
 };
 
 TEST_F(SunnyBoyStorageTest, publishesBatteryStateUponBroadcast)
@@ -151,6 +243,22 @@ TEST_F(SunnyBoyStorageTest, requestsToOpenContactorOnGarbageCommand)
 
    sbs.sink(InverterCommand().setCommand(InverterCommand::Command(77)));
 }
+
+TEST_F(SunnyBoyStorageTest, requestsToOpenContactorWhenInverterGoesSilent)
+{
+   sbs.sink(InverterCommand().setCommand(InverterCommand::CONNECT));
+
+   EXPECT_NO_CALL(contactor, open());
+
+   broadcast_callback->invoke();
+   broadcast_callback->invoke();
+   broadcast_callback->invoke();
+   broadcast_callback->invoke();
+
+   EXPECT_CALL(contactor, open());
+   broadcast_callback->invoke();
+}
+
 
 TEST_F(SunnyBoyStorageTest, sendsBatterySystemInfoOnInverterIdentityReceived)
 {

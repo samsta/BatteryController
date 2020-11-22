@@ -23,6 +23,8 @@ namespace {
 //       it's just an arbitrary number
 const unsigned MANUFACTURER_ID = 2;
 
+const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 4;
+
 }
 
 SunnyBoyStorage::SunnyBoyStorage(can::FrameSink& sender,
@@ -33,7 +35,8 @@ SunnyBoyStorage::SunnyBoyStorage(can::FrameSink& sender,
       m_timer(timer),
       m_monitor(monitor),
       m_contactor(contactor),
-      m_periodic_callback(*this, &SunnyBoyStorage::sendBatteryData)
+      m_periodic_callback(*this, &SunnyBoyStorage::sendBatteryData),
+      m_inverter_silent_counter(INVERTER_SILENT_TIMEOUT_PERIODS + 1)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, 5000);
 }
@@ -45,6 +48,19 @@ SunnyBoyStorage::~SunnyBoyStorage()
 
 void SunnyBoyStorage::sendBatteryData()
 {
+   if (m_inverter_silent_counter >= INVERTER_SILENT_TIMEOUT_PERIODS)
+   {
+      if (m_inverter_silent_counter == INVERTER_SILENT_TIMEOUT_PERIODS)
+      {
+         std::cout << "Inverter went silent, so I'll stop spamming it" << std::endl;
+         m_inverter_silent_counter++;
+      }
+      m_contactor.open();
+      return;
+   }
+   m_inverter_silent_counter++;
+
+   
    m_sender.sink(BatteryMeasurements()
                  .setVoltage(m_monitor.getVoltage())
                  .setCurrent(m_monitor.getCurrent())
@@ -75,7 +91,15 @@ void SunnyBoyStorage::sink(const Message& message)
    case ID_INVERTER_IDENTITY:
       process(static_cast<const InverterIdentity&>(message));
       break;
+   case ID_INVERTER_MANUFACTURER:
+      // not really interesting, apart from resetting
+      //   the silent counter below
+      break;
+   default:
+      return;
    }
+
+   m_inverter_silent_counter = 0;
 }
 
 

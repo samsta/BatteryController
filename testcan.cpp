@@ -29,6 +29,7 @@
 #include "can/messages/Nissan/BatteryStatus.hpp"
 #include "can/messages/SMA/InverterCommand.hpp"
 #include "can/messages/SMA/InverterIdentity.hpp"
+#include "can/messages/SMA/InverterManufacturer.hpp"
 #include "can/messages/Nissan/Ids.hpp"
 #include "monitor/Nissan/Monitor.hpp"
 #include "inverter/SMA/SunnyBoyStorage.hpp"
@@ -233,6 +234,9 @@ public:
       msg = new(mem()) InverterIdentity(f);
       if (msg->valid()) return msg;
 
+      msg = new(mem()) InverterManufacturer(f);
+      if (msg->valid()) return msg;
+      
       return NULL;
    }
    

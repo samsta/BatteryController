@@ -42,6 +42,7 @@ private:
    monitor::Monitor&     m_monitor;
    contactor::Contactor& m_contactor;
    core::Callback<SunnyBoyStorage> m_periodic_callback;
+   unsigned              m_inverter_silent_counter;
 };
 
 }
