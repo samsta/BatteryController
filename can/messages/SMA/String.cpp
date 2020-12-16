@@ -70,6 +70,8 @@ void sendString(FrameSink& sender, Ids id, const char* string)
       string += CHARS_PER_MESSAGE;
       index++;
    }
+   // terminate with a string with all zeros
+   sender.sink(String(id, index, ""));   
 }
 
 }

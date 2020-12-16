@@ -291,7 +291,9 @@ TEST_F(SunnyBoyStorageTest, sendsManufacturerNameOnInverterIdentityReceived)
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(0, "abcdefg"))));
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(1, "hijklmn"))));
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(2, "op"))));
-   
+   // should always be followed by a string with just zeros
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(3, ""))));
+
    sbs.sink(InverterIdentity());
 }
 
@@ -300,8 +302,10 @@ TEST_F(SunnyBoyStorageTest, sendsShortManufacturerNameOnInverterIdentityReceived
    EXPECT_CALL(monitor, getManufacturerName()).WillOnce(Return("ab"));
    
    EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
-   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(0, "ab"))));
-   
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(0, "ab")))); 
+   // should always be followed by a string with just zeros
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(1, ""))));
+  
    sbs.sink(InverterIdentity());
 }
 
@@ -312,6 +316,8 @@ TEST_F(SunnyBoyStorageTest, sendBatteryNameOnInverterIdentityReceived)
    EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryName(0, "qwertyu"))));
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryName(1, "iop"))));
+   // should always be followed by a string with just zeros
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryName(2, ""))));
    
    sbs.sink(InverterIdentity());
 }
