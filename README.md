@@ -72,6 +72,8 @@ And a few more bits and bobs that need to be extracted from the horrible testcan
 
 # Building the Code
 
+This is a [CMake](https://cmake.org/) project. CMake is great when it comes to cross-compiling and compiling code on different platforms. Currently, we can build on the Raspberry Pi (on the command line) or Linux and macOS (on the command line or using an IDE like Eclipse or Xcode). In theory, we could build under Windows too (e.g. using Visual Studio) but I have not bothered providing the support in the source code which I'm happy to leave as an exercise to an interested party. The unit tests and all units should just work on Windows, but the top-level files stitching it all together will need to be different as Windows' way to deal with files and the CAN bus etc. are different - unless you choose to use [Cygwin](https://www.cygwin.com/).
+
 ## Eclipse on Ubuntu
 
 Currently, we can only build for the native platform under Eclipes (i.e. no cross-compiling to create code for the Pi). This is good for unit tests, but you can also run the other applications given you provide either real or virtual CAN interfaces.
