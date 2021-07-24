@@ -131,9 +131,7 @@ You have now imported the project into Eclipse. You should not have to do that a
 Some useful views to Open:
 
 - Window > Show View > Project Explorer. You'll find the code in the newly opened view under '[Source Directory]
-- Window > Show View > Build Targets. You can double click the 'all' target, and once that's completed, you can run the tests by double clicking the 'test` target.
-
-I will add a few more targets that build and run individual tests as that's much more convenient.
+- Window > Show View > Build Targets. You can double click the 'all' target, and once that's completed, you can run the tests by double clicking the 'check` target. You can run the test by building the `test` target but it won't give you as much useful output when a test fails.
 
 Note: If you add source files to Eclipse, you have to add them to the CMakeLists.txt in the same directory too. This is so we can build stuff outside of Eclipse, e.g. on the Pi where we just use `CMake` and `make` and no IDE.
 
