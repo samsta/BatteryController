@@ -2,4 +2,4 @@ include(GoogleTest)
 
 add_executable(test_can_messages_tesla test_DetailedCellData.cpp)
 target_link_libraries(test_can_messages_tesla can gmock gmock_main)
-add_test(test_can_messages_tesla test_can_messages_tesla)
+gtest_discover_tests(test_can_messages_tesla)

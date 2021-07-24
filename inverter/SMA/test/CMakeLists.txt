@@ -2,4 +2,4 @@ include(GoogleTest)
 
 add_executable(test_inverter_sma test_SunnyBoyStorage.cpp)
 target_link_libraries(test_inverter_sma inverter monitor can gmock gmock_main)
-add_test(test_inverter_sma test_inverter_sma)
+gtest_discover_tests(test_inverter_sma)
