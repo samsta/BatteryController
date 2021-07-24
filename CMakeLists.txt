@@ -32,7 +32,7 @@ if(BUILD_TESTING)
         --output-on-failure --force-new-ctest-process --test-action memcheck -DMEMORYCHECK_SUPPRESSIONS_FILE="${CMAKE_SOURCE_DIR}/valgrind.supp"
     COMMAND cat "${CMAKE_BINARY_DIR}/Testing/Temporary/MemoryChecker.*.log")
   add_custom_target(check
-    COMMAND env GTEST_COLOR=1 ${CMAKE_CTEST_COMMAND} --output-on-failure)
+    COMMAND env GTEST_COLOR=1 ${CMAKE_CTEST_COMMAND} --verbose)
 else()
   message(STATUS "NOT building tests")
 endif()
