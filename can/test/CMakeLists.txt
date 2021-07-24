@@ -4,4 +4,4 @@ add_executable(test_can test_StandardDataFrame.cpp
                         test_LargeDataFrame.cpp)
 target_link_libraries(test_can can gmock gmock_main)
 target_include_directories(test_can PUBLIC ../)
-gtest_discover_tests(test_can)
+add_test(test_can test_can)
