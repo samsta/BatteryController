@@ -99,8 +99,8 @@ If you can't find the C/C++ Development Tools in there let me know and I'll dig 
 Then download the CMake Editor plugin: 
 
 - Help > Eclipse Marketplace > Search
--- search for 'CMake Editor'
--- install it; follow on-screen instructions
+   - search for 'CMake Editor'
+   - install it; follow on-screen instructions
 
 Then, go to a a directory of your choice (I'll assume `~/Projects`, which is short for `/home/<username>/Projects`):
 
@@ -117,12 +117,12 @@ Do not despair - this only needs to be done once to create the `.project` file E
 Now import the project into Eclipse:
 
 - File > Import > General > Existing Projects into Workspace > Next
--- Choose 'Select root directory', then click 'Browse'
--- click 'Home'
--- navigate to Projects/NatteryController-build and click Open
--- It should now list under Projects:
---- BatteryController@BatteryController-build
--- click Finish
+   - Choose 'Select root directory', then click 'Browse'
+   - click 'Home'
+   - navigate to Projects/NatteryController-build and click Open
+   - It should now list under Projects:
+      - BatteryController@BatteryController-build
+   - click Finish
 
 You have now imported the project into Eclipse. You should not have to do that again, it should still be there the next time you open Eclipse.
 
