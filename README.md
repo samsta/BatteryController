@@ -81,7 +81,7 @@ Currently, we can only build for the native platform under Eclipes (i.e. no cros
 First, let's install the prerequisites. In a terminal, run:
 
 ~~~
-sudo apt -y install cmake libgtk-3-0 libsocketcan-dev libgpiod-dev can-utils
+sudo apt -y install build-essential cmake git libgtk-3-0 libsocketcan-dev libgpiod-dev can-utils
 ~~~
 
 Download the installer from https://www.eclipse.org/downloads/download.php?file=/oomph/epp/2020-12/R/eclipse-inst-jre-linux64.tar.gz , then unpack and run eclipse-inst. Note that your browser might download it to a different directory, but we'll assume the default here:
