@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-#ifndef _CAN_MESSAGES_TSUN_ENSEMBLEINFORMATION_HPP
-#define _CAN_MESSAGES_TSUN_ENSEMBLEINFORMATION_HPP
+#ifndef _CAN_MESSAGES_TSUN_SYSTEMEQUIPMENT_HPP
+#define _CAN_MESSAGES_TSUN_SYSTEMEQUIPMENT_HPP
 
 #include "can/DataFrame.hpp"
 #include "can/messages/Message.hpp"
@@ -11,11 +11,11 @@ namespace can {
 namespace messages {
 namespace TSUN {
 
-class EnsembleInformation: public Message
+class SystemEquipment: public Message
 {
 public:
 
-   EnsembleInformation(const DataFrame&);
+   SystemEquipment(const DataFrame&);
    virtual void toStream(logging::ostream&) const {};
 };
 
@@ -23,4 +23,4 @@ public:
 }
 }
 
-#endif // _CAN_MESSAGES_TSUN_ENSEMBLEINFORMATION_HPP
+#endif // _CAN_MESSAGES_TSUN_SYSTEMEQUIPMENT_HPP

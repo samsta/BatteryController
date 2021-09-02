@@ -11,3 +11,18 @@ TEST(TsunEnsembleInformation, valid)
 {
    EXPECT_TRUE(EnsembleInformation(can::StandardDataFrame("4200#0000000000000000")).valid());
 }
+
+TEST(TsunEnsembleInformation, invalidTypeData)
+{
+   EXPECT_FALSE(EnsembleInformation(can::StandardDataFrame("4200#0100000000000000")).valid());
+}
+
+TEST(TsunEnsembleInformation, invalidId)
+{
+   EXPECT_FALSE(EnsembleInformation(can::StandardDataFrame("4201#0000000000000000")).valid());
+}
+
+TEST(TsunEnsembleInformation, invalidLength)
+{
+   EXPECT_FALSE(EnsembleInformation(can::StandardDataFrame("4200#00000000000000")).valid());
+}

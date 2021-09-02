@@ -15,7 +15,7 @@ InverterCommand::InverterCommand(const DataFrame& frame):
       m_current(),
       m_temperature()
 {
-   if (frame.id() != id()) return;
+   if (frame.id() != ID_INVERTER_COMMAND) return;
    if (frame.size() != 8) return;
 
    m_command = frame.data()[6] == CONNECT ? CONNECT : DISCONNECT;
