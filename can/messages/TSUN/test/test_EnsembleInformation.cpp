@@ -26,3 +26,8 @@ TEST(TsunEnsembleInformation, invalidLength)
 {
    EXPECT_FALSE(EnsembleInformation(can::StandardDataFrame("4200#00000000000000")).valid());
 }
+
+TEST(TsunEnsembleInformation, isCorrectId)
+{
+	   EXPECT_TRUE(EnsembleInformation(can::StandardDataFrame("4200#00000000000000")).id() == ID_INVERTER_REQUEST_ENSEMBLE_INFO);
+}

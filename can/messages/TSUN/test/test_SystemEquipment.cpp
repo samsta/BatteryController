@@ -26,3 +26,8 @@ TEST(TsunSystemEquipment, invalidLength)
 {
    EXPECT_FALSE(SystemEquipment(can::StandardDataFrame("4200#02000000000000")).valid());
 }
+
+TEST(TsunSystemEquipment, isCorrectId)
+{
+	   EXPECT_TRUE(SystemEquipment(can::StandardDataFrame("4200#02000000000000")).id() == ID_INVERTER_REQUEST_SYS_EQUIP_INFO);
+}
