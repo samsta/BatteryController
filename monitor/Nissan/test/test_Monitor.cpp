@@ -10,7 +10,12 @@
 using namespace testing;
 using namespace monitor::Nissan;
 using namespace can::messages::Nissan;
-using std::isnan;
+
+#if defined(__APPLE__)
+	using ::isnan;
+#else
+	using std::isnan;
+#endif
 
 namespace {
 
