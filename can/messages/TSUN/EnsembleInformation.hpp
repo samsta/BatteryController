@@ -11,13 +11,13 @@ namespace can {
 namespace messages {
 namespace TSUN {
 
-class EnsembleInformation: public Message
-{
-public:
-
-   EnsembleInformation(const DataFrame&);
-   virtual void toStream(logging::ostream&) const {};
-};
+//class EnsembleInformation: public Message
+//{
+//public:
+//
+//   EnsembleInformation(const DataFrame&);
+//   virtual void toStream(logging::ostream&) const {};
+//};
 
 }
 }
