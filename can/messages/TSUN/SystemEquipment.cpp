@@ -10,8 +10,7 @@ SystemEquipment::SystemEquipment(const DataFrame& frame):
 {
 	if (frame.id() != ID_INVERTER_REQUEST_INFORMATION) return;
 	if (frame.size() != 8) return;
-	// the first byte must be 2 for this to be a SystemEquipment msg
-	if (frame.getByte(0) != 2) return;
+	if (frame.getByte(0) != ID_INVERTER_REQUEST_SYS_EQUIP_INFO) return;
 
 	setValid();
 }

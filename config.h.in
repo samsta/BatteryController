@@ -4,10 +4,4 @@
 #cmakedefine HAS_STD_IOSTREAM
 #cmakedefine HAS_STD_STRING
 
-#if defined(__APPLE__)
-	using ::isnan;
-#else
-	using std::isnan;
-#endif
-
 #endif
