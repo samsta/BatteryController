@@ -15,7 +15,7 @@ InverterIdentity::InverterIdentity(const DataFrame& frame):
       m_inverter_id(),
       m_configuration()
 {
-   if (frame.id() != ID_INVERTER_IDENTITY) return;
+   if (frame.id() != id()) return;
    if (frame.size() != 8) return;
 
    m_software_version = frame.getUnsignedLong(0, 4);
