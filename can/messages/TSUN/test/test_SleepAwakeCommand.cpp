@@ -29,10 +29,10 @@ TEST(TsunSleepAwakeCommand, invalidLength)
 
 TEST(TsunSleepAwakeCommand, commandEnterSleep)
 {
-   EXPECT_EQ(SleepAwakeCommand::ENTERSLEEP,SleepAwakeCommand(can::StandardDataFrame("8200#5500000000000000")).getCommand());
+   EXPECT_EQ(SleepAwakeCommand::ENTER_SLEEP,SleepAwakeCommand(can::StandardDataFrame("8200#5500000000000000")).getCommand());
 }
 
 TEST(TsunSleepAwakeCommand, commandQuitSleep)
 {
-   EXPECT_EQ(SleepAwakeCommand::QUITSLEEP,SleepAwakeCommand(can::StandardDataFrame("8200#AA00000000000000")).getCommand());
+   EXPECT_EQ(SleepAwakeCommand::QUIT_SLEEP,SleepAwakeCommand(can::StandardDataFrame("8200#AA00000000000000")).getCommand());
 }

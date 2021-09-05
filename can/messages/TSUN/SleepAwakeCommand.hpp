@@ -14,10 +14,10 @@ namespace TSUN {
 class SleepAwakeCommand: public Message
 {
 public:
-	enum Command {
-	      ENTERSLEEP    = 0x55,
-	      QUITSLEEP = 0xAA
-	   };
+   enum Command {
+      ENTER_SLEEP    = 0x55,
+      QUIT_SLEEP = 0xAA
+   };
 
 
    SleepAwakeCommand(const DataFrame&);

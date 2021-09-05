@@ -12,13 +12,16 @@ SleepAwakeCommand::SleepAwakeCommand(const DataFrame& frame):
 	if (frame.id() != id()) return;
 	if (frame.size() != 8) return;
 
-	if (frame.getByte(0) == ENTERSLEEP) {
-		m_command = ENTERSLEEP;
+	switch (frame.getByte(0))
+	{
+	   case ENTER_SLEEP:
+	   case QUIT_SLEEP:
+	      m_command = Command(frame.getByte(0));
+	      break;
+
+	   default:
+	      return;
 	}
-	else if (frame.getByte(0) == QUITSLEEP) {
-		m_command = QUITSLEEP;
-	}
-	else return;
 
 	setValid();
 }

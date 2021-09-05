@@ -34,7 +34,7 @@ TEST(TsunInformationRequest, infotypeEnsemble)
 
 TEST(TsunInformationRequest, infotypeSystemEquipment)
 {
-   EXPECT_EQ(InformationRequest::SYSTEMEQUIPMENT,InformationRequest(can::StandardDataFrame("4200#0200000000000000")).getInfoType());
+   EXPECT_EQ(InformationRequest::SYSTEM_EQUIPMENT,InformationRequest(can::StandardDataFrame("4200#0200000000000000")).getInfoType());
 }
 
 

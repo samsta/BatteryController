@@ -7,25 +7,27 @@ namespace TSUN {
 
 InformationRequest::InformationRequest(const DataFrame& frame):
 		Message(ID_INVERTER_REQUEST_INFORMATION),
-		m_infotype()
+		m_info_type()
 {
 	if (frame.id() != id()) return;
 	if (frame.size() != 8) return;
 
-	if (frame.getByte(0) == ENSEMBLE) {
-		m_infotype = ENSEMBLE;
+	switch (frame.getByte(0))
+	{
+	   case ENSEMBLE:
+	   case SYSTEM_EQUIPMENT:
+	      m_info_type = InfoType(frame.getByte(0));
+	      break;
+	   default:
+	      return;
 	}
-	else if (frame.getByte(0) == SYSTEMEQUIPMENT) {
-		m_infotype = SYSTEMEQUIPMENT;
-	}
-	else return;
 
 	setValid();
 }
 
 InformationRequest::InfoType InformationRequest::getInfoType() const
 {
-   return m_infotype;
+   return m_info_type;
 }
 
 }

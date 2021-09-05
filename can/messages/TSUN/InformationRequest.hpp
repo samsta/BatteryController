@@ -14,10 +14,10 @@ namespace TSUN {
 class InformationRequest: public Message
 {
 public:
-	enum InfoType {
-	      ENSEMBLE    = 0,
-	      SYSTEMEQUIPMENT = 2
-	   };
+   enum InfoType {
+      ENSEMBLE    = 0,
+      SYSTEM_EQUIPMENT = 2
+   };
 
 
    InformationRequest(const DataFrame&);
@@ -25,7 +25,7 @@ public:
    virtual void toStream(logging::ostream&) const {};
 
 private:
-   InfoType m_infotype;
+   InfoType m_info_type;
 };
 
 }
