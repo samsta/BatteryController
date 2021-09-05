@@ -18,6 +18,7 @@ InformationRequest::InformationRequest(const DataFrame& frame):
 	   case SYSTEM_EQUIPMENT:
 	      m_info_type = InfoType(frame.getByte(0));
 	      break;
+
 	   default:
 	      return;
 	}

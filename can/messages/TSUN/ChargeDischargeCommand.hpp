@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-#ifndef CAN_MESSAGES_TSUN_SLEEPAWAKECOMMAND_HPP_
-#define CAN_MESSAGES_TSUN_SLEEPAWAKECOMMAND_HPP_
+#ifndef CAN_MESSAGES_TSUN_CHARGEDISCHARGECOMMAND_HPP_
+#define CAN_MESSAGES_TSUN_CHARGEDISCHARGECOMMAND_HPP_
 
 #include "can/DataFrame.hpp"
 #include "can/messages/Message.hpp"
@@ -11,16 +11,16 @@ namespace can {
 namespace messages {
 namespace TSUN {
 
-class SleepAwakeCommand: public Message
+class ChargeDischargeCommand: public Message
 {
 public:
    enum Command {
-      ENTER_SLEEP = 0x55,
-      QUIT_SLEEP = 0xAA
+      INVALID = 0,
+      CHARGE = 1,
+      DISCHARGE = 2
    };
 
-
-   SleepAwakeCommand(const DataFrame&);
+   ChargeDischargeCommand(const DataFrame&);
    Command getCommand() const;
    virtual void toStream(logging::ostream&) const {};
 
@@ -32,5 +32,4 @@ private:
 }
 }
 
-
-#endif /* CAN_MESSAGES_TSUN_SLEEPAWAKECOMMAND_HPP_ */
+#endif /* CAN_MESSAGES_TSUN_CHARGEDISCHARGECOMMAND_HPP_ */
