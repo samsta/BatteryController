@@ -89,9 +89,9 @@ uint8_t DataFrame::getByte(unsigned byte_index) const
    return data()[byte_index];
 }
 
-uint16_t DataFrame::getUnsignedShort(unsigned start_byte) const
+uint16_t DataFrame::getUnsignedShort(unsigned start_byte, ByteOrder byte_order) const
 {
-   return getUnsignedLong(start_byte, 2);
+   return getUnsignedLong(start_byte, 2, byte_order);
 }
 
 int16_t DataFrame::getSignedShort(unsigned start_byte) const
@@ -99,18 +99,38 @@ int16_t DataFrame::getSignedShort(unsigned start_byte) const
    return getUnsignedShort(start_byte);
 }
 
-void DataFrame::setUnsignedShort(unsigned start_byte, uint16_t value)
+void DataFrame::setUnsignedShort(unsigned start_byte, uint16_t value, ByteOrder byte_order)
 {
-   data()[start_byte++] = value >> 8;
-   data()[start_byte]   = value;
+   switch (byte_order)
+   {
+   case MSB_FIRST: // high byte first
+      data()[start_byte++] = value >> 8;
+      data()[start_byte]   = value;
+      break;
+   case LSB_FIRST: // low byte first
+      data()[start_byte++]   = value;
+      data()[start_byte] = value >> 8;
+      break;
+   }
 }
    
-uint32_t DataFrame::getUnsignedLong(unsigned start_byte, unsigned num_bytes) const
+uint32_t DataFrame::getUnsignedLong(unsigned start_byte, unsigned num_bytes, ByteOrder byte_order) const
 {
    uint32_t v = 0;
-   while (num_bytes--)
-   {
-      v = (v<<8) + uint32_t(data()[start_byte++]);
+
+   switch (byte_order) {
+   case MSB_FIRST:
+      while (num_bytes--)
+      {
+         v = (v<<8) + uint32_t(data()[start_byte++]);
+      }
+      break;
+   case LSB_FIRST:
+      for (uint i = start_byte + num_bytes; i > start_byte; i--)
+      {
+         v = (v<<8) + uint32_t(data()[i - 1]);
+      }
+      break;
    }
    return v;
 }

@@ -11,6 +11,15 @@ namespace can {
 class DataFrame
 {
 public:
+   enum Constants {
+       INVALID_ID = -1
+    };
+
+   enum ByteOrder {
+      MSB_FIRST,
+      LSB_FIRST
+   };
+
    virtual ~DataFrame(){};
 
    virtual bool valid() const;
@@ -21,17 +30,13 @@ public:
    uint64_t getBitField(unsigned start_bit, unsigned num_bits) const;
    uint8_t  getByte(unsigned byte_index) const;
    int64_t  getSignedBitField(unsigned start_bit, unsigned num_bits) const;
-   uint16_t getUnsignedShort(unsigned start_byte) const;
+   uint16_t getUnsignedShort(unsigned start_byte, ByteOrder byte_order = MSB_FIRST) const;
    int16_t  getSignedShort(unsigned start_byte) const;
-   uint32_t getUnsignedLong(unsigned start_byte, unsigned num_bytes) const;
+   uint32_t getUnsignedLong(unsigned start_byte, unsigned num_bytes, ByteOrder byte_order = MSB_FIRST) const;
 
-   void setUnsignedShort(unsigned start_byte, uint16_t val);
+   void setUnsignedShort(unsigned start_byte, uint16_t val, ByteOrder byte_order = MSB_FIRST);
    void setUnsignedLong(unsigned start_byte, uint32_t val);
    void setByte(unsigned byte_index, uint8_t val);
-
-   enum Constants {
-      INVALID_ID = -1
-   };
 
    typedef uint8_t value_type;
    typedef const uint8_t* const_iterator;
