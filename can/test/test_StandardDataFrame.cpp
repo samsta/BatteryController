@@ -147,8 +147,11 @@ TEST(StandardDataFrame, setUnsignedShort)
    EXPECT_EQ(0x1234, f.getUnsignedShort(0));
    EXPECT_EQ(0x8765, f.getUnsignedShort(2));
 
-   EXPECT_EQ(0x3412, f.getUnsignedShort(0, can::DataFrame::LSB_FIRST));
-   EXPECT_EQ(0x6587, f.getUnsignedShort(2, can::DataFrame::LSB_FIRST));
+   f.setUnsignedShort(0, 0x1234, can::DataFrame::LSB_FIRST);
+   f.setUnsignedShort(2, 0x8765, can::DataFrame::LSB_FIRST);
+
+   EXPECT_EQ(0x1234, f.getUnsignedShort(0, can::DataFrame::LSB_FIRST));
+   EXPECT_EQ(0x8765, f.getUnsignedShort(2, can::DataFrame::LSB_FIRST));
 
 }
 
