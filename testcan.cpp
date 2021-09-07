@@ -91,8 +91,8 @@ public:
          return;
       }
 
-      m_gpio_contactor_neg = openOutput(m_gpio_chip, 13, "relay_neg");
-      m_gpio_contactor_pos = openOutput(m_gpio_chip, 26, "relay_pos");
+      m_gpio_contactor_neg = openOutput(m_gpio_chip, 5, "relay_neg");
+      m_gpio_contactor_pos = openOutput(m_gpio_chip, 6, "relay_pos");
       m_gpio_led1 = openOutput(m_gpio_chip, 4, "led1");
    }
 
@@ -122,8 +122,8 @@ public:
 
    void openBoth()
    {
-      if (m_gpio_contactor_neg) gpiod_line_set_value(m_gpio_contactor_neg, 0);
-      if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 0);
+      if (m_gpio_contactor_neg) gpiod_line_set_value(m_gpio_contactor_neg, 1);
+      if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 1);
       if (m_gpio_led1) gpiod_line_set_value(m_gpio_led1, 0);
       
       std::cout << color::bright_red << ">>>> contactor opened" << color::reset << std::endl;
@@ -150,13 +150,13 @@ public:
       its.it_value.tv_sec = 3;
       timerfd_settime(m_timerfd, 0, &its, NULL);
       
-      if (m_gpio_contactor_neg) gpiod_line_set_value(m_gpio_contactor_neg, 1);
+      if (m_gpio_contactor_neg) gpiod_line_set_value(m_gpio_contactor_neg, 0);
       if (m_gpio_led1) gpiod_line_set_value(m_gpio_led1, 1);
    }
    
    void closePositive()
    {
-      if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 1);
+      if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 0);
       std::cout << color::bright_red <<  ">>>> contactor closed" << color::reset << std::endl;
       m_state = CLOSED;
    }
