@@ -28,25 +28,25 @@ BatteryLimits::BatteryLimits(float charge_voltage,
 
 BatteryLimits& BatteryLimits::setChargeVoltage(float voltage)
 {
-   setUnsignedShort(0, limitScaledToUnsignedShort(voltage, 10));
+   setUnsignedShort(0, limitScaledToUnsignedShort(voltage, 10), LSB_FIRST);
    return *this;
 }
 
 BatteryLimits& BatteryLimits::setDischargeVoltage(float voltage)
 {
-   setUnsignedShort(2, limitScaledToUnsignedShort(voltage, 10));
+   setUnsignedShort(2, limitScaledToUnsignedShort(voltage, 10), LSB_FIRST);
    return *this;
 }
 
 BatteryLimits& BatteryLimits::setChargeCurrent(float current)
 {
-   setUnsignedShort(6, limitScaledToUnsignedShort(current, 10));
+   setUnsignedShort(6, limitScaledToUnsignedShort(current + 3000, 10), LSB_FIRST);
    return *this;
 }
 
 BatteryLimits& BatteryLimits::setDischargeCurrent(float current)
 {
-   setUnsignedShort(4, limitScaledToUnsignedShort(current, 10));
+   setUnsignedShort(4, limitScaledToUnsignedShort(current + 3000, 10), LSB_FIRST);
    return *this;
 }
 
