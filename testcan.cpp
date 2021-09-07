@@ -91,8 +91,8 @@ public:
          return;
       }
 
-      m_gpio_contactor_neg = openOutput(m_gpio_chip, 5, "relay_neg");
-      m_gpio_contactor_pos = openOutput(m_gpio_chip, 6, "relay_pos");
+      m_gpio_contactor_neg = openOutput(m_gpio_chip, 6, "relay_neg");
+      m_gpio_contactor_pos = openOutput(m_gpio_chip, 5, "relay_pos");
       m_gpio_led1 = openOutput(m_gpio_chip, 4, "led1");
    }
 
