@@ -126,7 +126,7 @@ uint32_t DataFrame::getUnsignedLong(unsigned start_byte, unsigned num_bytes, Byt
       }
       break;
    case LSB_FIRST:
-      for (uint i = start_byte + num_bytes; i > start_byte; i--)
+      for (unsigned i = start_byte + num_bytes; i > start_byte; i--)
       {
          v = (v<<8) + uint32_t(data()[i - 1]);
       }
