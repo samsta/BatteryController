@@ -22,7 +22,6 @@ TEST(TsunBatteryLimits, exampleMessage)
 {
    BatteryLimits battery_limits(495, 435, 16.2, 39.7);
 
-//   EXPECT_EQ(StandardDataFrame(ID_BATTERY_LIMITS, "0000000000000000").str(), battery_limits.str());
    EXPECT_EQ(StandardDataFrame(ID_BATTERY_LIMITS, "5613FE10BD76D275").str(), battery_limits.str());
 }
 
