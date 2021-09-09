@@ -31,10 +31,10 @@ BatteryInfo::BatteryInfo(float pile_voltage,
 BatteryInfo& BatteryInfo::setPileVoltage(float pile_voltage)
 {
    setUnsignedShort(0, limitScaledToUnsignedShort(pile_voltage, 10), LSB_FIRST);
-   // currently default pile_current to 0
-   setUnsignedShort(2, 0, LSB_FIRST);
-   // we will currently default bms_2nd_temp to 0
-   setUnsignedShort(4, 0, LSB_FIRST);
+//   // currently default pile_current to 0
+//   setUnsignedShort(2, 0, LSB_FIRST);
+//   // we will currently default bms_2nd_temp to 0
+//   setUnsignedShort(4, 0, LSB_FIRST);
    return *this;
 }
 
