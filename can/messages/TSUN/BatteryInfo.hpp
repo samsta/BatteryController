@@ -15,13 +15,13 @@ class BatteryInfo: public StandardDataFrame
 public:
    BatteryInfo();
    BatteryInfo(float pile_voltage,
-               //float pile_current,
-               //float bms_2nd_temp,
+               float pile_current,
+               float bms_2nd_temp,
                unsigned soc,
                unsigned soh);
    BatteryInfo& setPileVoltage(float pile_voltage);
-   //BatteryInfo& setPileCurrent(float pile_current);
-   //BatteryInfo& setBMS2ndTemp(float bms_2nd_temp);
+   BatteryInfo& setPileCurrent(float pile_current);
+   BatteryInfo& setBMS2ndTemp(float bms_2nd_temp);
    BatteryInfo& setSOC(unsigned soc);
    BatteryInfo& setSOH(unsigned soh);
 };
