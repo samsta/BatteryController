@@ -3,7 +3,8 @@ target_sources(can PRIVATE InformationRequest.cpp
                            ChargeDischargeCommand.cpp
                            BatteryLimits.cpp
                            BatteryInfo.cpp
-                           BatteryStatus.cpp)
+                           BatteryStatus.cpp
+                           BatteryCellVoltInfo.cpp)
 
 if(BUILD_TESTING)
   add_subdirectory(test)
