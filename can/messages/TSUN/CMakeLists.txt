@@ -4,7 +4,8 @@ target_sources(can PRIVATE InformationRequest.cpp
                            BatteryLimits.cpp
                            BatteryInfo.cpp
                            BatteryStatus.cpp
-                           BatteryCellVoltInfo.cpp)
+                           BatteryCellVoltInfo.cpp
+                           BatteryCellTempInfo.cpp)
 
 if(BUILD_TESTING)
   add_subdirectory(test)

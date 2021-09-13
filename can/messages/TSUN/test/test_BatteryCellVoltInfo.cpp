@@ -27,7 +27,7 @@ TEST(TsunBatteryCellVoltInfo, exampleMessage)
 
 TEST(TsunBatteryCellVoltInfo, saturateAtMaximum)
 {
-   BatteryCellVoltInfo limited(70, 700, 70000, 70000);
+   BatteryCellVoltInfo limited(70, 70, 70000, 70000);
    BatteryCellVoltInfo below_limit(65.534, 65.534, 65534, 65534);
    BatteryCellVoltInfo limit(65.535, 65.535, 65535, 65535);
 
