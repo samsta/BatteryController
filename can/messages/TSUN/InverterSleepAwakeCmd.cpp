@@ -1,11 +1,11 @@
-#include "SleepAwakeCommand.hpp"
+#include "InverterSleepAwakeCmd.hpp"
 #include "Ids.hpp"
 
 namespace can {
 namespace messages {
 namespace TSUN {
 
-SleepAwakeCommand::SleepAwakeCommand(const DataFrame& frame):
+InverterSleepAwakeCmd::InverterSleepAwakeCmd(const DataFrame& frame):
 		Message(ID_INVERTER_SLEEP_AWAKE_COMMAND),
 		m_command()
 {
@@ -26,7 +26,7 @@ SleepAwakeCommand::SleepAwakeCommand(const DataFrame& frame):
 	setValid();
 }
 
-SleepAwakeCommand::Command SleepAwakeCommand::getCommand() const
+InverterSleepAwakeCmd::Command InverterSleepAwakeCmd::getCommand() const
 {
    return m_command;
 }

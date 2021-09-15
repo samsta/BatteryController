@@ -1,11 +1,11 @@
-#include "ChargeDischargeCommand.hpp"
+#include "InverterChargeDischargeCmd.hpp"
 #include "Ids.hpp"
 
 namespace can {
 namespace messages {
 namespace TSUN {
 
-ChargeDischargeCommand::ChargeDischargeCommand(const DataFrame& frame):
+InverterChargeDischargeCmd::InverterChargeDischargeCmd(const DataFrame& frame):
       Message(ID_INVERTER_CHARGE_DISCHARGE_COMMAND),
       m_command(INVALID)
 {
@@ -28,7 +28,7 @@ ChargeDischargeCommand::ChargeDischargeCommand(const DataFrame& frame):
 
 }
 
-ChargeDischargeCommand::Command ChargeDischargeCommand::getCommand() const
+InverterChargeDischargeCmd::Command InverterChargeDischargeCmd::getCommand() const
 {
    return m_command;
 }

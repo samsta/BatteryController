@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-#ifndef _CAN_MESSAGES_TSUN_INFORMATIONREQUEST_HPP
-#define _CAN_MESSAGES_TSUN_INFORMATIONREQUEST_HPP
+#ifndef _CAN_MESSAGES_TSUN_INVERTERINFOREQUEST_HPP
+#define _CAN_MESSAGES_TSUN_INVERTERINFOREQUEST_HPP
 
 #include "can/DataFrame.hpp"
 #include "can/messages/Message.hpp"
@@ -11,7 +11,7 @@ namespace can {
 namespace messages {
 namespace TSUN {
 
-class InformationRequest: public Message
+class InverterInfoRequest: public Message
 {
 public:
    enum InfoType {
@@ -20,7 +20,7 @@ public:
    };
 
 
-   InformationRequest(const DataFrame&);
+   InverterInfoRequest(const DataFrame&);
    InfoType getInfoType() const;
    virtual void toStream(logging::ostream&) const {};
 
@@ -32,4 +32,4 @@ private:
 }
 }
 
-#endif // _CAN_MESSAGES_TSUN_INFORMATIONREQUEST_HPP
+#endif // _CAN_MESSAGES_TSUN_INVERTERINFOREQUEST_HPP

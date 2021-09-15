@@ -1,6 +1,6 @@
-target_sources(can PRIVATE InformationRequest.cpp
-                           SleepAwakeCommand.cpp
-                           ChargeDischargeCommand.cpp
+target_sources(can PRIVATE InverterInfoRequest.cpp
+                           InverterSleepAwakeCmd.cpp
+                           InverterChargeDischargeCmd.cpp
                            BatteryLimits.cpp
                            BatteryInfo.cpp
                            BatteryStatus.cpp

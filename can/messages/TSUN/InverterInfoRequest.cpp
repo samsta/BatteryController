@@ -1,12 +1,12 @@
-#include "InformationRequest.hpp"
+#include "InverterInfoRequest.hpp"
 #include "Ids.hpp"
 
 namespace can {
 namespace messages {
 namespace TSUN {
 
-InformationRequest::InformationRequest(const DataFrame& frame):
-		Message(ID_INVERTER_REQUEST_INFORMATION),
+InverterInfoRequest::InverterInfoRequest(const DataFrame& frame):
+		Message(ID_INVERTER_INFO_REQUEST),
 		m_info_type()
 {
 	if (frame.id() != id()) return;
@@ -26,7 +26,7 @@ InformationRequest::InformationRequest(const DataFrame& frame):
 	setValid();
 }
 
-InformationRequest::InfoType InformationRequest::getInfoType() const
+InverterInfoRequest::InfoType InverterInfoRequest::getInfoType() const
 {
    return m_info_type;
 }
