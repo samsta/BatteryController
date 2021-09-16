@@ -14,12 +14,12 @@ class BatteryModTempInfo: public StandardDataFrame
 {
 public:
    BatteryModTempInfo();
-   BatteryModTempInfo(float max_single_module_tempage,
-                       float min_single_module_tempage,
+   BatteryModTempInfo(float max_single_module_temp,
+                       float min_single_module_temp,
                        float max_module_tempage_number,
                        float min_module_tempage_number);
-   BatteryModTempInfo& setMaxSingleModuleTemp(float max_single_module_tempage);
-   BatteryModTempInfo& setMinSingleModuleTemp(float min_single_module_tempage);
+   BatteryModTempInfo& setMaxSingleModuleTemp(float max_single_module_temp);
+   BatteryModTempInfo& setMinSingleModuleTemp(float min_single_module_temp);
    BatteryModTempInfo& setMaxModuleTempNumber(float max_module_tempage_number);
    BatteryModTempInfo& setMinModuleTempNumber(float min_module_tempage_number);
 };
