@@ -84,9 +84,7 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
 {
    if (command.getInfoType() == InverterInfoRequest::ENSEMBLE)
    {
-      if (!m_contactor.isClosed()) {
-         m_contactor.close();
-      }
+      m_contactor.close();
    } // FOR TESTING THE TESTING
 
       // send Ensemble Information

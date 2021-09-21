@@ -61,7 +61,7 @@ class TSOL_H50KAtStartupTest: public Test
 {
 public:
    TSOL_H50KAtStartupTest():
-      constructor_expectation(timer, &broadcast_callback),
+      constructor_expectation(timer, &inverter_silence_callback),
       sbs(sink, timer, monitor, contactor)
    {
    }
@@ -70,7 +70,7 @@ public:
    NiceMock<mocks::core::Timer>          timer;
    NiceMock<mocks::monitor::Monitor>     monitor;
    NiceMock<mocks::contactor::Contactor> contactor;
-   core::Invokable*                      broadcast_callback;
+   core::Invokable*                      inverter_silence_callback;
 
    class ConstructorExpectation
    {
@@ -87,16 +87,13 @@ public:
 TEST_F(TSOL_H50KAtStartupTest, doesntBroadcastIfNothingReceivedFromInverter)
 {
    EXPECT_NO_CALL(sink, sink(_));
-
-   broadcast_callback->invoke();
 }
 
 TEST_F(TSOL_H50KAtStartupTest, broadcastsAfterReceivingInverterInfoRequest)
 {
-   sbs.sink(InverterInfoRequest());
-
    EXPECT_CALL(sink, sink(_)).Times(AtLeast(1));
-   broadcast_callback->invoke();
+
+   sbs.sink(InverterInfoRequest());
 }
 
 //TEST_F(TSOL_H50KAtStartupTest, broadcastsAfterReceivingInverterIdentity)
