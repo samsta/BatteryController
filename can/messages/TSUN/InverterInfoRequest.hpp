@@ -21,6 +21,7 @@ public:
 
 
    InverterInfoRequest(const DataFrame&);
+   InverterInfoRequest();
    InfoType getInfoType() const;
    virtual void toStream(logging::ostream&) const {};
 

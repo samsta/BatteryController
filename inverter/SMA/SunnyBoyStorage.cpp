@@ -115,7 +115,7 @@ void SunnyBoyStorage::process(const InverterCommand& command)
    }
 }
 
-void SunnyBoyStorage::process(const can::messages::SMA::InverterIdentity&)
+void SunnyBoyStorage::process(const InverterIdentity&)
 {
    m_sender.sink(BatterySystemInfo()
                  .setVersion(m_monitor.getSystemVersion())

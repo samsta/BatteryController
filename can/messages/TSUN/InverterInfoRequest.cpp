@@ -26,6 +26,11 @@ InverterInfoRequest::InverterInfoRequest(const DataFrame& frame):
 	setValid();
 }
 
+InverterInfoRequest::InverterInfoRequest():
+		Message(ID_INVERTER_INFO_REQUEST),
+		m_info_type()
+{
+}
 InverterInfoRequest::InfoType InverterInfoRequest::getInfoType() const
 {
    return m_info_type;

@@ -22,7 +22,7 @@ namespace TSUN {
 namespace {
 
 
-const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 4;
+const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 2;
 
 BatteryStatus localBatteryStatus(BatteryStatus::BASIC_STATUS_IDLE);
 
@@ -45,6 +45,9 @@ TSOL_H50K::TSOL_H50K(can::FrameSink& sender,
 TSOL_H50K::~TSOL_H50K()
 {
    m_timer.deregisterCallback(&m_periodic_callback);
+
+   // I didn't see an 'open' in m_contactor destructor so I put one here. open for discussion
+   m_contactor.open();
 }
 
 void TSOL_H50K::periodicCallback()
@@ -60,18 +63,6 @@ void TSOL_H50K::periodicCallback()
       return;
    }
    m_inverter_silent_counter++;
-
-
-//   m_sender.sink(BatteryMeasurements()
-//                 .setVoltage(m_monitor.getVoltage())
-//                 .setCurrent(m_monitor.getCurrent())
-//                 .setTemperature(m_monitor.getTemperature())
-//                 .setState(m_contactor.isClosed() ?
-//                           BatteryMeasurements::CONNECTED :
-//                           BatteryMeasurements::DISCONNECTED)
-//                 .setInverterControlFlags(0));
-
-
 }
 
 void TSOL_H50K::sink(const Message& message)
@@ -93,6 +84,11 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
 {
    if (command.getInfoType() == InverterInfoRequest::ENSEMBLE)
    {
+      if (!m_contactor.isClosed()) {
+         m_contactor.close();
+      }
+   } // FOR TESTING THE TESTING
+
       // send Ensemble Information
       m_sender.sink(BatteryInfo()
                   .setPileVoltage(m_monitor.getVoltage())
@@ -138,13 +134,13 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
             .setMinModuleTempNumber(4));
 
       m_sender.sink(BatteryForbidden());
-   }
-   else if (command.getInfoType() == InverterInfoRequest::SYSTEM_EQUIPMENT)
-   {
-      // send System Equipment Info
-      // have never seen this data requested by the inverter
-
-   }
+//   }
+//   else if (command.getInfoType() == InverterInfoRequest::SYSTEM_EQUIPMENT)
+//   {
+//      // send System Equipment Info
+//      // have never seen this data requested by the inverter
+//
+//   }
    // TODO else some kind of error reporting?
 }
 
