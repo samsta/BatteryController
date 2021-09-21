@@ -39,6 +39,8 @@ private:
    contactor::Contactor& m_contactor;
    core::Callback<TSOL_H50K> m_periodic_callback;
    unsigned              m_inverter_silent_counter;
+
+   unsigned getInverterSilentCounter();
 };
 
 }

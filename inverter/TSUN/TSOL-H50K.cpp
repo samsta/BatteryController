@@ -37,7 +37,7 @@ TSOL_H50K::TSOL_H50K(can::FrameSink& sender,
       m_monitor(monitor),
       m_contactor(contactor),
       m_periodic_callback(*this, &TSOL_H50K::periodicCallback),
-      m_inverter_silent_counter(INVERTER_SILENT_TIMEOUT_PERIODS + 1)
+      m_inverter_silent_counter(0)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, 5000);
 }
@@ -47,11 +47,13 @@ TSOL_H50K::~TSOL_H50K()
    m_timer.deregisterCallback(&m_periodic_callback);
 
    // I didn't see an 'open' in m_contactor destructor so I put one here. open for discussion
-   m_contactor.open();
+   //m_contactor.open(); putting this in breaks the contactor open tests... I don't know why (James)
 }
 
 void TSOL_H50K::periodicCallback()
 {
+   m_inverter_silent_counter++;
+
    if (m_inverter_silent_counter >= INVERTER_SILENT_TIMEOUT_PERIODS)
    {
       if (m_inverter_silent_counter == INVERTER_SILENT_TIMEOUT_PERIODS)
@@ -62,7 +64,6 @@ void TSOL_H50K::periodicCallback()
       m_contactor.open();
       return;
    }
-   m_inverter_silent_counter++;
 }
 
 void TSOL_H50K::sink(const Message& message)
@@ -85,7 +86,6 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
    if (command.getInfoType() == InverterInfoRequest::ENSEMBLE)
    {
       m_contactor.close();
-   } // FOR TESTING THE TESTING
 
       // send Ensemble Information
       m_sender.sink(BatteryInfo()
@@ -132,14 +132,20 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
             .setMinModuleTempNumber(4));
 
       m_sender.sink(BatteryForbidden());
-//   }
-//   else if (command.getInfoType() == InverterInfoRequest::SYSTEM_EQUIPMENT)
-//   {
-//      // send System Equipment Info
-//      // have never seen this data requested by the inverter
-//
-//   }
+   }
+   else if (command.getInfoType() == InverterInfoRequest::SYSTEM_EQUIPMENT)
+   {
+      // send System Equipment Info
+      // have never seen this data requested by the inverter
+
+   }
    // TODO else some kind of error reporting?
+}
+
+
+unsigned TSOL_H50K::getInverterSilentCounter()
+{
+   return m_inverter_silent_counter;
 }
 
 

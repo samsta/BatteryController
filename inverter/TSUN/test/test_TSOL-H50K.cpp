@@ -61,7 +61,7 @@ class TSOL_H50KAtStartupTest: public Test
 {
 public:
    TSOL_H50KAtStartupTest():
-      constructor_expectation(timer, &inverter_silence_callback),
+      constructor_expectation(timer, &inverter_alive_callback),
       sbs(sink, timer, monitor, contactor)
    {
    }
@@ -70,7 +70,7 @@ public:
    NiceMock<mocks::core::Timer>          timer;
    NiceMock<mocks::monitor::Monitor>     monitor;
    NiceMock<mocks::contactor::Contactor> contactor;
-   core::Invokable*                      inverter_silence_callback;
+   core::Invokable*                      inverter_alive_callback;
 
    class ConstructorExpectation
    {
@@ -95,6 +95,37 @@ TEST_F(TSOL_H50KAtStartupTest, broadcastsAfterReceivingInverterInfoRequest)
 
    sbs.sink(InverterInfoRequest());
 }
+
+TEST_F(TSOL_H50KAtStartupTest, requestsToCloseContactor)
+{
+   EXPECT_CALL(contactor, close());
+
+   sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
+}
+
+TEST_F(TSOL_H50KAtStartupTest, requestsToOpenContactorWhenInverterNotAlive)
+{
+   EXPECT_NO_CALL(contactor, open());
+
+   inverter_alive_callback->invoke();
+
+   EXPECT_CALL(contactor, open());
+   inverter_alive_callback->invoke();
+}
+
+TEST_F(TSOL_H50KAtStartupTest, requestsToCloseContactorWhenInverterAliveAgain)
+{
+   EXPECT_NO_CALL(contactor, open());
+
+   inverter_alive_callback->invoke();
+
+   EXPECT_CALL(contactor, open());
+   inverter_alive_callback->invoke();
+
+   EXPECT_CALL(contactor, close());
+   sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
+}
+
 
 //TEST_F(TSOL_H50KAtStartupTest, broadcastsAfterReceivingInverterIdentity)
 //{
