@@ -33,6 +33,10 @@
 #include "can/messages/Nissan/Ids.hpp"
 #include "monitor/Nissan/Monitor.hpp"
 #include "inverter/SMA/SunnyBoyStorage.hpp"
+#include "can/messages/TSUN/InverterChargeDischargeCmd.hpp"
+#include "can/messages/TSUN/InverterInfoRequest.hpp"
+#include "can/messages/TSUN/InverterSleepAwakeCmd.hpp"
+#include "inverter/TSUN/TSOL-H50K.hpp"
 
 #include "contactor/Contactor.hpp"
 #include "core/Timer.hpp"
@@ -265,6 +269,49 @@ public:
    uint8_t m_message_memory[1024];
 };
 
+class TsunSink: public can::FrameSink
+{
+public:
+   TsunSink(inverter::TSUN::TSOL_H50K& inverter): m_inverter(inverter)
+   {
+   }
+
+   void* mem()
+   {
+      return m_message_memory;
+   }
+
+   const can::messages::Message* decode(const can::DataFrame& f)
+   {
+      using namespace can::messages::TSUN;
+      can::messages::Message* msg;
+
+      msg = new(mem()) InverterInfoRequest(f);
+      if (msg->valid()) return msg;
+
+      msg = new(mem()) InverterChargeDischargeCmd(f);
+      if (msg->valid()) return msg;
+
+      msg = new(mem()) InverterSleepAwakeCmd(f);
+      if (msg->valid()) return msg;
+
+      return NULL;
+   }
+
+   virtual void sink(const can::DataFrame& f)
+   {
+      const can::messages::Message* msg = decode(f);
+
+      if (msg)
+      {
+         std::cout << color::bright_green << "<INV IN>  " << *msg << color::reset << std::endl;
+         m_inverter.sink(*msg);
+      }
+   }
+
+   inverter::TSUN::TSOL_H50K& m_inverter;
+   uint8_t m_message_memory[1024];
+};
 
 class CanSender: public can::FrameSink
 {

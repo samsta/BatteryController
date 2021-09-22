@@ -58,7 +58,7 @@ void TSOL_H50K::periodicCallback()
    {
       if (m_inverter_silent_counter == INVERTER_SILENT_TIMEOUT_PERIODS)
       {
-         std::cout << "Inverter went silent, so I'll stop spamming it" << std::endl;
+         std::cout << "Inverter went silent." << std::endl;
          m_inverter_silent_counter++;
       }
       m_contactor.open();
