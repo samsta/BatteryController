@@ -126,222 +126,105 @@ TEST_F(TSOL_H50KAtStartupTest, requestsToCloseContactorWhenInverterAliveAgain)
    sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
 }
 
+TEST_F(TSOL_H50KAtStartupTest, publishesBatteryInfoUponRequest)
+{
+   EXPECT_CALL(monitor, getVoltage()).WillOnce(Return(395.3));
+   EXPECT_CALL(monitor, getCurrent()).WillOnce(Return(5.55));
+   EXPECT_CALL(monitor, getTemperature()).WillOnce(Return(16.7));
+   EXPECT_CALL(monitor, getSocPercent()).WillOnce(Return(87));
+   EXPECT_CALL(monitor, getSohPercent()).WillOnce(Return(67));
 
-//TEST_F(TSOL_H50KAtStartupTest, broadcastsAfterReceivingInverterIdentity)
-//{
-//   sbs.sink(InverterIdentity());
-//
-//   EXPECT_CALL(sink, sink(_)).Times(AtLeast(1));
-//   broadcast_callback->invoke();
-//}
-//
-//TEST_F(TSOL_H50KAtStartupTest, doesntBroadcastAfterReceivingUnrecognisedMessage)
-//{
-//   sbs.sink(Nonsense());
-//
-//   EXPECT_NO_CALL(sink, sink(_));
-//   broadcast_callback->invoke();
-//}
-//
-//TEST_F(TSOL_H50KAtStartupTest, broadcastsStopsAfterNotReceivingMessageFor4Intervals)
-//{
-//   sbs.sink(InverterManufacturer(0, "TSUN"));
-//
-//   // 4 intervals means 4 x 5s = 20s
-//   for (unsigned k = 0; k < 4; k++)
-//   {
-//      EXPECT_CALL(sink, sink(_)).Times(AtLeast(1));
-//      broadcast_callback->invoke();
-//   }
-//
-//   EXPECT_NO_CALL(sink, sink(_));
-//   broadcast_callback->invoke();
-//}
-//
-//TEST_F(TSOL_H50KAtStartupTest, broadcastsResumeAfterReceivingMessage)
-//{
-//   sbs.sink(InverterManufacturer(0, "TSUN"));
-//
-//   for (unsigned k = 0; k < 10; k++)
-//   {
-//      broadcast_callback->invoke();
-//   }
-//
-//   sbs.sink(InverterManufacturer(0, "TSUN"));
-//
-//   EXPECT_CALL(sink, sink(_)).Times(AtLeast(1));
-//   broadcast_callback->invoke();
-//}
-//
-//
-//class TSOL_H50KTest: public TSOL_H50KAtStartupTest
-//{
-//public:
-//   TSOL_H50KTest(): TSOL_H50KAtStartupTest()
-//   {
-//      sbs.sink(InverterManufacturer(0, "TSUN"));
-//   }
-//};
-//
-//TEST_F(TSOL_H50KTest, publishesBatteryStateUponBroadcast)
-//{
-//   EXPECT_CALL(monitor, getSocPercent()).WillOnce(Return(87.6));
-//   EXPECT_CALL(monitor, getSohPercent()).WillOnce(Return(67.8));
-//   EXPECT_CALL(monitor, getEnergyRemainingKwh()).WillOnce(Return(123.4));
-//   EXPECT_CALL(monitor, getCapacityKwh()).WillOnce(Return(567.8));
-//
-//   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryState(87.6, 67.8, 123.4, 567.8))));
-//
-//   broadcast_callback->invoke();
-//}
-//
-//TEST_F(TSOL_H50KTest, publishesBatteryMeasurementsUponBroadcast)
-//{
-//   EXPECT_CALL(monitor, getVoltage()).WillOnce(Return(469.9));
-//   EXPECT_CALL(monitor, getCurrent()).WillOnce(Return(1.6));
-//   EXPECT_CALL(monitor, getTemperature()).WillOnce(Return(14.1));
-//
-//   EXPECT_CALL(contactor, isClosed()).WillOnce(Return(true));
-//
-//   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryMeasurements()
-//                                         .setVoltage(469.9)
-//                                         .setCurrent(1.6)
-//                                         .setTemperature(14.1)
-//                                         .setState(BatteryMeasurements::CONNECTED)
-//                                         .setInverterControlFlags(0))));
-//
-//   broadcast_callback->invoke();
-//}
-//
-//TEST_F(TSOL_H50KTest, publishesBatteryLimitsUponBroadcast)
-//{
-//   EXPECT_CALL(monitor, getMaxChargeVoltage()).WillOnce(Return(432.1));
-//   EXPECT_CALL(monitor, getMinDischargeVoltage()).WillOnce(Return(345.6));
-//   EXPECT_CALL(monitor, getChargeCurrentLimit()).WillOnce(Return(21.3));
-//   EXPECT_CALL(monitor, getDischargeCurrentLimit()).WillOnce(Return(32.1));
-//
-//   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryLimits()
-//                                         .setChargeVoltage(432.1)
-//                                         .setDischargeVoltage(345.6)
-//                                         .setChargeCurrent(21.3)
-//                                         .setDischargeCurrent(32.1))));
-//
-//   broadcast_callback->invoke();
-//}
-//
-//TEST_F(TSOL_H50KTest, publishesBatteryMeasurementsUponBroadcastWithContactorOpen)
-//{
-//   ON_CALL(contactor, isClosed()).WillByDefault(Return(false));
-//
-//   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryMeasurements()
-//                                         .setState(BatteryMeasurements::DISCONNECTED))));
-//
-//   broadcast_callback->invoke();
-//}
-//
-//TEST_F(TSOL_H50KTest, requestsToCloseContactor)
-//{
-//   EXPECT_CALL(contactor, close());
-//
-//   sbs.sink(InverterCommand().setCommand(InverterCommand::CONNECT));
-//}
-//
-//TEST_F(TSOL_H50KTest, requestsToOpenContactor)
-//{
-//   EXPECT_CALL(contactor, open());
-//
-//   sbs.sink(InverterCommand().setCommand(InverterCommand::DISCONNECT));
-//}
-//
-//TEST_F(TSOL_H50KTest, requestsToOpenContactorOnGarbageCommand)
-//{
-//   EXPECT_CALL(contactor, open());
-//
-//   sbs.sink(InverterCommand().setCommand(InverterCommand::Command(77)));
-//}
-//
-//TEST_F(TSOL_H50KTest, requestsToOpenContactorWhenInverterGoesSilent)
-//{
-//   sbs.sink(InverterCommand().setCommand(InverterCommand::CONNECT));
-//
-//   EXPECT_NO_CALL(contactor, open());
-//
-//   broadcast_callback->invoke();
-//   broadcast_callback->invoke();
-//   broadcast_callback->invoke();
-//   broadcast_callback->invoke();
-//
-//   EXPECT_CALL(contactor, open());
-//   broadcast_callback->invoke();
-//}
-//
-//
-//TEST_F(TSOL_H50KTest, sendsBatterySystemInfoOnInverterIdentityReceived)
-//{
-//   EXPECT_CALL(monitor, getSystemVersion()).WillOnce(Return(123456));
-//   EXPECT_CALL(monitor, getNominalCapacityKwh()).WillOnce(Return(42));
-//   EXPECT_CALL(monitor, getNumberOfModules()).WillOnce(Return(7));
-//
-//   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatterySystemInfo(123456, 42, 7, 2))));
-//
-//   sbs.sink(InverterIdentity());
-//}
-//
-//TEST_F(TSOL_H50KTest, sendsIdentityOnInverterIdentityReceived)
-//{
-//   EXPECT_CALL(monitor, getSerialNumber()).WillOnce(Return(123456));
-//   EXPECT_CALL(monitor, getManufacturingDateUnixTime()).WillOnce(Return(987654));
-//
-//   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryIdentity(123456, 987654))));
-//
-//   sbs.sink(InverterIdentity());
-//}
-//
-//TEST_F(TSOL_H50KTest, sendsManufacturerNameOnInverterIdentityReceived)
-//{
-//   EXPECT_CALL(monitor, getManufacturerName()).WillOnce(Return("abcdefghijklmnop"));
-//
-//   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(0, "abcdefg"))));
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(1, "hijklmn"))));
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(2, "op"))));
-//   // should always be followed by a string with just zeros
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(3, ""))));
-//
-//   sbs.sink(InverterIdentity());
-//}
-//
-//TEST_F(TSOL_H50KTest, sendsShortManufacturerNameOnInverterIdentityReceived)
-//{
-//   EXPECT_CALL(monitor, getManufacturerName()).WillOnce(Return("ab"));
-//
-//   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(0, "ab"))));
-//   // should always be followed by a string with just zeros
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryManufacturer(1, ""))));
-//
-//   sbs.sink(InverterIdentity());
-//}
-//
-//TEST_F(TSOL_H50KTest, sendBatteryNameOnInverterIdentityReceived)
-//{
-//   EXPECT_CALL(monitor, getBatteryName()).WillOnce(Return("qwertyuiop"));
-//
-//   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryName(0, "qwertyu"))));
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryName(1, "iop"))));
-//   // should always be followed by a string with just zeros
-//   EXPECT_CALL(sink, sink(MatchesMessage(BatteryName(2, ""))));
-//
-//   sbs.sink(InverterIdentity());
-//}
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryInfo()
+                                       .setPileVoltage(395.3)
+                                       .setPileCurrent(5.55)
+                                       .setBMS2ndTemp(16.7)
+                                       .setSOC(87)
+                                       .setSOH(67))));
 
+   sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
+}
+
+TEST_F(TSOL_H50KAtStartupTest, publishesBatteryLimitsUponRequest)
+{
+   EXPECT_CALL(monitor, getMaxChargeVoltage()).WillOnce(Return(432.1));
+   EXPECT_CALL(monitor, getMinDischargeVoltage()).WillOnce(Return(345.6));
+   EXPECT_CALL(monitor, getChargeCurrentLimit()).WillOnce(Return(10.9));
+   EXPECT_CALL(monitor, getDischargeCurrentLimit()).WillOnce(Return(11.1));
+
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryLimits()
+                                         .setChargeVoltage(432.1)
+                                         .setDischargeVoltage(345.6)
+                                         .setChargeCurrent(10.9)
+                                         .setDischargeCurrent(11.1))));
+
+   sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
+}
+
+TEST_F(TSOL_H50KAtStartupTest, publishesBatteryCellVoltInfoUponRequest)
+{
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryCellVoltInfo()
+                                          .setMaxSingleCellVoltage(3.980)
+                                          .setMinSingleCellVoltage(3.978)
+                                          .setMaxCellVoltageNumber(1)
+                                          .setMinCellVoltageNumber(2))));
+
+   sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
+}
+
+TEST_F(TSOL_H50KAtStartupTest, publishesBatteryCellTempInfoUponRequest)
+{
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryCellTempInfo()
+                                          .setMaxSingleCellTemp(16)
+                                          .setMinSingleCellTemp(14)
+                                          .setMaxCellTempNumber(3)
+                                          .setMinCellTempNumber(4))));
+
+   sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
+}
+
+TEST_F(TSOL_H50KAtStartupTest, publishesBatteryStatusUponRequest)
+{
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryStatus(BatteryStatus::BASIC_STATUS_IDLE))));
+
+   sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
+}
+
+TEST_F(TSOL_H50KAtStartupTest, publishesBatteryModVoltInfoUponRequest)
+{
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryModVoltInfo()
+                                          .setMaxSingleModuleVoltage(2 * 3.980)
+                                          .setMinSingleModuleVoltage(2 * 3.978)
+                                          .setMaxModuleVoltageNumber(1)
+                                          .setMinModuleVoltageNumber(2))));
+
+   sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
+}
+
+TEST_F(TSOL_H50KAtStartupTest, publishesBatteryModTempInfoUponRequest)
+{
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryModTempInfo()
+                                          .setMaxSingleModuleTemp(16)
+                                          .setMinSingleModuleTemp(14)
+                                          .setMaxModuleTempNumber(3)
+                                          .setMinModuleTempNumber(4))));
+
+   sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
+}
+
+TEST_F(TSOL_H50KAtStartupTest, publishesBatteryForbiddenUponRequest)
+{
+   EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
+   EXPECT_CALL(sink, sink(MatchesMessage(BatteryForbidden())));
+
+   sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
+}
 
 }
 }

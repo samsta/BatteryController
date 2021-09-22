@@ -47,7 +47,7 @@ TSOL_H50K::~TSOL_H50K()
    m_timer.deregisterCallback(&m_periodic_callback);
 
    // I didn't see an 'open' in m_contactor destructor so I put one here. open for discussion
-   //m_contactor.open(); putting this in breaks the contactor open tests... I don't know why (James)
+   //m_contactor.open(); //JFS: putting this in breaks the contactor open tests... I don't know why
 }
 
 void TSOL_H50K::periodicCallback()
@@ -147,23 +147,6 @@ unsigned TSOL_H50K::getInverterSilentCounter()
 {
    return m_inverter_silent_counter;
 }
-
-
-//void TSOL_H50K::process(const can::messages::SMA::InverterIdentity&)
-//{
-//   m_sender.sink(BatterySystemInfo()
-//                 .setVersion(m_monitor.getSystemVersion())
-//                 .setCapacityKwh(m_monitor.getNominalCapacityKwh())
-//                 .setNumberOfModules(m_monitor.getNumberOfModules())
-//                 .setManufacturerId(MANUFACTURER_ID));
-//   m_sender.sink(BatteryIdentity()
-//                 .setSerialNumber(m_monitor.getSerialNumber())
-//                 .setManufacturingDateUnixTime(m_monitor.getManufacturingDateUnixTime()));
-//
-//   sendString(m_sender, ID_BATTERY_MANUFACTURER, m_monitor.getManufacturerName());
-//   sendString(m_sender, ID_BATTERY_NAME, m_monitor.getBatteryName());
-//}
-
 
 }
 }
