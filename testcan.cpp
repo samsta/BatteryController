@@ -484,9 +484,13 @@ int main(int argc, const char** argv)
 
    CanSender inverter_sender(inverter_socket, "INV", color::green);
    EpollTimer inverter_timer(epollfd);
-   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, inverter_timer, monitor, contactor);
-   SmaSink inverter_sink(inverter);
    
+//   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, inverter_timer, monitor, contactor);
+//   SmaSink inverter_sink(inverter);
+
+   inverter::TSUN::TSOL_H50K inverter(inverter_sender, inverter_timer, monitor, contactor);
+   TsunSink inverter_sink(inverter);
+
    while (1)
    {
       nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
