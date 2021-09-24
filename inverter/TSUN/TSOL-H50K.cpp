@@ -87,51 +87,57 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
    {
       m_contactor.close();
 
-      // send Ensemble Information
-      m_sender.sink(BatteryInfo()
-                  .setPileVoltage(m_monitor.getVoltage())
-                  .setPileCurrent(m_monitor.getCurrent())
-                  .setBMS2ndTemp(m_monitor.getTemperature())
-                  .setSOC(unsigned(m_monitor.getSocPercent() +0.5))
-                  .setSOH(unsigned(m_monitor.getSohPercent() +0.5)));
+      // do not send battery info unless the contractor is closed
+      // contact won't close unless sufficent info has been received from the battery
+      if (m_contactor.isClosed()) {
 
-      m_sender.sink(BatteryLimits()
-                    .setChargeVoltage(m_monitor.getMaxChargeVoltage())
-                    .setDischargeVoltage(m_monitor.getMinDischargeVoltage())
-                    .setChargeCurrent(m_monitor.getChargeCurrentLimit())
-                    .setDischargeCurrent(m_monitor.getDischargeCurrentLimit()));
+    	  // send Ensemble Information
+          m_sender.sink(BatteryInfo()
+                      .setPileVoltage(m_monitor.getVoltage())
+                      .setPileCurrent(m_monitor.getCurrent())
+                      .setBMS2ndTemp(m_monitor.getTemperature())
+                      .setSOC(unsigned(m_monitor.getSocPercent() +0.5))
+                      .setSOH(unsigned(m_monitor.getSohPercent() +0.5)));
 
-      // TODO replace dummy values
-      m_sender.sink(BatteryCellVoltInfo()
-            .setMaxSingleCellVoltage(3.980)
-            .setMinSingleCellVoltage(3.978)
-            .setMaxCellVoltageNumber(1)
-            .setMinCellVoltageNumber(2));
+          m_sender.sink(BatteryLimits()
+                        .setChargeVoltage(m_monitor.getMaxChargeVoltage())
+                        .setDischargeVoltage(m_monitor.getMinDischargeVoltage())
+                        .setChargeCurrent(m_monitor.getChargeCurrentLimit())
+                        .setDischargeCurrent(m_monitor.getDischargeCurrentLimit()));
 
-      // TODO replace dummy values
-      m_sender.sink(BatteryCellTempInfo()
-            .setMaxSingleCellTemp(16)
-            .setMinSingleCellTemp(14)
-            .setMaxCellTempNumber(3)
-            .setMinCellTempNumber(4));
+          // TODO replace dummy values
+          m_sender.sink(BatteryCellVoltInfo()
+                .setMaxSingleCellVoltage(3.980)
+                .setMinSingleCellVoltage(3.978)
+                .setMaxCellVoltageNumber(1)
+                .setMinCellVoltageNumber(2));
 
-      m_sender.sink(localBatteryStatus);
+          // TODO replace dummy values
+          m_sender.sink(BatteryCellTempInfo()
+                .setMaxSingleCellTemp(16)
+                .setMinSingleCellTemp(14)
+                .setMaxCellTempNumber(3)
+                .setMinCellTempNumber(4));
 
-      // TODO replace dummy values
-      m_sender.sink(BatteryModVoltInfo()
-            .setMaxSingleModuleVoltage(2 * 3.980)
-            .setMinSingleModuleVoltage(2 * 3.978)
-            .setMaxModuleVoltageNumber(1)
-            .setMinModuleVoltageNumber(2));
+          m_sender.sink(localBatteryStatus);
 
-      // TODO replace dummy values
-      m_sender.sink(BatteryModTempInfo()
-            .setMaxSingleModuleTemp(16)
-            .setMinSingleModuleTemp(14)
-            .setMaxModuleTempNumber(3)
-            .setMinModuleTempNumber(4));
+          // TODO replace dummy values
+          m_sender.sink(BatteryModVoltInfo()
+                .setMaxSingleModuleVoltage(2 * 3.980)
+                .setMinSingleModuleVoltage(2 * 3.978)
+                .setMaxModuleVoltageNumber(1)
+                .setMinModuleVoltageNumber(2));
 
-      m_sender.sink(BatteryForbidden());
+          // TODO replace dummy values
+          m_sender.sink(BatteryModTempInfo()
+                .setMaxSingleModuleTemp(16)
+                .setMinSingleModuleTemp(14)
+                .setMaxModuleTempNumber(3)
+                .setMinModuleTempNumber(4));
+
+          m_sender.sink(BatteryForbidden());
+      }
+
    }
    else if (command.getInfoType() == InverterInfoRequest::SYSTEM_EQUIPMENT)
    {
