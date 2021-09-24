@@ -52,7 +52,7 @@ const char* bright_blue  = "\x1b[94m";
 const char* reset = "\x1b[0m";
 }
               
-gpiod_line* openOutput(gpiod_chip* chip, unsigned pin, const char* name)
+gpiod_line* openOutput(gpiod_chip* chip, unsigned pin, const char* name, unsigned default_state)
 {
    gpiod_line* gpio = gpiod_chip_get_line(chip, pin);
    if (gpio == nullptr)
@@ -60,7 +60,12 @@ gpiod_line* openOutput(gpiod_chip* chip, unsigned pin, const char* name)
       std::cerr << "failed opening gpiochip pin " << pin << ":" << strerror(errno) << std::endl;
       return nullptr;
    }
-   if (gpiod_line_request_output(gpio, name, 0) != 0)
+   // default state can only be 0 or 1, if it's not 0, it's 1
+   if (default_state != 0)
+   {
+      default_state = 1;
+   }
+   if (gpiod_line_request_output(gpio, name, default_state) != 0)
    {
       std::cerr << "failed requesting gpiochip pin " << pin << " as output:" << strerror(errno) << std::endl;
       return nullptr;
@@ -95,9 +100,9 @@ public:
          return;
       }
 
-      m_gpio_contactor_neg = openOutput(m_gpio_chip, 6, "relay_neg");
-      m_gpio_contactor_pos = openOutput(m_gpio_chip, 5, "relay_pos");
-      m_gpio_led1 = openOutput(m_gpio_chip, 4, "led1");
+      m_gpio_contactor_neg = openOutput(m_gpio_chip, 6, "relay_neg", 1);
+      m_gpio_contactor_pos = openOutput(m_gpio_chip, 5, "relay_pos", 1);
+      m_gpio_led1 = openOutput(m_gpio_chip, 4, "led1", 0);
    }
 
    virtual void setSafeToOperate(bool safe)
