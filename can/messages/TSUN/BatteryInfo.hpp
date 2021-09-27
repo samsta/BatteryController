@@ -22,8 +22,8 @@ public:
    BatteryInfo& setPileVoltage(float pile_voltage);
    BatteryInfo& setPileCurrent(float pile_current);
    BatteryInfo& setBMS2ndTemp(float bms_2nd_temp);
-   BatteryInfo& setSOC(unsigned soc);
-   BatteryInfo& setSOH(unsigned soh);
+   BatteryInfo& setSOC(float soc);
+   BatteryInfo& setSOH(float soh);
 };
 
 }

@@ -2,6 +2,8 @@
 #include "BatteryInfo.hpp"
 #include "can/messages/TSUN/Ids.hpp"
 #include "util.hpp"
+#include "math.h"
+
 
 using namespace util;
 
@@ -46,15 +48,15 @@ BatteryInfo& BatteryInfo::setBMS2ndTemp(float bms_2nd_temp)
    return *this;
 }
 
-BatteryInfo& BatteryInfo::setSOC(unsigned soc)
+BatteryInfo& BatteryInfo::setSOC(float soc)
 {
-   setByte(6, limitValueToByte(soc));
+   setByte(6, limitValueToByte(unsigned(round(soc))));
    return *this;
 }
 
-BatteryInfo& BatteryInfo::setSOH(unsigned soh)
+BatteryInfo& BatteryInfo::setSOH(float soh)
 {
-   setByte(7, limitValueToByte(soh));
+   setByte(7, limitValueToByte(unsigned(round(soh))));
    return *this;
 }
 
