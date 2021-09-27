@@ -89,9 +89,18 @@ TEST_F(TSOL_H50KAtStartupTest, doesntBroadcastIfNothingReceivedFromInverter)
    EXPECT_NO_CALL(sink, sink(_));
 }
 
-TEST_F(TSOL_H50KAtStartupTest, broadcastsAfterReceivingInverterInfoRequest)
+TEST_F(TSOL_H50KAtStartupTest, doesntbroadcastsAfterReceivingInverterInfoRequestAndContactsAreOpen)
+{
+   EXPECT_NO_CALL(sink, sink(_));
+   ON_CALL(contactor, isClosed()).WillByDefault(Return(false));
+
+   sbs.sink(InverterInfoRequest());
+}
+
+TEST_F(TSOL_H50KAtStartupTest, broadcastsAfterReceivingInverterInfoRequestAndContactsClosed)
 {
    EXPECT_CALL(sink, sink(_)).Times(AtLeast(1));
+   ON_CALL(contactor, isClosed()).WillByDefault(Return(true));
 
    sbs.sink(InverterInfoRequest());
 }
@@ -141,6 +150,7 @@ TEST_F(TSOL_H50KAtStartupTest, publishesBatteryInfoUponRequest)
                                        .setBMS2ndTemp(16.7)
                                        .setSOC(87)
                                        .setSOH(67))));
+   ON_CALL(contactor, isClosed()).WillByDefault(Return(true));
 
    sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
 }
@@ -158,6 +168,7 @@ TEST_F(TSOL_H50KAtStartupTest, publishesBatteryLimitsUponRequest)
                                          .setDischargeVoltage(345.6)
                                          .setChargeCurrent(10.9)
                                          .setDischargeCurrent(11.1))));
+   ON_CALL(contactor, isClosed()).WillByDefault(Return(true));
 
    sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
 }
@@ -170,6 +181,7 @@ TEST_F(TSOL_H50KAtStartupTest, publishesBatteryCellVoltInfoUponRequest)
                                           .setMinSingleCellVoltage(3.978)
                                           .setMaxCellVoltageNumber(1)
                                           .setMinCellVoltageNumber(2))));
+   ON_CALL(contactor, isClosed()).WillByDefault(Return(true));
 
    sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
 }
@@ -182,6 +194,7 @@ TEST_F(TSOL_H50KAtStartupTest, publishesBatteryCellTempInfoUponRequest)
                                           .setMinSingleCellTemp(14)
                                           .setMaxCellTempNumber(3)
                                           .setMinCellTempNumber(4))));
+   ON_CALL(contactor, isClosed()).WillByDefault(Return(true));
 
    sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
 }
@@ -190,6 +203,7 @@ TEST_F(TSOL_H50KAtStartupTest, publishesBatteryStatusUponRequest)
 {
    EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryStatus(BatteryStatus::BASIC_STATUS_IDLE))));
+   ON_CALL(contactor, isClosed()).WillByDefault(Return(true));
 
    sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
 }
@@ -202,6 +216,7 @@ TEST_F(TSOL_H50KAtStartupTest, publishesBatteryModVoltInfoUponRequest)
                                           .setMinSingleModuleVoltage(2 * 3.978)
                                           .setMaxModuleVoltageNumber(1)
                                           .setMinModuleVoltageNumber(2))));
+   ON_CALL(contactor, isClosed()).WillByDefault(Return(true));
 
    sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
 }
@@ -214,6 +229,7 @@ TEST_F(TSOL_H50KAtStartupTest, publishesBatteryModTempInfoUponRequest)
                                           .setMinSingleModuleTemp(14)
                                           .setMaxModuleTempNumber(3)
                                           .setMinModuleTempNumber(4))));
+   ON_CALL(contactor, isClosed()).WillByDefault(Return(true));
 
    sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
 }
@@ -222,6 +238,7 @@ TEST_F(TSOL_H50KAtStartupTest, publishesBatteryForbiddenUponRequest)
 {
    EXPECT_CALL(sink, sink(_)).Times(AnyNumber());
    EXPECT_CALL(sink, sink(MatchesMessage(BatteryForbidden())));
+   ON_CALL(contactor, isClosed()).WillByDefault(Return(true));
 
    sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
 }
