@@ -89,7 +89,6 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
 
       // do not send battery info unless the contractor is closed
       // contact won't close unless sufficent info has been received from the battery
-      //if (true) { // needed to make broadcast tests pass... need to fix this
       if (m_contactor.isClosed()) {
 
     	  // send Ensemble Information

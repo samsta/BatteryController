@@ -6,7 +6,7 @@ namespace messages {
 namespace TSUN {
 
 InverterInfoRequest::InverterInfoRequest(const DataFrame& frame):
-		Message(ID_INVERTER_INFO_REQUEST),
+		Message(unsigned(ID_INVERTER_INFO_REQUEST)),
 		m_info_type()
 {
 	if (frame.id() != id()) return;
@@ -27,10 +27,11 @@ InverterInfoRequest::InverterInfoRequest(const DataFrame& frame):
 }
 
 InverterInfoRequest::InverterInfoRequest():
-		Message(ID_INVERTER_INFO_REQUEST),
+		Message(unsigned(ID_INVERTER_INFO_REQUEST)),
 		m_info_type()
 {
 }
+
 InverterInfoRequest::InfoType InverterInfoRequest::getInfoType() const
 {
    return m_info_type;
