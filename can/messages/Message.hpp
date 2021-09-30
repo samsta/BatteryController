@@ -10,11 +10,11 @@ namespace messages {
 
 class Message {
 public:
-   Message(unsigned id);
+   Message(uint32_t id);
    virtual ~Message(){}
    
    bool valid() const;
-   unsigned id() const;
+   uint32_t id() const;
 
    virtual void toStream(logging::ostream&) const = 0;
    
@@ -23,7 +23,7 @@ protected:
    
 private:
    bool m_valid;
-   unsigned m_id;
+   uint32_t m_id;
 };
 
 logging::ostream& operator<<(logging::ostream&, const Message&);
