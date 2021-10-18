@@ -1,6 +1,7 @@
 # BatteryController
 
-[![Build Status](https://travis-ci.com/samsta/BatteryController.svg?token=G5p63QVxar7JscrjTLwf&branch=master)](https://travis-ci.com/samsta/BatteryController)
+[![Arduino build](https://github.com/samsta/BatteryController/actions/workflows/arduino.yml/badge.svg)](https://github.com/samsta/BatteryController/actions/workflows/arduino.yml)
+[![Ubuntu build + test](https://github.com/samsta/BatteryController/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/samsta/BatteryController/actions/workflows/ubuntu.yml)
 
 The battery controller is an interpreter between a HV(EV) battery and an inverter.
 Currently it is being develped to interface between a Nissan Leaf Battery & an [SMA SBS 5 inverter](https://www.sma.de/en/products/battery-inverters/sunny-boy-storage-37-50-60.html) (affectionately known as The Altar of Satan or simply TAoS)
@@ -121,7 +122,7 @@ Now import the project into Eclipse:
 - File > Import > General > Existing Projects into Workspace > Next
    - Choose 'Select root directory', then click 'Browse'
    - click 'Home'
-   - navigate to Projects/NatteryController-build and click Open
+   - navigate to Projects/BatteryController-build and click Open
    - It should now list under Projects:
       - BatteryController@BatteryController-build
    - click Finish
