@@ -1,0 +1,24 @@
+
+     
+name: Arduino CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository and submodules
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
+    - name: Bootstrap Arduino
+      working-directory: ${{github.workspace}}/build
+      run: ${{github.workspace}}/BatteryController/bootstrap_arduino.sh
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      run: make
