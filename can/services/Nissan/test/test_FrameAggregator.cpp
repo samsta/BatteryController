@@ -7,13 +7,6 @@ using namespace can;
 using namespace can::services::Nissan;
 using namespace testing;
 
-namespace can {
-void PrintTo(const DataFrame& f, std::ostream* os)
-{
-   *os << f;
-}
-}
-
 MATCHER_P(AsString, str, std::string(negation ? " doesn't equal " : " equals ") + str){
    return testing::internal::CaseInsensitiveStringEquals<std::string>(PrintToString(arg), str);
 }

@@ -162,6 +162,11 @@ logging::ostream& operator<<(logging::ostream& os, const DataFrame& frame)
    return os;
 }
 
+void PrintTo(const DataFrame& f, logging::ostream* os)
+{
+   if (os) *os << f;
+}
+
 bool DataFrame::operator==(const DataFrame& other) const
 {
    if (other.id() != id()) return false;

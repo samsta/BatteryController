@@ -63,6 +63,8 @@ private:
 
 logging::ostream& operator<<(logging::ostream&, const DataFrame&);
 
+void PrintTo(const DataFrame& f, logging::ostream* os);
+
 }
 
 #endif // _CAN_DATAFRAME_HPP
