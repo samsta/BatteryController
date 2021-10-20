@@ -38,6 +38,8 @@ else()
 endif()
 
 add_subdirectory(can)
+add_subdirectory(contactor)
+add_subdirectory(core)
 add_subdirectory(inverter)
 add_subdirectory(logging)
 add_subdirectory(monitor)
@@ -46,7 +48,7 @@ add_subdirectory(monitor)
 if(SocketCan_FOUND AND LibGpiod_FOUND)
    # horrible prototype
    add_executable(testcan testcan.cpp)
-   target_link_libraries(testcan logging monitor inverter can ${LibGpiod_LIBRARY})
+   target_link_libraries(testcan logging monitor inverter can core contactor ${LibGpiod_LIBRARY})
    
    # horrible battery emulator hack
    add_executable(emulator emulator.cpp)

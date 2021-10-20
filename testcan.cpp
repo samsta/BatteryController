@@ -38,9 +38,12 @@
 #include "can/messages/TSUN/InverterSleepAwakeCmd.hpp"
 #include "inverter/TSUN/TSOL-H50K.hpp"
 
-#include "contactor/Contactor.hpp"
+#include "contactor/Nissan/LeafContactor.hpp"
+#include "core/LibGpiod/OutputPin.hpp"
 #include "core/Timer.hpp"
 #include "core/Callback.hpp"
+
+using namespace core::libgpiod;
 
 namespace color {
 const char* red   = "\x1b[31m";
@@ -52,135 +55,6 @@ const char* bright_blue  = "\x1b[94m";
 const char* reset = "\x1b[0m";
 }
               
-gpiod_line* openOutput(gpiod_chip* chip, unsigned pin, const char* name, unsigned default_state)
-{
-   gpiod_line* gpio = gpiod_chip_get_line(chip, pin);
-   if (gpio == nullptr)
-   {
-      std::cerr << "failed opening gpiochip pin " << pin << ":" << strerror(errno) << std::endl;
-      return nullptr;
-   }
-   // default state can only be 0 or 1, if it's not 0, it's 1
-   if (default_state != 0)
-   {
-      default_state = 1;
-   }
-   if (gpiod_line_request_output(gpio, name, default_state) != 0)
-   {
-      std::cerr << "failed requesting gpiochip pin " << pin << " as output:" << strerror(errno) << std::endl;
-      return nullptr;
-   }
-   return gpio;
-}
-
-class PrintingContactor: public contactor::Contactor
-{
-public:
-   enum State {
-      OPEN,
-      CLOSING,
-      CLOSED
-   };
-   
-   PrintingContactor(int timerfd):
-      m_timerfd(timerfd),
-      m_gpio_chip(nullptr),
-      m_gpio_contactor_neg(nullptr),
-      m_gpio_contactor_pos(nullptr),
-      m_gpio_led1(nullptr),
-      m_safe_to_operate(false),
-      m_requested_state(OPEN),
-      m_state(OPEN)
-   {
-      m_gpio_chip = gpiod_chip_open_by_number(0);
-
-      if(m_gpio_chip == nullptr)
-      {
-         std::cerr << "failed opening gpiochip0:" << strerror(errno) << std::endl;
-         return;
-      }
-
-      m_gpio_contactor_neg = openOutput(m_gpio_chip, 6, "relay_neg", 1);
-      m_gpio_contactor_pos = openOutput(m_gpio_chip, 5, "relay_pos", 1);
-      m_gpio_led1 = openOutput(m_gpio_chip, 4, "led1", 0);
-   }
-
-   virtual void setSafeToOperate(bool safe)
-   {
-      std::cout << color::red << ">>> contactor is " << (safe ? "safe" : "unsafe") << " to operate" << color::reset << std::endl;
-      m_safe_to_operate = safe;
-      update();
-   }
-
-   virtual bool isClosed() const
-   {
-      return m_state == CLOSED;
-   }
-   
-   virtual void open()
-   {
-      m_requested_state = OPEN;
-      update();
-   }
-   
-   virtual void close()
-   {
-      m_requested_state = CLOSED;
-      update();
-   }
-
-   void openBoth()
-   {
-      if (m_gpio_contactor_neg) gpiod_line_set_value(m_gpio_contactor_neg, 1);
-      if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 1);
-      if (m_gpio_led1) gpiod_line_set_value(m_gpio_led1, 0);
-      
-      std::cout << color::bright_red << ">>>> contactor opened" << color::reset << std::endl;
-      m_state = OPEN;
-   }
-
-   void update()
-   {
-      if (m_safe_to_operate && m_requested_state == CLOSED)
-      {
-         if (m_state == OPEN) closeNegative();
-      }
-      else if (not m_safe_to_operate or m_requested_state == OPEN)
-      {
-         if (m_state != OPEN) openBoth();
-      }
-   }
-   
-   void closeNegative()
-   {
-      m_state = CLOSING;
-      std::cout << color::bright_red << ">>>> contactor closing..." << color::reset << std::endl;
-      struct itimerspec its = itimerspec();
-      its.it_value.tv_sec = 3;
-      timerfd_settime(m_timerfd, 0, &its, NULL);
-      
-      if (m_gpio_contactor_neg) gpiod_line_set_value(m_gpio_contactor_neg, 0);
-      if (m_gpio_led1) gpiod_line_set_value(m_gpio_led1, 1);
-   }
-   
-   void closePositive()
-   {
-      if (m_gpio_contactor_pos) gpiod_line_set_value(m_gpio_contactor_pos, 0);
-      std::cout << color::bright_red <<  ">>>> contactor closed" << color::reset << std::endl;
-      m_state = CLOSED;
-   }
-
-public:
-   int m_timerfd;
-   gpiod_chip* m_gpio_chip;
-   gpiod_line* m_gpio_contactor_neg;
-   gpiod_line* m_gpio_contactor_pos;
-   gpiod_line* m_gpio_led1;
-   bool m_safe_to_operate;
-   State m_requested_state;
-   State m_state;
-};
-
 class NissanSink: public can::FrameSink
 {
 public:
@@ -355,16 +229,43 @@ public:
       m_fd = timerfd_create(CLOCK_MONOTONIC, 0);
    }
    
+   enum TimerType {
+      PERIODIC,
+      ONE_SHOT
+   };
+
    virtual void registerPeriodicCallback(core::Invokable* invokable, unsigned period_ms)
    {
-      int sec = period_ms / 1000;
-      int ms  = period_ms % 1000;
+      setTimer(invokable, period_ms, PERIODIC);
+   }
+   
+   virtual void schedule(core::Invokable* invokable, unsigned delay_ms)
+   {
+      setTimer(invokable, delay_ms, ONE_SHOT);
+   }
+
+   virtual void deregisterCallback(core::Invokable*){}
+
+   void expired()
+   {
+      uint64_t num_expirations;
+      (void)read(m_fd, &num_expirations, sizeof(num_expirations));
+      m_invokable->invoke();
+   }
+
+   void setTimer(core::Invokable* invokable, unsigned time_ms, TimerType type)
+   {
+      int sec = time_ms / 1000;
+      int ms  = time_ms % 1000;
       struct itimerspec its = itimerspec();
-      its.it_interval.tv_nsec = ms * 1000000;
-      its.it_interval.tv_sec  = sec;
-      its.it_value = its.it_interval;
+      its.it_value.tv_nsec = ms * 1000000;
+      its.it_value.tv_sec  = sec;
+      if (type == PERIODIC)
+      {
+         its.it_interval = its.it_value;
+      }
       timerfd_settime(m_fd, 0, &its, NULL);
-      
+
       struct epoll_event ev;
       ev.events = EPOLLIN;
       ev.data.fd = m_fd;
@@ -373,15 +274,6 @@ public:
          exit(EXIT_FAILURE);
       }
       m_invokable = invokable;
-   }
-   
-   virtual void deregisterCallback(core::Invokable*){}
-
-   void expired()
-   {
-      uint64_t num_expirations;
-      (void)read(m_fd, &num_expirations, sizeof(num_expirations));
-      m_invokable->invoke();
    }
 
    int m_epoll_fd;
@@ -414,7 +306,7 @@ int openSocket(const char* name)
 
 int main(int argc, const char** argv)
 {
-   int battery_socket, inverter_socket, contactor_timer, poll_timer;
+   int battery_socket, inverter_socket, poll_timer;
 
    if (argc != 3)
    {
@@ -447,20 +339,6 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
-   contactor_timer = timerfd_create(CLOCK_MONOTONIC, 0);
-   if (contactor_timer == -1)
-   {
-      perror("timerfd_create");
-      exit(EXIT_FAILURE);
-   }
-
-   ev.events = EPOLLIN;
-   ev.data.fd = contactor_timer;
-   if (epoll_ctl(epollfd, EPOLL_CTL_ADD, contactor_timer, &ev) == -1) {
-      perror("epoll_ctl: contactor_timer");
-      exit(EXIT_FAILURE);
-   }
-
    poll_timer = timerfd_create(CLOCK_MONOTONIC, 0);
    if (poll_timer == -1)
    {
@@ -480,7 +358,17 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
    
-   PrintingContactor contactor(contactor_timer);
+   EpollTimer contactor_timer(epollfd);
+   OutputPin positive_relay(0, 5, "relay_pos");
+   OutputPin negative_relay(0, 6, "relay_neg");
+   OutputPin indicator_led(0, 4, "led1");
+   contactor::Nissan::LeafContactor contactor(
+         contactor_timer,
+         positive_relay,
+         negative_relay,
+         indicator_led,
+         &std::cout);
+
    monitor::Nissan::Monitor monitor(contactor);
    NissanSink battery_sink(monitor);
    can::services::Nissan::FrameAggregator aggregator(battery_sink);
@@ -539,17 +427,15 @@ int main(int argc, const char** argv)
          {
             inverter_timer.expired();
          }
+         else if (events[n].data.fd == contactor_timer.m_fd)
+         {
+            contactor_timer.expired();
+         }
          else if (events[n].data.fd == poll_timer)
          {
             poller.poll();
             uint64_t num_expirations;
             (void)read(poll_timer, &num_expirations, sizeof(num_expirations));
-         }
-         else if (events[n].data.fd == contactor_timer)
-         {
-            contactor.closePositive();
-            uint64_t num_expirations;
-            (void)read(contactor_timer, &num_expirations, sizeof(num_expirations));
          }
       }
    }

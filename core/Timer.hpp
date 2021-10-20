@@ -12,6 +12,7 @@ class Timer
 public:
    virtual ~Timer(){}
    virtual void registerPeriodicCallback(Invokable* invokable, unsigned period_ms) = 0;
+   virtual void schedule(Invokable* invokable, unsigned delay_ms) = 0;
    virtual void deregisterCallback(Invokable* invokable) = 0;
 };
 
