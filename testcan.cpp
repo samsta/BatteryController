@@ -238,7 +238,7 @@ int openSocket(const char* name)
 
 int main(int argc, const char** argv)
 {
-   int battery_socket, inverter_socket, poll_timer;
+   int battery_socket, inverter_socket;
 
    if (argc != 3)
    {
@@ -270,25 +270,6 @@ int main(int argc, const char** argv)
       perror("epoll_ctl: can socket");
       exit(EXIT_FAILURE);
    }
-
-   poll_timer = timerfd_create(CLOCK_MONOTONIC, 0);
-   if (poll_timer == -1)
-   {
-      perror("timerfd_create");
-      exit(EXIT_FAILURE);
-   }
-   struct itimerspec its = itimerspec();
-   its.it_interval.tv_nsec = 0;
-   its.it_interval.tv_sec = 1;
-   its.it_value = its.it_interval;
-   timerfd_settime(poll_timer, 0, &its, NULL);
-
-   ev.events = EPOLLIN;
-   ev.data.fd = poll_timer;
-   if (epoll_ctl(epollfd, EPOLL_CTL_ADD, poll_timer, &ev) == -1) {
-      perror("epoll_ctl: poll_timer");
-      exit(EXIT_FAILURE);
-   }
    
    core::EpollTimer contactor_timer(epollfd, "contactor_timer");
    OutputPin positive_relay(0, 5, "relay_pos");
@@ -305,7 +286,8 @@ int main(int argc, const char** argv)
    NissanSink battery_sink(monitor);
    can::services::Nissan::FrameAggregator aggregator(battery_sink);
    CanSender battery_sender(battery_socket, "BAT", color::blue);
-   can::services::Nissan::GroupPoller poller(battery_sender);
+   core::EpollTimer poll_timer(epollfd, "poll_timer");
+   can::services::Nissan::GroupPoller poller(battery_sender, poll_timer);
 
    CanSender inverter_sender(inverter_socket, "INV", color::green);
    core::EpollTimer inverter_timer(epollfd, "inverter_timer");
@@ -363,11 +345,9 @@ int main(int argc, const char** argv)
          {
             contactor_timer.expired();
          }
-         else if (events[n].data.fd == poll_timer)
+         else if (events[n].data.fd == poll_timer.fd())
          {
-            poller.poll();
-            uint64_t num_expirations;
-            (void)read(poll_timer, &num_expirations, sizeof(num_expirations));
+            poll_timer.expired();
          }
       }
    }

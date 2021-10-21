@@ -3,6 +3,7 @@
 #ifndef _CAN_SERVICES_NISSAN_GROUPPOLLER
 #define _CAN_SERVICES_NISSAN_GROUPPOLLER
 
+#include "core/Timer.hpp"
 #include <stdint.h>
 
 namespace can {
@@ -16,15 +17,20 @@ namespace Nissan {
 class GroupPoller
 {
 public:
-   GroupPoller(FrameSink& sender);
+   GroupPoller(FrameSink& sender, core::Timer& timer);
+   ~GroupPoller();
 
-   void poll();
    void received(const DataFrame&);
 
 private:
-   FrameSink& m_sender;
-   unsigned m_poll_ix;
-   uint8_t m_poll_groups[4];
+   void poll();
+
+   FrameSink&   m_sender;
+   core::Timer& m_timer;
+   unsigned     m_poll_ix;
+   uint8_t      m_poll_groups[4];
+
+   core::Callback<GroupPoller> m_poll_callback;
 };
 
 }

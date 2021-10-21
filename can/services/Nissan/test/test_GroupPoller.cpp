@@ -2,6 +2,7 @@
 #include "can/services/Nissan/GroupPoller.hpp"
 #include "can/FrameSink.hpp"
 #include "can/StandardDataFrame.hpp"
+#include "mocks/core/Timer.hpp"
 
 using namespace can;
 using namespace can::services::Nissan;
@@ -15,15 +16,46 @@ public:
    MOCK_METHOD1(sink, void(const DataFrame&));
 };
 
+
+TEST(GroupPoller, registersAndDeregistersPollingCallbackFor1000MillisecondPeriod)
+{
+   TestSender sender;
+   mocks::core::Timer timer;
+
+   {
+      core::Invokable* invokable;
+      EXPECT_CALL(timer, registerPeriodicCallback(_, 1000)).WillOnce(SaveArg<0>(&invokable));
+      GroupPoller poller(sender, timer);
+      EXPECT_CALL(timer, deregisterCallback(invokable));
+   }
+}
+
+
 class GroupPollerTest: public Test
 {
 public:
    GroupPollerTest():
-      poller(sender)
+      sender(),
+      timer(),
+      poll_callback(),
+      constructor_expectation(timer, &poll_callback),
+      poller(sender, timer)
    {
    }
 
-   TestSender sender;
+   TestSender         sender;
+   NiceMock<mocks::core::Timer> timer;
+   core::Invokable*   poll_callback;
+
+   class ConstructorExpectation
+      {
+      public:
+         ConstructorExpectation(mocks::core::Timer& timer, core::Invokable** invokable)
+         {
+            EXPECT_CALL(timer, registerPeriodicCallback(_, _)).WillOnce(SaveArg<0>(invokable));
+         }
+   } constructor_expectation;
+
    GroupPoller poller;
 };
 
@@ -35,7 +67,7 @@ TEST_F(GroupPollerTest, pollInvokesSender)
 {
    EXPECT_CALL(sender, sink(_));
 
-   poller.poll();
+   poll_callback->invoke();
 }
 
 TEST_F(GroupPollerTest, pollCyclesThroughGroupsAndRequestsInitialFrame)
@@ -45,16 +77,16 @@ TEST_F(GroupPollerTest, pollCyclesThroughGroupsAndRequestsInitialFrame)
       SCOPED_TRACE(Message("k=") << k);
 
       EXPECT_CALL(sender, sink(AsString("79b#0221010000000000")));
-      poller.poll();
+      poll_callback->invoke();
 
       EXPECT_CALL(sender, sink(AsString("79b#0221020000000000")));
-      poller.poll();
+      poll_callback->invoke();
 
       EXPECT_CALL(sender, sink(AsString("79b#0221030000000000")));
-      poller.poll();
+      poll_callback->invoke();
 
       EXPECT_CALL(sender, sink(AsString("79b#0221040000000000")));
-      poller.poll();
+      poll_callback->invoke();
    }
 }
 

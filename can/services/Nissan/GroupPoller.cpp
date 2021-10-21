@@ -11,15 +11,23 @@ namespace Nissan {
 
 using namespace can::messages::Nissan;
 
-GroupPoller::GroupPoller(FrameSink& sender):
+GroupPoller::GroupPoller(FrameSink& sender, core::Timer& timer):
     m_sender(sender),
+    m_timer(timer),
     m_poll_ix(0),
     m_poll_groups{
       GROUP_BATTERY_STATE,
       GROUP_CELL_VOLTAGES,
       GROUP_CELL_VOLTAGE_RANGE,
-      GROUP_PACK_TEMPERATURES}
+      GROUP_PACK_TEMPERATURES},
+    m_poll_callback(*this, &GroupPoller::poll)
 {
+   m_timer.registerPeriodicCallback(&m_poll_callback, 1000);
+}
+
+GroupPoller::~GroupPoller()
+{
+   m_timer.deregisterCallback(&m_poll_callback);
 }
 
 void GroupPoller::poll()
