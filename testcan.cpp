@@ -40,6 +40,7 @@
 
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "core/LibGpiod/OutputPin.hpp"
+#include "core/Linux/EpollTimer.hpp"
 #include "core/Timer.hpp"
 #include "core/Callback.hpp"
 #include "logging/colors.hpp"
@@ -212,67 +213,6 @@ private:
    const char* m_color;
 };
 
-class EpollTimer: public core::Timer
-{
-public:
-   EpollTimer(int epoll_fd):
-      m_epoll_fd(epoll_fd)
-   {
-      m_fd = timerfd_create(CLOCK_MONOTONIC, 0);
-   }
-   
-   enum TimerType {
-      PERIODIC,
-      ONE_SHOT
-   };
-
-   virtual void registerPeriodicCallback(core::Invokable* invokable, unsigned period_ms)
-   {
-      setTimer(invokable, period_ms, PERIODIC);
-   }
-   
-   virtual void schedule(core::Invokable* invokable, unsigned delay_ms)
-   {
-      setTimer(invokable, delay_ms, ONE_SHOT);
-   }
-
-   virtual void deregisterCallback(core::Invokable*){}
-
-   void expired()
-   {
-      uint64_t num_expirations;
-      (void)read(m_fd, &num_expirations, sizeof(num_expirations));
-      m_invokable->invoke();
-   }
-
-   void setTimer(core::Invokable* invokable, unsigned time_ms, TimerType type)
-   {
-      int sec = time_ms / 1000;
-      int ms  = time_ms % 1000;
-      struct itimerspec its = itimerspec();
-      its.it_value.tv_nsec = ms * 1000000;
-      its.it_value.tv_sec  = sec;
-      if (type == PERIODIC)
-      {
-         its.it_interval = its.it_value;
-      }
-      timerfd_settime(m_fd, 0, &its, NULL);
-
-      struct epoll_event ev;
-      ev.events = EPOLLIN;
-      ev.data.fd = m_fd;
-      if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_fd, &ev) == -1) {
-         perror("epoll_ctl: timer");
-         exit(EXIT_FAILURE);
-      }
-      m_invokable = invokable;
-   }
-
-   int m_epoll_fd;
-   int m_fd;
-   core::Invokable* m_invokable;
-};
-
 int openSocket(const char* name)
 {
    struct sockaddr_can addr;
@@ -350,7 +290,7 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
    
-   EpollTimer contactor_timer(epollfd);
+   core::EpollTimer contactor_timer(epollfd, "contactor_timer");
    OutputPin positive_relay(0, 5, "relay_pos");
    OutputPin negative_relay(0, 6, "relay_neg");
    OutputPin indicator_led(0, 4, "led1");
@@ -368,7 +308,7 @@ int main(int argc, const char** argv)
    can::services::Nissan::GroupPoller poller(battery_sender);
 
    CanSender inverter_sender(inverter_socket, "INV", color::green);
-   EpollTimer inverter_timer(epollfd);
+   core::EpollTimer inverter_timer(epollfd, "inverter_timer");
    
 //   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, inverter_timer, monitor, contactor);
 //   SmaSink inverter_sink(inverter);
@@ -415,11 +355,11 @@ int main(int argc, const char** argv)
                inverter_sink.sink(f);
             }
          }
-         else if (events[n].data.fd == inverter_timer.m_fd)
+         else if (events[n].data.fd == inverter_timer.fd())
          {
             inverter_timer.expired();
          }
-         else if (events[n].data.fd == contactor_timer.m_fd)
+         else if (events[n].data.fd == contactor_timer.fd())
          {
             contactor_timer.expired();
          }
