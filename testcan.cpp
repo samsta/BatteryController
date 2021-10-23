@@ -271,12 +271,13 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
    
-   core::EpollTimer contactor_timer(epollfd, "contactor_timer");
+   core::EpollTimer timer(epollfd);
+
    OutputPin positive_relay(0, 5, "relay_pos");
    OutputPin negative_relay(0, 6, "relay_neg");
    OutputPin indicator_led(0, 4, "led1");
    contactor::Nissan::LeafContactor contactor(
-         contactor_timer,
+         timer,
          positive_relay,
          negative_relay,
          indicator_led,
@@ -286,16 +287,14 @@ int main(int argc, const char** argv)
    NissanSink battery_sink(monitor);
    can::services::Nissan::FrameAggregator aggregator(battery_sink);
    CanSender battery_sender(battery_socket, "BAT", color::blue);
-   core::EpollTimer poll_timer(epollfd, "poll_timer");
-   can::services::Nissan::GroupPoller poller(battery_sender, poll_timer);
+   can::services::Nissan::GroupPoller poller(battery_sender, timer);
 
    CanSender inverter_sender(inverter_socket, "INV", color::green);
-   core::EpollTimer inverter_timer(epollfd, "inverter_timer");
    
-//   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, inverter_timer, monitor, contactor);
+//   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, timer, monitor, contactor);
 //   SmaSink inverter_sink(inverter);
 
-   inverter::TSUN::TSOL_H50K inverter(inverter_sender, inverter_timer, monitor, contactor);
+   inverter::TSUN::TSOL_H50K inverter(inverter_sender, timer, monitor, contactor);
    TsunSink inverter_sink(inverter);
 
    while (1)
@@ -337,17 +336,9 @@ int main(int argc, const char** argv)
                inverter_sink.sink(f);
             }
          }
-         else if (events[n].data.fd == inverter_timer.fd())
+         else
          {
-            inverter_timer.expired();
-         }
-         else if (events[n].data.fd == contactor_timer.fd())
-         {
-            contactor_timer.expired();
-         }
-         else if (events[n].data.fd == poll_timer.fd())
-         {
-            poll_timer.expired();
+            reinterpret_cast<core::EpollHandler*>(events[n].data.ptr)->handle();
          }
       }
    }

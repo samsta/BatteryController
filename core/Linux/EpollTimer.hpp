@@ -4,35 +4,34 @@
 #define _CORE_LINUX_EPOLLTIMER_HPP
 
 #include "core/Timer.hpp"
-#include <string>
+#include <map>
 
 namespace core {
+
+class EpollHandler
+{
+public:
+   virtual ~EpollHandler(){}
+
+   virtual void handle() = 0;
+};
 
 class EpollTimer: public core::Timer
 {
 public:
-   EpollTimer(int epoll_fd, const char* name);
+   EpollTimer(int epoll_fd);
+   ~EpollTimer();
 
    virtual void registerPeriodicCallback(core::Invokable* invokable, unsigned period_ms);
    virtual void schedule(core::Invokable* invokable, unsigned delay_ms);
    virtual void deregisterCallback(core::Invokable*){}
 
-   void expired();
-
-   int fd() const;
-
 private:
-   enum TimerType {
-      PERIODIC,
-      ONE_SHOT
-   };
 
-   void setTimer(core::Invokable* invokable, unsigned time_ms, TimerType type);
+   class TimerEpollEntry;
+   std::map<core::Invokable*, TimerEpollEntry*> m_timers;
 
    int m_epoll_fd;
-   int m_fd;
-   core::Invokable* m_invokable;
-   std::string m_name;
 };
 
 }
