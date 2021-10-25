@@ -5,6 +5,7 @@
 
 #include "monitor/Monitor.hpp"
 #include "can/FrameSink.hpp"
+#include "can/messages/Nissan/Message.hpp"
 
 namespace contactor {
 class Contactor;
@@ -25,12 +26,12 @@ class BatteryStatus;
 namespace monitor {
 namespace Nissan {
 
-class Monitor: public monitor::Monitor
+class Monitor: public monitor::Monitor, public can::messages::Nissan::MessageSink
 {
 public:
    explicit Monitor(contactor::Contactor&);
 
-   void sink(const can::messages::Nissan::Message&);
+   virtual void sink(const can::messages::Nissan::Message&);
 
    // monitor::Monitor
    virtual float getVoltage() const;

@@ -21,16 +21,11 @@
 #include "can/StandardDataFrame.hpp"
 #include "can/services/Nissan/FrameAggregator.hpp"
 #include "can/services/Nissan/GroupPoller.hpp"
+#include "can/services/Nissan/MessageFactory.hpp"
 #include "can/messages/Tesla/DetailedCellData.hpp"
-#include "can/messages/Nissan/CellVoltageRange.hpp"
-#include "can/messages/Nissan/CellVoltages.hpp"
-#include "can/messages/Nissan/PackTemperatures.hpp"
-#include "can/messages/Nissan/BatteryState.hpp"
-#include "can/messages/Nissan/BatteryStatus.hpp"
 #include "can/messages/SMA/InverterCommand.hpp"
 #include "can/messages/SMA/InverterIdentity.hpp"
 #include "can/messages/SMA/InverterManufacturer.hpp"
-#include "can/messages/Nissan/Ids.hpp"
 #include "monitor/Nissan/Monitor.hpp"
 #include "inverter/SMA/SunnyBoyStorage.hpp"
 #include "can/messages/TSUN/InverterChargeDischargeCmd.hpp"
@@ -47,55 +42,6 @@
 
 using namespace core::libgpiod;
 namespace color = logging::color::ansi;
-
-class NissanSink: public can::FrameSink
-{
-public:
-   NissanSink(monitor::Nissan::Monitor& monitor): m_monitor(monitor)
-   {}
-
-   void* mem()
-   {
-      return m_message_memory;
-   }
-   
-   const can::messages::Nissan::Message* decode(const can::DataFrame& f)
-   {
-      using namespace can::messages::Nissan;
-      Message* msg;
-
-      msg = new(mem()) BatteryStatus(f);
-      if (msg->valid()) return msg;
-
-      msg = new(mem()) CellVoltages(f);
-      if (msg->valid()) return msg;
-
-      msg = new(mem()) PackTemperatures(f);
-      if (msg->valid()) return msg;
-
-      msg = new(mem()) CellVoltageRange(f);
-      if (msg->valid()) return msg;
-
-      msg = new(mem()) BatteryState(f);
-      if (msg->valid()) return msg;
-
-      return NULL;
-   }
-   
-   virtual void sink(const can::DataFrame& f)
-   {
-      const can::messages::Nissan::Message* msg = decode(f);
-
-      if (msg)
-      {
-         std::cout << color::bright_blue << "<BAT IN> " << *msg << color::reset << std::endl;
-         m_monitor.sink(*msg);
-      }
-   }
-
-   monitor::Nissan::Monitor& m_monitor;
-   uint8_t m_message_memory[1024];
-};
 
 class SmaSink: public can::FrameSink
 {
@@ -284,7 +230,7 @@ int main(int argc, const char** argv)
          &std::cout);
 
    monitor::Nissan::Monitor monitor(contactor);
-   NissanSink battery_sink(monitor);
+   can::services::Nissan::MessageFactory battery_sink(monitor, &std::cout);
    can::services::Nissan::FrameAggregator aggregator(battery_sink);
    CanSender battery_sender(battery_socket, "BAT", color::blue);
    can::services::Nissan::GroupPoller poller(battery_sender, timer);

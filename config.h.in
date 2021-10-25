@@ -3,5 +3,6 @@
 
 #cmakedefine HAS_STD_IOSTREAM
 #cmakedefine HAS_STD_STRING
+#cmakedefine HAS_NEW
 
 #endif
