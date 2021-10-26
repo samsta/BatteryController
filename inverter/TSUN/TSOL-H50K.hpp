@@ -2,6 +2,7 @@
 #define INVERTER_TSUN_TSOL_H50K_HPP_
 
 #include "can/FrameSink.hpp"
+#include "can/messages/Message.hpp"
 #include "contactor/Contactor.hpp"
 #include "core/Timer.hpp"
 #include "inverter/Inverter.hpp"
@@ -9,7 +10,6 @@
 
 namespace can {
 namespace messages {
-class Message;
 namespace TSUN {
 class InverterInfoRequest;
 }
@@ -18,7 +18,7 @@ class InverterInfoRequest;
 namespace inverter {
 namespace TSUN {
 
-class TSOL_H50K: public Inverter
+class TSOL_H50K: public Inverter, public can::messages::MessageSink
 {
 public:
    TSOL_H50K(can::FrameSink& sender,
@@ -27,7 +27,7 @@ public:
                    contactor::Contactor& contactor);
    ~TSOL_H50K();
 
-   void sink(const can::messages::Message&);
+   virtual void sink(const can::messages::Message&);
 
 private:
    void process(const can::messages::TSUN::InverterInfoRequest&);
