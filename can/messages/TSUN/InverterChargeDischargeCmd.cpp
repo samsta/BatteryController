@@ -33,6 +33,32 @@ InverterChargeDischargeCmd::Command InverterChargeDischargeCmd::getCommand() con
    return m_command;
 }
 
+void InverterChargeDischargeCmd::toStream(logging::ostream& os) const
+{
+   os << "InverterChargeDischargeCmd: ";
+   if (not valid())
+   {
+      os << "invalid";
+   }
+   else
+   {
+      os << "Command=";
+      switch (getCommand())
+      {
+      case CHARGE:
+         os << "CHARGE";
+         break;
+      case DISCHARGE:
+         os << "DISCHARGE";
+         break;
+      case INVALID:
+      default:
+         os << "INVALID";
+         break;
+      }
+   }
+}
+
 }
 }
 }
