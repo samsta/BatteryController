@@ -22,10 +22,8 @@
 #include "can/services/Nissan/FrameAggregator.hpp"
 #include "can/services/Nissan/GroupPoller.hpp"
 #include "can/services/Nissan/MessageFactory.hpp"
+#include "can/services/SMA/MessageFactory.hpp"
 #include "can/messages/Tesla/DetailedCellData.hpp"
-#include "can/messages/SMA/InverterCommand.hpp"
-#include "can/messages/SMA/InverterIdentity.hpp"
-#include "can/messages/SMA/InverterManufacturer.hpp"
 #include "monitor/Nissan/Monitor.hpp"
 #include "inverter/SMA/SunnyBoyStorage.hpp"
 #include "can/messages/TSUN/InverterChargeDischargeCmd.hpp"
@@ -42,50 +40,6 @@
 
 using namespace core::libgpiod;
 namespace color = logging::color::ansi;
-
-class SmaSink: public can::FrameSink
-{
-public:
-   SmaSink(inverter::SMA::SunnyBoyStorage& inverter): m_inverter(inverter)
-   {
-   }
-
-   void* mem()
-   {
-      return m_message_memory;
-   }
-
-   const can::messages::Message* decode(const can::DataFrame& f)
-   {
-      using namespace can::messages::SMA;
-      can::messages::Message* msg;
-
-      msg = new(mem()) InverterCommand(f);
-      if (msg->valid()) return msg;
-
-      msg = new(mem()) InverterIdentity(f);
-      if (msg->valid()) return msg;
-
-      msg = new(mem()) InverterManufacturer(f);
-      if (msg->valid()) return msg;
-      
-      return NULL;
-   }
-   
-   virtual void sink(const can::DataFrame& f)
-   {
-      const can::messages::Message* msg = decode(f);
-      
-      if (msg)
-      {
-         std::cout << color::bright_green << "<INV IN>  " << *msg << color::reset << std::endl;
-         m_inverter.sink(*msg);
-      }
-   }
-
-   inverter::SMA::SunnyBoyStorage& m_inverter;
-   uint8_t m_message_memory[1024];
-};
 
 class TsunSink: public can::FrameSink
 {
@@ -238,7 +192,7 @@ int main(int argc, const char** argv)
    CanSender inverter_sender(inverter_socket, "INV", color::green);
    
 //   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, timer, monitor, contactor);
-//   SmaSink inverter_sink(inverter);
+//   can::services::SMA::MessageFactory inverter_sink(inverter, &std::cout);
 
    inverter::TSUN::TSOL_H50K inverter(inverter_sender, timer, monitor, contactor);
    TsunSink inverter_sink(inverter);

@@ -26,6 +26,13 @@ private:
    uint32_t m_id;
 };
 
+class MessageSink
+{
+public:
+   virtual ~MessageSink(){}
+   virtual void sink(const Message& msg) = 0;
+};
+
 logging::ostream& operator<<(logging::ostream&, const Message&);
 
 }
