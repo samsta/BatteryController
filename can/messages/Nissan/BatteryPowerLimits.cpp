@@ -29,7 +29,7 @@ BatteryPowerLimits::BatteryPowerLimits(const DataFrame& f):
    // scaling is 0.25
    m_discharge_power_limit = 0.25 * (float)bits10;
 
-   bits10 = f.getByte(1) << 4;
+   bits10 = (f.getByte(1) & 0x3F) << 4;
    bits10 |= f.getByte(2) >> 4;
    if (bits10 == 0x3FF) return; // default/invalid
    m_charge_power_limit = 0.25 * (float)bits10;
