@@ -12,7 +12,7 @@ enum Ids {
    ID_LBC_DATA_REQUEST = 0x79b,
    ID_LBC_DATA_REPLY   = 0x7bb,
    ID_LBC_POWER_LIMITS = 0x1dc,
-   ID_LBC_VOLT_CURRENT = 0x1db
+   ID_LBC_VOLTS_CURRENT = 0x1db
 };
 
 enum LbcDataGroups {

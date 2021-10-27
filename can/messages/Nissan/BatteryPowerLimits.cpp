@@ -38,7 +38,7 @@ BatteryPowerLimits::BatteryPowerLimits(const DataFrame& f):
 }
 
 BatteryPowerLimits::BatteryPowerLimits():
-   Message(ID_LBC_DATA_REPLY),
+   Message(ID_LBC_POWER_LIMITS),
    m_discharge_power_limit(),
    m_charge_power_limit()
 {
