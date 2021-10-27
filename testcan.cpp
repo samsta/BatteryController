@@ -8,15 +8,10 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/epoll.h>
-#include <algorithm>
 
-#include "can/StandardDataFrame.hpp"
-#include "can/services/Nissan/FrameAggregator.hpp"
-#include "can/services/Nissan/GroupPoller.hpp"
-#include "can/services/Nissan/MessageFactory.hpp"
+#include "packs/Nissan/LeafPack.hpp"
 #include "can/services/SMA/MessageFactory.hpp"
 #include "can/services/TSUN/MessageFactory.hpp"
-#include "monitor/Nissan/Monitor.hpp"
 #include "inverter/SMA/SunnyBoyStorage.hpp"
 #include "inverter/TSUN/TSOL-H50K.hpp"
 
@@ -25,7 +20,6 @@
 #include "core/SocketCan/CanPort.hpp"
 #include "core/Linux/EpollTimer.hpp"
 #include "core/Timer.hpp"
-#include "core/Callback.hpp"
 #include "logging/colors.hpp"
 
 using namespace core::libgpiod;
@@ -56,47 +50,31 @@ int main(int argc, const char** argv)
    OutputPin positive_relay(0, 5, "relay_pos");
    OutputPin negative_relay(0, 6, "relay_neg");
    OutputPin indicator_led(0, 4, "led1");
-   contactor::Nissan::LeafContactor contactor(
+
+   packs::Nissan::LeafPack battery_pack(
+         battery_port,
          timer,
          positive_relay,
          negative_relay,
          indicator_led,
          &std::cout);
 
-   monitor::Nissan::Monitor monitor(contactor);
-   can::services::Nissan::MessageFactory battery_sink(monitor, &std::cout);
-   can::services::Nissan::FrameAggregator aggregator(battery_sink);
    battery_port.setupLogger(std::cout, "<BAT OUT>", color::blue);
-   can::services::Nissan::GroupPoller poller(battery_port, timer);
-
-   class BatteryPack: public can::FrameSink
-   {
-   public:
-      BatteryPack(can::services::Nissan::GroupPoller& p,
-                  can::services::Nissan::FrameAggregator& a):
-          poller(p),
-          aggregator(a)
-      {}
-
-      virtual void sink(const can::DataFrame& f)
-      {
-         poller.received(f);
-         aggregator.sink(f);
-      }
-
-      can::services::Nissan::GroupPoller& poller;
-      can::services::Nissan::FrameAggregator& aggregator;
-   } battery_pack(poller, aggregator);
    battery_port.setSink(battery_pack);
 
-   inverter_port.setupLogger(std::cout, "<INV OUT>", color::green);
    
 //   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, timer, monitor, contactor);
 //   can::services::SMA::MessageFactory inverter_sink(inverter, &std::cout);
 
-   inverter::TSUN::TSOL_H50K inverter(inverter_port, timer, monitor, contactor);
-   can::services::TSUN::MessageFactory inverter_sink(inverter, &std::cout);
-   inverter_port.setSink(inverter_sink);
+   inverter::TSUN::TSOL_H50K inverter(
+         inverter_port,
+         timer,
+         battery_pack.getMonitor(),
+         battery_pack.getContactor());
+   can::services::TSUN::MessageFactory inverter_message_factory(inverter, &std::cout);
+
+   inverter_port.setupLogger(std::cout, "<INV OUT>", color::green);
+   inverter_port.setSink(inverter_message_factory);
 
    while (1)
    {
