@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-#include "core/Linux/EpollTimer.hpp"
+#include "EpollTimer.hpp"
+#include "EpollHandler.hpp"
 #include <sys/timerfd.h>
 #include <sys/epoll.h>
 #include <unistd.h>
