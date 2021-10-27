@@ -53,11 +53,20 @@ TEST(BatteryVoltsCurrent, getCurrent1)
    EXPECT_FLOAT_EQ(0.5, battery.getTotalCurrent());
 }
 
-//TEST(BatteryVoltsCurrent, getCurrent2)
-//{
-//   can::StandardDataFrame frame("1db#FFC0FFFD0540C696");
-//
-//   BatteryVoltsCurrent battery(frame);
-//
-//   EXPECT_FLOAT_EQ(-1.0, battery.getTotalCurrent());
-//}
+TEST(BatteryVoltsCurrent, getCurrent2)
+{
+   can::StandardDataFrame frame("1db#FFE0FFFD0540C696");
+
+   BatteryVoltsCurrent battery(frame);
+
+   EXPECT_FLOAT_EQ(-0.5, battery.getTotalCurrent());
+}
+
+TEST(BatteryVoltsCurrent, getUsableSOC)
+{
+   can::StandardDataFrame frame("1db#F0E0F0FD9B40C696");
+
+   BatteryVoltsCurrent battery(frame);
+
+   EXPECT_FLOAT_EQ(27.0, (float)battery.getUsableSOC());
+}

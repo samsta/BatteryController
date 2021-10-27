@@ -20,11 +20,13 @@ public:
 
    float getTotalVoltage() const;
    float getTotalCurrent() const;
+   unsigned getUsableSOC() const;
    virtual void toStream(logging::ostream&) const;
 
 private:
    float m_total_voltage;
    float m_total_current;
+   unsigned m_usable_soc;
 };
 
 }
