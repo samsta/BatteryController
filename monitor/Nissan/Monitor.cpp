@@ -6,6 +6,7 @@
 #include "can/messages/Nissan/CellVoltageRange.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "contactor/Contactor.hpp"
+#include "can/messages/Nissan/BatteryPowerLimits.hpp"
 #include <math.h>
 
 using namespace can::messages::Nissan;
@@ -76,6 +77,9 @@ void Monitor::sink(const can::messages::Nissan::Message& message)
    case ID_BATTERY_STATUS:
       process(static_cast<const BatteryStatus&>(message));
       break;
+//   case ID_LBC_POWER_LIMITS:
+//      process(static_cast<const BatteryPowerLimits&>(message));
+//      break;
    case ID_LBC_DATA_REPLY:
       // handled in next switch
       break;
@@ -178,6 +182,12 @@ void Monitor::process(const BatteryStatus& battery_status)
    m_current = battery_status.getCurrent();
    m_voltage = battery_status.getVoltage();
 }
+
+//void Monitor::process(const BatteryPowerLimits& battery_power)
+//{
+//   m_discharge_power_limit = battery_power.getDischargePowerLimit();
+//   m_charge_power_limit = battery_power.getChargePowerLimit();
+//}
 
 void Monitor::calculateTemperatureLimitFactor(float min_temp, float max_temp)
 {

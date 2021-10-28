@@ -23,6 +23,7 @@ public:
    BatteryStatus& setCurrent(float current);
    uint8_t getSecurityByte() const;
    uint8_t getMultiplexByte() const;
+   unsigned getUsableSOC() const;
 
    virtual void toStream(logging::ostream&) const;
 
@@ -31,6 +32,7 @@ private:
    float m_current;
    uint8_t m_security_byte;
    uint8_t m_multiplex_byte;
+   unsigned m_usable_soc;
 };
 
 }

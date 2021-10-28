@@ -38,6 +38,8 @@ BatteryStatus::BatteryStatus(const DataFrame& frame):
    m_security_byte = frame.getByte(7);
    m_multiplex_byte = frame.getByte(6);
    
+   m_usable_soc = frame.getByte(4) & 0x7F;
+
    setValid();
 }
    
@@ -75,14 +77,20 @@ uint8_t BatteryStatus::getMultiplexByte() const
    return m_multiplex_byte;
 }
 
+unsigned BatteryStatus::getUsableSOC() const
+{
+   return m_usable_soc;
+}
+
 void BatteryStatus::toStream(logging::ostream& os) const
 {
    os << "BatteryStatus: ";
    if (valid())
    {
-      os << "Current=" << getCurrent()
-         << "A Voltage=" << getVoltage()
-         << "V SecurityByte=0x" << logging::HexByte(getSecurityByte())
+      os << "Current=" << getCurrent() << "A "
+         << "Voltage=" << getVoltage() << "V "
+         << "Usable SOC=" << getUsableSOC() << "% "
+         << "SecurityByte=0x" << logging::HexByte(getSecurityByte())
          << " MultiplexByte=0x" << logging::HexByte(getMultiplexByte());
    }
    else

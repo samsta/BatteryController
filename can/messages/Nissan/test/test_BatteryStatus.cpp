@@ -43,5 +43,19 @@ TEST(NissanBatteryStatus, validToString)
    BatteryStatus status(can::StandardDataFrame("1db#0024bee2380003e0"));
    std::ostringstream string;
    string << status;
-   EXPECT_EQ(string.str(), "BatteryStatus: Current=0.5A Voltage=381.5V SecurityByte=0xE0 MultiplexByte=0x03");
+   EXPECT_EQ(string.str(), "BatteryStatus: Current=0.5A Voltage=381.5V Usable SOC=56% SecurityByte=0xE0 MultiplexByte=0x03");
+}
+
+TEST(NissanBatteryStatus, getNegativeCurrent)
+{
+   BatteryStatus status(can::StandardDataFrame("1db#FFE0FFFD0540C696"));
+
+   EXPECT_FLOAT_EQ(-0.5, status.getCurrent());
+}
+
+TEST(NissanBatteryStatus, getUsableSOC)
+{
+   BatteryStatus status(can::StandardDataFrame("1db#F0E0F0FD9B40C696"));
+
+   EXPECT_FLOAT_EQ(27.0, (float)status.getUsableSOC());
 }
