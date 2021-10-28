@@ -29,7 +29,7 @@ const float CRITICALLY_LOW_TEMPERATURE(2);
 const float MAX_TEMP_SENSORS_MISSING(1);
 
 const float NOMINAL_CAPACITY_KWH(24);
-const float NOMINAL_CURRENT_LIMIT(20);
+//const float NOMINAL_CURRENT_LIMIT(20);
 
 const unsigned NUM_MODULES(24);
 const unsigned NUM_CELLS(96);
@@ -46,8 +46,6 @@ inline float lower_limit(float value, const float warn_limit, const float critic
 {
    return (value - critical_limit) / (warn_limit - critical_limit + resolution);
 }
-
-
 }
 
 Monitor::Monitor(contactor::Contactor& contactor):
@@ -63,7 +61,11 @@ Monitor::Monitor(contactor::Contactor& contactor):
       m_voltage(NAN),
       m_cur_fac_by_temperature(0),
       m_charge_cur_fac_by_voltage(0),
-      m_discharge_cur_fac_by_voltage(0)
+      m_discharge_cur_fac_by_voltage(0),
+      m_discharge_power_limit(NAN),
+      m_charge_power_limit(NAN),
+      m_discharge_current_limit(NAN),
+      m_charge_current_limit(NAN)
 {
    m_contactor.setSafeToOperate(false);
 }
@@ -77,9 +79,9 @@ void Monitor::sink(const can::messages::Nissan::Message& message)
    case ID_BATTERY_STATUS:
       process(static_cast<const BatteryStatus&>(message));
       break;
-//   case ID_LBC_POWER_LIMITS:
-//      process(static_cast<const BatteryPowerLimits&>(message));
-//      break;
+   case ID_LBC_POWER_LIMITS:
+      process(static_cast<const BatteryPowerLimits&>(message));
+      break;
    case ID_LBC_DATA_REPLY:
       // handled in next switch
       break;
@@ -183,11 +185,17 @@ void Monitor::process(const BatteryStatus& battery_status)
    m_voltage = battery_status.getVoltage();
 }
 
-//void Monitor::process(const BatteryPowerLimits& battery_power)
-//{
-//   m_discharge_power_limit = battery_power.getDischargePowerLimit();
-//   m_charge_power_limit = battery_power.getChargePowerLimit();
-//}
+void Monitor::process(const BatteryPowerLimits& battery_power)
+{
+   m_discharge_power_limit = battery_power.getDischargePowerLimit();
+   m_charge_power_limit = battery_power.getChargePowerLimit();
+
+   if (m_voltage > 0)
+   {
+      m_discharge_current_limit = m_discharge_power_limit / m_voltage;
+      m_charge_current_limit = m_charge_power_limit / m_voltage;
+   }
+}
 
 void Monitor::calculateTemperatureLimitFactor(float min_temp, float max_temp)
 {
@@ -253,7 +261,6 @@ void Monitor::calculateCurrentLimitByVoltage(float min_voltage, float max_voltag
       m_discharge_cur_fac_by_voltage = 1;
    }
 }
-
 
 void Monitor::updateOperationalSafety()
 {
@@ -347,14 +354,15 @@ float Monitor::getMinDischargeVoltage() const
 
 float Monitor::getChargeCurrentLimit() const
 {
-   return m_charge_cur_fac_by_voltage * m_cur_fac_by_temperature * NOMINAL_CURRENT_LIMIT;
+   //return m_charge_cur_fac_by_voltage * m_cur_fac_by_temperature * NOMINAL_CURRENT_LIMIT;
+   return m_charge_current_limit;
 }
 
 float Monitor::getDischargeCurrentLimit() const
 {
-   return m_discharge_cur_fac_by_voltage * m_cur_fac_by_temperature * NOMINAL_CURRENT_LIMIT;
+   //return m_discharge_cur_fac_by_voltage * m_cur_fac_by_temperature * NOMINAL_CURRENT_LIMIT;
+   return m_discharge_current_limit;
 }
-
 
 }
 }

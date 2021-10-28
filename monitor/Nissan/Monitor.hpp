@@ -19,6 +19,7 @@ class CellVoltageRange;
 class PackTemperatures;
 class BatteryState;
 class BatteryStatus;
+class BatteryPowerLimits;
 }
 }
 }
@@ -59,6 +60,7 @@ private:
    void process(const can::messages::Nissan::PackTemperatures&);
    void process(const can::messages::Nissan::BatteryState&);
    void process(const can::messages::Nissan::BatteryStatus&);
+   void process(const can::messages::Nissan::BatteryPowerLimits&);
    void updateOperationalSafety();
 
    void calculateTemperatureLimitFactor(float min, float max);
@@ -82,10 +84,10 @@ private:
    float m_charge_cur_fac_by_voltage;
    float m_discharge_cur_fac_by_voltage;
 
-//   float m_discharge_power_limit;
-//   float m_charge_power_limit;
-//   float m_discharge_current_limit;
-//   float m_charge_current_limit;
+   float m_discharge_power_limit;
+   float m_charge_power_limit;
+   float m_discharge_current_limit;
+   float m_charge_current_limit;
 
 };
 
