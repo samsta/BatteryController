@@ -22,7 +22,7 @@ public:
 
    InverterChargeDischargeCmd(const DataFrame&);
    Command getCommand() const;
-   virtual void toStream(logging::ostream&) const {};
+   virtual void toStream(logging::ostream&) const;
 
 private:
    Command m_command;

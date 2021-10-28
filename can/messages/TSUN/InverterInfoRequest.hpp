@@ -23,7 +23,7 @@ public:
    InverterInfoRequest(const DataFrame&);
    InverterInfoRequest();
    InfoType getInfoType() const;
-   virtual void toStream(logging::ostream&) const {};
+   virtual void toStream(logging::ostream&) const;
 
 private:
    InfoType m_info_type;

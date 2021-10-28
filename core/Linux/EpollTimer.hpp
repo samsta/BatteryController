@@ -8,18 +8,10 @@
 
 namespace core {
 
-class EpollHandler
-{
-public:
-   virtual ~EpollHandler(){}
-
-   virtual void handle() = 0;
-};
-
 class EpollTimer: public core::Timer
 {
 public:
-   EpollTimer(int epoll_fd);
+   EpollTimer(int epoll_fd );
    ~EpollTimer();
 
    virtual void registerPeriodicCallback(core::Invokable* invokable, unsigned period_ms);

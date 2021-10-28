@@ -31,6 +31,32 @@ InverterSleepAwakeCmd::Command InverterSleepAwakeCmd::getCommand() const
    return m_command;
 }
 
+void InverterSleepAwakeCmd::toStream(logging::ostream& os) const
+{
+   os << "InverterSleepAwakeCmd: ";
+   if (not valid())
+   {
+      os << "invalid";
+   }
+   else
+   {
+      os << "Command=";
+      switch (getCommand())
+      {
+      case ENTER_SLEEP:
+         os << "ENTER_SLEEP";
+         break;
+      case QUIT_SLEEP:
+         os << "QUIT_SLEEP";
+         break;
+      default:
+         os << "Unknown";
+         break;
+      }
+   }
+}
+
+
 }
 }
 }

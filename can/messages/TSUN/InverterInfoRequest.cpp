@@ -37,6 +37,32 @@ InverterInfoRequest::InfoType InverterInfoRequest::getInfoType() const
    return m_info_type;
 }
 
+void InverterInfoRequest::toStream(logging::ostream& os) const
+{
+   os << "InverterInfoRequest: ";
+   if (not valid())
+   {
+      os << "invalid";
+   }
+   else
+   {
+      os << "InfoType=";
+      switch (getInfoType())
+      {
+      case ENSEMBLE:
+         os << "ENSEMBLE";
+         break;
+      case SYSTEM_EQUIPMENT:
+         os << "SYSTEM_EQUIPMENT";
+         break;
+      default:
+         os << "Unknown";
+         break;
+      }
+   }
+}
+
+
 }
 }
 }
