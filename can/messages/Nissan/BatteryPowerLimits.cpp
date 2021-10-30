@@ -54,6 +54,20 @@ float BatteryPowerLimits::getChargePowerLimit() const
    return m_charge_power_limit;
 }
 
+BatteryPowerLimits& BatteryPowerLimits::setDischargePowerLimit(float power)
+{
+   m_discharge_power_limit = power;
+   setValid();
+   return *this;
+}
+
+BatteryPowerLimits& BatteryPowerLimits::setChargePowerLimit(float power)
+{
+   m_charge_power_limit = power;
+   setValid();
+   return *this;
+}
+
 void BatteryPowerLimits::toStream(logging::ostream& os) const
 {
    os << "BatteryPowerLimits: ";

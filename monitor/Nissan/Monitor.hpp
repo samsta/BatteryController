@@ -6,6 +6,11 @@
 #include "monitor/Monitor.hpp"
 #include "can/FrameSink.hpp"
 #include "can/messages/Nissan/Message.hpp"
+#include "can/messages/Nissan/BatteryState.hpp"
+#include "can/messages/Nissan/BatteryStatus.hpp"
+#include "can/messages/Nissan/CellVoltageRange.hpp"
+#include "can/messages/Nissan/PackTemperatures.hpp"
+#include "can/messages/Nissan/BatteryPowerLimits.hpp"
 
 namespace contactor {
 class Contactor;

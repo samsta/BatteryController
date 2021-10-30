@@ -1,12 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
 #include "Monitor.hpp"
-#include "can/messages/Nissan/BatteryState.hpp"
-#include "can/messages/Nissan/BatteryStatus.hpp"
-#include "can/messages/Nissan/CellVoltageRange.hpp"
-#include "can/messages/Nissan/PackTemperatures.hpp"
 #include "contactor/Contactor.hpp"
-#include "can/messages/Nissan/BatteryPowerLimits.hpp"
 #include <math.h>
 
 using namespace can::messages::Nissan;
@@ -64,8 +59,8 @@ Monitor::Monitor(contactor::Contactor& contactor):
       m_discharge_cur_fac_by_voltage(0),
       m_discharge_power_limit(NAN),
       m_charge_power_limit(NAN),
-      m_discharge_current_limit(NAN),
-      m_charge_current_limit(NAN)
+      m_discharge_current_limit(0),
+      m_charge_current_limit(0)
 {
    m_contactor.setSafeToOperate(false);
 }
