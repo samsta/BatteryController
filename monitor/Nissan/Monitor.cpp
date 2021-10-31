@@ -182,8 +182,8 @@ void Monitor::process(const BatteryStatus& battery_status)
 
 void Monitor::process(const BatteryPowerLimits& battery_power)
 {
-   m_discharge_power_limit = battery_power.getDischargePowerLimit();
-   m_charge_power_limit = battery_power.getChargePowerLimit();
+   m_discharge_power_limit = battery_power.getDischargePowerLimit_kW();
+   m_charge_power_limit = battery_power.getChargePowerLimit_kW();
 
    if (m_voltage > 0)
    {

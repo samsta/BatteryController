@@ -20,15 +20,15 @@ public:
    BatteryPowerLimits();
    BatteryPowerLimits(const DataFrame& f);
 
-   float getDischargePowerLimit() const;
-   BatteryPowerLimits& setDischargePowerLimit(float power);
-   float getChargePowerLimit() const;
-   BatteryPowerLimits& setChargePowerLimit(float power);
+   float getDischargePowerLimit_kW() const;
+   BatteryPowerLimits& setDischargePowerLimit_kW(float power);
+   float getChargePowerLimit_kW() const;
+   BatteryPowerLimits& setChargePowerLimit_kW(float power);
    virtual void toStream(logging::ostream&) const;
 
 private:
-   float m_discharge_power_limit;
-   float m_charge_power_limit;
+   float m_discharge_power_limit_kw;
+   float m_charge_power_limit_kw;
 };
 
 }

@@ -363,7 +363,7 @@ TEST_F(MonitorConstructed, averageTemperatureNanIfAllSensorsMissing)
 TEST_F(MonitorConstructed, dischargeCurrentTest1)
 {
    monitor.sink(BatteryStatus().setVoltage(300.0));
-   monitor.sink(BatteryPowerLimits().setDischargePowerLimit(25.0));
+   monitor.sink(BatteryPowerLimits().setDischargePowerLimit_kW(25.0));
 
    EXPECT_THAT(monitor.getDischargeCurrentLimit(), 1000.0 * 25.0/300.0);
 }
@@ -371,200 +371,15 @@ TEST_F(MonitorConstructed, dischargeCurrentTest1)
 TEST_F(MonitorConstructed, chargeCurrentTest1)
 {
    monitor.sink(BatteryStatus().setVoltage(280.0));
-   monitor.sink(BatteryPowerLimits().setChargePowerLimit(15.0));
+   monitor.sink(BatteryPowerLimits().setChargePowerLimit_kW(15.0));
 
    EXPECT_THAT(monitor.getChargeCurrentLimit(), 1000.0 * 15.0/280.0);
 }
 
-class MonitorLimits: public MonitorConstructed {};
-
-TEST_F(MonitorLimits, currentLimitsZeroInitially)
+TEST_F(MonitorConstructed, zeroInitialValue)
 {
    EXPECT_THAT(monitor.getChargeCurrentLimit(), 0);
    EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0);
 }
-
-
-
-
-//TEST_F(MonitorLimits, currentUnlimitedAtNominalValues)
-//{
-//   monitor.sink(goodPackTemperatures());
-//   monitor.sink(goodCellVoltageRange());
-//
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), NOMINAL_CURRENT_LIMIT);
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), NOMINAL_CURRENT_LIMIT);
-//}
-//
-//TEST_F(MonitorLimits, currentLimitedWhenTemperatureAtHighWarnLimit)
-//{
-//   // We have 10 degrees from warn to critical, and 1 degree resolution,
-//   // so at warning level we're at 10/11 of the current
-//   monitor.sink(goodPackTemperatures().setTemperature(0, WARN_HIGH_TEMPERATURE));
-//   monitor.sink(goodCellVoltageRange());
-//
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*10/11));
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*10/11));
-//}
-//
-//TEST_F(MonitorLimits, currentLimitedWhenTemperatureJustBelowCriticallyHighLimit)
-//{
-//   // We have 10 degrees from warn to critical, and 1 degree resolution,
-//   // so just below critical level we're at 1/11 of the current
-//   monitor.sink(goodPackTemperatures().setTemperature(0, CRITICALLY_HIGH_TEMPERATURE - 1));
-//   monitor.sink(goodCellVoltageRange());
-//
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*1/11));
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*1/11));
-//}
-//
-//TEST_F(MonitorLimits, currentLimitsZeroWhenTemperatureAtCriticallyHighLimit)
-//{
-//   monitor.sink(goodPackTemperatures().setTemperature(0, CRITICALLY_HIGH_TEMPERATURE));
-//   monitor.sink(goodCellVoltageRange());
-//
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), 0);
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0);
-//}
-//
-//TEST_F(MonitorLimits, currentLimitedWhenTemperatureAtLowWarnLimit)
-//{
-//   // We have 3 degrees from warn to critical, and 1 degree resolution,
-//   // so at warning level we're at 3/4 of the current
-//   monitor.sink(goodPackTemperatures().setTemperature(0, WARN_LOW_TEMPERATURE));
-//   monitor.sink(goodCellVoltageRange());
-//
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*3/4));
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*3/4));
-//}
-//
-//TEST_F(MonitorLimits, currentLimitedWhenTemperatureJustAboveCriticallyLowLimit)
-//{
-//   // We have 3 degrees from warn to critical, and 1 degree resolution,
-//   // so just above critical level we're at 1/4 of the current
-//   monitor.sink(goodPackTemperatures().setTemperature(0, CRITICALLY_LOW_TEMPERATURE + 1));
-//   monitor.sink(goodCellVoltageRange());
-//
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*1/4));
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT*1/4));
-//}
-//
-//TEST_F(MonitorLimits, currentLimitsZeroWhenTemperatureAtCriticallyLowLimit)
-//{
-//   monitor.sink(goodPackTemperatures().setTemperature(0, CRITICALLY_LOW_TEMPERATURE));
-//   monitor.sink(goodCellVoltageRange());
-//
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), 0);
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0);
-//}
-//
-//TEST_F(MonitorLimits, chargeCurrentLimitedWhenCellVoltageAtHighWarnLimit)
-//{
-//   // We have 0.05 volts from warn to critical, and 0.001 volt resolution,
-//   // so at warning level we're at 50/51 of the current
-//   monitor.sink(goodCellVoltageRange().setMax(WARN_HIGH_VOLTAGE));
-//   monitor.sink(goodPackTemperatures());
-//
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatNear(NOMINAL_CURRENT_LIMIT*50/51, TOLERANCE));
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT));
-//}
-//
-//TEST_F(MonitorLimits, chargeCurrentLimitedWhenCellVoltageJustBelowCriticallyHighLimit)
-//{
-//   // We have 0.05 volts from warn to critical, and 0.001 volt resolution,
-//   // so just below critical level we're at 1/51 of the current
-//   monitor.sink(goodCellVoltageRange().setMax(CRITICALLY_HIGH_VOLTAGE - 0.001));
-//   monitor.sink(goodPackTemperatures());
-//
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatNear(NOMINAL_CURRENT_LIMIT*1/51, TOLERANCE));
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT));
-//}
-//
-//TEST_F(MonitorLimits, chargeCurrentLimitZeroWhenCellVoltageAtCriticallyHighLimit)
-//{
-//   monitor.sink(goodCellVoltageRange().setMax(CRITICALLY_HIGH_VOLTAGE));
-//   monitor.sink(goodPackTemperatures());
-//
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), 0);
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT));
-//}
-//
-//TEST_F(MonitorLimits, chargeCurrentLimitZeroWhenCellVoltageAboveCriticallyHighLimit)
-//{
-//   monitor.sink(goodCellVoltageRange().setMax(CRITICALLY_HIGH_VOLTAGE + 1));
-//   monitor.sink(goodPackTemperatures());
-//
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), 0);
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT));
-//}
-//
-//TEST_F(MonitorLimits, dischargeCurrentLimitedWhenCellVoltageAtLowWarnLimit)
-//{
-//   // We have 0.3 volts from warn to critical, and 0.001 volt resolution,
-//   // so at warning level we're at 300/301 of the current
-//   monitor.sink(goodCellVoltageRange().setMin(WARN_LOW_VOLTAGE));
-//   monitor.sink(goodPackTemperatures());
-//
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatNear(NOMINAL_CURRENT_LIMIT*300/301, TOLERANCE));
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT));
-//}
-//
-//TEST_F(MonitorLimits, dischargeCurrentLimitedWhenCellVoltageJustAboveCriticallyLowLimit)
-//{
-//   // We have 0.3 volts from warn to critical, and 0.001 volt resolution,
-//   // so just above critical level we're at 1/301 of the current
-//   monitor.sink(goodCellVoltageRange().setMin(CRITICALLY_LOW_VOLTAGE + 0.001));
-//   monitor.sink(goodPackTemperatures());
-//
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatNear(NOMINAL_CURRENT_LIMIT*1/301, TOLERANCE));
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT));
-//}
-//
-//TEST_F(MonitorLimits, dischargeCurrentZeroWhenCellVoltageAtCriticallyLowLimit)
-//{
-//   monitor.sink(goodCellVoltageRange().setMin(CRITICALLY_LOW_VOLTAGE));
-//   monitor.sink(goodPackTemperatures());
-//
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0);
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT));
-//}
-//
-//TEST_F(MonitorLimits, dischargeCurrentZeroWhenCellVoltageBelowCriticallyLowLimit)
-//{
-//   monitor.sink(goodCellVoltageRange().setMin(CRITICALLY_LOW_VOLTAGE - 1));
-//   monitor.sink(goodPackTemperatures());
-//
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0);
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatEq(NOMINAL_CURRENT_LIMIT));
-//}
-//
-//TEST_F(MonitorLimits, compoundDischargeCurrentLimits)
-//{
-//   // We have 3 degrees from warn to critical, and 1 degree resolution,
-//   // so at warning level we're at 3/4 of the current
-//   monitor.sink(goodPackTemperatures().setTemperature(0, WARN_LOW_TEMPERATURE));
-//   // We have 0.3 volts from warn to critical, and 0.001 volt resolution,
-//   // so at warning level we're at 300/301 of the current
-//   monitor.sink(goodCellVoltageRange().setMin(WARN_LOW_VOLTAGE));
-//   // compound discharge limit: (3/4) x (300/301) = (3 x 300) / (4 x 301)
-//
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatNear(NOMINAL_CURRENT_LIMIT*3/4, TOLERANCE));
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatNear(NOMINAL_CURRENT_LIMIT*(3*300)/(4*301), TOLERANCE));
-//}
-//
-//TEST_F(MonitorLimits, compoundChargeCurrentLimits)
-//{
-//   // We have 3 degrees from warn to critical, and 1 degree resolution,
-//   // so at warning level we're at 3/4 of the current
-//   monitor.sink(goodPackTemperatures().setTemperature(0, WARN_LOW_TEMPERATURE));
-//   // We have 0.05 volts from warn to critical, and 0.001 volt resolution,
-//   // so at warning level we're at 50/51 of the current
-//   monitor.sink(goodCellVoltageRange().setMax(WARN_HIGH_VOLTAGE));
-//   // compound charge limit: (3/4) x (50/51) = (3 x 50) / (4 x 51)
-//
-//   EXPECT_THAT(monitor.getDischargeCurrentLimit(), FloatNear(NOMINAL_CURRENT_LIMIT*3/4, TOLERANCE));
-//   EXPECT_THAT(monitor.getChargeCurrentLimit(), FloatNear(NOMINAL_CURRENT_LIMIT*(3*50)/(4*51), TOLERANCE));
-//}
-
 
 }

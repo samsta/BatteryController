@@ -36,7 +36,7 @@ TEST(BatteryPowerLimits, getDischargeLimit1)
    can::StandardDataFrame frame("1dc#6E0C8FFD0540C696");
    BatteryPowerLimits battery(frame);
 
-   EXPECT_FLOAT_EQ(110.0, battery.getDischargePowerLimit());
+   EXPECT_FLOAT_EQ(110.0, battery.getDischargePowerLimit_kW());
 }
 
 TEST(BatteryPowerLimits, getDischargeLimit2)
@@ -44,7 +44,7 @@ TEST(BatteryPowerLimits, getDischargeLimit2)
    can::StandardDataFrame frame("1dc#583C8FFD0540C696");
    BatteryPowerLimits battery(frame);
 
-   EXPECT_FLOAT_EQ(88.0, battery.getDischargePowerLimit());
+   EXPECT_FLOAT_EQ(88.0, battery.getDischargePowerLimit_kW());
 }
 
 TEST(BatteryPowerLimits, setDishargeLimit3)
@@ -52,9 +52,9 @@ TEST(BatteryPowerLimits, setDishargeLimit3)
    can::StandardDataFrame frame("1dc#0000000000000000");
    BatteryPowerLimits battery(frame);
 
-   battery.setDischargePowerLimit(99.9);
+   battery.setDischargePowerLimit_kW(99.9);
 
-   EXPECT_FLOAT_EQ(99.9, battery.getDischargePowerLimit());
+   EXPECT_FLOAT_EQ(99.9, battery.getDischargePowerLimit_kW());
 }
 
 TEST(BatteryPowerLimits, getChargeLimit1)
@@ -62,7 +62,7 @@ TEST(BatteryPowerLimits, getChargeLimit1)
    can::StandardDataFrame frame("1dc#EFCC7FFD0540C696");
    BatteryPowerLimits battery(frame);
 
-   EXPECT_FLOAT_EQ(49.75, battery.getChargePowerLimit());
+   EXPECT_FLOAT_EQ(49.75, battery.getChargePowerLimit_kW());
 }
 
 TEST(BatteryPowerLimits, getChargeLimit2)
@@ -70,7 +70,7 @@ TEST(BatteryPowerLimits, getChargeLimit2)
    can::StandardDataFrame frame("1dc#EFC4FFFD0540C696");
    BatteryPowerLimits battery(frame);
 
-   EXPECT_FLOAT_EQ(19.75, battery.getChargePowerLimit());
+   EXPECT_FLOAT_EQ(19.75, battery.getChargePowerLimit_kW());
 }
 
 TEST(BatteryPowerLimits, setChargeLimit3)
@@ -78,9 +78,9 @@ TEST(BatteryPowerLimits, setChargeLimit3)
    can::StandardDataFrame frame("1dc#0000000000000000");
    BatteryPowerLimits battery(frame);
 
-   battery.setChargePowerLimit(101.1);
+   battery.setChargePowerLimit_kW(101.1);
 
-   EXPECT_FLOAT_EQ(101.1, battery.getChargePowerLimit());
+   EXPECT_FLOAT_EQ(101.1, battery.getChargePowerLimit_kW());
 }
 
 
