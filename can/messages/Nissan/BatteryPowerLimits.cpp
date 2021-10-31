@@ -13,7 +13,7 @@ namespace {
 }
 
 BatteryPowerLimits::BatteryPowerLimits(const DataFrame& f):
-   Message(ID_LBC_POWER_LIMITS),
+   Message(ID_LBC_POWER_LIMITS, GROUP_NONE),
    m_discharge_power_limit(),
    m_charge_power_limit()
 {
@@ -38,7 +38,7 @@ BatteryPowerLimits::BatteryPowerLimits(const DataFrame& f):
 }
 
 BatteryPowerLimits::BatteryPowerLimits():
-   Message(ID_LBC_POWER_LIMITS),
+   Message(ID_LBC_POWER_LIMITS, GROUP_NONE),
    m_discharge_power_limit(),
    m_charge_power_limit()
 {

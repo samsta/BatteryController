@@ -362,10 +362,10 @@ TEST_F(MonitorConstructed, averageTemperatureNanIfAllSensorsMissing)
 
 TEST_F(MonitorConstructed, dischargeCurrentTest1)
 {
-//   monitor.sink(BatteryStatus().setVoltage(300.0));
+   monitor.sink(BatteryStatus().setVoltage(300.0));
    monitor.sink(BatteryPowerLimits().setDischargePowerLimit(101.0));
 
-//   EXPECT_THAT(monitor.getVoltage(), FloatEq(300.0));
+   EXPECT_THAT(monitor.getVoltage(), FloatEq(300.0));
    EXPECT_THAT(monitor.getDischargeCurrentLimit(), 101.0);
 }
 
