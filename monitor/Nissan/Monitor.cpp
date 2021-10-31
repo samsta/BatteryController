@@ -187,8 +187,8 @@ void Monitor::process(const BatteryPowerLimits& battery_power)
 
    if (m_voltage > 0)
    {
-      m_discharge_current_limit = m_discharge_power_limit / m_voltage;
-      m_charge_current_limit = m_charge_power_limit / m_voltage;
+      m_discharge_current_limit = m_discharge_power_limit * 1000.0 / m_voltage;
+      m_charge_current_limit = m_charge_power_limit * 1000.0 / m_voltage;
    }
 }
 
