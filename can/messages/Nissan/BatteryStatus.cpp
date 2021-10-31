@@ -12,7 +12,8 @@ BatteryStatus::BatteryStatus():
       m_voltage(),
       m_current(),
       m_security_byte(),
-      m_multiplex_byte()
+      m_multiplex_byte(),
+      m_usable_soc()
 {
 
 }
@@ -22,7 +23,9 @@ BatteryStatus::BatteryStatus(const DataFrame& frame):
       m_voltage(),
       m_current(),
       m_security_byte(),
-      m_multiplex_byte()
+      m_multiplex_byte(),
+      m_usable_soc()
+
 {
    if (frame.id() != id()) return;
    if (frame.size() != 8) return;
