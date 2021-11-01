@@ -70,6 +70,18 @@ BatteryStatus& BatteryStatus::setCurrent(float current)
    return *this;
 }
 
+float BatteryStatus::getUsableSOC() const
+{
+   return m_usable_soc;
+}
+
+BatteryStatus& BatteryStatus::setUsableSOC(float soc)
+{
+   m_usable_soc = soc;
+   setValid();
+   return *this;
+}
+
 uint8_t BatteryStatus::getSecurityByte() const
 {
    return m_security_byte;
@@ -80,10 +92,6 @@ uint8_t BatteryStatus::getMultiplexByte() const
    return m_multiplex_byte;
 }
 
-unsigned BatteryStatus::getUsableSOC() const
-{
-   return m_usable_soc;
-}
 
 void BatteryStatus::toStream(logging::ostream& os) const
 {

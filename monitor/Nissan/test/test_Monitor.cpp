@@ -277,7 +277,7 @@ TEST_F(MonitorConstructed, valuesDefaultToNaN)
 
 TEST_F(MonitorConstructed, socCanBeSet)
 {
-   monitor.sink(BatteryState().setSocPercent(12.3));
+   monitor.sink(BatteryStatus().setUsableSOC(12.3));
    EXPECT_THAT(monitor.getSocPercent(), FloatEq(12.3));
 }
 
@@ -301,22 +301,22 @@ TEST_F(MonitorConstructed, capacity2p4kWhAtSoh25pc)
 
 TEST_F(MonitorConstructed, energyRemaining24kWhAtSoh100pcSoc100pc)
 {
-   monitor.sink(BatteryState().setHealthPercent(100)
-                              .setSocPercent(100));
+   monitor.sink(BatteryState().setHealthPercent(100));
+   monitor.sink(BatteryStatus().setUsableSOC(100));
    EXPECT_THAT(monitor.getEnergyRemainingKwh(), FloatEq(24));   
 }
 
 TEST_F(MonitorConstructed, energyRemaining12kWhAtSoh50pcSoc100pc)
 {
-   monitor.sink(BatteryState().setHealthPercent(50)
-                              .setSocPercent(100));
+   monitor.sink(BatteryState().setHealthPercent(50));
+   monitor.sink(BatteryStatus().setUsableSOC(100));
    EXPECT_THAT(monitor.getEnergyRemainingKwh(), FloatEq(12));   
 }
 
 TEST_F(MonitorConstructed, energyRemaining1p2kWhAtSoh50pcSoc10pc)
 {
-   monitor.sink(BatteryState().setHealthPercent(50)
-                              .setSocPercent(10));
+   monitor.sink(BatteryState().setHealthPercent(50));
+   monitor.sink(BatteryStatus().setUsableSOC(10));
    EXPECT_THAT(monitor.getEnergyRemainingKwh(), FloatEq(1.2));   
 }
 

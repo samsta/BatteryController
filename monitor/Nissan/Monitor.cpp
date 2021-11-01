@@ -168,16 +168,18 @@ void Monitor::process(const PackTemperatures& temperatures)
 
 void Monitor::process(const BatteryState& battery_state)
 {
-   m_soc_percent = battery_state.getSocPercent();
+   //m_soc_percent = battery_state.getSocPercent(); replaced with useable_soc
    m_soh_percent = battery_state.getHealthPercent();
    m_capacity_kwh = (NOMINAL_CAPACITY_KWH/100) * m_soh_percent;
-   m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
+   //m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
 }
 
 void Monitor::process(const BatteryStatus& battery_status)
 {
    m_current = battery_status.getCurrent();
    m_voltage = battery_status.getVoltage();
+   m_soc_percent = (float)battery_status.getUsableSOC();
+   m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
 }
 
 void Monitor::process(const BatteryPowerLimits& battery_power)
