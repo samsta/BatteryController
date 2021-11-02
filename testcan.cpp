@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/epoll.h>
+#include <fstream>
 
 #include "packs/Nissan/LeafPack.hpp"
 #include "can/services/SMA/MessageFactory.hpp"
@@ -20,6 +21,7 @@
 #include "core/SocketCan/CanPort.hpp"
 #include "core/Linux/EpollTimer.hpp"
 #include "core/Timer.hpp"
+#include "core/Linux/ConsolePresenter.hpp"
 #include "logging/colors.hpp"
 
 using namespace core::libgpiod;
@@ -43,6 +45,9 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
    
+   std::ofstream log;
+   log.open("log.txt");
+
    core::CanPort battery_port(argv[1], epollfd);
    core::CanPort inverter_port(argv[2], epollfd);
    core::EpollTimer timer(epollfd);
@@ -57,9 +62,9 @@ int main(int argc, const char** argv)
          positive_relay,
          negative_relay,
          indicator_led,
-         &std::cout);
+         &log);
 
-   battery_port.setupLogger(std::cout, "<BAT OUT>", color::blue);
+   battery_port.setupLogger(log, "<BAT OUT>", color::blue);
    battery_port.setSink(battery_pack);
 
    
@@ -71,10 +76,15 @@ int main(int argc, const char** argv)
          timer,
          battery_pack.getMonitor(),
          battery_pack.getContactor());
-   can::services::TSUN::MessageFactory inverter_message_factory(inverter, &std::cout);
+   can::services::TSUN::MessageFactory inverter_message_factory(inverter, &log);
 
-   inverter_port.setupLogger(std::cout, "<INV OUT>", color::green);
+   inverter_port.setupLogger(log, "<INV OUT>", color::green);
    inverter_port.setSink(inverter_message_factory);
+
+   core::ConsolePresenter console(
+         timer,
+         battery_pack.getMonitor(),
+         battery_pack.getContactor());
 
    while (1)
    {

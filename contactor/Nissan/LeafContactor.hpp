@@ -22,6 +22,7 @@ public:
                  logging::ostream* log);
 
    virtual void setSafeToOperate(bool);
+   virtual bool isSafeToOperate() const;
    virtual bool isClosed() const;
    virtual void close();
    virtual void open();

@@ -4,6 +4,7 @@
 #define _MONITOR_MONITOR_HPP
 
 #include <stdint.h>
+#include "logging/stream.hpp"
 
 namespace monitor {
 
@@ -33,6 +34,8 @@ public:
    virtual float getChargeCurrentLimit() const = 0;
    virtual float getDischargeCurrentLimit() const = 0;
 };
+
+logging::ostream& operator<<(logging::ostream& os, const Monitor& monitor);
 
 }
 

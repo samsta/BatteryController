@@ -29,13 +29,15 @@ BatteryStatus localBatteryStatus(BatteryStatus::BASIC_STATUS_IDLE);
 }
 
 TSOL_H50K::TSOL_H50K(can::FrameSink& sender,
-                                 core::Timer& timer,
-                                 monitor::Monitor& monitor,
-                                 contactor::Contactor& contactor):
+                     core::Timer& timer,
+                     monitor::Monitor& monitor,
+                     contactor::Contactor& contactor,
+                     logging::ostream* log):
       m_sender(sender),
       m_timer(timer),
       m_monitor(monitor),
       m_contactor(contactor),
+      m_log(log),
       m_periodic_callback(*this, &TSOL_H50K::periodicCallback),
       m_inverter_silent_counter(0)
 {
@@ -58,7 +60,7 @@ void TSOL_H50K::periodicCallback()
    {
       if (m_inverter_silent_counter == INVERTER_SILENT_TIMEOUT_PERIODS)
       {
-         std::cout << "Inverter went silent." << std::endl;
+         if (m_log) *m_log << "Inverter went silent." << std::endl;
          m_inverter_silent_counter++;
       }
       m_contactor.open();

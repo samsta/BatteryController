@@ -24,7 +24,8 @@ public:
    TSOL_H50K(can::FrameSink& sender,
                    core::Timer& timer,
                    monitor::Monitor& monitor,
-                   contactor::Contactor& contactor);
+                   contactor::Contactor& contactor,
+                   logging::ostream* log = nullptr);
    ~TSOL_H50K();
 
    virtual void sink(const can::messages::Message&);
@@ -37,6 +38,7 @@ private:
    core::Timer&          m_timer;
    monitor::Monitor&     m_monitor;
    contactor::Contactor& m_contactor;
+   logging::ostream*     m_log;
    core::Callback<TSOL_H50K> m_periodic_callback;
    unsigned              m_inverter_silent_counter;
 

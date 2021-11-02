@@ -41,6 +41,11 @@ void LeafContactor::setSafeToOperate(bool is_safe)
    updateRelays();
 }
 
+bool LeafContactor::isSafeToOperate() const
+{
+   return m_safe_to_operate;
+}
+
 bool LeafContactor::isClosed() const
 {
    return m_state == CLOSED;

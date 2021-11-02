@@ -11,6 +11,7 @@ class Contactor: public ::contactor::Contactor
 public:
    MOCK_METHOD(void, setSafeToOperate,(bool));
    MOCK_METHOD(bool, isClosed,(), (const));
+   MOCK_METHOD(bool, isSafeToOperate,(), (const));
    MOCK_METHOD(void, close,());
    MOCK_METHOD(void, open,());
 };
