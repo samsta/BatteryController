@@ -15,7 +15,6 @@ BatteryStatus::BatteryStatus():
       m_multiplex_byte(),
       m_usable_soc()
 {
-
 }
 
 BatteryStatus::BatteryStatus(const DataFrame& frame):

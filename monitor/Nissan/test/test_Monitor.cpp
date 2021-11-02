@@ -382,4 +382,14 @@ TEST_F(MonitorConstructed, zeroInitialValue)
    EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0);
 }
 
+//TEST_F(MonitorConstructed, batteryStatus)
+//{
+//   monitor.sink(can::StandardDataFrame("1db#0024bee2380003e0"));
+//
+//   EXPECT_THAT(monitor.getMaxChargeVoltage(),381.4);
+//
+////   EXPECT_THAT(monitor.getChargeCurrentLimit(), 0);
+////   EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0);
+//}
+
 }
