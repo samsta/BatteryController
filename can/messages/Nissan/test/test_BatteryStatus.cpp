@@ -28,6 +28,8 @@ TEST(NissanBatteryStatus, exampleMessage)
    EXPECT_FLOAT_EQ(381.5, status.getVoltage());
    EXPECT_EQ(224, status.getSecurityByte());
    EXPECT_EQ(3, status.getMultiplexByte());
+   EXPECT_FLOAT_EQ(56.0, status.getUsableSOC());
+
 }
 
 TEST(NissanBatteryStatus, invalidToString)

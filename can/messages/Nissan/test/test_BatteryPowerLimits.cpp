@@ -1,45 +1,43 @@
 #include <gmock/gmock.h>
-#include "can/messages/Nissan/BatteryPowerLimits.hpp"
 #include "can/StandardDataFrame.hpp"
-#include <vector>
+#include "can/messages/Nissan/BatteryPowerLimits.hpp"
 
 using namespace can::messages::Nissan;
 using namespace testing;
 
-TEST(BatteryPowerLimits, invalidDischargeLimit)
+TEST(NissanBatteryPowerLimits, invalidDischargeLimit)
 {
    EXPECT_FALSE(BatteryPowerLimits(can::StandardDataFrame("1DC#FFF08FFD0540C696")).valid());
 }
 
-TEST(BatteryPowerLimits, invalidChargeLimit)
+TEST(NissanBatteryPowerLimits, invalidChargeLimit)
 {
    EXPECT_FALSE(BatteryPowerLimits(can::StandardDataFrame("1DC#00FFFFFD0540C696")).valid());
 }
 
-TEST(BatteryPowerLimits, valid)
+TEST(NissanBatteryPowerLimits, valid)
 {
    EXPECT_TRUE(BatteryPowerLimits(can::StandardDataFrame("1DC#0000000000000000")).valid());
 }
 
-TEST(BatteryPowerLimits, invalidId)
+TEST(NissanBatteryPowerLimits, invalidId)
 {
    EXPECT_FALSE(BatteryPowerLimits(can::StandardDataFrame("1FF#0000000000000000")).valid());
 }
 
-TEST(BatteryPowerLimits, invalidLength)
+TEST(NissanBatteryPowerLimits, invalidLength)
 {
    EXPECT_FALSE(BatteryPowerLimits(can::StandardDataFrame("1DC#00000000000000")).valid());
 }
 
-TEST(BatteryPowerLimits, getDischargeLimit1)
+TEST(NissanBatteryPowerLimits, getDischargeLimit1)
 {
-   can::StandardDataFrame frame("1dc#6E0C8FFD0540C696");
-   BatteryPowerLimits battery(frame);
+   BatteryPowerLimits battery(can::StandardDataFrame("1dc#6E0C8FFD0540C696"));
 
    EXPECT_FLOAT_EQ(110.0, battery.getDischargePowerLimit_kW());
 }
 
-TEST(BatteryPowerLimits, getDischargeLimit2)
+TEST(NissanBatteryPowerLimits, getDischargeLimit2)
 {
    can::StandardDataFrame frame("1dc#583C8FFD0540C696");
    BatteryPowerLimits battery(frame);
@@ -47,7 +45,7 @@ TEST(BatteryPowerLimits, getDischargeLimit2)
    EXPECT_FLOAT_EQ(88.0, battery.getDischargePowerLimit_kW());
 }
 
-TEST(BatteryPowerLimits, setDishargeLimit3)
+TEST(NissanBatteryPowerLimits, setDishargeLimit3)
 {
    can::StandardDataFrame frame("1dc#0000000000000000");
    BatteryPowerLimits battery(frame);
@@ -57,7 +55,7 @@ TEST(BatteryPowerLimits, setDishargeLimit3)
    EXPECT_FLOAT_EQ(99.9, battery.getDischargePowerLimit_kW());
 }
 
-TEST(BatteryPowerLimits, getChargeLimit1)
+TEST(NissanBatteryPowerLimits, getChargeLimit1)
 {
    can::StandardDataFrame frame("1dc#EFCC7FFD0540C696");
    BatteryPowerLimits battery(frame);
@@ -65,7 +63,7 @@ TEST(BatteryPowerLimits, getChargeLimit1)
    EXPECT_FLOAT_EQ(49.75, battery.getChargePowerLimit_kW());
 }
 
-TEST(BatteryPowerLimits, getChargeLimit2)
+TEST(NissanBatteryPowerLimits, getChargeLimit2)
 {
    can::StandardDataFrame frame("1dc#EFC4FFFD0540C696");
    BatteryPowerLimits battery(frame);
@@ -73,7 +71,7 @@ TEST(BatteryPowerLimits, getChargeLimit2)
    EXPECT_FLOAT_EQ(19.75, battery.getChargePowerLimit_kW());
 }
 
-TEST(BatteryPowerLimits, setChargeLimit3)
+TEST(NissanBatteryPowerLimits, setChargeLimit3)
 {
    can::StandardDataFrame frame("1dc#0000000000000000");
    BatteryPowerLimits battery(frame);
