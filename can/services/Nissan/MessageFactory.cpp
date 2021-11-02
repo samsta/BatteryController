@@ -6,6 +6,7 @@
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/BatteryState.hpp"
 #include "can/messages/Nissan/BatteryStatus.hpp"
+#include "can/messages/Nissan/BatteryPowerLimits.hpp"
 #include "logging/colors.hpp"
 #include <stdlib.h>
 
@@ -39,6 +40,9 @@ const Message* decode(const can::DataFrame& f, void* mem)
    if (msg->valid()) return msg;
 
    msg = new(mem) BatteryState(f);
+   if (msg->valid()) return msg;
+
+   msg = new(mem) BatteryPowerLimits(f);
    if (msg->valid()) return msg;
 
    return NULL;
