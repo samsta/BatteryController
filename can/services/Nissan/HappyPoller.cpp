@@ -15,7 +15,8 @@ HappyPoller::HappyPoller(FrameSink& sender, core::Timer& timer):
     m_sender(sender),
     m_timer(timer),
     m_heartbeat_poll_callback(*this, &HappyPoller::poll),
-    m_heartbeat_counter(3)
+    m_heartbeat_counter(3),
+    m_hcm_clock_50c_counter(0)
 {
    m_timer.registerPeriodicCallback(&m_heartbeat_poll_callback, 1000);
 }
@@ -27,18 +28,34 @@ HappyPoller::~HappyPoller()
 
 void HappyPoller::poll()
 {
+   //todo: delay sending of message for a bit at startup
    m_sender.sink(StandardDataFrame(ID_LBC_HEARTBEAT_11A, m_heartbeat_11A[m_heartbeat_counter]));
    m_heartbeat_counter = (m_heartbeat_counter + 1) % 4;
 }
 
 void HappyPoller::received(const DataFrame& frame)
 {
-//   if (frame.id() != ID_LBC_DATA_REPLY) return;
+   if (frame.id() != ID_LBC_STATUS_55B) return;
    if (frame.size() != 8) return;
-//   if (frame.data()[0] != 0x10) return;
-//
-//   const uint8_t request[8] = {0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-//   m_sender.sink(StandardDataFrame(ID_LBC_DATA_REQUEST, request));
+
+   m_hcm_clock_50c_counter = (m_hcm_clock_50c_counter + 1) % 4;
+   m_hcm_clock_50c[3] = m_hcm_clock_50c_counter;
+
+   switch(frame.data()[2])
+   {
+   case 0x55:
+      m_hcm_clock_50c[4] = 0xB2;
+      m_hcm_clock_50c[5] = m_0x55_crc_50c[m_hcm_clock_50c_counter];
+      break;
+
+   case 0xAA:
+      m_hcm_clock_50c[4] = 0x5D;
+      m_hcm_clock_50c[5] = m_0xAA_crc_50c[m_hcm_clock_50c_counter];
+      break;
+   }
+   m_sender.sink(StandardDataFrame(ID_LBC_HCM_CLOCK_50C, m_hcm_clock_50c, sizeof(m_hcm_clock_50c)));
+
+   m_sender.sink(StandardDataFrame(ID_LBC_VCM_DIAG_50B, m_vcm_diag_50b));
 }
 
 
