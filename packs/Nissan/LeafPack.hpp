@@ -8,6 +8,7 @@
 #include "can/services/Nissan/MessageFactory.hpp"
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "monitor/Nissan/Monitor.hpp"
+#include "can/services/Nissan/HappyPoller.hpp"
 
 namespace packs {
 namespace Nissan {
@@ -35,6 +36,7 @@ private:
    can::services::Nissan::MessageFactory  m_message_factory;
    can::services::Nissan::FrameAggregator m_aggregator;
    can::services::Nissan::GroupPoller     m_poller;
+   can::services::Nissan::HappyPoller     m_happy_poller;
 
 };
 

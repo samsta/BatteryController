@@ -21,7 +21,8 @@ LeafPack::LeafPack(
    m_monitor(m_contactor),
    m_message_factory(m_monitor, log),
    m_aggregator(m_message_factory),
-   m_poller(sender, timer)
+   m_poller(sender, timer),
+   m_happy_poller(sender, timer)
 {
 }
 
@@ -37,8 +38,10 @@ contactor::Contactor& LeafPack::getContactor()
 
 void LeafPack::sink(const can::DataFrame& f)
 {
+   m_happy_poller.received(f);
    m_poller.received(f);
    m_aggregator.sink(f);
+
 }
 
 
