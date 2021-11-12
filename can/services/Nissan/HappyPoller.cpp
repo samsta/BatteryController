@@ -28,7 +28,7 @@ HappyPoller::~HappyPoller()
 
 void HappyPoller::poll()
 {
-   //todo: delay sending of message for a bit at startup
+   //todo: if necessary, delay sending of message for a bit at startup
    m_sender.sink(StandardDataFrame(ID_LBC_HEARTBEAT_11A, m_heartbeat_11A[m_heartbeat_counter]));
    m_heartbeat_counter = (m_heartbeat_counter + 1) % 4;
 }
@@ -38,7 +38,6 @@ void HappyPoller::received(const DataFrame& frame)
    if (frame.id() != ID_LBC_STATUS_55B) return;
    if (frame.size() != 8) return;
 
-   m_hcm_clock_50c_counter = (m_hcm_clock_50c_counter + 1) % 4;
    m_hcm_clock_50c[3] = m_hcm_clock_50c_counter;
 
    switch(frame.data()[2])
@@ -52,10 +51,17 @@ void HappyPoller::received(const DataFrame& frame)
       m_hcm_clock_50c[4] = 0x5D;
       m_hcm_clock_50c[5] = m_0xAA_crc_50c[m_hcm_clock_50c_counter];
       break;
+
+   default:
+      m_hcm_clock_50c[4] = 0xFF;
+      m_hcm_clock_50c[5] = 0xFF;
    }
    m_sender.sink(StandardDataFrame(ID_LBC_HCM_CLOCK_50C, m_hcm_clock_50c, sizeof(m_hcm_clock_50c)));
 
    m_sender.sink(StandardDataFrame(ID_LBC_VCM_DIAG_50B, m_vcm_diag_50b));
+
+   m_hcm_clock_50c_counter = (m_hcm_clock_50c_counter + 1) % 4;
+
 }
 
 
