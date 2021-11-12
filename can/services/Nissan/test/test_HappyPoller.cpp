@@ -93,6 +93,7 @@ TEST_F(HappyPollerTest, pollCyclesElevenAMessagesStartingAtNo3)
 TEST_F(HappyPollerTest, send0xFFResponseToInvalid55B)
 {
    EXPECT_CALL(sender, sink(AsString("50c#00000000FFFF")));
+   EXPECT_CALL(sender, sink(AsString("50b#0000000000000100")));
 
    poller.received(StandardDataFrame("55b#0000000000000000"));
 }
