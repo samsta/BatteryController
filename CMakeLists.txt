@@ -12,6 +12,7 @@ set(MEMORYCHECK_SUPPRESSIONS_FILE "${CMAKE_SOURCE_DIR}/valgrind.supp")
 
 find_package(SocketCan)
 find_package(LibGpiod)
+find_package(Curses)
 
 set(CMAKE_CXX_FLAGS  "-Wall -Werror -Wextra -g -std=c++0x")
 
@@ -48,9 +49,7 @@ add_subdirectory(monitor)
 add_subdirectory(packs)
 
 
-if(SocketCan_FOUND AND LibGpiod_FOUND)
-   find_package(Curses REQUIRED)
-
+if(SocketCan_FOUND AND LibGpiod_FOUND AND Curses_FOUND)
    # horrible prototype
    add_executable(testcan testcan.cpp)
    target_link_libraries(testcan core logging monitor inverter can contactor packs ${LibGpiod_LIBRARY})
@@ -62,9 +61,26 @@ if(SocketCan_FOUND AND LibGpiod_FOUND)
    # horrible battery emulator hack
    add_executable(mitm mitm.cpp)
    target_link_libraries(mitm can)
- endif()
 
- add_custom_target(vcan_interfaces
+else()
+  message(WARNING "I am not going to build the application(s) due to missing libraries")
+  if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    if(NOT Curses_FOUND)
+      message("
+Please install the Curses library to get functionality beyond unit testing:
+     sudo apt install libncurses5-dev
+")
+    endif()
+    if(NOT LibGpiod_FOUND)
+      message("
+Please install the LibGpiod library to get functionality beyond unit testing:
+     sudo apt install libgpiod-dev
+")
+    endif()
+  endif()
+endif()
+
+add_custom_target(vcan_interfaces
    COMMENT "Bringing up vcan0 and vcan1"
    COMMAND sudo modprobe vcan
    COMMAND sudo ip link add dev vcan0 type vcan
