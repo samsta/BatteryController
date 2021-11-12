@@ -12,18 +12,22 @@ namespace core {
 class ConsolePresenter
 {
 public:
-   ConsolePresenter(core::Timer& timer,
-                    const monitor::Monitor& monitor,
-                    const contactor::Contactor& contactor);
+   ConsolePresenter(core::Timer& timer);
    ~ConsolePresenter();
 
+   void setMonitor(const monitor::Monitor& monitor);
+   void setContactor(const contactor::Contactor& contactor);
+  
+   bool isOperational() const;
+  
 private:
    void refreshDisplay();
 
    core::Timer&                     m_timer;
-   const monitor::Monitor&          m_monitor;
-   const contactor::Contactor&      m_contactor;
+   const monitor::Monitor*          m_monitor;
+   const contactor::Contactor*      m_contactor;
    core::Callback<ConsolePresenter> m_refresh_callback;
+   bool                             m_have_curses;
 };
 
 }

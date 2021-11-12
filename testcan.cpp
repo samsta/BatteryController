@@ -29,6 +29,9 @@ namespace color = logging::color::ansi;
 
 int main(int argc, const char** argv)
 {
+   logging::ostream* log = &std::cout;
+   std::ofstream logfile;
+   
    if (argc != 3)
    {
       fprintf(stderr, "usage: %s <can_interface_battery> <can_interface_inverter>\n", argv[0]);
@@ -44,9 +47,6 @@ int main(int argc, const char** argv)
       perror("epoll_create1");
       exit(EXIT_FAILURE);
    }
-   
-   std::ofstream log;
-   log.open("log.txt");
 
    core::CanPort battery_port(argv[1], epollfd);
    core::CanPort inverter_port(argv[2], epollfd);
@@ -56,15 +56,33 @@ int main(int argc, const char** argv)
    OutputPin negative_relay(0, 6, "relay_neg");
    OutputPin indicator_led(0, 4, "led1");
 
+   core::ConsolePresenter console(timer);
+   if (console.isOperational())
+   {
+      logfile.open("log.txt");
+      if (logfile.good())
+      {
+         log = &logfile;
+      }
+      else
+      {
+         std::cerr << "Failed opening logfile log.txt: " << strerror(errno) << std::endl;
+      }
+   }
+   else
+   {
+      std::cerr << "Don't have a terminal to run console presenter, so I'll proceed logging to stdout" << std::endl;
+   }
+   
    packs::Nissan::LeafPack battery_pack(
          battery_port,
          timer,
          positive_relay,
          negative_relay,
          indicator_led,
-         &log);
+         log);
 
-   battery_port.setupLogger(log, "<BAT OUT>", color::blue);
+   battery_port.setupLogger(*log, "<BAT OUT>", color::blue);
    battery_port.setSink(battery_pack);
 
    
@@ -76,15 +94,16 @@ int main(int argc, const char** argv)
          timer,
          battery_pack.getMonitor(),
          battery_pack.getContactor());
-   can::services::TSUN::MessageFactory inverter_message_factory(inverter, &log);
+   can::services::TSUN::MessageFactory inverter_message_factory(inverter, log);
 
-   inverter_port.setupLogger(log, "<INV OUT>", color::green);
+   inverter_port.setupLogger(*log, "<INV OUT>", color::green);
    inverter_port.setSink(inverter_message_factory);
 
-   core::ConsolePresenter console(
-         timer,
-         battery_pack.getMonitor(),
-         battery_pack.getContactor());
+   if (console.isOperational())
+   {
+      console.setMonitor(battery_pack.getMonitor());
+      console.setContactor(battery_pack.getContactor());
+   }
 
    while (1)
    {
