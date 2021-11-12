@@ -24,7 +24,7 @@ TEST(HappyPoller, registersAndDeregistersPollingCallbackFor1000MillisecondPeriod
 
    {
       core::Invokable* invokable;
-      EXPECT_CALL(timer, registerPeriodicCallback(_, 1000)).WillOnce(SaveArg<0>(&invokable));
+      EXPECT_CALL(timer, registerPeriodicCallback(_, 10)).WillOnce(SaveArg<0>(&invokable));
       HappyPoller poller(sender, timer);
       EXPECT_CALL(timer, deregisterCallback(invokable));
    }
