@@ -98,26 +98,47 @@ TEST_F(HappyPollerTest, send0xFFResponseToInvalid55B)
    poller.received(StandardDataFrame("55b#0000000000000000"));
 }
 
-//TEST_F(HappyPollerTest, doesntRequestSubsubsequentFrameOnReceptionOfSubsequentMessage)
-//{
-//   EXPECT_CALL(sender, sink(_)).Times(0);
-//
-//   poller.received(StandardDataFrame("7bb#2100000000000000"));
-//}
-//
-//TEST_F(HappyPollerTest, doesntRequestSubsubsequentFrameOnReceptionOfShortInitialMessage)
-//{
-//   EXPECT_CALL(sender, sink(_)).Times(0);
-//
-//   poller.received(StandardDataFrame("7bb#10000000000000"));
-//}
-//
-//TEST_F(HappyPollerTest, doesntRequestSubsubsequentFrameOnReceptionOfWrongIdInitialMessage)
-//{
-//   EXPECT_CALL(sender, sink(_)).Times(0);
-//
-//   poller.received(StandardDataFrame("7bc#1000000000000000"));
-//}
+TEST_F(HappyPollerTest, respondTo55B)
+{
+   // count = 0
+   EXPECT_CALL(sender, sink(AsString("50c#000000005DC8")));
+   EXPECT_CALL(sender, sink(AsString("50b#0000000000000100")));
+   poller.received(StandardDataFrame("55b#0000AA0000000000"));
 
+   // count = 1
+   EXPECT_CALL(sender, sink(AsString("50c#00000001B231")));
+   EXPECT_CALL(sender, sink(AsString("50b#0000000000000100")));
+   poller.received(StandardDataFrame("55b#0000550000000000"));
+
+   // count = 2
+   EXPECT_CALL(sender, sink(AsString("50c#000000025D63")));
+   EXPECT_CALL(sender, sink(AsString("50b#0000000000000100")));
+   poller.received(StandardDataFrame("55b#0000AA0000000000"));
+
+   // count = 3
+   EXPECT_CALL(sender, sink(AsString("50c#00000003B29A")));
+   EXPECT_CALL(sender, sink(AsString("50b#0000000000000100")));
+   poller.received(StandardDataFrame("55b#0000550000000000"));
+
+   // count = 0
+    EXPECT_CALL(sender, sink(AsString("50c#00000000B2A6")));
+    EXPECT_CALL(sender, sink(AsString("50b#0000000000000100")));
+    poller.received(StandardDataFrame("55b#0000550000000000"));
+
+    // count = 1
+    EXPECT_CALL(sender, sink(AsString("50c#000000015D5F")));
+    EXPECT_CALL(sender, sink(AsString("50b#0000000000000100")));
+    poller.received(StandardDataFrame("55b#0000AA0000000000"));
+
+    // count = 2
+    EXPECT_CALL(sender, sink(AsString("50c#00000002B20D")));
+    EXPECT_CALL(sender, sink(AsString("50b#0000000000000100")));
+    poller.received(StandardDataFrame("55b#0000550000000000"));
+
+    // count = 3
+    EXPECT_CALL(sender, sink(AsString("50c#000000035DF4")));
+    EXPECT_CALL(sender, sink(AsString("50b#0000000000000100")));
+    poller.received(StandardDataFrame("55b#0000AA0000000000"));
+}
 
 }
