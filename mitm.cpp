@@ -18,15 +18,18 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#include <unordered_map>
 
 uint32_t serial_number = 0;
 std::set<canid_t> filter;
 
-std::set<canid_t> logging_canid;
-std::set<int64_t> logging_data;
-std::set<int64_t> logging_mask;
+struct uint64x2
+{
+   uint64_t mask;
+   uint64_t current_val;
+} logging_data;
 
-
+std::unordered_map<canid_t, uint64x2> logging_map;
 
 void redirect(int dest, struct can_frame& frame)
 {
@@ -146,9 +149,6 @@ int main(int argc, const char** argv)
       std::cout << "Going to drop " << std::hex << std::setfill('0') << std::setw(3) << id << std::dec << std::endl;
    }
 
-
-
-
    // read logging filter data
    char logfilter[] = "mitm-log-filter.txt";
    std::ifstream infile;
@@ -160,18 +160,19 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
-
    std::cout << "Log following IDs when masked bits change" << std::endl;
    uint count = 0;
    canid_t canid;
    uint64_t logmask;
+   // read each text from the file individually,format hex  canid byte7 ... byte0
+   // store in sets canid and mask ('cause I can't figure out how to make a set of can_frame)
    while (infile >> textin)
    {
       if (count % 9 == 0)
       {
          logmask = 0;
          canid = strtol(textin, NULL, 16);
-         logging_canid.insert(canid);
+         //logging_canid.insert(canid);
          std::cout << std::hex << std::uppercase << canid << std::dec << " : ";
       }
       else {
@@ -182,28 +183,20 @@ int main(int argc, const char** argv)
          //std::cout << std::hex << logmask << "::" << std::dec << std::endl;
          if (dex == 7)
          {
-            logging_mask.insert(logmask);
+            logging_data.mask = logmask;
+            logging_data.current_val = 0;
+            logging_map.insert({canid, logging_data });
             std::cout << std::setfill('0') << std::setw(16) << std::hex << logmask << std::dec << std::endl;
          }
       }
       count++;
    }
    infile.close();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   if (count % 9 != 0)
+   {
+      std::cout << std::endl << "incomplete logging filter data read from: " << logfilter << std::endl;
+      exit(EXIT_FAILURE);
+   }
 
    const unsigned MAX_EVENTS = 4;
    struct epoll_event ev, events[MAX_EVENTS];
@@ -250,7 +243,6 @@ int main(int argc, const char** argv)
             processKeyboardInput();
             continue;
          }
-
          struct can_frame frame;
          int nbytes = read(events[n].data.fd, &frame, sizeof(struct can_frame));
          
@@ -268,8 +260,32 @@ int main(int argc, const char** argv)
             redirect(s1, frame);
          }
 
-         
 
+         // get frame data into a uint64_t
+         uint64_t framedata, eachbyte;
+         for (int i=0; i<8; i++)
+         {
+            eachbyte = frame.data[i];
+            std::cout << std::dec << eachbyte << std::endl;
+//            std::cout << std::hex << eachbyte << std::endl;
+            framedata != (eachbyte << (i * 8));
+            std::cout << "fd " << std::dec << framedata << std::endl;
+         }
+         std::cout << "framedata : " << std::setfill('0') << std::setw(16) << std::hex << framedata << std::dec << std::endl;
+
+         std::unordered_map<canid_t,uint64x2>::iterator mapfind = logging_map.find(frame.can_id);
+         if (mapfind != logging_map.end()) 
+         {
+            if (mapfind->second.current_val == 0)
+            {
+               mapfind->second.current_val = framedata;
+            }
+            else
+            {
+               
+            }
+
+         }
 
 
       }
