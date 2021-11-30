@@ -17,9 +17,16 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 
 uint32_t serial_number = 0;
 std::set<canid_t> filter;
+
+std::set<canid_t> logging_canid;
+std::set<int64_t> logging_data;
+std::set<int64_t> logging_mask;
+
+
 
 void redirect(int dest, struct can_frame& frame)
 {
@@ -29,11 +36,11 @@ void redirect(int dest, struct can_frame& frame)
       return;
    }
 
-   if (frame.can_id == 0x598)
-   {
-      // spoof serial number
-      memcpy(frame.data, &serial_number, sizeof(serial_number));
-   }
+   // if (frame.can_id == 0x598)
+   // {
+   //    // spoof serial number
+   //    memcpy(frame.data, &serial_number, sizeof(serial_number));
+   // }
 
    if (write(dest, &frame, sizeof(frame)) != sizeof(frame))
    {
@@ -116,6 +123,8 @@ int openSocket(const char* name)
 
 int main(int argc, const char** argv)
 {
+   std::cout << "ver 1.1\n";
+
    int s1, s2;
 
    if (argc < 4)
@@ -136,6 +145,65 @@ int main(int argc, const char** argv)
       filter.insert(id);
       std::cout << "Going to drop " << std::hex << std::setfill('0') << std::setw(3) << id << std::dec << std::endl;
    }
+
+
+
+
+   // read logging filter data
+   char logfilter[] = "mitm-log-filter.txt";
+   std::ifstream infile;
+   char textin[10];
+   infile.open(logfilter, std::ifstream::in);
+   if (!infile)
+   {
+      std::cout << "logging filter file not found: " << logfilter << std::endl;
+      exit(EXIT_FAILURE);
+   }
+
+
+   std::cout << "Log following IDs when masked bits change" << std::endl;
+   uint count = 0;
+   canid_t canid;
+   uint64_t logmask;
+   while (infile >> textin)
+   {
+      if (count % 9 == 0)
+      {
+         logmask = 0;
+         canid = strtol(textin, NULL, 16);
+         logging_canid.insert(canid);
+         std::cout << std::hex << std::uppercase << canid << std::dec << " : ";
+      }
+      else {
+         uint dex = (count % 9) - 1;
+         uint64_t bits64 = strtol(textin, NULL, 16);
+         //std::cout << bits64 << ":";
+         logmask |= (bits64 << ((7-dex) * 8));
+         //std::cout << std::hex << logmask << "::" << std::dec << std::endl;
+         if (dex == 7)
+         {
+            logging_mask.insert(logmask);
+            std::cout << std::setfill('0') << std::setw(16) << std::hex << logmask << std::dec << std::endl;
+         }
+      }
+      count++;
+   }
+   infile.close();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    const unsigned MAX_EVENTS = 4;
    struct epoll_event ev, events[MAX_EVENTS];
@@ -199,6 +267,11 @@ int main(int argc, const char** argv)
          {
             redirect(s1, frame);
          }
+
+         
+
+
+
       }
    }
 
