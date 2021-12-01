@@ -260,28 +260,36 @@ int main(int argc, const char** argv)
             redirect(s1, frame);
          }
 
-
-         // get frame data into a uint64_t
-         uint64_t framedata, eachbyte;
-         for (int i=0; i<8; i++)
-         {
-            eachbyte = frame.data[i];
-            std::cout << std::dec << eachbyte << std::endl;
-//            std::cout << std::hex << eachbyte << std::endl;
-            framedata != (eachbyte << (i * 8));
-            std::cout << "fd " << std::dec << framedata << std::endl;
-         }
-         std::cout << "framedata : " << std::setfill('0') << std::setw(16) << std::hex << framedata << std::dec << std::endl;
-
          std::unordered_map<canid_t,uint64x2>::iterator mapfind = logging_map.find(frame.can_id);
+         // I spend 3 $@^$@%@#$ hours getting then next line to compiile... still don't now how I fixed it
          if (mapfind != logging_map.end()) 
          {
+            // get frame data into a uint64_t
+            uint64_t framedata=0, eachbyte;
+            for (int i=0; i<8; i++)
+            {
+               eachbyte = frame.data[i];
+               framedata |= (eachbyte << ((7-i) * 8));
+            }
+            if (serial_number == 1) std::cout << "framedata : " << std::setfill('0') << std::setw(16) << std::hex << framedata << std::dec << std::endl;
+
+            // have we seen this id yet?
             if (mapfind->second.current_val == 0)
             {
                mapfind->second.current_val = framedata;
+               if (serial_number == 1) std::cout << std::hex << frame.can_id << ": Assign initial value." << std::endl;
             }
             else
             {
+               // see if the relevent bits have changed
+               if ((mapfind->second.current_val ^ framedata) & mapfind->second.mask)
+               {
+                  mapfind->second.current_val = framedata;
+                  if (serial_number == 1) std::cout << std::hex << frame.can_id << ": Data has changed." << std::endl;
+               }
+               
+
+
                
             }
 
