@@ -20,6 +20,11 @@
 #include <fstream>
 #include <unordered_map>
 
+#include <chrono>
+#include <iostream>
+#include <sys/time.h>
+#include <ctime>
+
 uint32_t serial_number = 0;
 std::set<canid_t> filter;
 
@@ -126,8 +131,6 @@ int openSocket(const char* name)
 
 int main(int argc, const char** argv)
 {
-   std::cout << "ver 1.1\n";
-
    int s1, s2;
 
    if (argc < 4)
@@ -227,6 +230,22 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
+   // open log file
+   char logfile[] = "mitm-log-file.csv";
+   std::ofstream outfile;
+   outfile.open(logfile, std::ios::trunc | std::ios::out);
+   if (!outfile)
+   {
+      std::cout << "log file failed to open: " << logfile << std::endl;
+      exit(EXIT_FAILURE);
+   }
+   outfile << "Time Stamp,ID,Extended,Dir,Bus,LEN,D1,D2,D3,D4,D5,D6,D7,D8" << std::endl;
+   //outfile.close();
+
+   // set the start time
+   auto usec_since_epoch_start = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+   //std::cout << "microseconds since epoch: " << usec_since_epoch_start << std::endl;
+
    std::cout << "Man in the middle ready on " << argv[1] << " and " << argv[2] << std::endl;
    while (1)
    {
@@ -260,10 +279,13 @@ int main(int argc, const char** argv)
             redirect(s1, frame);
          }
 
+         // check if this canid is one we should be logging
          std::unordered_map<canid_t,uint64x2>::iterator mapfind = logging_map.find(frame.can_id);
-         // I spend 3 $@^$@%@#$ hours getting then next line to compiile... still don't now how I fixed it
+
+         // I spend 3 fekking hours getting then next line to compiile, don't know what I did to get it to work
          if (mapfind != logging_map.end()) 
          {
+            // this is a canid of note
             // get frame data into a uint64_t
             uint64_t framedata=0, eachbyte;
             for (int i=0; i<8; i++)
@@ -271,26 +293,46 @@ int main(int argc, const char** argv)
                eachbyte = frame.data[i];
                framedata |= (eachbyte << ((7-i) * 8));
             }
-            if (serial_number == 1) std::cout << "framedata : " << std::setfill('0') << std::setw(16) << std::hex << framedata << std::dec << std::endl;
+            if (serial_number > 1) std::cout << "framedata : " << std::setfill('0') << std::setw(16) << std::hex << framedata << std::dec << std::endl;
 
-            // have we seen this id yet?
-            if (mapfind->second.current_val == 0)
+            // // have we seen this id yet?
+            // if (mapfind->second.current_val == 0)
+            // {
+            //    mapfind->second.current_val = framedata;
+            //    if (serial_number == 1) std::cout << std::hex << frame.can_id << ": Assign initial value." << std::endl;
+            // }
+            
+            // see if the relevent bits have changed
+            if ((mapfind->second.current_val ^ framedata) & mapfind->second.mask)
             {
+               // relevant bits have changed
                mapfind->second.current_val = framedata;
-               if (serial_number == 1) std::cout << std::hex << frame.can_id << ": Assign initial value." << std::endl;
-            }
-            else
-            {
-               // see if the relevent bits have changed
-               if ((mapfind->second.current_val ^ framedata) & mapfind->second.mask)
+               if (serial_number > 0) std::cout << std::hex << frame.can_id << ": Data has changed."  << std::dec << std::endl;
+
+               // write to log file
+               // Time Stamp,ID,Extended,Dir,Bus,LEN,D1,D2,D3,D4,D5,D6,D7,D8
+               // 5637158,00000679,false,Rx,1,1,00,00,00,00,00,00,00,00,   <---- comma at the end of the line
+               auto usec_since_epoch = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+               outfile << (usec_since_epoch - usec_since_epoch_start) << "," << std::setfill('0') << std::setw(8) << std::hex << frame.can_id << std::dec;
+               outfile << ",false,Rx,1,8,";
+               for (int i=0; i<8; i++) 
                {
-                  mapfind->second.current_val = framedata;
-                  if (serial_number == 1) std::cout << std::hex << frame.can_id << ": Data has changed." << std::endl;
+                  char that[50]; sprintf(that, "%02x,",frame.data[i]);
+                  outfile << that;
                }
-               
+               outfile << std::endl;
 
-
-               
+               if (serial_number > 1)
+               {
+                  std::cout << (usec_since_epoch - usec_since_epoch_start) << "," << std::setfill('0') << std::setw(8) << std::hex << frame.can_id << std::dec;
+                  std::cout << ",false,Rx,1,8,";
+                  for (int i=0; i<8; i++) 
+                  {
+                     char that[50]; sprintf(that, "%02x,",frame.data[i]);
+                     std::cout << that;
+                  }
+                  std::cout << std::endl;
+               }
             }
 
          }
@@ -298,6 +340,7 @@ int main(int argc, const char** argv)
 
       }
    }
+   outfile.close();
 
    return 0;
 }
