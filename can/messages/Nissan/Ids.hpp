@@ -16,7 +16,9 @@ enum Ids {
    ID_LBC_VCM_DIAG_50B  = 0x50b,
    ID_LBC_HCM_CLOCK_50C = 0x50c,
    ID_LBC_STATUS_55B    = 0x55b,
-   ID_LBC_HEARTBEAT_11A = 0x11A
+   ID_LBC_HEARTBEAT_11A = 0x11A,
+   ID_LBC_VCM_1F2       = 0x1F2,
+   ID_LBC_VCM_1D4       = 0x1D4
 
 };
 
