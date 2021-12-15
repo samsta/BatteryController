@@ -72,9 +72,9 @@ TEST_F(HappyPollerTest, pollInvokesSender)
 
 TEST_F(HappyPollerTest, pollCyclesElevenAMessagesStartingAtNo3)
 {
-//   for (int k : {1, 2})
+   for (int k : {1, 2})
    {
-//      SCOPED_TRACE(Message("k=") << k);
+      SCOPED_TRACE(Message("k=") << k);
 
       EXPECT_CALL(sender, sink(AsString("11a#4E4004AA80000370")));
       EXPECT_CALL(sender, sink(AsString("1f2#106400B4001E0083")));
