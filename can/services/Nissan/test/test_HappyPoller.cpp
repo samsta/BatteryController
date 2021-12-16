@@ -65,31 +65,37 @@ MATCHER_P(AsString, str, std::string(negation ? " doesn't equal " : " equals ") 
 
 TEST_F(HappyPollerTest, pollInvokesSender)
 {
-   EXPECT_CALL(sender, sink(_)).Times(2);
+   EXPECT_CALL(sender, sink(_)).Times(3);
 
    poll_callback->invoke();
 }
 
-TEST_F(HappyPollerTest, pollCyclesElevenAMessagesStartingAtNo3)
+TEST_F(HappyPollerTest, pollCyclesPollerMessages)
 {
    for (int k : {1, 2})
    {
       SCOPED_TRACE(Message("k=") << k);
 
+      // starts at 3 because that the way it is in the car
       EXPECT_CALL(sender, sink(AsString("11a#4E4004AA80000370")));
+      // starts at 0 just 'cus
       EXPECT_CALL(sender, sink(AsString("1f2#106400B4001E0083")));
+      EXPECT_CALL(sender, sink(AsString("1d4#6E6E01D00744011D")));
       poll_callback->invoke();
 
       EXPECT_CALL(sender, sink(AsString("11a#4E4004AAC00000BD")));
       EXPECT_CALL(sender, sink(AsString("1f2#106400B4001E0184")));
+      EXPECT_CALL(sender, sink(AsString("1d4#6E6E01D0474401DA")));
       poll_callback->invoke();
 
       EXPECT_CALL(sender, sink(AsString("11a#4E400455000001AB")));
       EXPECT_CALL(sender, sink(AsString("1f2#106400B4001E0285")));
+      EXPECT_CALL(sender, sink(AsString("1d4#6E6E01C0874401F3")));
       poll_callback->invoke();
 
       EXPECT_CALL(sender, sink(AsString("11a#4E40045540000266")));
       EXPECT_CALL(sender, sink(AsString("1f2#106400B4001E0386")));
+      EXPECT_CALL(sender, sink(AsString("1d4#6E6E01C0C7440134")));
       poll_callback->invoke();
    }
 }
