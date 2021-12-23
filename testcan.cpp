@@ -24,14 +24,39 @@
 #include "core/Linux/ConsolePresenter.hpp"
 #include "logging/colors.hpp"
 
+#include <signal.h>
+
 using namespace core::libgpiod;
 namespace color = logging::color::ansi;
+
+namespace {
+  volatile sig_atomic_t keep_on_trucking = true;
+  void handle_break(int thissig) {
+    if (thissig == SIGINT) keep_on_trucking = false;
+    std::cout << "ctrl-c pressed." << std::endl;
+  }
+}
 
 int main(int argc, const char** argv)
 {
    logging::ostream* log = &std::cout;
    std::ofstream logfile;
    
+   struct sigaction action;
+   memset(&action, 0, sizeof(struct sigaction));
+   action.sa_handler = handle_break;
+   sigaction(SIGINT, &action, NULL);
+
+   sigset_t all_signals;
+   sigemptyset(&all_signals);
+   sigaddset(&all_signals, SIGINT);
+
+//   struct sigaction sigbreak;
+//   sigbreak.sa_handler = &handle_break;
+//   sigemptyset(&sigbreak.sa_mask);
+//   sigbreak.sa_flags = 0;
+//   if (sigaction(SIGINT, &sigbreak, NULL) != 0) std::perror("sigaction");
+
    if (argc != 3)
    {
       fprintf(stderr, "usage: %s <can_interface_battery> <can_interface_inverter>\n", argv[0]);
@@ -40,7 +65,8 @@ int main(int argc, const char** argv)
 
    const unsigned MAX_EVENTS = 10;
    struct epoll_event events[MAX_EVENTS];
-   int nfds, epollfd;
+   int nfds;
+   int epollfd;
 
    epollfd = epoll_create1(0);
    if (epollfd == -1) {
@@ -105,12 +131,14 @@ int main(int argc, const char** argv)
       console.setContactor(battery_pack.getContactor());
    }
 
-   while (1)
+   while (keep_on_trucking)
    {
+	  sigprocmask(SIG_BLOCK, &all_signals, NULL);
       nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
+	  sigprocmask(SIG_UNBLOCK, &all_signals, NULL);
       if (nfds == -1) {
-          perror("epoll_wait");
-          exit(EXIT_FAILURE);
+          perror("epoll_wait ERRoR");
+          //exit(EXIT_FAILURE);
       }
 
       for (int n = 0; n < nfds; ++n)
@@ -118,6 +146,8 @@ int main(int argc, const char** argv)
          reinterpret_cast<core::EpollHandler*>(events[n].data.ptr)->handle();
       }
    }
+
+   std::cout << "Program EXIT."  << std::endl;
 
    return 0;
 }
