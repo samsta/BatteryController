@@ -21,6 +21,8 @@ public:
                  core::OutputPin& indicator,
                  logging::ostream* log);
 
+   ~LeafContactor();
+
    virtual void setSafeToOperate(bool);
    virtual bool isSafeToOperate() const;
    virtual bool isClosed() const;

@@ -31,6 +31,15 @@ LeafContactor::LeafContactor(
    openBothRelays();
 }
 
+LeafContactor::~LeafContactor()
+{
+   if (m_log)
+   {
+	  *m_log << color::red << ">>> opening contractors at destruction" << color::reset << std::endl;
+   }
+   openBothRelays();
+}
+
 void LeafContactor::setSafeToOperate(bool is_safe)
 {
    if (m_log)
