@@ -20,12 +20,17 @@ TEST(NissanLeafContactor, setsOutputPinsToDefault)
    EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
    EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
    EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
-
+   
    LeafContactor contactor(timer,
                            positive_relay,
                            negative_relay,
                            indicator_led,
                            &std::cout);
+
+   // expect contactor to open upon destruction
+   EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
+   EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
+   EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
 }
 
 class NissanLeafContactorTest: public Test
@@ -43,6 +48,14 @@ public:
                 indicator_led,
                 &std::cout)
    {
+   }
+
+   ~NissanLeafContactorTest()
+   {
+      // expect contactor to open upon destruction
+      EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
+      EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
+      EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
    }
 
    NiceMock<mocks::core::Timer> timer;
