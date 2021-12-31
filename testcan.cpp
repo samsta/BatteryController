@@ -137,8 +137,8 @@ int main(int argc, const char** argv)
       nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
 	  sigprocmask(SIG_UNBLOCK, &all_signals, NULL);
       if (nfds == -1) {
-          perror("epoll_wait ERRoR");
-          //exit(EXIT_FAILURE);
+          perror("epoll_wait error");
+          keep_on_trucking = false;
       }
 
       for (int n = 0; n < nfds; ++n)
