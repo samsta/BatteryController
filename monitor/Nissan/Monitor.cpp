@@ -17,12 +17,12 @@ const float WARN_LOW_VOLTAGE(3.3);
 const float CRITICALLY_LOW_VOLTAGE(3);
 const float CRITICALLY_HIGH_VOLTAGE_SPREAD(0.1);
 
-const uint32_t CRIT_HIGH_VOLT(1 << 6);
-const uint32_t CRIT_LOW_VOLT(1 << 5);
-const uint32_t CRIT_SPREAD_VOLT(1 << 4);
-const uint32_t CRIT_HIGH_TEMP(1 << 3);
-const uint32_t CRIT_LOW_TEMP(1 << 2);
-const uint32_t MAX_TEMP_MISSING(1);
+const uint32_t CRIT_HIGH_VOLT(1 << 5);
+const uint32_t CRIT_LOW_VOLT(1 << 4);
+const uint32_t CRIT_SPREAD_VOLT(1 << 3);
+const uint32_t CRIT_HIGH_TEMP(1 << 2);
+const uint32_t CRIT_LOW_TEMP(1 << 1);
+const uint32_t MAX_TEMP_MISSING(1 << 0);
 
 const float CRITICALLY_HIGH_TEMPERATURE(50);
 const float WARN_HIGH_TEMPERATURE(40);
@@ -122,13 +122,13 @@ void Monitor::process(const CellVoltageRange& voltage_range)
       m_voltages_ok = false;
    }
 
-   if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE) m_contactor_status &= !CRIT_HIGH_VOLT;
+   if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE) m_contactor_status &= ~CRIT_HIGH_VOLT;
    else m_contactor_status |= CRIT_HIGH_VOLT;
 
-   if (voltage_range.getMin() > CRITICALLY_LOW_VOLTAGE ) m_contactor_status &= !CRIT_LOW_VOLT;
+   if (voltage_range.getMin() > CRITICALLY_LOW_VOLTAGE ) m_contactor_status &= ~CRIT_LOW_VOLT;
    else m_contactor_status |= CRIT_LOW_VOLT;
 
-   if ((voltage_range.getMax() - voltage_range.getMin()) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_contactor_status &= !CRIT_SPREAD_VOLT;
+   if ((voltage_range.getMax() - voltage_range.getMin()) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_contactor_status &= ~CRIT_SPREAD_VOLT;
    else m_contactor_status |= CRIT_SPREAD_VOLT;
 
    calculateCurrentLimitByVoltage(voltage_range.getMin(), voltage_range.getMax());
@@ -180,13 +180,13 @@ void Monitor::process(const PackTemperatures& temperatures)
       m_temperatures_ok = false;
    }
 
-   if (max_temp < CRITICALLY_HIGH_TEMPERATURE) m_contactor_status &= !CRIT_HIGH_TEMP;
+   if (max_temp < CRITICALLY_HIGH_TEMPERATURE) m_contactor_status &= ~CRIT_HIGH_TEMP;
    else m_contactor_status |= CRIT_HIGH_TEMP;
 
-   if (min_temp > CRITICALLY_LOW_TEMPERATURE) m_contactor_status &= !CRIT_LOW_TEMP;
+   if (min_temp > CRITICALLY_LOW_TEMPERATURE) m_contactor_status &= ~CRIT_LOW_TEMP;
    else m_contactor_status |= CRIT_LOW_TEMP;
 
-   if (num_sensors_missing <= MAX_TEMP_SENSORS_MISSING) m_contactor_status &= !MAX_TEMP_MISSING;
+   if (num_sensors_missing <= MAX_TEMP_SENSORS_MISSING) m_contactor_status &= ~MAX_TEMP_MISSING;
    else m_contactor_status |= MAX_TEMP_MISSING;
 
    calculateTemperatureLimitFactor(min_temp, max_temp);

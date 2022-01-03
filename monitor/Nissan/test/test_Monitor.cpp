@@ -35,12 +35,12 @@ const float CRITICALLY_LOW_TEMPERATURE = 2;
 
 //const float NOMINAL_CURRENT_LIMIT = 20;
 
-//const uint32_t CRIT_HIGH_VOLT(1 << 6);
-//const uint32_t CRIT_LOW_VOLT(1 << 5);
-//const uint32_t CRIT_SPREAD_VOLT(1 << 4);
-const uint32_t CRIT_HIGH_TEMP(1 << 3);
-//const uint32_t CRIT_LOW_TEMP(1 << 2);
-//const uint32_t MAX_TEMP_MISSING(1);
+//const uint32_t CRIT_HIGH_VOLT(1 << 5);
+//const uint32_t CRIT_LOW_VOLT(1 << 4);
+//const uint32_t CRIT_SPREAD_VOLT(1 << 3);
+const uint32_t CRIT_HIGH_TEMP(1 << 2);
+const uint32_t CRIT_LOW_TEMP(1 << 1);
+//const uint32_t MAX_TEMP_MISSING(1 << 0);
 
 const float TOLERANCE = 0.0001;
 
@@ -391,13 +391,18 @@ TEST_F(MonitorConstructed, zeroInitialValue)
 
 TEST_F(MonitorSafeToOperate, contactorFlagTemperatureCriticallyHigh)
 {
-   //EXPECT_CALL(contactor, setSafeToOperate(false));
-
    monitor.sink(allPackTemperatures(CRITICALLY_HIGH_TEMPERATURE));
 
-//   EXPECT_TRUE(monitor.getContactorStatus() & CRIT_HIGH_TEMP);
-   EXPECT_TRUE(CRIT_HIGH_TEMP);
+   EXPECT_TRUE(monitor.getContactorStatus() & CRIT_HIGH_TEMP);
 }
+
+TEST_F(MonitorSafeToOperate, contactorFlagTemperatureCriticallyLow)
+{
+   monitor.sink(allPackTemperatures(CRITICALLY_LOW_TEMPERATURE));
+
+   EXPECT_TRUE(monitor.getContactorStatus() & CRIT_LOW_TEMP);
+}
+
 
 //TEST_F(MonitorConstructed, batteryStatus)
 //{
