@@ -35,12 +35,12 @@ const float CRITICALLY_LOW_TEMPERATURE = 2;
 
 //const float NOMINAL_CURRENT_LIMIT = 20;
 
-//const uint32_t CRIT_HIGH_VOLT(1 << 5);
-//const uint32_t CRIT_LOW_VOLT(1 << 4);
-//const uint32_t CRIT_SPREAD_VOLT(1 << 3);
+const uint32_t CRIT_HIGH_VOLT(1 << 5);
+const uint32_t CRIT_LOW_VOLT(1 << 4);
+const uint32_t CRIT_SPREAD_VOLT(1 << 3);
 const uint32_t CRIT_HIGH_TEMP(1 << 2);
 const uint32_t CRIT_LOW_TEMP(1 << 1);
-//const uint32_t MAX_TEMP_MISSING(1 << 0);
+const uint32_t MAX_TEMP_MISSING(1 << 0);
 
 const float TOLERANCE = 0.0001;
 
@@ -403,15 +403,37 @@ TEST_F(MonitorSafeToOperate, contactorFlagTemperatureCriticallyLow)
    EXPECT_TRUE(monitor.getContactorStatus() & CRIT_LOW_TEMP);
 }
 
+TEST_F(MonitorSafeToOperate, contactorFlagTemperatureSenseMissing)
+{
+   monitor.sink(allPackTemperatures(NAN));
 
-//TEST_F(MonitorConstructed, batteryStatus)
-//{
-//   monitor.sink(can::StandardDataFrame("1db#0024bee2380003e0"));
-//
-//   EXPECT_THAT(monitor.getMaxChargeVoltage(),381.4);
-//
-////   EXPECT_THAT(monitor.getChargeCurrentLimit(), 0);
-////   EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0);
-//}
+   EXPECT_TRUE(monitor.getContactorStatus() & MAX_TEMP_MISSING);
+}
 
+TEST_F(MonitorSafeToOperate, contactorFlagVoltageRangeSpreadCritical)
+{
+   monitor.sink(CellVoltageRange()
+                .setMin(ARBITRARY_SAFE_VOLTAGE)
+                .setMax(ARBITRARY_SAFE_VOLTAGE + CRITICAL_SPREAD_VOLTAGE + TOLERANCE));
+
+   EXPECT_TRUE(monitor.getContactorStatus() & CRIT_SPREAD_VOLT);
+}
+
+TEST_F(MonitorSafeToOperate, contactorFlagVoltageCriticallyLow)
+{
+   monitor.sink(CellVoltageRange()
+                .setMin(CRITICALLY_LOW_VOLTAGE)
+                .setMax(CRITICALLY_LOW_VOLTAGE + TOLERANCE));
+
+   EXPECT_TRUE(monitor.getContactorStatus() & CRIT_LOW_VOLT);
+}
+
+TEST_F(MonitorSafeToOperate, contactorFlagVoltageCriticallyHigh)
+{
+   monitor.sink(CellVoltageRange()
+                .setMin(CRITICALLY_HIGH_VOLTAGE - TOLERANCE)
+                .setMax(CRITICALLY_HIGH_VOLTAGE));
+
+   EXPECT_TRUE(monitor.getContactorStatus() & CRIT_HIGH_VOLT);
+}
 }
