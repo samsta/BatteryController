@@ -15,7 +15,7 @@ const float CRITICALLY_HIGH_VOLTAGE(4.15);
 const float WARN_HIGH_VOLTAGE(4.1);
 const float WARN_LOW_VOLTAGE(3.3);
 const float CRITICALLY_LOW_VOLTAGE(3);
-const float CRITICALLY_HIGH_VOLTAGE_SPREAD(0.1);
+const float CRITICALLY_HIGH_VOLTAGE_SPREAD(1.0);
 
 const uint32_t CRIT_HIGH_VOLT(1 << 5);
 const uint32_t CRIT_LOW_VOLT(1 << 4);
