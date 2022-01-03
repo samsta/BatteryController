@@ -31,6 +31,8 @@ public:
    MOCK_METHOD(float, getMinDischargeVoltage, (), (const));
    MOCK_METHOD(float, getChargeCurrentLimit, (), (const));
    MOCK_METHOD(float, getDischargeCurrentLimit, (), (const));
+
+   MOCK_METHOD(uint32_t, getContactorStatus, (),  (const));
 };
 
 }

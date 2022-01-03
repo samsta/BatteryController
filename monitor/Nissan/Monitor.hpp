@@ -60,6 +60,8 @@ public:
    virtual const char* getManufacturerName() const;
    virtual const char* getBatteryName() const;
    
+   uint32_t getContactorStatus() const;
+
 private:
    void process(const can::messages::Nissan::CellVoltageRange&);
    void process(const can::messages::Nissan::PackTemperatures&);
@@ -94,6 +96,7 @@ private:
    float m_discharge_current_limit;
    float m_charge_current_limit;
 
+   uint32_t m_contactor_status;
 };
 
 }

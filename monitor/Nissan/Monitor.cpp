@@ -17,6 +17,13 @@ const float WARN_LOW_VOLTAGE(3.3);
 const float CRITICALLY_LOW_VOLTAGE(3);
 const float CRITICALLY_HIGH_VOLTAGE_SPREAD(0.1);
 
+const uint32_t CRIT_HIGH_VOLT(1 << 6);
+const uint32_t CRIT_LOW_VOLT(1 << 5);
+const uint32_t CRIT_SPREAD_VOLT(1 << 4);
+const uint32_t CRIT_HIGH_TEMP(1 << 3);
+const uint32_t CRIT_LOW_TEMP(1 << 2);
+const uint32_t MAX_TEMP_MISSING(1);
+
 const float CRITICALLY_HIGH_TEMPERATURE(50);
 const float WARN_HIGH_TEMPERATURE(40);
 const float WARN_LOW_TEMPERATURE(5);
@@ -60,7 +67,8 @@ Monitor::Monitor(contactor::Contactor& contactor):
       m_discharge_power_limit(NAN),
       m_charge_power_limit(NAN),
       m_discharge_current_limit(0),
-      m_charge_current_limit(0)
+      m_charge_current_limit(0),
+	  m_contactor_status(pow(2,6)-1)
 {
    m_contactor.setSafeToOperate(false);
 }
@@ -103,7 +111,16 @@ void Monitor::sink(const can::messages::Nissan::Message& message)
 
 void Monitor::process(const CellVoltageRange& voltage_range)
 {
-   if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE &&
+	if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE) m_contactor_status |= !CRIT_HIGH_VOLT;
+	else m_contactor_status |= CRIT_HIGH_VOLT;
+
+	if (voltage_range.getMin() > CRITICALLY_LOW_VOLTAGE ) m_contactor_status |= !CRIT_LOW_VOLT;
+	else m_contactor_status |= CRIT_LOW_VOLT;
+
+	if ((voltage_range.getMax() - voltage_range.getMin()) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_contactor_status |= !CRIT_SPREAD_VOLT;
+	else m_contactor_status |= CRIT_SPREAD_VOLT;
+
+	if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE &&
        voltage_range.getMin() > CRITICALLY_LOW_VOLTAGE    &&
        (voltage_range.getMax() - voltage_range.getMin()) < CRITICALLY_HIGH_VOLTAGE_SPREAD)
    {
@@ -361,5 +378,9 @@ float Monitor::getDischargeCurrentLimit() const
    return m_discharge_current_limit;
 }
 
+uint32_t Monitor::getContactorStatus() const
+{
+	return m_contactor_status;
+}
 }
 }

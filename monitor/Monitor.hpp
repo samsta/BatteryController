@@ -33,6 +33,8 @@ public:
    virtual float getMinDischargeVoltage() const = 0;
    virtual float getChargeCurrentLimit() const = 0;
    virtual float getDischargeCurrentLimit() const = 0;
+
+   virtual uint32_t getContactorStatus() const = 0;
 };
 
 logging::ostream& operator<<(logging::ostream& os, const Monitor& monitor);
