@@ -111,16 +111,7 @@ void Monitor::sink(const can::messages::Nissan::Message& message)
 
 void Monitor::process(const CellVoltageRange& voltage_range)
 {
-	if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE) m_contactor_status |= !CRIT_HIGH_VOLT;
-	else m_contactor_status |= CRIT_HIGH_VOLT;
-
-	if (voltage_range.getMin() > CRITICALLY_LOW_VOLTAGE ) m_contactor_status |= !CRIT_LOW_VOLT;
-	else m_contactor_status |= CRIT_LOW_VOLT;
-
-	if ((voltage_range.getMax() - voltage_range.getMin()) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_contactor_status |= !CRIT_SPREAD_VOLT;
-	else m_contactor_status |= CRIT_SPREAD_VOLT;
-
-	if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE &&
+   if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE &&
        voltage_range.getMin() > CRITICALLY_LOW_VOLTAGE    &&
        (voltage_range.getMax() - voltage_range.getMin()) < CRITICALLY_HIGH_VOLTAGE_SPREAD)
    {
@@ -130,6 +121,16 @@ void Monitor::process(const CellVoltageRange& voltage_range)
    {
       m_voltages_ok = false;
    }
+
+   if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE) m_contactor_status &= !CRIT_HIGH_VOLT;
+   else m_contactor_status |= CRIT_HIGH_VOLT;
+
+   if (voltage_range.getMin() > CRITICALLY_LOW_VOLTAGE ) m_contactor_status &= !CRIT_LOW_VOLT;
+   else m_contactor_status |= CRIT_LOW_VOLT;
+
+   if ((voltage_range.getMax() - voltage_range.getMin()) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_contactor_status &= !CRIT_SPREAD_VOLT;
+   else m_contactor_status |= CRIT_SPREAD_VOLT;
+
    calculateCurrentLimitByVoltage(voltage_range.getMin(), voltage_range.getMax());
    updateOperationalSafety();
 }
@@ -178,6 +179,15 @@ void Monitor::process(const PackTemperatures& temperatures)
    {
       m_temperatures_ok = false;
    }
+
+   if (max_temp < CRITICALLY_HIGH_TEMPERATURE) m_contactor_status &= !CRIT_HIGH_TEMP;
+   else m_contactor_status |= CRIT_HIGH_TEMP;
+
+   if (min_temp > CRITICALLY_LOW_TEMPERATURE) m_contactor_status &= !CRIT_LOW_TEMP;
+   else m_contactor_status |= CRIT_LOW_TEMP;
+
+   if (num_sensors_missing <= MAX_TEMP_SENSORS_MISSING) m_contactor_status &= !MAX_TEMP_MISSING;
+   else m_contactor_status |= MAX_TEMP_MISSING;
 
    calculateTemperatureLimitFactor(min_temp, max_temp);
    updateOperationalSafety();
