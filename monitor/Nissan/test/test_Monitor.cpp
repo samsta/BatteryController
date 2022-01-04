@@ -19,13 +19,12 @@ using namespace can::messages::Nissan;
 
 namespace {
 
-const float ARBITRARY_SAFE_VOLTAGE = 3.8;
+const float ARBITRARY_SAFE_VOLTAGE = 3.5;
 const float CRITICALLY_HIGH_VOLTAGE = 4.15;
 //const float WARN_HIGH_VOLTAGE = 4.1;
 //const float WARN_LOW_VOLTAGE = 3.3;
 const float CRITICALLY_LOW_VOLTAGE = 3.0;
-
-const float CRITICAL_SPREAD_VOLTAGE = 1.0;
+const float CRITICAL_SPREAD_VOLTAGE = 0.5;
 
 const float ARBITRARY_SAFE_TEMPERATURE = 20.0;
 const float CRITICALLY_HIGH_TEMPERATURE = 50;
