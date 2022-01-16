@@ -80,22 +80,22 @@ TEST_F(HappyPollerTest, pollCyclesPollerMessages)
       EXPECT_CALL(sender, sink(AsString("11a#4E4004AA80000370")));
       // starts at 0 just 'cus
       EXPECT_CALL(sender, sink(AsString("1f2#106400B4001E0083")));
-      EXPECT_CALL(sender, sink(AsString("1d4#6E6E01D00744011D")));
+      EXPECT_CALL(sender, sink(AsString("1d4#6E6E0000074621C0")));
       poll_callback->invoke();
 
       EXPECT_CALL(sender, sink(AsString("11a#4E4004AAC00000BD")));
       EXPECT_CALL(sender, sink(AsString("1f2#106400B4001E0184")));
-      EXPECT_CALL(sender, sink(AsString("1d4#6E6E01D0474401DA")));
+      EXPECT_CALL(sender, sink(AsString("1d4#6E6E000047462107")));
       poll_callback->invoke();
 
       EXPECT_CALL(sender, sink(AsString("11a#4E400455000001AB")));
       EXPECT_CALL(sender, sink(AsString("1f2#106400B4001E0285")));
-      EXPECT_CALL(sender, sink(AsString("1d4#6E6E01C0874401F3")));
+      EXPECT_CALL(sender, sink(AsString("1d4#6E6E0000874621CB")));
       poll_callback->invoke();
 
       EXPECT_CALL(sender, sink(AsString("11a#4E40045540000266")));
       EXPECT_CALL(sender, sink(AsString("1f2#106400B4001E0386")));
-      EXPECT_CALL(sender, sink(AsString("1d4#6E6E01C0C7440134")));
+      EXPECT_CALL(sender, sink(AsString("1d4#6E6E0000C746210C")));
       poll_callback->invoke();
    }
 }
