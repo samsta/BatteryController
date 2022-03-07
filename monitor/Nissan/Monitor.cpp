@@ -358,12 +358,12 @@ uint32_t Monitor::getManufacturingDateUnixTime() const
 
 const char* Monitor::getManufacturerName() const
 {
-   return "LG CHEM";
+   return "TIML";
 }
 
 const char* Monitor::getBatteryName() const
 {
-   return "RESU10H";
+   return "LeafG2";
 }
 
 float Monitor::getMaxChargeVoltage() const
