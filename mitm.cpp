@@ -152,6 +152,7 @@ int main(int argc, const char** argv)
       std::cout << "Going to drop " << std::hex << std::setfill('0') << std::setw(3) << id << std::dec << std::endl;
    }
 
+   //--------------------------------------------------------
    // read logging filter data
    char logfilter[] = "mitm-log-filter.txt";
    std::ifstream infile;
@@ -200,6 +201,76 @@ int main(int argc, const char** argv)
       std::cout << std::endl << "incomplete logging filter data read from: " << logfilter << std::endl;
       exit(EXIT_FAILURE);
    }
+
+
+   //--------------------------------------------------------
+   // read message replace data
+   char logfilter[] = "mitm-msg-replace.txt";
+   std::ifstream infile;
+   char textin[10];
+   infile.open(logfilter, std::ifstream::in);
+   if (!infile)
+   {
+      std::cout << "logging filter file not found: " << logfilter << std::endl;
+      exit(EXIT_FAILURE);
+   }
+
+   std::cout << "Message replace IDs" << std::endl;
+   uint count = 0;
+   canid_t canid;
+   uint32_t skipcount, sendcount;
+   uint64_t logmask;
+   // read each text from the file individually,format hex  canid skip-count send-count byte7 ... byte0
+   // store in sets canid and mask ('cause I can't figure out how to make a set of can_frame)
+   while (infile >> textin)
+   {
+      if (count % 11 == 0)
+      {
+         logmask = 0;
+         canid = strtol(textin, NULL, 16);
+         //logging_canid.insert(canid);
+         std::cout << std::hex << std::uppercase << canid << std::dec << " : ";
+      }
+      else if (count % 11 == 1)
+      {
+         canid = strtol(textin, NULL, 16);
+         //logging_canid.insert(canid);
+         std::cout << std::hex << std::uppercase << canid << std::dec << " : ";
+      }
+      else {
+         uint dex = (count % 9) - 1;
+         uint64_t bits64 = strtol(textin, NULL, 16);
+         //std::cout << bits64 << ":";
+         logmask |= (bits64 << ((7-dex) * 8));
+         //std::cout << std::hex << logmask << "::" << std::dec << std::endl;
+         if (dex == 7)
+         {
+            logging_data.mask = logmask;
+            logging_data.current_val = 0;
+            logging_map.insert({canid, logging_data });
+            std::cout << std::setfill('0') << std::setw(16) << std::hex << logmask << std::dec << std::endl;
+         }
+      }
+      count++;
+   }
+   infile.close();
+   if (count % 9 != 0)
+   {
+      std::cout << std::endl << "incomplete logging filter data read from: " << logfilter << std::endl;
+      exit(EXIT_FAILURE);
+   }
+
+
+
+
+
+
+
+
+
+
+
+
 
    const unsigned MAX_EVENTS = 4;
    struct epoll_event ev, events[MAX_EVENTS];
