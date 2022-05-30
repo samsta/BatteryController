@@ -33,8 +33,16 @@ struct uint64x2
    uint64_t mask;
    uint64_t current_val;
 } logging_data;
-
 std::unordered_map<canid_t, uint64x2> logging_map;
+
+struct replacedata
+{
+   uint skipcount;
+   uint sendcount;
+   uint64_t replacemsg;
+} replace_data;
+std::unordered_map<canid_t, replacedata> replace_map;
+
 
 void redirect(int dest, struct can_frame& frame)
 {
@@ -153,14 +161,14 @@ int main(int argc, const char** argv)
    }
 
    //--------------------------------------------------------
-   // read logging filter data
+   // read logging filter config file
    char logfilter[] = "mitm-log-filter.txt";
    std::ifstream infile;
    char textin[10];
    infile.open(logfilter, std::ifstream::in);
    if (!infile)
    {
-      std::cout << "logging filter file not found: " << logfilter << std::endl;
+      std::cout << "logging filter configuration file not found: " << logfilter << std::endl;
       exit(EXIT_FAILURE);
    }
 
@@ -198,80 +206,71 @@ int main(int argc, const char** argv)
    infile.close();
    if (count % 9 != 0)
    {
-      std::cout << std::endl << "incomplete logging filter data read from: " << logfilter << std::endl;
+      std::cout << std::endl << "incomplete logging filter configuration read from: " << logfilter << std::endl;
       exit(EXIT_FAILURE);
    }
 
-
    //--------------------------------------------------------
-   // read message replace data
-   char logfilter[] = "mitm-msg-replace.txt";
-   std::ifstream infile;
-   char textin[10];
-   infile.open(logfilter, std::ifstream::in);
+   // read message replace config file
+   char msgrepconfig[] = "mitm-msg-replace.txt";
+   //std::ifstream infile;
+   //char textin[10];
+   infile.open(msgrepconfig, std::ifstream::in);
    if (!infile)
    {
-      std::cout << "logging filter file not found: " << logfilter << std::endl;
+      std::cout << "message replace configuration file not found: " << msgrepconfig << std::endl;
       exit(EXIT_FAILURE);
    }
 
    std::cout << "Message replace IDs" << std::endl;
-   uint count = 0;
-   canid_t canid;
+   count = 0;
    uint32_t skipcount, sendcount;
-   uint64_t logmask;
+   uint64_t repmsg;
    // read each text from the file individually,format hex  canid skip-count send-count byte7 ... byte0
    // store in sets canid and mask ('cause I can't figure out how to make a set of can_frame)
    while (infile >> textin)
    {
       if (count % 11 == 0)
       {
-         logmask = 0;
+         repmsg = 0;
          canid = strtol(textin, NULL, 16);
-         //logging_canid.insert(canid);
-         std::cout << std::hex << std::uppercase << canid << std::dec << " : ";
+         std::cout << std::hex << std::uppercase << canid << std::dec << " : skip ";
       }
       else if (count % 11 == 1)
       {
-         canid = strtol(textin, NULL, 16);
-         //logging_canid.insert(canid);
-         std::cout << std::hex << std::uppercase << canid << std::dec << " : ";
+         skipcount = strtol(textin, NULL, 10);
+         std::cout << std::uppercase << skipcount << " : send ";
+      }
+      else if (count % 11 == 2)
+      {
+         sendcount = strtol(textin, NULL, 10);
+         std::cout << std::uppercase << sendcount << " : msg ";
       }
       else {
-         uint dex = (count % 9) - 1;
+         uint dex = (count % 11) - 1;
          uint64_t bits64 = strtol(textin, NULL, 16);
          //std::cout << bits64 << ":";
-         logmask |= (bits64 << ((7-dex) * 8));
+         repmsg |= (bits64 << ((7-dex) * 8));
          //std::cout << std::hex << logmask << "::" << std::dec << std::endl;
          if (dex == 7)
          {
-            logging_data.mask = logmask;
-            logging_data.current_val = 0;
-            logging_map.insert({canid, logging_data });
-            std::cout << std::setfill('0') << std::setw(16) << std::hex << logmask << std::dec << std::endl;
+            replace_data.skipcount = skipcount;
+            replace_data.sendcount = sendcount;
+            replace_data.replacemsg = repmsg;
+            replace_map.insert({canid, replace_data });
+            std::cout << std::setfill('0') << std::setw(16) << std::hex << repmsg << std::dec << std::endl;
          }
       }
       count++;
    }
    infile.close();
-   if (count % 9 != 0)
+   if (count % 11 != 0)
    {
       std::cout << std::endl << "incomplete logging filter data read from: " << logfilter << std::endl;
       exit(EXIT_FAILURE);
    }
 
-
-
-
-
-
-
-
-
-
-
-
-
+   //--------------------------------------------------------
    const unsigned MAX_EVENTS = 4;
    struct epoll_event ev, events[MAX_EVENTS];
    int nfds, epollfd;
@@ -366,13 +365,6 @@ int main(int argc, const char** argv)
             }
             if (serial_number > 1) std::cout << "framedata : " << std::setfill('0') << std::setw(16) << std::hex << framedata << std::dec << std::endl;
 
-            // // have we seen this id yet?
-            // if (mapfind->second.current_val == 0)
-            // {
-            //    mapfind->second.current_val = framedata;
-            //    if (serial_number == 1) std::cout << std::hex << frame.can_id << ": Assign initial value." << std::endl;
-            // }
-            
             // see if the relevent bits have changed
             if ((mapfind->second.current_val ^ framedata) & mapfind->second.mask)
             {
