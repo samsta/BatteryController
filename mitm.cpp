@@ -4,6 +4,23 @@
  * This file is prototyping code - don't judge.
  */
 
+/* commands for starting virtual can bus on command line
+sudo modprobe vcan
+sudo ip link add dev vcan0 type vcan
+sudo ip link set up vcan0
+
+* command for real can
+sudo /sbin/ip link set can0 up type can bitrate 250000
+sudo /sbin/ip link set can1 up type can bitrate 250000
+sudo ip link set can0 txqueuelen 1000
+sudo ip link set can1 txqueuelen 1000
+
+* other
+cd niallGit/BatteryController/build
+make mitm
+./mitm can1 can0 1
+*/
+
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -37,12 +54,13 @@ std::unordered_map<canid_t, uint64x2> logging_map;
 
 struct replacedata
 {
-   uint skipcount;
-   uint sendcount;
-   uint64_t replacemsg;
+   uint32_t skipcount;
+   uint32_t skippedcount;
+   uint32_t sendcount;
+   uint32_t sentcount;
+   uint8_t replacemsgdata[8];
 } replace_data;
 std::unordered_map<canid_t, replacedata> replace_map;
-
 
 void redirect(int dest, struct can_frame& frame)
 {
@@ -190,9 +208,9 @@ int main(int argc, const char** argv)
       else {
          uint dex = (count % 9) - 1;
          uint64_t bits64 = strtol(textin, NULL, 16);
-         //std::cout << bits64 << ":";
+         if (serial_number > 0) std::cout << bits64 << " : ";
          logmask |= (bits64 << ((7-dex) * 8));
-         //std::cout << std::hex << logmask << "::" << std::dec << std::endl;
+         if (serial_number > 0) std::cout << std::hex << logmask << "::" << std::dec << std::endl;
          if (dex == 7)
          {
             logging_data.mask = logmask;
@@ -225,14 +243,12 @@ int main(int argc, const char** argv)
    std::cout << "Message replace IDs" << std::endl;
    count = 0;
    uint32_t skipcount, sendcount;
-   uint64_t repmsg;
    // read each text from the file individually,format hex  canid skip-count send-count byte7 ... byte0
    // store in sets canid and mask ('cause I can't figure out how to make a set of can_frame)
    while (infile >> textin)
    {
       if (count % 11 == 0)
       {
-         repmsg = 0;
          canid = strtol(textin, NULL, 16);
          std::cout << std::hex << std::uppercase << canid << std::dec << " : skip ";
       }
@@ -247,18 +263,20 @@ int main(int argc, const char** argv)
          std::cout << std::uppercase << sendcount << " : msg ";
       }
       else {
-         uint dex = (count % 11) - 1;
-         uint64_t bits64 = strtol(textin, NULL, 16);
-         //std::cout << bits64 << ":";
-         repmsg |= (bits64 << ((7-dex) * 8));
-         //std::cout << std::hex << logmask << "::" << std::dec << std::endl;
+         uint dex = (count % 11) - 3;
+         if (serial_number > 0) std::cout << dex << " : ";
+         uint32_t bits32 = strtol(textin, NULL, 16);
+         if (serial_number > 0) std::cout << bits32 << " : ";
+         replace_data.replacemsgdata[dex] = (uint8_t)bits32;
+         std::cout << std::hex << (uint32_t)replace_data.replacemsgdata[dex] << std::dec << " ";
          if (dex == 7)
          {
             replace_data.skipcount = skipcount;
             replace_data.sendcount = sendcount;
-            replace_data.replacemsg = repmsg;
+            replace_data.sentcount = 0;
+            replace_data.skippedcount = 0;
             replace_map.insert({canid, replace_data });
-            std::cout << std::setfill('0') << std::setw(16) << std::hex << repmsg << std::dec << std::endl;
+            std::cout << std::endl;
          }
       }
       count++;
@@ -340,6 +358,31 @@ int main(int argc, const char** argv)
             continue;
          }
 
+         // see if we need to replace this message
+         std::unordered_map<canid_t,replacedata>::iterator mapfindmsgrep = replace_map.find(frame.can_id);
+
+         // I spend 3 fekking hours getting the next line to compile, don't know what I did to get it to work
+         if (mapfindmsgrep != replace_map.end()) 
+         {
+            if (serial_number > 0) std::cout << std::hex << frame.can_id << ": Msg Rep : " << std::endl;
+
+            mapfindmsgrep->second.skippedcount++;
+            if (serial_number > 0) std::cout << "skippedcount : " << mapfindmsgrep->second.skippedcount << std::endl;
+
+            if (mapfindmsgrep->second.skippedcount > mapfindmsgrep->second.skipcount)
+            {
+               if ((mapfindmsgrep->second.sendcount == 0) || (mapfindmsgrep->second.sentcount < mapfindmsgrep->second.sendcount))
+               {
+                  if (mapfindmsgrep->second.sendcount > 0) mapfindmsgrep->second.sentcount++;
+                  for (uint i=0; i<sizeof(frame.data); i++)
+                  {
+                     frame.data[i] = mapfindmsgrep->second.replacemsgdata[i];
+                  }
+               }
+            }
+         }
+
+         // send the can message on the appropriate bus
          if (events[n].data.fd == s1)
          {
             redirect(s2, frame);
@@ -352,7 +395,7 @@ int main(int argc, const char** argv)
          // check if this canid is one we should be logging
          std::unordered_map<canid_t,uint64x2>::iterator mapfind = logging_map.find(frame.can_id);
 
-         // I spend 3 fekking hours getting then next line to compiile, don't know what I did to get it to work
+         // I spend 3 fekking hours getting the next line to compile, don't know what I did to get it to work
          if (mapfind != logging_map.end()) 
          {
             // this is a canid of note
@@ -377,7 +420,15 @@ int main(int argc, const char** argv)
                // 5637158,00000679,false,Rx,1,1,00,00,00,00,00,00,00,00,   <---- comma at the end of the line
                auto usec_since_epoch = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                outfile << (usec_since_epoch - usec_since_epoch_start) << "," << std::setfill('0') << std::setw(8) << std::hex << frame.can_id << std::dec;
-               outfile << ",false,Rx,1,8,";
+               if (events[n].data.fd == s1)
+               {
+                  outfile << ",false,Rx,1,8,";
+               }
+               else
+               {
+                  outfile << ",false,Tx,1,8,";
+               }
+
                for (int i=0; i<8; i++) 
                {
                   char that[50]; sprintf(that, "%02x,",frame.data[i]);
