@@ -161,7 +161,22 @@ int main(int argc, const char** argv)
 
    if (argc < 4)
    {
-      fprintf(stderr, "usage: %s <can_interface1> <can_interface2> <serial> [<id_to_drop1> .. <id_to_dropN>]\n", argv[0]);
+      //fprintf(stderr, "usage: %s <can_interface1> <can_interface2> <serial> [<id_to_drop1> .. <id_to_dropN>]\n", argv[0]);
+      char readmefile[] = "mitm-README.txt";
+      std::ifstream readmein;
+      char readtextin[255];
+      readmein.open(readmefile, std::ifstream::in);
+      if (!readmein)
+      {
+         std::cout << "README file not found: " << readmefile << std::endl;
+         exit(EXIT_FAILURE);
+      }
+      while (readmein >> readtextin)
+      {
+         std::cout << readtextin;
+      }
+      std::cout << readtextin << std::endl;  
+           
       exit(EXIT_FAILURE);
    }
 
