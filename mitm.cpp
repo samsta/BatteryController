@@ -241,7 +241,7 @@ int main(int argc, const char** argv)
             if (logmask == (uint64_t)0xAAAAAAAAAAAAAAAA || log_everything)
             {
                logging_data.log_everything = true;
-               std::cout << " * log everthing for this canid * ";
+               std::cout << " * log everything for this canid * ";
             }
             else logging_data.log_everything = false;
             logging_data.current_val = 0;
