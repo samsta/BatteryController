@@ -45,10 +45,13 @@ make mitm
 uint32_t serial_number = 0;
 std::set<canid_t> filter;
 
+bool log_everything = false;
+
 struct uint64x2
 {
    uint64_t mask;
    uint64_t current_val;
+   bool log_everything;
 } logging_data;
 std::unordered_map<canid_t, uint64x2> logging_map;
 
@@ -163,19 +166,21 @@ int main(int argc, const char** argv)
    {
       //fprintf(stderr, "usage: %s <can_interface1> <can_interface2> <serial> [<id_to_drop1> .. <id_to_dropN>]\n", argv[0]);
       char readmefile[] = "mitm-README.txt";
-      std::ifstream readmein;
       char readtextin[255];
-      readmein.open(readmefile, std::ifstream::in);
+      FILE *readmein = fopen(readmefile, "r");
       if (!readmein)
       {
          std::cout << "README file not found: " << readmefile << std::endl;
          exit(EXIT_FAILURE);
       }
-      while (readmein >> readtextin)
+      // get each line until there are none left
+      while (fgets(readtextin, 255, readmein))
       {
+        // print each line */
          std::cout << readtextin;
       }
-      std::cout << readtextin << std::endl;  
+      std::cout << std::endl;  
+      fclose(readmein);
            
       exit(EXIT_FAILURE);
    }
@@ -211,13 +216,17 @@ int main(int argc, const char** argv)
    uint64_t logmask;
    // read each text from the file individually,format hex  canid byte7 ... byte0
    // store in sets canid and mask ('cause I can't figure out how to make a set of can_frame)
-   while (infile >> textin)
+   while (infile >> textin  && !log_everything)
    {
       if (count % 9 == 0)
       {
          logmask = 0;
          canid = strtol(textin, NULL, 16);
-         //logging_canid.insert(canid);
+         if (canid == 0) 
+         {
+            log_everything = true;
+            std::cout << " * LOG EVERYTHING ACTIVATED * ";
+         }
          std::cout << std::hex << std::uppercase << canid << std::dec << " : ";
       }
       else {
@@ -229,6 +238,12 @@ int main(int argc, const char** argv)
          if (dex == 7)
          {
             logging_data.mask = logmask;
+            if (logmask == (uint64_t)0xAAAAAAAAAAAAAAAA || log_everything)
+            {
+               logging_data.log_everything = true;
+               std::cout << " * log everthing for this canid * ";
+            }
+            else logging_data.log_everything = false;
             logging_data.current_val = 0;
             logging_map.insert({canid, logging_data });
             std::cout << std::setfill('0') << std::setw(16) << std::hex << logmask << std::dec << std::endl;
@@ -237,7 +252,7 @@ int main(int argc, const char** argv)
       count++;
    }
    infile.close();
-   if (count % 9 != 0)
+   if (count % 9 != 0 && !log_everything)
    {
       std::cout << std::endl << "incomplete logging filter configuration read from: " << logfilter << std::endl;
       exit(EXIT_FAILURE);
@@ -255,7 +270,7 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
-   std::cout << "Message replace IDs" << std::endl;
+   std::cout << std::endl << "Message replace IDs" << std::endl;
    count = 0;
    uint32_t skipcount, sendcount;
    // read each text from the file individually,format hex  canid skip-count send-count byte7 ... byte0
@@ -411,24 +426,30 @@ int main(int argc, const char** argv)
          std::unordered_map<canid_t,uint64x2>::iterator mapfind = logging_map.find(frame.can_id);
 
          // I spend 3 fekking hours getting the next line to compile, don't know what I did to get it to work
-         if (mapfind != logging_map.end()) 
+         if (log_everything || mapfind != logging_map.end()) 
          {
             // this is a canid of note
             // get frame data into a uint64_t
-            uint64_t framedata=0, eachbyte;
-            for (int i=0; i<8; i++)
+            uint64_t framedata = 0, eachbyte;
+            if (!log_everything || !mapfind->second.log_everything)
             {
-               eachbyte = frame.data[i];
-               framedata |= (eachbyte << ((7-i) * 8));
+               for (int i=0; i<8; i++)
+               {
+                  eachbyte = frame.data[i];
+                  framedata |= (eachbyte << ((7-i) * 8));
+               }
             }
             if (serial_number > 1) std::cout << "framedata : " << std::setfill('0') << std::setw(16) << std::hex << framedata << std::dec << std::endl;
 
             // see if the relevent bits have changed
-            if ((mapfind->second.current_val ^ framedata) & mapfind->second.mask)
+            if (mapfind->second.log_everything || log_everything || ((mapfind->second.current_val ^ framedata) & mapfind->second.mask))
             {
-               // relevant bits have changed
-               mapfind->second.current_val = framedata;
-               if (serial_number > 0) std::cout << std::hex << frame.can_id << ": Data has changed."  << std::dec << std::endl;
+               if (!log_everything || !mapfind->second.log_everything)
+               {
+                  // relevant bits have changed
+                  mapfind->second.current_val = framedata;
+                  if (serial_number > 0) std::cout << std::hex << frame.can_id << ": Data has changed."  << std::dec << std::endl;
+               }
 
                // write to log file
                // Time Stamp,ID,Extended,Dir,Bus,LEN,D1,D2,D3,D4,D5,D6,D7,D8
@@ -454,7 +475,16 @@ int main(int argc, const char** argv)
                if (serial_number > 1)
                {
                   std::cout << (usec_since_epoch - usec_since_epoch_start) << "," << std::setfill('0') << std::setw(8) << std::hex << frame.can_id << std::dec;
-                  std::cout << ",false,Rx,1,8,";
+
+                  if (events[n].data.fd == s1)
+                  {
+                     std::cout << ",false,Rx,1,8,";
+                  }
+                  else
+                  {
+                     std::cout << ",false,Tx,1,8,";
+                  }
+
                   for (int i=0; i<8; i++) 
                   {
                      char that[50]; sprintf(that, "%02x,",frame.data[i]);
