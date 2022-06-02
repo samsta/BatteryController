@@ -1,6 +1,9 @@
 usage:
 mitm <can_interface1> <can_interface2> <serial # (decimal)> [<id_to_drop1 (hex)> .. <id_to_dropN (hex)>]
 
+serial # is obsolete.  it is now used to control display of debug information
+0 = no debug information
+>0 (1) = lotsa debug information
 
 LOGGING FILTER CONFIGURATION 
 use the mitm-log-filter.txt file to configure message logging 
