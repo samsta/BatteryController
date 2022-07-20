@@ -21,6 +21,7 @@
 #include "core/SocketCan/CanPort.hpp"
 #include "core/Linux/EpollTimer.hpp"
 #include "core/Timer.hpp"
+#include "core/USBInterface/USBInterface.hpp"
 #include "core/Linux/ConsolePresenter.hpp"
 #include "logging/colors.hpp"
 
@@ -68,6 +69,9 @@ int main(int argc, const char** argv)
       perror("epoll_create1");
       exit(EXIT_FAILURE);
    }
+
+   core::USBPort UsbPort("/dev/ttyACM0", epollfd);
+
 
    core::CanPort battery_port(argv[1], epollfd);
    core::CanPort inverter_port(argv[2], epollfd);
