@@ -30,6 +30,7 @@ using namespace core::libgpiod;
 namespace color = logging::color::ansi;
 
 namespace {
+   // this code required to catch ctrl-c and cleanly exit the program (open contactors)
   volatile sig_atomic_t keep_on_trucking = true;
   void handle_break(int thissig) {
     if (thissig == SIGINT) keep_on_trucking = false;
@@ -42,20 +43,14 @@ int main(int argc, const char** argv)
    logging::ostream* log = &std::cout;
    std::ofstream logfile;
    
+   // this code required to catch ctrl-c and cleanly exit the program (open contactors)
    struct sigaction action;
    memset(&action, 0, sizeof(struct sigaction));
    action.sa_handler = handle_break;
    sigaction(SIGINT, &action, NULL);
-
    sigset_t all_signals;
    sigemptyset(&all_signals);
    sigaddset(&all_signals, SIGINT);
-
-//   struct sigaction sigbreak;
-//   sigbreak.sa_handler = &handle_break;
-//   sigemptyset(&sigbreak.sa_mask);
-//   sigbreak.sa_flags = 0;
-//   if (sigaction(SIGINT, &sigbreak, NULL) != 0) std::perror("sigaction");
 
    if (argc != 3)
    {
@@ -133,12 +128,12 @@ int main(int argc, const char** argv)
 
    while (keep_on_trucking)
    {
-	  sigprocmask(SIG_BLOCK, &all_signals, NULL);
+      sigprocmask(SIG_BLOCK, &all_signals, NULL);
       nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
-	  sigprocmask(SIG_UNBLOCK, &all_signals, NULL);
+      sigprocmask(SIG_UNBLOCK, &all_signals, NULL);
       if (nfds == -1) {
-          perror("epoll_wait error");
-          keep_on_trucking = false;
+         perror("epoll_wait error");
+         keep_on_trucking = false;
       }
 
       for (int n = 0; n < nfds; ++n)
