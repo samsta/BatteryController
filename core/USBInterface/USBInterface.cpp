@@ -32,7 +32,7 @@ int open_serial_port(const char * device, uint32_t baud_rate)
   int fd = open(device, O_RDWR | O_NOCTTY);
   if (fd == -1)
   {
-    perror(device);
+	  std::cerr << "usb port: failed to open port: " << device << std::endl;
     return -1;
   }
 
@@ -40,7 +40,7 @@ int open_serial_port(const char * device, uint32_t baud_rate)
   int result = tcflush(fd, TCIOFLUSH);
   if (result)
   {
-    perror("tcflush failed");  // just a warning, not a fatal error
+	  std::cerr << "usb port: warning tcflush failed" << std::endl;  // just a warning, not a fatal error
   }
 
   // Get the current configuration of the serial port.
@@ -48,7 +48,7 @@ int open_serial_port(const char * device, uint32_t baud_rate)
   result = tcgetattr(fd, &options);
   if (result)
   {
-    perror("tcgetattr failed");
+	  std::cerr << "us port: tcgetattr failed" << std::endl;
     close(fd);
     return -1;
   }
@@ -74,8 +74,7 @@ int open_serial_port(const char * device, uint32_t baud_rate)
   case 38400:  cfsetospeed(&options, B38400);  break;
   case 115200: cfsetospeed(&options, B115200); break;
   default:
-    fprintf(stderr, "warning: baud rate %u is not supported, using 9600.\n",
-      baud_rate);
+      std::cerr << "usb port warning: baud rate " << baud_rate << "is not supported, using 9600." << std::endl;
     cfsetospeed(&options, B9600);
     break;
   }
@@ -84,7 +83,7 @@ int open_serial_port(const char * device, uint32_t baud_rate)
   result = tcsetattr(fd, TCSANOW, &options);
   if (result)
   {
-    perror("tcsetattr failed");
+    std::cerr << "usb port: tcsetattr failed" << std::endl;
     close(fd);
     return -1;
   }
@@ -92,7 +91,7 @@ int open_serial_port(const char * device, uint32_t baud_rate)
   return fd;
 }
 
-}
+} // namespace
 
 USBPort::USBPort(const char* name, int epoll_fd):
     m_epoll_fd(epoll_fd),
@@ -124,10 +123,7 @@ void USBPort::setSink(can::FrameSink& sink)
    m_sink = &sink;
 }
 
-void USBPort::setupLogger(
-      logging::ostream& log,
-      const char* logger_prefix,
-      const char* logger_color)
+void USBPort::setupLogger( logging::ostream& log, const char* logger_prefix, const char* logger_color)
 {
    m_log = &log;
    m_log_prefix = logger_prefix;
@@ -140,28 +136,105 @@ void USBPort::setupLogger(
 
 void USBPort::handle()
 {
+	uint bread;
+	uint8_t inbuf[100];
 
-//   struct can_frame frame;
-//   int nbytes = read(m_fd, &frame, sizeof(frame));
-//
-//   if (nbytes < 0) {
-//      std::cerr << "Error on reading socket " << m_name << ": " << strerror(errno) << std::endl;
-//      return;
-//   }
-//
-//   if (nbytes < int(sizeof(struct can_frame))) {
-//      std::cerr << "Read incomplete CAN frame on socket " << m_name << ": " << strerror(errno) << std::endl;
-//      return;
-//   }
-//
-//   if (m_sink == nullptr)
-//   {
-//      std::cerr << "Don't have a sink for socket " << m_name << " so can't receive CAN frames";
-//      return;
-//   }
-//
-//   m_sink->sink(
-//      can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
+	bread = read_port(m_fd, inbuf, 100);
+	if (bread > 0)
+	{
+	  printf("bread= %d:: ", bread);
+	  for (uint i=0; i<bread; i++)
+	  {
+		printf(" %x ", inbuf[i]);
+	  }
+	  printf("\n");
+	}
+
+  //struct can_frame frame;
+
+  uint32_t findhash, port, canid;
+  std::string sbuf((char *)inbuf);
+
+  // find #, ID is 8 chars before it
+  findhash = sbuf.find_first_of('#');
+  if (findhash > 7)
+  {
+    // msg format 0P000xxx P=port xxx=msg id
+    // get the can port number from the long id
+    port = HextoDec( &inbuf[findhash - 7], 1);
+    canid = HextoDec( &inbuf[findhash - 3], 3);
+    if (port > 0 && port <= 2 && canid > 0  && canid <= 0x6FF)
+    {
+      // construct CAN message from received data
+
+    	//   int nbytes = read(m_fd, &frame, sizeof(frame));
+    	//
+    	//   if (nbytes < 0) {
+    	//      std::cerr << "Error on reading socket " << m_name << ": " << strerror(errno) << std::endl;
+    	//      return;
+    	//   }
+    	//
+    	//   if (nbytes < int(sizeof(struct can_frame))) {
+    	//      std::cerr << "Read incomplete CAN frame on socket " << m_name << ": " << strerror(errno) << std::endl;
+    	//      return;
+    	//   }
+    	//
+    	//   if (m_sink == nullptr)
+    	//   {
+    	//      std::cerr << "Don't have a sink for socket " << m_name << " so can't receive CAN frames";
+    	//      return;
+    	//   }
+    	//
+    	//   m_sink->sink(
+    	//      can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
+
+
+
+
+//      CAN_message_t canmsg;
+//      canmsg.id = canid;
+//      canmsg.seq = 1;
+//      canmsg.len = (uBytesRead - 9) / 2;
+//      for (uint8_t i=0 ; i < canmsg.len; i++ )
+//      {
+//        canmsg.buf[i] = HextoDec( &bByteBuffer[i*2 + 9], 2);
+//      }
+
+    //  if (port == 1)
+    //  {
+    //    CANPort1.write(canmsg);
+    //  }
+    //  else if (port == 2)
+    //  {
+    //    CANPort2.write(MB15, canmsg);
+    //  }
+      // diagnostics
+      // Serial.print("PORT=");
+      // Serial.print(port);
+      // Serial.print("  ID=");
+      // Serial.print(canmsg.id);
+      // Serial.print("  bytesread=");
+      // Serial.print(uBytesRead);
+      // Serial.print("  msg=");
+      // for ( uint8_t i = 9; i < uBytesRead; i++ )
+      // {
+      //   Serial.write(bByteBuffer[i]);
+      // }
+      // Serial.println();
+
+    }
+    else
+    {
+      // error, discard data
+      std::cerr << "USBPort: ERROR invalid port or canid" << std::endl;
+    }
+  }
+  else
+  {
+    // error, discard data
+    std::cerr << "USBPort: ERROR: bad msg format" << std::endl;
+  }
+
 }
 
 void USBPort::sink(const can::DataFrame& f)
@@ -182,5 +255,56 @@ void USBPort::sink(const can::DataFrame& f)
    }
 }
 
-
+// Reads bytes from the serial port.
+// Returns after all the desired bytes have been read, or if there is a
+// timeout or other error.
+// Returns the number of bytes successfully read into the buffer, or -1 if
+// there was an error reading.
+size_t USBPort::read_port(int fd, uint8_t * buffer, size_t size)
+{
+  size_t received = 0;
+  while (received < size)
+  {
+    ssize_t r = read(fd, buffer + received, size - received);
+    if (r < 0)
+    {
+      perror("failed to read from port");
+      return -1;
+    }
+    if (r == 0)
+    {
+      // Timeout
+      break;
+    }
+    received += r;
+  }
+  return received;
 }
+
+
+static const long hextable[] = {
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1, 0,1,2,3,4,5,6,7,8,9,-1,-1,-1,-1,-1,-1,-1,10,11,12,13,14,15,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,10,11,12,13,14,15,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+};
+
+uint32_t USBPort::HextoDec(unsigned const char *hex, size_t hexlen) {
+   uint32_t dec = 0;
+   for (size_t i=0; i<hexlen; i++)
+   {
+      dec = (dec << 4) | hextable[*hex++];
+   }
+   return dec;
+}
+
+
+
+} // namespace core

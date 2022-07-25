@@ -33,10 +33,17 @@ private:
    std::string     m_name;
    can::FrameSink* m_sink;
 
+   size_t read_port(int fd, uint8_t * buffer, size_t size);
+
+   uint32_t HextoDec(unsigned const char *hex, size_t hexlen);
+
+
    logging::ostream* m_log;
    std::string       m_log_prefix;
    std::string       m_log_color;
    std::string       m_log_color_reset;
+
+
 };
 
 }

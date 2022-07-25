@@ -53,9 +53,9 @@ int main(int argc, const char** argv)
    sigemptyset(&all_signals);
    sigaddset(&all_signals, SIGINT);
 
-   if (argc != 3)
+   if (argc != 4)
    {
-      fprintf(stderr, "usage: %s <can_interface_battery> <can_interface_inverter>\n", argv[0]);
+      fprintf(stderr, "usage: %s <can_interface_battery> <can_interface_inverter> <usb_port_name>\n", argv[0]);
       return 1;
    }
 
@@ -70,7 +70,7 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
-   core::USBPort UsbPort("/dev/ttyACM0", epollfd);
+   core::USBPort UsbPort(argv[3], epollfd);
 
 
    core::CanPort battery_port(argv[1], epollfd);
@@ -109,6 +109,8 @@ int main(int argc, const char** argv)
 
    battery_port.setupLogger(*log, "<BAT OUT>", color::blue);
    battery_port.setSink(battery_pack);
+
+   UsbPort.setupLogger(*log, "<USB>", color::cyan);
 
    
 //   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, timer, monitor, contactor);
