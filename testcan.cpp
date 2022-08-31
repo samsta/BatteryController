@@ -70,8 +70,7 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
-   core::USBPort UsbPort(argv[3], epollfd);
-
+   core::USBPort usb_port(argv[3], epollfd);
 
    core::CanPort battery_port(argv[1], epollfd);
    core::CanPort inverter_port(argv[2], epollfd);
@@ -100,17 +99,24 @@ int main(int argc, const char** argv)
    }
    
    packs::Nissan::LeafPack battery_pack(
-         battery_port,
+         usb_port,
          timer,
          positive_relay,
          negative_relay,
          indicator_led,
          log);
+//   packs::Nissan::LeafPack battery_pack(
+//         battery_port,
+//         timer,
+//         positive_relay,
+//         negative_relay,
+//         indicator_led,
+//         log);
 
    battery_port.setupLogger(*log, "<BAT OUT>", color::blue);
    battery_port.setSink(battery_pack);
 
-   UsbPort.setupLogger(*log, "<USB>", color::cyan);
+   usb_port.setupLogger(*log, "<USB>", color::cyan);
 
    
 //   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, timer, monitor, contactor);
