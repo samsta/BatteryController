@@ -262,21 +262,40 @@ void USBPort::sink(const can::DataFrame& f)
    char msg[100];
    uint8_t uint8msg[25];
 
-  sprintf(msg, "010006FF#0000000100000003");
+//   sprintf(msg, "020006FF#0000000100000003");
 
-  // there are 25 characters in the message 8+1+16 (not including CR/LF)
-  for (int i=0; i<25; i++)
-  {
+int port = 2;
+   // destination port
+   sprintf(&msg[0],"%02x00", port);
+
+   // canid
+   sprintf(&msg[4],"0%3x#", f.id());
+
+   // 16 hex bytes for can data (8 bytes)
+   for (int i=0; i<(int)f.size(); i++ )
+   {
+     sprintf(&msg[9+(i*2)], "%02x", f.data()[i]);
+   }
+
+
+
+
+
+
+
+   // there are 25 characters in the message 8+1+16 (not including CR/LF)
+   for (int i=0; i<25; i++)
+   {
     uint8msg[i] = (uint8_t) msg[i];
-  }
+   }
 
-  printf("SENDING: %s\n", msg);
-  int x =  write(m_fd, uint8msg, sizeof(uint8msg));
-  if (x<0)
-  {
+   printf("SENDING: %s\n", msg);
+   int x =  write(m_fd, uint8msg, sizeof(uint8msg));
+   if (x<0)
+   {
     printf("WRITE FAILED");
      fflush(stdout);
-  }
+   }
 
 
 
