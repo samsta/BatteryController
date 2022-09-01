@@ -32,7 +32,7 @@ int open_serial_port(const char * device, uint32_t baud_rate)
   int fd = open(device, O_RDWR | O_NOCTTY);
   if (fd == -1)
   {
-	  std::cerr << "usb port: failed to open port: " << device << std::endl;
+     std::cerr << "usb port: failed to open port: " << device << std::endl;
     return -1;
   }
 
@@ -40,7 +40,7 @@ int open_serial_port(const char * device, uint32_t baud_rate)
   int result = tcflush(fd, TCIOFLUSH);
   if (result)
   {
-	  std::cerr << "usb port: warning tcflush failed" << std::endl;  // just a warning, not a fatal error
+     std::cerr << "usb port: warning tcflush failed" << std::endl;  // just a warning, not a fatal error
   }
 
   // Get the current configuration of the serial port.
@@ -48,7 +48,7 @@ int open_serial_port(const char * device, uint32_t baud_rate)
   result = tcgetattr(fd, &options);
   if (result)
   {
-	  std::cerr << "us port: tcgetattr failed" << std::endl;
+     std::cerr << "us port: tcgetattr failed" << std::endl;
     close(fd);
     return -1;
   }
@@ -136,106 +136,22 @@ void USBPort::setupLogger( logging::ostream& log, const char* logger_prefix, con
 
 void USBPort::handle()
 {
-	uint bytesread;
-	uint8_t inbuf[1000];
+   uint bytesread;
+   uint8_t inbuf[1000];
 
-	bytesread = read_port(m_fd, inbuf, 1000);
-	if (bytesread > 0)
-	{
-	  printf("bytesread= %d:: ", bytesread);
-	  for (uint i=0; i<bytesread; i++)
-	  {
-//		printf(" %x ", inbuf[i]);
-//		printf("%c", (char)inbuf[i]);
-	  }
-	  printf("%s", inbuf);
-	  printf("\n");
-	}
+   bytesread = read_port(m_fd, inbuf, 1000);
+   if (bytesread > 0)
+   {
+     printf("bytesread= %d:: ", bytesread);
+     for (uint i=0; i<bytesread; i++)
+     {
+      // printf(" %x ", inbuf[i]);
+      printf("%c", (char)inbuf[i]);
+     }
+     // printf("%s", inbuf);
+     printf("\n");
+   }
 
-  //struct can_frame frame;
-
-//  uint32_t findhash, port, canid;
-//  std::string sbuf((char *)inbuf);
-//
-//  // find #, ID is 8 chars before it
-//  findhash = sbuf.find_first_of('#');
-//  if (findhash > 7)
-//  {
-//    // msg format 0P000xxx P=port xxx=msg id
-//    // get the can port number from the long id
-//    port = HextoDec( &inbuf[findhash - 7], 1);
-//    canid = HextoDec( &inbuf[findhash - 3], 3);
-//    if (port > 0 && port <= 2 && canid > 0  && canid <= 0x6FF)
-//    {
-//      // construct CAN message from received data
-//
-//    	//   int nbytes = read(m_fd, &frame, sizeof(frame));
-//    	//
-//    	//   if (nbytes < 0) {
-//    	//      std::cerr << "Error on reading socket " << m_name << ": " << strerror(errno) << std::endl;
-//    	//      return;
-//    	//   }
-//    	//
-//    	//   if (nbytes < int(sizeof(struct can_frame))) {
-//    	//      std::cerr << "Read incomplete CAN frame on socket " << m_name << ": " << strerror(errno) << std::endl;
-//    	//      return;
-//    	//   }
-//    	//
-//    	//   if (m_sink == nullptr)
-//    	//   {
-//    	//      std::cerr << "Don't have a sink for socket " << m_name << " so can't receive CAN frames";
-//    	//      return;
-//    	//   }
-//    	//
-//    	//   m_sink->sink(
-//    	//      can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
-//
-//
-//
-//
-////      CAN_message_t canmsg;
-////      canmsg.id = canid;
-////      canmsg.seq = 1;
-////      canmsg.len = (uBytesRead - 9) / 2;
-////      for (uint8_t i=0 ; i < canmsg.len; i++ )
-////      {
-////        canmsg.buf[i] = HextoDec( &bByteBuffer[i*2 + 9], 2);
-////      }
-//
-//    //  if (port == 1)
-//    //  {
-//    //    CANPort1.write(canmsg);
-//    //  }
-//    //  else if (port == 2)
-//    //  {
-//    //    CANPort2.write(MB15, canmsg);
-//    //  }
-//      // diagnostics
-//      // Serial.print("PORT=");
-//      // Serial.print(port);
-//      // Serial.print("  ID=");
-//      // Serial.print(canmsg.id);
-//      // Serial.print("  bytesread=");
-//      // Serial.print(uBytesRead);
-//      // Serial.print("  msg=");
-//      // for ( uint8_t i = 9; i < uBytesRead; i++ )
-//      // {
-//      //   Serial.write(bByteBuffer[i]);
-//      // }
-//      // Serial.println();
-//
-//    }
-//    else
-//    {
-//      // error, discard data
-//      std::cerr << "USBPort: ERROR invalid port or canid" << std::endl;
-//    }
-//  }
-//  else
-//  {
-//    // error, discard data
-//    std::cerr << "USBPort: ERROR: bad msg format" << std::endl;
-//  }
 
 }
 
@@ -248,10 +164,10 @@ void USBPort::sink(const can::DataFrame& f)
 //      *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
 //   }
 //
-   struct can_frame frame;
-   frame.can_id = f.id();
-   frame.can_dlc = f.size();
-   std::copy(f.begin(), f.end(), frame.data);
+  //  struct can_frame frame;
+  //  frame.can_id = f.id();
+  //  frame.can_dlc = f.size();
+  //  std::copy(f.begin(), f.end(), frame.data);
 //
 //   if (write(m_fd, &frame, sizeof(frame)) != sizeof(frame))
 //   {
@@ -259,12 +175,16 @@ void USBPort::sink(const can::DataFrame& f)
 //   }
 //
 
+
+   if (f.id() != 0x11a) return;
+
+
    char msg[100];
    uint8_t uint8msg[25];
 
 //   sprintf(msg, "020006FF#0000000100000003");
 
-int port = 2;
+    int port = 2;
    // destination port
    sprintf(&msg[0],"%02x00", port);
 
@@ -300,9 +220,9 @@ int port = 2;
 
 
 
-//	char msg[100];
-//	uint8_t uint8msg[25];
-//	uint8_t port = 1;
+// char msg[100];
+// uint8_t uint8msg[25];
+// uint8_t port = 1;
 //
 //   if (m_log)
 //   {
