@@ -176,7 +176,7 @@ void USBPort::sink(const can::DataFrame& f)
 //
 
 
-   if (f.id() != 0x11a) return;
+//   if (f.id() != 0x11a) return;
 
 
    char msg[100];
@@ -209,7 +209,7 @@ void USBPort::sink(const can::DataFrame& f)
     uint8msg[i] = (uint8_t) msg[i];
    }
 
-   printf("SENDING: %s\n", msg);
+//   printf("SENDING: %s\n", msg);
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));
    if (x<0)
    {
