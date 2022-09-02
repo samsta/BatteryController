@@ -72,7 +72,7 @@ int main(int argc, const char** argv)
 
    core::USBPort usb_port(argv[3], epollfd);
 
-   core::CanPort battery_port(argv[1], epollfd);
+//   core::CanPort battery_port(argv[1], epollfd);
    core::CanPort inverter_port(argv[2], epollfd);
    core::EpollTimer timer(epollfd);
 
@@ -113,10 +113,11 @@ int main(int argc, const char** argv)
 //         indicator_led,
 //         log);
 
-   battery_port.setupLogger(*log, "<BAT OUT>", color::blue);
-   battery_port.setSink(battery_pack);
+//   battery_port.setupLogger(*log, "<BAT OUT>", color::blue);
+//   battery_port.setSink(battery_pack);
 
-   usb_port.setupLogger(*log, "<USB>", color::cyan);
+   usb_port.setupLogger(*log, "<USB OUT>", color::cyan);
+   usb_port.setSink(battery_pack);
 
    
 //   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, timer, monitor, contactor);

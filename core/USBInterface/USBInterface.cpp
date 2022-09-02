@@ -138,51 +138,119 @@ void USBPort::handle()
 {
    uint bytesread;
    uint8_t inbuf[1000];
+   size_t findhash;
+   uint16_t port;
+   uint16_t canid;
+   struct can_frame frame;
 
-   bytesread = read_port(m_fd, inbuf, 1000);
-   if (bytesread > 0)
+   // must clear out inbuf everytime, perhaps there's a better way to do this?
+   // this is really only necessary because we are printf-ing the contents below
+   for (uint32_t i=0; i<sizeof(inbuf); i++)
    {
-     printf("bytesread= %d:: ", bytesread);
-     for (uint i=0; i<bytesread; i++)
-     {
-      // printf(" %x ", inbuf[i]);
-      printf("%c", (char)inbuf[i]);
-     }
-     // printf("%s", inbuf);
-     printf("\n");
+    inbuf[i] = 0;
    }
+   bytesread = read_port(m_fd, inbuf, sizeof(inbuf));
 
+   uint32_t newhead = 0;
+   uint32_t loopcount = 0;
+   while (bytesread > 0 and loopcount < 10) {
+      loopcount++;
+      printf("HANDLE br= %d  %.*s\n",bytesread, bytesread, inbuf);
+      fflush(stdout);
 
+      std::string sbuf((char *)inbuf);
+      // find DIAGTEST
+      findhash = sbuf.find("DIAG");
+      if (findhash != std::string::npos)
+      {
+         printf("TEENSY Diagnostic Message: ");
+         findhash = sbuf.find_first_of(0x0a);
+         if (findhash != std::string::npos and findhash < sizeof(inbuf)) {
+            printf("%.*s\n", (int)findhash, inbuf);
+            fflush(stdout);
+            newhead = findhash + 1;
+            bytesread = bytesread - newhead;
+         }
+         else
+         {
+            printf("Failed to find 0x0a End of Msg\n");
+            bytesread = 0;
+         }
+      }
+      else
+      {
+         // this better be a hex encoded CAN message
+         // find #, ID is 8 chars before it
+         findhash = sbuf.find_first_of('#');
+         if (findhash == 8 && bytesread >= 25)
+         {
+            // msg format 0P000xxx P=port xxx=msg id
+            // get the can port number from the long id
+            port = HextoDec( &inbuf[findhash - 7], 1);
+            canid = HextoDec( &inbuf[findhash - 3], 3) - 0x600;
+
+            if (port > 0 && port <= 2 && canid > 0  && canid <= 0x7FF)
+            {
+               // construct CAN message from received data
+               frame.can_id = canid;
+               //canmsg.seq = 1;
+               frame.can_dlc = 8;
+               int z = frame.can_dlc;
+               z++;
+               for (uint8_t i=0 ; i < 8; i++ )
+               {
+                  frame.data[i] = HextoDec( &inbuf[i*2 + 9], 2);
+               }
+
+               // something has to be done with the port number to know where to send it
+               m_sink->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
+               
+            }
+            else
+            {
+               // error, discard data
+               if (!(port > 0 && port <= 2))
+               {
+                  // port error
+               }
+               if (!(canid > 0  && canid <= 0x7FF))
+               {
+                  // canid error
+               }
+            }
+            newhead = 25;
+            bytesread = bytesread - newhead;
+         }
+         else
+         {
+            // error, discard data
+            std::cerr << "USBPort: ERROR: bad msg format" << std::endl;
+
+            // display bad msg (or diagnostic message)
+            printf("br= %d  %s\n",bytesread, inbuf);
+            bytesread = 0;
+
+         }
+      }
+
+      // adjust the data in inbuf
+      if (bytesread != 0)
+      {
+         memcpy(&inbuf[0], &inbuf[newhead], bytesread);
+      }
+   }
 }
 
 void USBPort::sink(const can::DataFrame& f)
 {
 
 
-//   if (m_log)
-//   {
-//      *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
-//   }
-//
-  //  struct can_frame frame;
-  //  frame.can_id = f.id();
-  //  frame.can_dlc = f.size();
-  //  std::copy(f.begin(), f.end(), frame.data);
-//
-//   if (write(m_fd, &frame, sizeof(frame)) != sizeof(frame))
-//   {
-//      std::cerr << "Error on writing socket " << m_name << ": " << strerror(errno) << std::endl;
-//   }
-//
-
-
-//   if (f.id() != 0x11a) return;
-
-
+   if (m_log)
+   {
+      *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
+   }
    char msg[100];
    uint8_t uint8msg[25];
-
-//   sprintf(msg, "020006FF#0000000100000003");
 
     int port = 2;
    // destination port
@@ -196,13 +264,6 @@ void USBPort::sink(const can::DataFrame& f)
    {
      sprintf(&msg[9+(i*2)], "%02x", f.data()[i]);
    }
-
-
-
-
-
-
-
    // there are 25 characters in the message 8+1+16 (not including CR/LF)
    for (int i=0; i<25; i++)
    {
@@ -216,43 +277,6 @@ void USBPort::sink(const can::DataFrame& f)
     printf("WRITE FAILED");
      fflush(stdout);
    }
-
-
-
-
-// char msg[100];
-// uint8_t uint8msg[25];
-// uint8_t port = 1;
-//
-//   if (m_log)
-//   {
-//      *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
-//   }
-//
-//   // destination port
-//   sprintf(&msg[0],"%02x00", port);
-//
-//   // canid
-//   sprintf(&msg[4],"0%3x#", f.id());
-//
-//   // 16 hex bytes for can data (8 bytes)
-//   for (int i=0; i<(int)f.size(); i++ )
-//   {
-//      sprintf(&msg[9+(i*2)], "%02x", f.data()[i]);
-//   }
-//
-//   printf("USB Sending: %s\n",msg);
-//
-//   // there are 25 characters in the message 8+1+16 (not including CR/LF)
-//   for (int i=0; i<25; i++)
-//   {
-//      uint8msg[i] = (uint8_t) msg[i];
-//   }
-//
-//   if (write(m_fd, uint8msg, sizeof(uint8msg)) != sizeof(uint8msg))
-//   {
-//      std::cerr << "Error on writing USB " << m_name << ": " << strerror(errno) << std::endl;
-//   }
 }
 
 // Reads bytes from the serial port.
