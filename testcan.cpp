@@ -118,8 +118,8 @@ int main(int argc, const char** argv)
          log);
 
    usb_port.setupLogger(*log, "<USB OUT>", color::cyan);
-   usb_port.setSink_1(battery_pack_1);
-   usb_port.setSink_2(battery_pack_2);
+   usb_port.setSinkInbound_1(battery_pack_1);
+   usb_port.setSinkInbound_2(battery_pack_2);
 
 //      battery_port.setupLogger(*log, "<BAT OUT>", color::blue);
 //      battery_port.setSink(battery_pack);

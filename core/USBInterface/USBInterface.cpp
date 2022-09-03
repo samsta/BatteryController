@@ -97,8 +97,8 @@ USBPort::USBPort(const char* name, int epoll_fd):
     m_epoll_fd(epoll_fd),
     m_fd(open_serial_port(name, 9600)),
     m_name(name),
-    m_sink_1(nullptr),
-    m_sink_2(nullptr),
+    m_sinkInbound_1(nullptr),
+    m_sinkInbound_2(nullptr),
     m_log(nullptr),
     m_log_prefix(),
     m_log_color(),
@@ -119,14 +119,14 @@ USBPort::~USBPort()
    epoll_ctl(m_epoll_fd, EPOLL_CTL_DEL, m_fd, NULL);
 }
 
-void USBPort::setSink_1(can::FrameSink& sink)
+void USBPort::setSinkInbound_1(can::FrameSink& sink)
 {
-   m_sink_1 = &sink;
+   m_sinkInbound_1 = &sink;
 }
 
-void USBPort::setSink_2(can::FrameSink& sink)
+void USBPort::setSinkInbound_2(can::FrameSink& sink)
 {
-   m_sink_2 = &sink;
+   m_sinkInbound_2 = &sink;
 }
 
 void USBPort::setupLogger( logging::ostream& log, const char* logger_prefix, const char* logger_color)
@@ -208,12 +208,12 @@ void USBPort::handle()
                   frame.data[i] = HextoDec( &inbuf[i*2 + 9], 2);
                }
 
-               // todo something has to be done with the port number to know where to send it
+               // use the port number to know where to send it
                if (port == 1) {
-                  m_sink_1->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
+                  m_sinkInbound_1->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
                }
                else {
-                  m_sink_2->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
+                  m_sinkInbound_2->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
                }
             }
             else
