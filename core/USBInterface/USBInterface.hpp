@@ -17,7 +17,8 @@ public:
    USBPort(const char* name, int epoll_fd);
    ~USBPort();
 
-   void setSink(can::FrameSink& sink);
+   void setSink_1(can::FrameSink& sink);
+   void setSink_2(can::FrameSink& sink);
 
    void setupLogger(
          logging::ostream& log,
@@ -25,25 +26,24 @@ public:
          const char* logger_color = nullptr);
 
    virtual void sink(const can::DataFrame& f);
+
 private:
    virtual void handle();
 
    int             m_epoll_fd;
    int             m_fd;
    std::string     m_name;
-   can::FrameSink* m_sink;
+   can::FrameSink* m_sink_1;
+   can::FrameSink* m_sink_2;
 
    size_t read_port(int fd, uint8_t * buffer, size_t size);
 
    uint32_t HextoDec(unsigned const char *hex, size_t hexlen);
 
-
    logging::ostream* m_log;
    std::string       m_log_prefix;
    std::string       m_log_color;
    std::string       m_log_color_reset;
-
-
 };
 
 }

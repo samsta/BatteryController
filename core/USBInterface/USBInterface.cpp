@@ -97,7 +97,8 @@ USBPort::USBPort(const char* name, int epoll_fd):
     m_epoll_fd(epoll_fd),
     m_fd(open_serial_port(name, 9600)),
     m_name(name),
-    m_sink(nullptr),
+    m_sink_1(nullptr),
+    m_sink_2(nullptr),
     m_log(nullptr),
     m_log_prefix(),
     m_log_color(),
@@ -118,9 +119,14 @@ USBPort::~USBPort()
    epoll_ctl(m_epoll_fd, EPOLL_CTL_DEL, m_fd, NULL);
 }
 
-void USBPort::setSink(can::FrameSink& sink)
+void USBPort::setSink_1(can::FrameSink& sink)
 {
-   m_sink = &sink;
+   m_sink_1 = &sink;
+}
+
+void USBPort::setSink_2(can::FrameSink& sink)
+{
+   m_sink_2 = &sink;
 }
 
 void USBPort::setupLogger( logging::ostream& log, const char* logger_prefix, const char* logger_color)
@@ -202,20 +208,24 @@ void USBPort::handle()
                   frame.data[i] = HextoDec( &inbuf[i*2 + 9], 2);
                }
 
-               // something has to be done with the port number to know where to send it
-               m_sink->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
-               
+               // todo something has to be done with the port number to know where to send it
+               if (port == 1) {
+                  m_sink_1->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
+               }
+               else {
+                  m_sink_2->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
+               }
             }
             else
             {
                // error, discard data
                if (!(port > 0 && port <= 2))
                {
-                  // port error
+                  // todo port error
                }
                if (!(canid > 0  && canid <= 0x7FF))
                {
-                  // canid error
+                  // todo canid error
                }
             }
             newhead = 25;
@@ -252,9 +262,9 @@ void USBPort::sink(const can::DataFrame& f)
    char msg[100];
    uint8_t uint8msg[25];
 
-    int port = 2;
-   // destination port
-   sprintf(&msg[0],"%02x00", port);
+   // todo destination port
+   int packnumber = 1;
+   sprintf(&msg[0],"%02x00", packnumber);
 
    // canid
    sprintf(&msg[4],"0%3x#", f.id());
@@ -264,7 +274,7 @@ void USBPort::sink(const can::DataFrame& f)
    {
      sprintf(&msg[9+(i*2)], "%02x", f.data()[i]);
    }
-   // there are 25 characters in the message 8+1+16 (not including CR/LF)
+   // there are 25 characters in the message 8+1+16
    for (int i=0; i<25; i++)
    {
     uint8msg[i] = (uint8_t) msg[i];
@@ -278,6 +288,7 @@ void USBPort::sink(const can::DataFrame& f)
      fflush(stdout);
    }
 }
+
 
 // Reads bytes from the serial port.
 // Returns after all the desired bytes have been read, or if there is a
