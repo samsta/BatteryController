@@ -11,7 +11,7 @@
 namespace core
 {
 
-class USBPort: private core::EpollHandler , public can::FrameSink
+class USBPort: private core::EpollHandler // , public can::FrameSink
 {
 public:
    USBPort(const char* name, int epoll_fd);
@@ -20,19 +20,21 @@ public:
    void setSinkInbound_1(can::FrameSink& sink);
    void setSinkInbound_2(can::FrameSink& sink);
 
+   can::FrameSink& getSinkOutbound_1();
+//   can::FrameSink& getOutboundSink_2();
+
    void setupLogger(
          logging::ostream& log,
          const char* logger_prefix = "",
          const char* logger_color = nullptr);
 
+   void sinkOutbound_1(const can::DataFrame& f);
 //   virtual void sinkOutbound_1(const can::DataFrame& f) {sinkOutbound.sink(const can::DataFrame& f);}
 //   virtual void sinkOutbound_2(const can::DataFrame& f) {sinkOutbound.sink(const can::DataFrame& f);}
 
-   virtual void sink(const can::DataFrame& f);
+//   virtual void sink(const can::DataFrame& f);
 
 private:
-//   can::FrameSink& sinkOutbound;
-
    virtual void handle();
 
    int             m_epoll_fd;
