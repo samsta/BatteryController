@@ -22,76 +22,6 @@
 namespace color = logging::color::ansi;
 
 namespace core {
-namespace {
-
-// Opens the specified serial port, sets it up for binary communication,
-// configures its read timeouts, and sets its baud rate.
-// Returns a non-negative file descriptor on success, or -1 on failure.
-int open_serial_port(const char * device, uint32_t baud_rate)
-{
-  int fd = open(device, O_RDWR | O_NOCTTY);
-  if (fd == -1)
-  {
-     std::cerr << "usb port: failed to open port: " << device << std::endl;
-    return -1;
-  }
-
-  // Flush away any bytes previously read or written.
-  int result = tcflush(fd, TCIOFLUSH);
-  if (result)
-  {
-     std::cerr << "usb port: warning tcflush failed" << std::endl;  // just a warning, not a fatal error
-  }
-
-  // Get the current configuration of the serial port.
-  struct termios options;
-  result = tcgetattr(fd, &options);
-  if (result)
-  {
-     std::cerr << "us port: tcgetattr failed" << std::endl;
-    close(fd);
-    return -1;
-  }
-
-  // Turn off any options that might interfere with our ability to send and
-  // receive raw binary bytes.
-  options.c_iflag &= ~(INLCR | IGNCR | ICRNL | IXON | IXOFF);
-  options.c_oflag &= ~(ONLCR | OCRNL);
-  options.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-
-  // Set up timeouts: Calls to read() will return as soon as there is
-  // at least one byte available or when 100 ms has passed.
-  options.c_cc[VTIME] = 1;
-  options.c_cc[VMIN] = 0;
-
-  // This code only supports certain standard baud rates. Supporting
-  // non-standard baud rates should be possible but takes more work.
-  switch (baud_rate)
-  {
-  case 4800:   cfsetospeed(&options, B4800);   break;
-  case 9600:   cfsetospeed(&options, B9600);   break;
-  case 19200:  cfsetospeed(&options, B19200);  break;
-  case 38400:  cfsetospeed(&options, B38400);  break;
-  case 115200: cfsetospeed(&options, B115200); break;
-  default:
-      std::cerr << "usb port warning: baud rate " << baud_rate << "is not supported, using 9600." << std::endl;
-    cfsetospeed(&options, B9600);
-    break;
-  }
-  cfsetispeed(&options, cfgetospeed(&options));
-
-  result = tcsetattr(fd, TCSANOW, &options);
-  if (result)
-  {
-    std::cerr << "usb port: tcsetattr failed" << std::endl;
-    close(fd);
-    return -1;
-  }
-
-  return fd;
-}
-
-} // namespace
 
 USBPort::USBPort(const char* name, int epoll_fd):
     m_epoll_fd(epoll_fd),
@@ -193,7 +123,7 @@ void USBPort::handle()
             // msg format 0P000xxx P=port xxx=msg id
             // get the can port number from the long id
             port = HextoDec( &inbuf[findhash - 7], 1);
-            canid = HextoDec( &inbuf[findhash - 3], 3) - 0x600;
+            canid = HextoDec( &inbuf[findhash - 3], 3);
 
             if (port > 0 && port <= 2 && canid > 0  && canid <= 0x7FF)
             {
@@ -251,12 +181,12 @@ void USBPort::handle()
    }
 }
 
-can::FrameSink& USBPort::getSinkOutbound_1()
-{
-   return *sinkOutbound_1();
-}
+//can::FrameSink& USBPort::getSinkOutbound_1()
+//{
+//   return *sinkOutbound_1();
+//}
 
-void USBPort::sinkOutbound_1(const can::DataFrame& f)
+void USBPort::sink(const can::DataFrame& f)
 {
    if (m_log)
    {
@@ -266,7 +196,7 @@ void USBPort::sinkOutbound_1(const can::DataFrame& f)
    uint8_t uint8msg[25];
 
    // todo destination port
-   int packnumber = 1;
+   int packnumber = 2;
    sprintf(&msg[0],"%02x00", packnumber);
 
    // canid
@@ -381,6 +311,71 @@ uint32_t USBPort::HextoDec(unsigned const char *hex, size_t hexlen) {
    return dec;
 }
 
+// Opens the specified serial port, sets it up for binary communication,
+// configures its read timeouts, and sets its baud rate.
+// Returns a non-negative file descriptor on success, or -1 on failure.
+int USBPort::open_serial_port(const char * device, uint32_t baud_rate)
+{
+  int fd = open(device, O_RDWR | O_NOCTTY);
+  if (fd == -1)
+  {
+     std::cerr << "usb port: failed to open port: " << device << std::endl;
+    return -1;
+  }
 
+  // Flush away any bytes previously read or written.
+  int result = tcflush(fd, TCIOFLUSH);
+  if (result)
+  {
+     std::cerr << "usb port: warning tcflush failed" << std::endl;  // just a warning, not a fatal error
+  }
+
+  // Get the current configuration of the serial port.
+  struct termios options;
+  result = tcgetattr(fd, &options);
+  if (result)
+  {
+     std::cerr << "us port: tcgetattr failed" << std::endl;
+    close(fd);
+    return -1;
+  }
+
+  // Turn off any options that might interfere with our ability to send and
+  // receive raw binary bytes.
+  options.c_iflag &= ~(INLCR | IGNCR | ICRNL | IXON | IXOFF);
+  options.c_oflag &= ~(ONLCR | OCRNL);
+  options.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+
+  // Set up timeouts: Calls to read() will return as soon as there is
+  // at least one byte available or when 100 ms has passed.
+  options.c_cc[VTIME] = 1;
+  options.c_cc[VMIN] = 0;
+
+  // This code only supports certain standard baud rates. Supporting
+  // non-standard baud rates should be possible but takes more work.
+  switch (baud_rate)
+  {
+  case 4800:   cfsetospeed(&options, B4800);   break;
+  case 9600:   cfsetospeed(&options, B9600);   break;
+  case 19200:  cfsetospeed(&options, B19200);  break;
+  case 38400:  cfsetospeed(&options, B38400);  break;
+  case 115200: cfsetospeed(&options, B115200); break;
+  default:
+      std::cerr << "usb port warning: baud rate " << baud_rate << "is not supported, using 9600." << std::endl;
+    cfsetospeed(&options, B9600);
+    break;
+  }
+  cfsetispeed(&options, cfgetospeed(&options));
+
+  result = tcsetattr(fd, TCSANOW, &options);
+  if (result)
+  {
+    std::cerr << "usb port: tcsetattr failed" << std::endl;
+    close(fd);
+    return -1;
+  }
+
+  return fd;
+}
 
 } // namespace core

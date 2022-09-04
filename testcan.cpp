@@ -109,17 +109,17 @@ int main(int argc, const char** argv)
          negative_relay_1,
          indicator_led_1,
          log);
-   packs::Nissan::LeafPack battery_pack_2(
-         usb_port,
-         timer,
-         positive_relay_2,
-         negative_relay_2,
-         indicator_led_2,
-         log);
+//   packs::Nissan::LeafPack battery_pack_2(
+//         usb_port,
+//         timer,
+//         positive_relay_2,
+//         negative_relay_2,
+//         indicator_led_2,
+//         log);
 
    usb_port.setupLogger(*log, "<USB OUT>", color::cyan);
    usb_port.setSinkInbound_1(battery_pack_1);
-   usb_port.setSinkInbound_2(battery_pack_2);
+//   usb_port.setSinkInbound_2(battery_pack_2);
 
 //      battery_port.setupLogger(*log, "<BAT OUT>", color::blue);
 //      battery_port.setSink(battery_pack);
