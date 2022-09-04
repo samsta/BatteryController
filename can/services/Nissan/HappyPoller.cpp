@@ -18,7 +18,7 @@ HappyPoller::HappyPoller(FrameSink& sender, core::Timer& timer):
     m_heartbeat_counter(3),
     m_hcm_clock_50c_counter(0)
 {
-   m_timer.registerPeriodicCallback(&m_heartbeat_poll_callback, 1100000);
+   m_timer.registerPeriodicCallback(&m_heartbeat_poll_callback, 100000);
 }
 
 HappyPoller::~HappyPoller()

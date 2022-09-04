@@ -143,7 +143,7 @@ void USBPort::handle()
 
                printf("Received from port = %d\n", port);
                // use the port number to know where to send it
-               // m_sinkInbound[port-1]->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
+               m_sinkInbound[port-1]->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
             }
             else
             {
@@ -208,14 +208,13 @@ USBPort::Pack::Pack(int fd,
 
 void USBPort::Pack::sink(const can::DataFrame& f)
 {
-   printf("Sending to port = %d\n",m_index+1);
-   // if (m_log)
-   // {
-   //    //  *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
-   //    *m_log << "<USB OUT port " << m_index << ">" << f << std::endl;
-   // }
+   if (m_log)
+   {
+      //  *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
+      *m_log << "<USB OUT port " << m_index << ">" << f << std::endl;
+   }
    char msg[100];
-   uint8_t uint8msg[25];
+   uint8_t uint8msg[26];
 
    // destination port
    sprintf(&msg[0],"%02x00", m_index+1);
@@ -233,8 +232,10 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    {
       uint8msg[i] = (uint8_t) msg[i];
    }
+   // put a CR at the end of the message
+   uint8msg[25] = 0xd;
 
-   //   printf("SENDING: %s\n", msg);
+   printf("Sending to port = %d\n",m_index+1);
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));
    if (x<0)
    {
