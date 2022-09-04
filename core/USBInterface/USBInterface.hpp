@@ -20,7 +20,7 @@ public:
    void setSinkInbound_1(can::FrameSink& sink);
    void setSinkInbound_2(can::FrameSink& sink);
 
-   can::FrameSink& getSinkOutbound();
+   can::FrameSink& getSinkOutbound(unsigned index);
 //   can::FrameSink& getOutboundSink_2();
 
    void setupLogger(
@@ -35,15 +35,12 @@ public:
 
 //   virtual void sink(const can::DataFrame& f);
 
-   class Pack: public can::FrameSink
-   {
-      // Pack(int fd) : mm_fd(fd) {}
-      int mm_fd;
-      virtual void sink(const can::DataFrame& f);
-   };
-   Pack packname;
-
+   
+   static const unsigned NUM_PACKS = 3;
+   
 private:
+
+
    virtual void handle();
 
    int getPortId() { return m_fd;}
@@ -53,6 +50,18 @@ private:
    std::string     m_name;
    can::FrameSink* m_sinkInbound_1;
    can::FrameSink* m_sinkInbound_2;
+
+   class Pack: public can::FrameSink
+   {
+   public:
+      Pack(int fd, unsigned index);
+   private:
+      int m_fd;
+      unsigned m_index;
+      virtual void sink(const can::DataFrame& f);
+   };
+
+   Pack m_packs[NUM_PACKS];
 
    int open_serial_port(const char * device, uint32_t baud_rate);
    size_t read_port(int fd, uint8_t * buffer, size_t size);

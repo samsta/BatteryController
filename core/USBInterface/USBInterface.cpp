@@ -29,6 +29,11 @@ USBPort::USBPort(const char* name, int epoll_fd):
     m_name(name),
     m_sinkInbound_1(nullptr),
     m_sinkInbound_2(nullptr),
+    m_packs{
+        {m_fd, 0},
+        {m_fd, 1},
+        {m_fd, 2}
+    },
     m_log(nullptr),
     m_log_prefix(),
     m_log_color(),
@@ -183,10 +188,19 @@ void USBPort::handle()
 
 // USBPort::Pack packname(USBPort::getPortId());
 
-can::FrameSink& USBPort::getSinkOutbound()
+can::FrameSink& USBPort::getSinkOutbound(unsigned index)
 {
-   return packname;
+    // Check it's within range. I'll just cap it a NUM_PACKS - 1
+    //   but maybe there's something else you want to do?
+    if (index >= NUM_PACKS) index = NUM_PACKS - 1;
+
+   return m_packs[index];
 }
+
+USBPort::Pack::Pack(int fd, unsigned index):
+    m_fd(fd), 
+    m_index(index)
+{}
 
 void USBPort::Pack::sink(const can::DataFrame& f)
 {
