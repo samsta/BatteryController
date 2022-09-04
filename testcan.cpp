@@ -103,7 +103,7 @@ int main(int argc, const char** argv)
 //    }
    
    packs::Nissan::LeafPack battery_pack_1(
-         usb_port,
+         usb_port.getSinkOutbound(),
          timer,
          positive_relay_1,
          negative_relay_1,

@@ -11,7 +11,7 @@
 namespace core
 {
 
-class USBPort: private core::EpollHandler, public can::FrameSink
+class USBPort: private core::EpollHandler//, public can::FrameSink
 {
 public:
    USBPort(const char* name, int epoll_fd);
@@ -20,7 +20,7 @@ public:
    void setSinkInbound_1(can::FrameSink& sink);
    void setSinkInbound_2(can::FrameSink& sink);
 
-//   can::FrameSink& getSinkOutbound_1();
+   can::FrameSink& getSinkOutbound();
 //   can::FrameSink& getOutboundSink_2();
 
    void setupLogger(
@@ -28,15 +28,25 @@ public:
          const char* logger_prefix = "",
          const char* logger_color = nullptr);
 
+   void sinkOutboundXXX(const can::DataFrame& f);
 //   void sinkOutbound_1(const can::DataFrame& f);
 //   virtual void sinkOutbound_1(const can::DataFrame& f) {sinkOutbound.sink(const can::DataFrame& f);}
 //   virtual void sinkOutbound_2(const can::DataFrame& f) {sinkOutbound.sink(const can::DataFrame& f);}
 
-   virtual void sink(const can::DataFrame& f);
+//   virtual void sink(const can::DataFrame& f);
+
+   class Pack: public can::FrameSink
+   {
+      // Pack(int fd) : mm_fd(fd) {}
+      int mm_fd;
+      virtual void sink(const can::DataFrame& f);
+   };
+   Pack packname;
 
 private:
-   int open_serial_port(const char * device, uint32_t baud_rate);
    virtual void handle();
+
+   int getPortId() { return m_fd;}
 
    int             m_epoll_fd;
    int             m_fd;
@@ -44,6 +54,7 @@ private:
    can::FrameSink* m_sinkInbound_1;
    can::FrameSink* m_sinkInbound_2;
 
+   int open_serial_port(const char * device, uint32_t baud_rate);
    size_t read_port(int fd, uint8_t * buffer, size_t size);
 
    uint32_t HextoDec(unsigned const char *hex, size_t hexlen);

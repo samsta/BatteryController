@@ -181,84 +181,50 @@ void USBPort::handle()
    }
 }
 
-//can::FrameSink& USBPort::getSinkOutbound_1()
-//{
-//   return *sinkOutbound_1();
-//}
+// USBPort::Pack packname(USBPort::getPortId());
 
-void USBPort::sink(const can::DataFrame& f)
+can::FrameSink& USBPort::getSinkOutbound()
 {
-   if (m_log)
-   {
-      *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
-   }
-   char msg[100];
-   uint8_t uint8msg[25];
-
-   // todo destination port
-   int packnumber = 2;
-   sprintf(&msg[0],"%02x00", packnumber);
-
-   // canid
-   sprintf(&msg[4],"0%3x#", f.id());
-
-   // 16 hex bytes for can data (8 bytes)
-   for (int i=0; i<(int)f.size(); i++ )
-   {
-     sprintf(&msg[9+(i*2)], "%02x", f.data()[i]);
-   }
-   // there are 25 characters in the message 8+1+16
-   for (int i=0; i<25; i++)
-   {
-    uint8msg[i] = (uint8_t) msg[i];
-   }
-
-//   printf("SENDING: %s\n", msg);
-   int x =  write(m_fd, uint8msg, sizeof(uint8msg));
-   if (x<0)
-   {
-    printf("WRITE FAILED");
-     fflush(stdout);
-   }
+   return packname;
 }
 
-//void USBPort::sinkOutbound_2(const can::DataFrame& f)
-//{
-//
-//
+void USBPort::Pack::sink(const can::DataFrame& f)
+{
+  printf("SUCCESSS... sort of\n");
 //   if (m_log)
 //   {
 //      *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
 //   }
-//   char msg[100];
-//   uint8_t uint8msg[25];
-//
-//   // todo destination port
-//   int packnumber = 2;
-//   sprintf(&msg[0],"%02x00", packnumber);
-//
-//   // canid
-//   sprintf(&msg[4],"0%3x#", f.id());
-//
-//   // 16 hex bytes for can data (8 bytes)
-//   for (int i=0; i<(int)f.size(); i++ )
-//   {
-//     sprintf(&msg[9+(i*2)], "%02x", f.data()[i]);
-//   }
-//   // there are 25 characters in the message 8+1+16
-//   for (int i=0; i<25; i++)
-//   {
-//    uint8msg[i] = (uint8_t) msg[i];
-//   }
-//
-////   printf("SENDING: %s\n", msg);
+  char msg[100];
+  uint8_t uint8msg[25];
+
+  // todo destination port
+  int packnumber = 2;
+  sprintf(&msg[0],"%02x00", packnumber);
+
+  // canid
+  sprintf(&msg[4],"0%3x#", f.id());
+
+  // 16 hex bytes for can data (8 bytes)
+  for (int i=0; i<(int)f.size(); i++ )
+  {
+    sprintf(&msg[9+(i*2)], "%02x", f.data()[i]);
+  }
+  // there are 25 characters in the message 8+1+16
+  for (int i=0; i<25; i++)
+  {
+   uint8msg[i] = (uint8_t) msg[i];
+  }
+
+//   printf("SENDING: %s\n", msg);
+  int x =  write(666, uint8msg, sizeof(uint8msg));
 //   int x =  write(m_fd, uint8msg, sizeof(uint8msg));
-//   if (x<0)
-//   {
-//    printf("WRITE FAILED");
-//     fflush(stdout);
-//   }
-//}
+  if (x<0)
+  {
+   printf("WRITE FAILED\n");
+    fflush(stdout);
+  }
+}
 
 
 // Reads bytes from the serial port.
