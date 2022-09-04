@@ -22,7 +22,7 @@ GroupPoller::GroupPoller(FrameSink& sender, core::Timer& timer):
       GROUP_PACK_TEMPERATURES},
     m_poll_callback(*this, &GroupPoller::poll)
 {
-   m_timer.registerPeriodicCallback(&m_poll_callback, 1000);
+   m_timer.registerPeriodicCallback(&m_poll_callback, 2000);
 }
 
 GroupPoller::~GroupPoller()

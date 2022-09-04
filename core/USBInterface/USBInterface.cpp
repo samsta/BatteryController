@@ -94,7 +94,7 @@ void USBPort::handle()
    uint32_t loopcount = 0;
    while (bytesread > 0 and loopcount < 10) {
       loopcount++;
-      printf("HANDLE br= %d  %.*s\n",bytesread, bytesread, inbuf);
+      // printf("HANDLE br= %d  %.*s\n",bytesread, bytesread, inbuf);
       fflush(stdout);
 
       std::string sbuf((char *)inbuf);
@@ -141,9 +141,9 @@ void USBPort::handle()
                   frame.data[i] = HextoDec( &inbuf[i*2 + 9], 2);
                }
 
-               printf("port = %d\n", port);
+               printf("Received from port = %d\n", port);
                // use the port number to know where to send it
-               m_sinkInbound[port-1]->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
+               // m_sinkInbound[port-1]->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
             }
             else
             {
@@ -208,90 +208,39 @@ USBPort::Pack::Pack(int fd,
 
 void USBPort::Pack::sink(const can::DataFrame& f)
 {
-  printf("SUCCESSS.. %d ...\n",m_index);
-  if (m_log)
-  {
-   //  *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
-    *m_log << "<USB OUT port " << m_index << ">" << f << std::endl;
-  }
-  char msg[100];
-  uint8_t uint8msg[25];
+   printf("Sending to port = %d\n",m_index+1);
+   // if (m_log)
+   // {
+   //    //  *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
+   //    *m_log << "<USB OUT port " << m_index << ">" << f << std::endl;
+   // }
+   char msg[100];
+   uint8_t uint8msg[25];
 
-  // destination port
-  sprintf(&msg[0],"%02x00", m_index+1);
+   // destination port
+   sprintf(&msg[0],"%02x00", m_index+1);
 
-  // canid
-  sprintf(&msg[4],"0%3x#", f.id());
+   // canid
+   sprintf(&msg[4],"0%3x#", f.id());
 
-  // 16 hex bytes for can data (8 bytes)
-  for (int i=0; i<(int)f.size(); i++ )
-  {
-    sprintf(&msg[9+(i*2)], "%02x", f.data()[i]);
-  }
-  // there are 25 characters in the message 8+1+16
-  for (int i=0; i<25; i++)
-  {
-   uint8msg[i] = (uint8_t) msg[i];
-  }
-
-//   printf("SENDING: %s\n", msg);
-  int x =  write(m_fd, uint8msg, sizeof(uint8msg));
-  if (x<0)
-  {
-   printf("WRITE FAILED\n");
-    fflush(stdout);
-  }
-}
-
-
-// Reads bytes from the serial port.
-// Returns after all the desired bytes have been read, or if there is a
-// timeout or other error.
-// Returns the number of bytes successfully read into the buffer, or -1 if
-// there was an error reading.
-size_t USBPort::read_port(int fd, uint8_t * buffer, size_t size)
-{
-  size_t received = 0;
-  while (received < size)
-  {
-    ssize_t r = read(fd, buffer + received, size - received);
-    if (r < 0)
-    {
-      perror("failed to read from port");
-      return -1;
-    }
-    if (r == 0)
-    {
-      // Timeout
-      break;
-    }
-    received += r;
-  }
-  return received;
-}
-
-
-static const long hextable[] = {
-   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-   -1,-1, 0,1,2,3,4,5,6,7,8,9,-1,-1,-1,-1,-1,-1,-1,10,11,12,13,14,15,-1,
-   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-   -1,-1,10,11,12,13,14,15,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
-};
-
-uint32_t USBPort::HextoDec(unsigned const char *hex, size_t hexlen) {
-   uint32_t dec = 0;
-   for (size_t i=0; i<hexlen; i++)
+   // 16 hex bytes for can data (8 bytes)
+   for (int i=0; i<(int)f.size(); i++ )
    {
-      dec = (dec << 4) | hextable[*hex++];
+      sprintf(&msg[9+(i*2)], "%02x", f.data()[i]);
    }
-   return dec;
+   // there are 25 characters in the message 8+1+16
+   for (int i=0; i<25; i++)
+   {
+      uint8msg[i] = (uint8_t) msg[i];
+   }
+
+   //   printf("SENDING: %s\n", msg);
+   int x =  write(m_fd, uint8msg, sizeof(uint8msg));
+   if (x<0)
+   {
+      printf("WRITE FAILED\n");
+      fflush(stdout);
+   }
 }
 
 // Opens the specified serial port, sets it up for binary communication,
@@ -361,4 +310,52 @@ int USBPort::open_serial_port(const char * device, uint32_t baud_rate)
   return fd;
 }
 
+// Reads bytes from the serial port.
+// Returns after all the desired bytes have been read, or if there is a
+// timeout or other error.
+// Returns the number of bytes successfully read into the buffer, or -1 if
+// there was an error reading.
+size_t USBPort::read_port(int fd, uint8_t * buffer, size_t size)
+{
+   size_t received = 0;
+   while (received < size)
+   {
+      ssize_t r = read(fd, buffer + received, size - received);
+      if (r < 0)
+      {
+         perror("failed to read from port");
+         return -1;
+      }
+      if (r == 0)
+      {
+         // Timeout
+         break;
+      }
+      received += r;
+   }
+   return received;
+}
+
+static const long hextable[] = {
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1, 0,1,2,3,4,5,6,7,8,9,-1,-1,-1,-1,-1,-1,-1,10,11,12,13,14,15,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,10,11,12,13,14,15,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+};
+
+uint32_t USBPort::HextoDec(unsigned const char *hex, size_t hexlen) {
+   uint32_t dec = 0;
+   for (size_t i=0; i<hexlen; i++)
+   {
+      dec = (dec << 4) | hextable[*hex++];
+   }
+   return dec;
+}
 } // namespace core
