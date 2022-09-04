@@ -27,12 +27,11 @@ USBPort::USBPort(const char* name, int epoll_fd):
     m_epoll_fd(epoll_fd),
     m_fd(open_serial_port(name, 9600)),
     m_name(name),
-    m_sinkInbound_1(nullptr),
-    m_sinkInbound_2(nullptr),
+    m_sinkInbound{{nullptr}, {nullptr}, {nullptr}},
     m_packs{
-        {m_fd, 0},
-        {m_fd, 1},
-        {m_fd, 2}
+        {m_fd, 0, m_log},// m_log_prefix, m_log_color, m_log_color_reset},
+        {m_fd, 1, m_log},// m_log_prefix, m_log_color, m_log_color_reset},
+        {m_fd, 2, m_log}//, m_log_prefix, m_log_color, m_log_color_reset}
     },
     m_log(nullptr),
     m_log_prefix(),
@@ -54,14 +53,13 @@ USBPort::~USBPort()
    epoll_ctl(m_epoll_fd, EPOLL_CTL_DEL, m_fd, NULL);
 }
 
-void USBPort::setSinkInbound_1(can::FrameSink& sink)
+void USBPort::setSinkInbound(unsigned index, can::FrameSink& sink)
 {
-   m_sinkInbound_1 = &sink;
-}
-
-void USBPort::setSinkInbound_2(can::FrameSink& sink)
-{
-   m_sinkInbound_2 = &sink;
+   // Check it's within range. I'll just cap it a NUM_PACKS - 1
+   // but maybe there's something else you want to do?
+   // todo report an error?
+   if (index >= NUM_PACKS) index = NUM_PACKS - 1;
+   m_sinkInbound[index] = &sink;
 }
 
 void USBPort::setupLogger( logging::ostream& log, const char* logger_prefix, const char* logger_color)
@@ -143,13 +141,9 @@ void USBPort::handle()
                   frame.data[i] = HextoDec( &inbuf[i*2 + 9], 2);
                }
 
+               printf("port = %d\n", port);
                // use the port number to know where to send it
-               if (port == 1) {
-                  m_sinkInbound_1->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
-               }
-               else {
-                  m_sinkInbound_2->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
-               }
+               m_sinkInbound[port-1]->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
             }
             else
             {
@@ -186,35 +180,45 @@ void USBPort::handle()
    }
 }
 
-// USBPort::Pack packname(USBPort::getPortId());
-
 can::FrameSink& USBPort::getSinkOutbound(unsigned index)
 {
-    // Check it's within range. I'll just cap it a NUM_PACKS - 1
-    //   but maybe there's something else you want to do?
-    if (index >= NUM_PACKS) index = NUM_PACKS - 1;
-
+   // Check it's within range. I'll just cap it a NUM_PACKS - 1
+   // but maybe there's something else you want to do?
+   // todo report an error?
+   if (index >= NUM_PACKS) index = NUM_PACKS - 1;
    return m_packs[index];
 }
 
-USBPort::Pack::Pack(int fd, unsigned index):
-    m_fd(fd), 
-    m_index(index)
+USBPort::Pack::Pack(int fd,
+      unsigned index,
+      logging::ostream* log
+      // ,
+      // std::string log_prefix,
+      // std::string log_color,
+      // std::string log_color_reset
+      ):
+   m_fd(fd), 
+   m_index(index),
+   m_log(log)
+   // ,
+   // m_log_prefix(log_prefix),
+   // m_log_color(log_color),
+   // m_log_color_reset(log_color_reset)
 {}
 
 void USBPort::Pack::sink(const can::DataFrame& f)
 {
-  printf("SUCCESSS... sort of\n");
-//   if (m_log)
-//   {
-//      *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
-//   }
+  printf("SUCCESSS.. %d ...\n",m_index);
+  if (m_log)
+  {
+   //  *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
+    *m_log << "<USB OUT port " << m_index << ">" << f << std::endl;
+  }
   char msg[100];
   uint8_t uint8msg[25];
 
-  // todo destination port
-  int packnumber = 2;
-  sprintf(&msg[0],"%02x00", packnumber);
+  // destination port
+  sprintf(&msg[0],"%02x00", m_index+1);
 
   // canid
   sprintf(&msg[4],"0%3x#", f.id());
@@ -231,8 +235,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
   }
 
 //   printf("SENDING: %s\n", msg);
-  int x =  write(666, uint8msg, sizeof(uint8msg));
-//   int x =  write(m_fd, uint8msg, sizeof(uint8msg));
+  int x =  write(m_fd, uint8msg, sizeof(uint8msg));
   if (x<0)
   {
    printf("WRITE FAILED\n");

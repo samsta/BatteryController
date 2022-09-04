@@ -72,7 +72,6 @@ int main(int argc, const char** argv)
 
    core::USBPort usb_port(argv[3], epollfd);
 
-//   core::CanPort battery_port(argv[1], epollfd);
    core::CanPort inverter_port(argv[2], epollfd);
    core::EpollTimer timer(epollfd);
 
@@ -109,24 +108,17 @@ int main(int argc, const char** argv)
          negative_relay_1,
          indicator_led_1,
          log);
-//   packs::Nissan::LeafPack battery_pack_2(
-//         usb_port,
-//         timer,
-//         positive_relay_2,
-//         negative_relay_2,
-//         indicator_led_2,
-//         log);
+  packs::Nissan::LeafPack battery_pack_2(
+        usb_port.getSinkOutbound(1),
+        timer,
+        positive_relay_2,
+        negative_relay_2,
+        indicator_led_2,
+        log);
 
    usb_port.setupLogger(*log, "<USB OUT>", color::cyan);
-   usb_port.setSinkInbound_1(battery_pack_1);
-//   usb_port.setSinkInbound_2(battery_pack_2);
-
-//      battery_port.setupLogger(*log, "<BAT OUT>", color::blue);
-//      battery_port.setSink(battery_pack);
-
-   
-//   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, timer, monitor, contactor);
-//   can::services::SMA::MessageFactory inverter_sink(inverter, &std::cout);
+   usb_port.setSinkInbound(0, battery_pack_1);
+   usb_port.setSinkInbound(1, battery_pack_2);
 
    inverter::TSUN::TSOL_H50K inverter(
          inverter_port,
