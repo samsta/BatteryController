@@ -32,10 +32,10 @@ class BatteryPowerLimits;
 namespace monitor {
 namespace Nissan {
 
-class Monitor: public monitor::Monitor, public can::messages::Nissan::MessageSink
+class LeafMonitor: public monitor::Monitor, public can::messages::Nissan::MessageSink
 {
 public:
-   explicit Monitor(contactor::Contactor&);
+   explicit LeafMonitor(contactor::Contactor&);
 
    virtual void sink(const can::messages::Nissan::Message&);
 

@@ -8,8 +8,6 @@
 #ifndef PACKS_NISSAN_LEAFMULTIPACK_HPP_
 #define PACKS_NISSAN_LEAFMULTIPACK_HPP_
 
-#include <monitor/Nissan/LeafMonitor.hpp>
-#include "monitor/Monitor.hpp"
 #include "packs/Nissan/LeafPack.hpp"
 
 namespace packs {
@@ -18,7 +16,8 @@ namespace Nissan {
 class LeafMultiPack : public monitor::Monitor
 {
 public:
-//   LeafMultiPack();
+   LeafMultiPack();
+   ~LeafMultiPack();
 
    // monitor::Monitor
    virtual float getVoltage() const;
@@ -41,8 +40,8 @@ public:
    virtual const char* getManufacturerName() const;
    virtual const char* getBatteryName() const;
 
-   monitor::Monitor& getMonitor();
-   contactor::Contactor& getContactor();
+//   monitor::Monitor& getMonitor(int index);
+//   contactor::Contactor& getContactor();
 
    static const unsigned NUM_PACKS = 3;
 
@@ -74,7 +73,7 @@ private:
 
    packs::Nissan::LeafPack                m_packs[NUM_PACKS];
    contactor::Nissan::LeafContactor       m_contactor;
-   monitor::Nissan::Monitor               m_monitor;
+   monitor::Nissan::LeafMonitor               m_monitor;
 
 };
 
