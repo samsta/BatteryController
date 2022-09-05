@@ -1,6 +1,6 @@
 #include <gmock/gmock.h>
+#include <monitor/Nissan/LeafMonitor.hpp>
 #include <limits>
-#include "monitor/Nissan/Monitor.hpp"
 #include "mocks/contactor/Contactor.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/CellVoltageRange.hpp"

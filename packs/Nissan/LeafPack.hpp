@@ -3,11 +3,11 @@
 #ifndef _PACKS_NISSAN_LEAFPACK_HPP_
 #define _PACKS_NISSAN_LEAFPACK_HPP_
 
+#include <monitor/Nissan/LeafMonitor.hpp>
 #include "can/services/Nissan/FrameAggregator.hpp"
 #include "can/services/Nissan/GroupPoller.hpp"
 #include "can/services/Nissan/MessageFactory.hpp"
 #include "contactor/Nissan/LeafContactor.hpp"
-#include "monitor/Nissan/Monitor.hpp"
 #include "can/services/Nissan/HappyPoller.hpp"
 
 namespace packs {

@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-#include "Monitor.hpp"
 #include "contactor/Contactor.hpp"
 #include <math.h>
+#include <monitor/Nissan/LeafMonitor.hpp>
 
 using namespace can::messages::Nissan;
 

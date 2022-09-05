@@ -8,10 +8,8 @@
 #ifndef PACKS_NISSAN_LEAFMULTIPACK_HPP_
 #define PACKS_NISSAN_LEAFMULTIPACK_HPP_
 
+#include <monitor/Nissan/LeafMonitor.hpp>
 #include "monitor/Monitor.hpp"
-
-#include "contactor/Nissan/LeafContactor.hpp"
-#include "monitor/Nissan/Monitor.hpp"
 #include "packs/Nissan/LeafPack.hpp"
 
 namespace packs {
