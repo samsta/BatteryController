@@ -11,7 +11,7 @@
 namespace packs {
 namespace Nissan {
 
-class LeafMultiPack: public monitor::Monitor
+class LeafMultiPack: public monitor::Monitor, public contactor::Contactor
 {
 public:
    LeafMultiPack(
@@ -89,18 +89,18 @@ private:
    // output data to inverter
    // no need to declare monitor, this IS the monitor
 
-   // need a contactor class derived from base Contactor
-   class AllContactor: public contactor::Contactor
-   {
-   public:
-      AllContactor();
-
-   private:
-      enum State {
-      OPEN,
-      CLOSING,
-      CLOSED
-   };
+//   // need a contactor class derived from base Contactor
+//   class AllContactor: public contactor::Contactor
+//   {
+//      public:
+//         AllContactor();
+//
+      private:
+         enum State {
+         OPEN,
+         CLOSING,
+         CLOSED
+      };
 
       virtual void setSafeToOperate(bool);
       virtual bool isSafeToOperate() const;
@@ -113,9 +113,9 @@ private:
       State m_requested_state;
       State m_state;
 
-   };
-
-   AllContactor m_all_contactor;
+//   };
+//
+//   AllContactor m_all_contactor;
 
 };
 

@@ -33,8 +33,9 @@ LeafMultiPack::LeafMultiPack(
       m_charge_power_limit(NAN),
       m_discharge_current_limit(0),
       m_charge_current_limit(0),
-      m_contactor_status(pow(2,6)-1),
-      m_all_contactor()
+      m_contactor_status(pow(2,6)-1)
+//      ,
+//      m_all_contactor()
 {
 }
 
@@ -42,17 +43,17 @@ LeafMultiPack::~LeafMultiPack()
 {
 }
 
-contactor::Contactor& LeafMultiPack::getContactor()
-{
-  return m_all_contactor;
-}
+//contactor::Contactor& LeafMultiPack::getContactor()
+//{
+//  return m_all_contactor;
+//}
 
 uint32_t LeafMultiPack::getContactorStatus() const
 {
 	return m_contactor_status;
 }
 
-void LeafMultiPack::AllContactor::setSafeToOperate(bool is_safe)
+void LeafMultiPack::setSafeToOperate(bool is_safe)
 {
    // if (m_log)
    // {
@@ -62,29 +63,29 @@ void LeafMultiPack::AllContactor::setSafeToOperate(bool is_safe)
    updateRelays();
 }
 
-bool LeafMultiPack::AllContactor::isSafeToOperate() const
+bool LeafMultiPack::isSafeToOperate() const
 {
    return m_safe_to_operate;
 }
 
-bool LeafMultiPack::AllContactor::isClosed() const
+bool LeafMultiPack::isClosed() const
 {
    return m_state == CLOSED;
 }
 
-void LeafMultiPack::AllContactor::close()
+void LeafMultiPack::close()
 {
    m_requested_state = CLOSED;
    updateRelays();
 }
 
-void LeafMultiPack::AllContactor::open()
+void LeafMultiPack::open()
 {
    m_requested_state = OPEN;
    updateRelays();
 }
 
-void LeafMultiPack::AllContactor::updateRelays()
+void LeafMultiPack::updateRelays()
 {
    // if (m_safe_to_operate && m_requested_state == CLOSED)
    // {

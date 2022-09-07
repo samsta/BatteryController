@@ -133,7 +133,7 @@ int main(int argc, const char** argv)
          inverter_port,
          timer,
          multi_battery,
-         multi_battery.getContactor());
+         multi_battery);
    can::services::TSUN::MessageFactory inverter_message_factory(inverter, log);
 
    inverter_port.setupLogger(*log, "<INV OUT>", color::green);
