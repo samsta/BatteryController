@@ -47,9 +47,6 @@ TSOL_H50K::TSOL_H50K(can::FrameSink& sender,
 TSOL_H50K::~TSOL_H50K()
 {
    m_timer.deregisterCallback(&m_periodic_callback);
-
-   // I didn't see an 'open' in m_contactor destructor so I put one here. open for discussion
-   //m_contactor.open(); //JFS: putting this in breaks the contactor open tests... I don't know why
 }
 
 void TSOL_H50K::periodicCallback()

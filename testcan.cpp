@@ -11,6 +11,7 @@
 #include <fstream>
 
 #include "packs/Nissan/LeafPack.hpp"
+#include "packs/Nissan/LeafMultiPack.hpp"
 #include "can/services/SMA/MessageFactory.hpp"
 #include "can/services/TSUN/MessageFactory.hpp"
 #include "inverter/SMA/SunnyBoyStorage.hpp"
@@ -120,11 +121,19 @@ int main(int argc, const char** argv)
    usb_port.setSinkInbound(0, battery_pack_1);
    usb_port.setSinkInbound(1, battery_pack_2);
 
+   packs::Nissan::LeafMultiPack multi_battery(
+                     battery_pack_1.getMonitor(),
+                     battery_pack_1.getContactor(),
+                     battery_pack_2.getMonitor(),
+                     battery_pack_2.getContactor(),
+                     log);
+
+
    inverter::TSUN::TSOL_H50K inverter(
          inverter_port,
          timer,
-         battery_pack_1.getMonitor(),
-         battery_pack_1.getContactor());
+         multi_battery,
+         multi_battery.getContactor());
    can::services::TSUN::MessageFactory inverter_message_factory(inverter, log);
 
    inverter_port.setupLogger(*log, "<INV OUT>", color::green);

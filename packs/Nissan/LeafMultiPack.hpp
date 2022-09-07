@@ -1,22 +1,25 @@
-/*
- * LeafMultiPack.hpp
- *
- *  Created on: Sep 5, 2022
- *      Author: openonevm
- */
+/* SPDX-License-Identifier: GPL-3.0-or-later */
 
 #ifndef PACKS_NISSAN_LEAFMULTIPACK_HPP_
 #define PACKS_NISSAN_LEAFMULTIPACK_HPP_
 
-#include "packs/Nissan/LeafPack.hpp"
+#include <math.h>
+#include "monitor/Monitor.hpp"
+#include "contactor/Contactor.hpp"
+#include "contactor/Nissan/LeafContactor.hpp"
 
 namespace packs {
 namespace Nissan {
 
-class LeafMultiPack : public monitor::Monitor
+class LeafMultiPack: public monitor::Monitor
 {
 public:
-   LeafMultiPack();
+   LeafMultiPack(
+                   monitor::Monitor& monitor1,
+                   contactor::Contactor& contactor1,
+                   monitor::Monitor& monitor2,
+                   contactor::Contactor& contactor2,
+                   logging::ostream* log = nullptr);
    ~LeafMultiPack();
 
    // monitor::Monitor
@@ -40,12 +43,23 @@ public:
    virtual const char* getManufacturerName() const;
    virtual const char* getBatteryName() const;
 
-//   monitor::Monitor& getMonitor(int index);
-//   contactor::Contactor& getContactor();
+   virtual uint32_t getContactorStatus() const;
 
-   static const unsigned NUM_PACKS = 3;
+   // no need for getMonitor as this (LeafMultiPack) is the montior
+   // need to pass internal contactor to inverter
+   contactor::Contactor& getContactor();
+
+   // static const unsigned NUM_PACKS = 3;
 
 private:
+
+
+   // input from battery packs
+   monitor::Monitor&     m_1monitor;
+   contactor::Contactor& m_1contactor;
+   monitor::Monitor&     m_2monitor;
+   contactor::Contactor& m_2contactor;
+   logging::ostream*     m_log;
 
    bool m_voltages_ok;
    bool m_temperatures_ok;
@@ -69,19 +83,43 @@ private:
    float m_discharge_current_limit;
    float m_charge_current_limit;
 
+   uint32_t m_contactor_status;
 
 
-   packs::Nissan::LeafPack                m_packs[NUM_PACKS];
-   contactor::Nissan::LeafContactor       m_contactor;
-   monitor::Nissan::LeafMonitor               m_monitor;
+   // output data to inverter
+   // no need to declare monitor, this IS the monitor
+
+   // need a contactor class derived from base Contactor
+   class AllContactor: public contactor::Contactor
+   {
+   public:
+      AllContactor();
+
+   private:
+      enum State {
+      OPEN,
+      CLOSING,
+      CLOSED
+   };
+
+      virtual void setSafeToOperate(bool);
+      virtual bool isSafeToOperate() const;
+      virtual bool isClosed() const;
+      virtual void close();
+      virtual void open();
+      void updateRelays();
+
+      bool  m_safe_to_operate;
+      State m_requested_state;
+      State m_state;
+
+   };
+
+   AllContactor m_all_contactor;
 
 };
 
 }
 }
-
-
-
-
 
 #endif /* PACKS_NISSAN_LEAFMULTIPACK_HPP_ */
