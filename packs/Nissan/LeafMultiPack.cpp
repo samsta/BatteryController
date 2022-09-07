@@ -96,6 +96,102 @@ void LeafMultiPack::AllContactor::updateRelays()
    // }
 }
 
+float LeafMultiPack::getVoltage() const
+{
+   return m_voltage;
+}
+
+float LeafMultiPack::getCurrent() const
+{
+   return m_current;
+}
+
+float LeafMultiPack::getTemperature() const
+{
+   return m_average_temperature;
+}
+
+float LeafMultiPack::getSocPercent() const
+{
+   return m_soc_percent;
+}
+
+float LeafMultiPack::getSohPercent() const
+{
+   return m_soh_percent;
+}
+
+float LeafMultiPack::getEnergyRemainingKwh() const
+{
+   return m_energy_remaining_kwh;
+}
+
+float LeafMultiPack::getCapacityKwh() const
+{
+   return m_capacity_kwh;
+}
+
+uint32_t LeafMultiPack::getSystemVersion() const
+{
+   return 1; // TODO - come up with a versioning scheme
+}
+
+uint32_t LeafMultiPack::getSerialNumber() const
+{
+   return 1; // TODO - do we configure this, or can we get it from the battery?
+}
+
+float LeafMultiPack::getNominalCapacityKwh() const
+{
+   return 0; // NOMINAL_CAPACITY_KWH; // TODO - configurable
+}
+
+unsigned LeafMultiPack::getNumberOfModules() const
+{
+   return 0;// NUM_MODULES; // TODO - configurable
+}
+
+uint32_t LeafMultiPack::getManufacturingDateUnixTime() const
+{
+   return 0; // TODO - where do we get this from?
+}
+
+const char* LeafMultiPack::getManufacturerName() const
+{
+   return "TIML";
+}
+
+const char* LeafMultiPack::getBatteryName() const
+{
+   return "LeafG2";
+}
+
+float LeafMultiPack::getMaxChargeVoltage() const
+{
+   return 0;// CRITICALLY_HIGH_VOLTAGE * NUM_CELLS;
+}
+
+float LeafMultiPack::getMinDischargeVoltage() const
+{
+   return 0;//CRITICALLY_LOW_VOLTAGE * NUM_CELLS;
+}
+
+float LeafMultiPack::getChargeCurrentLimit() const
+{
+   //return m_charge_cur_fac_by_voltage * m_cur_fac_by_temperature * NOMINAL_CURRENT_LIMIT;
+   return m_charge_current_limit;
+}
+
+float LeafMultiPack::getDischargeCurrentLimit() const
+{
+   //return m_discharge_cur_fac_by_voltage * m_cur_fac_by_temperature * NOMINAL_CURRENT_LIMIT;
+   return m_discharge_current_limit;
+}
+
+
+
+
+
 
 }
 }
