@@ -83,39 +83,23 @@ private:
    float m_discharge_current_limit;
    float m_charge_current_limit;
 
-   uint32_t m_contactor_status;
+   private:
+      enum State {
+      OPEN,
+      CLOSING,
+      CLOSED
+   };
 
+   virtual void setSafeToOperate(bool);
+   virtual bool isSafeToOperate() const;
+   virtual bool isClosed() const;
+   virtual void close();
+   virtual void open();
+   void updateRelays();
 
-   // output data to inverter
-   // no need to declare monitor, this IS the monitor
-
-//   // need a contactor class derived from base Contactor
-//   class AllContactor: public contactor::Contactor
-//   {
-//      public:
-//         AllContactor();
-//
-      private:
-         enum State {
-         OPEN,
-         CLOSING,
-         CLOSED
-      };
-
-      virtual void setSafeToOperate(bool);
-      virtual bool isSafeToOperate() const;
-      virtual bool isClosed() const;
-      virtual void close();
-      virtual void open();
-      void updateRelays();
-
-      bool  m_safe_to_operate;
-      State m_requested_state;
-      State m_state;
-
-//   };
-//
-//   AllContactor m_all_contactor;
+   bool  m_safe_to_operate;
+   State m_requested_state;
+   State m_state;
 
 };
 

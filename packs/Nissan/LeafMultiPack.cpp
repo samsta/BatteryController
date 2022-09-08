@@ -33,9 +33,9 @@ LeafMultiPack::LeafMultiPack(
       m_charge_power_limit(NAN),
       m_discharge_current_limit(0),
       m_charge_current_limit(0),
-      m_contactor_status(pow(2,6)-1)
-//      ,
-//      m_all_contactor()
+      m_safe_to_operate(false),
+      m_requested_state(OPEN),
+      m_state(OPEN)
 {
 }
 
@@ -43,24 +43,17 @@ LeafMultiPack::~LeafMultiPack()
 {
 }
 
-//contactor::Contactor& LeafMultiPack::getContactor()
-//{
-//  return m_all_contactor;
-//}
-
 uint32_t LeafMultiPack::getContactorStatus() const
 {
-	return m_contactor_status;
+   return (m_1monitor.getContactorStatus() | m_2monitor.getContactorStatus());
 }
 
 void LeafMultiPack::setSafeToOperate(bool is_safe)
 {
-   // if (m_log)
-   // {
-   //    *m_log << color::red << ">>> contactor is " << (is_safe ? "safe" : "unsafe") << " to operate" << color::reset << std::endl;
-   // }
-   m_safe_to_operate = is_safe;
-   updateRelays();
+   // should never be called
+   bool junk = is_safe; // to stop compiler warning
+   junk = !junk; // to stop compiler warning
+   printf("\nLeafMultiPack::setSafeToOperate called: THIS SHOULD NEVER HAPPEN!\n");
 }
 
 bool LeafMultiPack::isSafeToOperate() const
@@ -87,19 +80,30 @@ void LeafMultiPack::open()
 
 void LeafMultiPack::updateRelays()
 {
-   // if (m_safe_to_operate && m_requested_state == CLOSED)
-   // {
-   //    if (m_state == OPEN) closeNegativeRelay();
-   // }
-   // else if (not m_safe_to_operate or m_requested_state == OPEN)
-   // {
-   //    if (m_state != OPEN) openBothRelays();
-   // }
+   m_safe_to_operate = m_1contactor.isSafeToOperate() & m_2contactor.isSafeToOperate();
+   if (m_safe_to_operate && m_requested_state == CLOSED)
+   {
+      if (m_state == OPEN)
+      {
+         // closeNegativeRelay();
+         m_1contactor.close();
+         m_2contactor.close();
+      }
+   }
+   else if (not m_safe_to_operate or m_requested_state == OPEN)
+   {
+      if (m_state != OPEN)
+      {
+         // openBothRelays();
+         m_1contactor.open();
+         m_2contactor.open();
+      }
+   }
 }
 
 float LeafMultiPack::getVoltage() const
 {
-   return m_voltage;
+   return (m_1monitor.getVoltage() + m_2monitor.getVoltage())/ 2.0;
 }
 
 float LeafMultiPack::getCurrent() const
