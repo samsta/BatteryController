@@ -7,6 +7,7 @@
 #include "monitor/Monitor.hpp"
 #include "contactor/Contactor.hpp"
 #include "contactor/Nissan/LeafContactor.hpp"
+#include "monitor/Nissan/LeafMonitor.hpp"
 
 namespace packs {
 namespace Nissan {
@@ -14,12 +15,22 @@ namespace Nissan {
 class LeafMultiPack: public monitor::Monitor, public contactor::Contactor
 {
 public:
-   LeafMultiPack(
-                   monitor::Monitor& monitor1,
-                   contactor::Contactor& contactor1,
-                   monitor::Monitor& monitor2,
-                   contactor::Contactor& contactor2,
-                   logging::ostream* log = nullptr);
+   // LeafMultiPack(
+   //                 monitor::Monitor& monitor1,
+   //                 contactor::Contactor& contactor1,
+   //                 monitor::Monitor& monitor2,
+   //                 contactor::Contactor& contactor2,
+   //                 logging::ostream* log = nullptr);
+
+   LeafMultiPack( unsigned int num_packs,
+                  monitor::Monitor& monitor1,
+                  contactor::Contactor& contactor1,
+                  monitor::Monitor& monitor2,
+                  contactor::Contactor& contactor2,
+                  monitor::Monitor& monitor3,
+                  contactor::Contactor& contactor3,
+                  logging::ostream* log = nullptr);
+
    ~LeafMultiPack();
 
    // monitor::Monitor
@@ -52,13 +63,15 @@ public:
    // static const unsigned NUM_PACKS = 3;
 
 private:
-
+   unsigned int m_num_packs;
 
    // input from battery packs
    monitor::Monitor&     m_1monitor;
    contactor::Contactor& m_1contactor;
    monitor::Monitor&     m_2monitor;
    contactor::Contactor& m_2contactor;
+   monitor::Monitor&     m_3monitor;
+   contactor::Contactor& m_3contactor;
    logging::ostream*     m_log;
 
    bool m_voltages_ok;

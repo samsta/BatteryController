@@ -5,16 +5,60 @@
 namespace packs {
 namespace Nissan {
 
-LeafMultiPack::LeafMultiPack(
+// LeafMultiPack::LeafMultiPack(
+//                      monitor::Monitor& monitor1,
+//                      contactor::Contactor& contactor1,
+//                      monitor::Monitor& monitor2,
+//                      contactor::Contactor& contactor2,
+//                      logging::ostream* log):
+//       m_num_packs(2),
+//       m_contactor_dummy(m_contactor_dummy),
+//       m_monitor_dummy(m_contactor_dummy),
+//       m_1monitor(monitor1),
+//       m_1contactor(contactor1),
+//       m_2monitor(monitor2),
+//       m_2contactor(contactor2),
+//       m_3monitor(m_monitor_dummy),
+//       m_3contactor(m_contactor_dummy),
+//       m_log(log),
+//       m_voltages_ok(false),
+//       m_temperatures_ok(false),
+//       m_everything_ok(false),
+//       m_soc_percent(NAN),
+//       m_soh_percent(NAN),
+//       m_energy_remaining_kwh(NAN),
+//       m_capacity_kwh(NAN),
+//       m_current(NAN),
+//       m_voltage(NAN),
+//       m_average_temperature(NAN),
+//       m_cur_fac_by_temperature(0),
+//       m_charge_cur_fac_by_voltage(0),
+//       m_discharge_cur_fac_by_voltage(0),
+//       m_discharge_power_limit(NAN),
+//       m_charge_power_limit(NAN),
+//       m_discharge_current_limit(0),
+//       m_charge_current_limit(0),
+//       m_safe_to_operate(false),
+//       m_requested_state(OPEN),
+//       m_state(OPEN)
+// {
+// }
+
+LeafMultiPack::LeafMultiPack(unsigned int num_packs,
                      monitor::Monitor& monitor1,
                      contactor::Contactor& contactor1,
                      monitor::Monitor& monitor2,
                      contactor::Contactor& contactor2,
+                     monitor::Monitor& monitor3,
+                     contactor::Contactor& contactor3,
                      logging::ostream* log):
+      m_num_packs(num_packs),
       m_1monitor(monitor1),
       m_1contactor(contactor1),
       m_2monitor(monitor2),
       m_2contactor(contactor2),
+      m_3monitor(monitor3),
+      m_3contactor(contactor3),
       m_log(log),
       m_voltages_ok(false),
       m_temperatures_ok(false),
