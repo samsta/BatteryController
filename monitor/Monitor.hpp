@@ -35,6 +35,7 @@ public:
    virtual float getDischargeCurrentLimit() const = 0;
 
    virtual uint32_t getContactorStatus() const = 0;
+   virtual uint32_t getFailsafeStatus() const = 0;
 };
 
 logging::ostream& operator<<(logging::ostream& os, const Monitor& monitor);

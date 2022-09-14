@@ -61,3 +61,10 @@ TEST(NissanBatteryStatus, getUsableSOC)
 
    EXPECT_FLOAT_EQ(27.0, (float)status.getUsableSOC());
 }
+
+TEST(NissanBatteryStatusFlags, getStatusFlags)
+{
+   BatteryStatus status(can::StandardDataFrame("1db#0007000000000000"));
+
+   EXPECT_EQ( 7, status.getFailsafeStatus());
+}
