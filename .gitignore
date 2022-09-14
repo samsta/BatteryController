@@ -4,3 +4,4 @@ arduino-sdk/
 .DS_Store
 mitm
 mitm-log-file.csv
+.vscode/settings.json

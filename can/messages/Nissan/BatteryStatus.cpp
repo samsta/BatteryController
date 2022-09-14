@@ -13,7 +13,8 @@ BatteryStatus::BatteryStatus():
       m_current(),
       m_security_byte(),
       m_multiplex_byte(),
-      m_usable_soc()
+      m_usable_soc(),
+      m_failsafe_status(8)
 {
 }
 
@@ -41,6 +42,8 @@ BatteryStatus::BatteryStatus(const DataFrame& frame):
    m_multiplex_byte = frame.getByte(6);
    
    m_usable_soc = frame.getByte(4) & 0x7F;
+
+   m_failsafe_status = frame.getByte(1) & 0x07;
 
    setValid();
 }
@@ -91,6 +94,10 @@ uint8_t BatteryStatus::getMultiplexByte() const
    return m_multiplex_byte;
 }
 
+uint8_t BatteryStatus::getFailsafeStatus() const
+{
+   return m_failsafe_status;
+}
 
 void BatteryStatus::toStream(logging::ostream& os) const
 {

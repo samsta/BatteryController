@@ -25,6 +25,7 @@ public:
    uint8_t getMultiplexByte() const;
    float getUsableSOC() const;
    BatteryStatus& setUsableSOC(float current);
+   uint8_t getFailsafeStatus() const;
 
    virtual void toStream(logging::ostream&) const;
 
@@ -34,6 +35,7 @@ private:
    uint8_t m_security_byte;
    uint8_t m_multiplex_byte;
    float m_usable_soc;
+   uint8_t m_failsafe_status;
 };
 
 }

@@ -68,7 +68,8 @@ LeafMonitor::LeafMonitor(contactor::Contactor& contactor):
       m_charge_power_limit(NAN),
       m_discharge_current_limit(0),
       m_charge_current_limit(0),
-	  m_contactor_status(pow(2,6)-1)
+	   m_contactor_status(pow(2,6)-1),
+      m_failsafe_status(8)
 {
    m_contactor.setSafeToOperate(false);
 }
@@ -207,6 +208,7 @@ void LeafMonitor::process(const BatteryStatus& battery_status)
    m_voltage = battery_status.getVoltage();
    m_soc_percent = (float)battery_status.getUsableSOC();
    m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
+   m_failsafe_status = battery_status.getFailsafeStatus();
 }
 
 void LeafMonitor::process(const BatteryPowerLimits& battery_power)
@@ -391,6 +393,11 @@ float LeafMonitor::getDischargeCurrentLimit() const
 uint32_t LeafMonitor::getContactorStatus() const
 {
 	return m_contactor_status;
+}
+
+uint32_t Monitor::getFailsafeStatus() const
+{
+	return m_failsafe_status;
 }
 }
 }
