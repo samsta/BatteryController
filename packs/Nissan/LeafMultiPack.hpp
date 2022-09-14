@@ -23,8 +23,8 @@ public:
    //                 logging::ostream* log = nullptr);
 
    LeafMultiPack( unsigned int num_packs,
-                  monitor::Monitor& monitor1,
-                  contactor::Contactor& contactor1,
+                  monitor::Monitor* monitor1,
+                  contactor::Contactor* contactor1,
                   monitor::Monitor& monitor2,
                   contactor::Contactor& contactor2,
                   monitor::Monitor& monitor3,
@@ -66,8 +66,8 @@ private:
    unsigned int m_num_packs;
 
    // input from battery packs
-   monitor::Monitor&     m_1monitor;
-   contactor::Contactor& m_1contactor;
+   monitor::Monitor*     m_1monitor;
+   contactor::Contactor* m_1contactor;
    monitor::Monitor&     m_2monitor;
    contactor::Contactor& m_2contactor;
    monitor::Monitor&     m_3monitor;

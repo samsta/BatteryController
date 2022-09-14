@@ -45,8 +45,8 @@ namespace Nissan {
 // }
 
 LeafMultiPack::LeafMultiPack(unsigned int num_packs,
-                     monitor::Monitor& monitor1,
-                     contactor::Contactor& contactor1,
+                     monitor::Monitor* monitor1,
+                     contactor::Contactor* contactor1,
                      monitor::Monitor& monitor2,
                      contactor::Contactor& contactor2,
                      monitor::Monitor& monitor3,
@@ -89,7 +89,7 @@ LeafMultiPack::~LeafMultiPack()
 
 uint32_t LeafMultiPack::getContactorStatus() const
 {
-   return (m_1monitor.getContactorStatus() | m_2monitor.getContactorStatus());
+   return (m_1monitor->getContactorStatus() | m_2monitor.getContactorStatus());
 }
 
 void LeafMultiPack::setSafeToOperate(bool is_safe)
@@ -124,13 +124,13 @@ void LeafMultiPack::open()
 
 void LeafMultiPack::updateRelays()
 {
-   m_safe_to_operate = m_1contactor.isSafeToOperate() & m_2contactor.isSafeToOperate();
+   m_safe_to_operate = m_1contactor->isSafeToOperate() & m_2contactor.isSafeToOperate();
    if (m_safe_to_operate && m_requested_state == CLOSED)
    {
       if (m_state == OPEN)
       {
          // closeNegativeRelay();
-         m_1contactor.close();
+         m_1contactor->close();
          m_2contactor.close();
       }
    }
@@ -139,7 +139,7 @@ void LeafMultiPack::updateRelays()
       if (m_state != OPEN)
       {
          // openBothRelays();
-         m_1contactor.open();
+         m_1contactor->open();
          m_2contactor.open();
       }
    }
@@ -147,7 +147,7 @@ void LeafMultiPack::updateRelays()
 
 float LeafMultiPack::getVoltage() const
 {
-   return (m_1monitor.getVoltage() + m_2monitor.getVoltage())/ 2.0;
+   return (m_1monitor->getVoltage() + m_2monitor.getVoltage())/ 2.0;
 }
 
 float LeafMultiPack::getCurrent() const
