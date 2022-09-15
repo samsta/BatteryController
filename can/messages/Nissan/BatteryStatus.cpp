@@ -14,7 +14,7 @@ BatteryStatus::BatteryStatus():
       m_security_byte(),
       m_multiplex_byte(),
       m_usable_soc(),
-      m_failsafe_status(8)
+      m_failsafe_status(7)
 {
 }
 

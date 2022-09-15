@@ -69,7 +69,7 @@ Monitor::Monitor(contactor::Contactor& contactor):
       m_discharge_current_limit(0),
       m_charge_current_limit(0),
 	   m_contactor_status(pow(2,6)-1),
-      m_failsafe_status(8)
+      m_failsafe_status(7)
 {
    m_contactor.setSafeToOperate(false);
 }
