@@ -143,7 +143,12 @@ void USBPort::handle()
 
                printf("Received from port = %d\n", port);
                // use the port number to know where to send it
-               m_sinkInbound[port-1]->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
+               if (m_sinkInbound[port-1] != nullptr) {
+                  m_sinkInbound[port-1]->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
+               }
+               else {
+                  printf("Unexpected CAN msg received on Teensy port %d\n", port);
+               }
             }
             else
             {
@@ -208,11 +213,11 @@ USBPort::Pack::Pack(int fd,
 
 void USBPort::Pack::sink(const can::DataFrame& f)
 {
-   if (m_log)
-   {
-      //  *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
-      *m_log << "<USB OUT port " << m_index << ">" << f << std::endl;
-   }
+//   if (m_log)
+//   {
+//      //  *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
+//      *m_log << "<USB OUT port " << m_index << ">" << f << std::endl;
+//   }
    char msg[100];
    uint8_t uint8msg[26];
 

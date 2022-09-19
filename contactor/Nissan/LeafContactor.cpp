@@ -105,6 +105,8 @@ void LeafContactor::closeNegativeRelay()
       *m_log << color::bright_red << ">>>> contactor closing..." << color::reset << std::endl;
    }
 
+   // the next line delays by DELAY_CLOSE_MS then calls m_delayed_close(callback), m_delayed_close is 
+   // intialized in the class constructor to call closePositiveRelay... clear as mud.
    m_timer.schedule(&m_delayed_close, DELAY_CLOSE_MS);
    m_negative_relay.set(OutputPin::LOW);
    m_indicator.set(OutputPin::HIGH);

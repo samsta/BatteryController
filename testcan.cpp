@@ -80,13 +80,13 @@ int main(int argc, const char** argv)
    OutputPin negative_relay_1(0, 6, "relay_neg_1");
    OutputPin indicator_led_1(0, 4, "led_1");
 
-   OutputPin positive_relay_2(0, 8, "relay_pos_2");
-   OutputPin negative_relay_2(0, 9, "relay_neg_2");
-   OutputPin indicator_led_2(0, 7, "led_2");
+   // OutputPin positive_relay_2(0, 8, "relay_pos_2");
+   // OutputPin negative_relay_2(0, 9, "relay_neg_2");
+   // OutputPin indicator_led_2(0, 7, "led_2");
 
-   OutputPin positive_relay_3(0, 11, "relay_pos_3");
-   OutputPin negative_relay_3(0, 12, "relay_neg_3");
-   OutputPin indicator_led_3(0, 10, "led_3");
+   // OutputPin positive_relay_3(0, 11, "relay_pos_3");
+   // OutputPin negative_relay_3(0, 12, "relay_neg_3");
+   // OutputPin indicator_led_3(0, 10, "led_3");
 
    // core::ConsolePresenter console(timer);
    // if (console.isOperational())
@@ -115,34 +115,37 @@ int main(int argc, const char** argv)
          log);
    monitor::Monitor* pbatmon1 = &battery_pack_1.getMonitor();
    contactor::Contactor* pbatcon1 = &battery_pack_1.getContactor();
-   packs::Nissan::LeafPack battery_pack_2(
-        usb_port.getSinkOutbound(1),
-        timer,
-        positive_relay_2,
-        negative_relay_2,
-        indicator_led_2,
-        log);
-   packs::Nissan::LeafPack battery_pack_3(
-        usb_port.getSinkOutbound(2),
-        timer,
-        positive_relay_3,
-        negative_relay_3,
-        indicator_led_3,
-        log);
+
+   // packs::Nissan::LeafPack battery_pack_2(
+   //      usb_port.getSinkOutbound(1),
+   //      timer,
+   //      positive_relay_2,
+   //      negative_relay_2,
+   //      indicator_led_2,
+   //      log);
+
+   // packs::Nissan::LeafPack battery_pack_3(
+   //      usb_port.getSinkOutbound(2),
+   //      timer,
+   //      positive_relay_3,
+   //      negative_relay_3,
+   //      indicator_led_3,
+   //      log);
 
    usb_port.setupLogger(*log, "<USB OUT>", color::cyan);
    usb_port.setSinkInbound(0, battery_pack_1);
-   usb_port.setSinkInbound(1, battery_pack_2);
+   // usb_port.setSinkInbound(1, battery_pack_2);
+   // usb_port.setSinkInbound(1, battery_pack_3);
 
 
    packs::Nissan::LeafMultiPack multi_battery(
                      2,
                      pbatmon1,
                      pbatcon1,
-                     battery_pack_2.getMonitor(),
-                     battery_pack_2.getContactor(),
-                     battery_pack_3.getMonitor(),
-                     battery_pack_3.getContactor(),
+                     // battery_pack_2.getMonitor(),
+                     // battery_pack_2.getContactor(),
+                     // battery_pack_3.getMonitor(),
+                     // battery_pack_3.getContactor(),
                      log);
 
 

@@ -8,18 +8,19 @@ namespace messages {
 namespace Nissan {
 
 enum Ids {
-   ID_BATTERY_STATUS   = 0x1db,
-   ID_LBC_DATA_REQUEST = 0x79b,
-   ID_LBC_DATA_REPLY   = 0x7bb,
-   ID_LBC_POWER_LIMITS = 0x1dc,
-   ID_LBC_VOLTS_CURRENT = 0x1db,
-   ID_LBC_VCM_DIAG_50B  = 0x50b,
-   ID_LBC_HCM_CLOCK_50C = 0x50c,
-   ID_LBC_STATUS_55B    = 0x55b,
+   // BC sends...
+   ID_LBC_VCM_DIAG_50B  = 0x50B,
+   ID_LBC_HCM_CLOCK_50C = 0x50C,
    ID_LBC_HEARTBEAT_11A = 0x11A,
    ID_LBC_VCM_1F2       = 0x1F2,
-   ID_LBC_VCM_1D4       = 0x1D4
+   ID_LBC_VCM_1D4       = 0x1D4,
+   ID_LBC_DATA_REQUEST  = 0x79B,
 
+   // LBC sends...
+   ID_LBC_STATUS_55B    = 0x55B,
+   ID_BATTERY_STATUS    = 0x1DB,
+   ID_LBC_POWER_LIMITS  = 0x1DC,
+   ID_LBC_DATA_REPLY    = 0x7BB
 };
 
 enum LbcDataGroups {
