@@ -27,7 +27,7 @@ USBPort::USBPort(const char* name, int epoll_fd):
     m_epoll_fd(epoll_fd),
     m_fd(open_serial_port(name, 9600)),
     m_name(name),
-    m_sinkInbound{{nullptr}, {nullptr}, {nullptr}},
+    m_sinkInbound{nullptr, nullptr, nullptr},
     m_packs{
         {m_fd, 0, m_log},// m_log_prefix, m_log_color, m_log_color_reset},
         {m_fd, 1, m_log},// m_log_prefix, m_log_color, m_log_color_reset},
