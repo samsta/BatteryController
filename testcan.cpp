@@ -88,23 +88,23 @@ int main(int argc, const char** argv)
    // OutputPin negative_relay_3(0, 12, "relay_neg_3");
    // OutputPin indicator_led_3(0, 10, "led_3");
 
-   // core::ConsolePresenter console(timer);
-   // if (console.isOperational())
-   // {
-   //    logfile.open("log.txt");
-   //    if (logfile.good())
-   //    {
-   //       log = &logfile;
-   //    }
-   //    else
-   //    {
-   //       std::cerr << "Failed opening logfile log.txt: " << strerror(errno) << std::endl;
-   //    }
-   // }
-   // else
-   // {
-   //    std::cerr << "Don't have a terminal to run console presenter, so I'll proceed logging to stdout" << std::endl;
-   // }
+   core::ConsolePresenter console(timer);
+   if (console.isOperational())
+   {
+      logfile.open("log.txt");
+      if (logfile.good())
+      {
+         log = &logfile;
+      }
+      else
+      {
+         std::cerr << "Failed opening logfile log.txt: " << strerror(errno) << std::endl;
+      }
+   }
+   else
+   {
+      std::cerr << "Don't have a terminal to run console presenter, so I'll proceed logging to stdout" << std::endl;
+   }
    
    packs::Nissan::LeafPack battery_pack_1(
          usb_port.getSinkOutbound(0),
@@ -159,11 +159,11 @@ int main(int argc, const char** argv)
    inverter_port.setupLogger(*log, "<INV OUT>", color::green);
    inverter_port.setSink(inverter_message_factory);
 
-   // if (console.isOperational())
-   // {
-   //    console.setMonitor(battery_pack_1.getMonitor());
-   //    console.setContactor(battery_pack_1.getContactor());
-   // }
+   if (console.isOperational())
+   {
+      console.setMonitor(battery_pack_1.getMonitor());
+      console.setContactor(battery_pack_1.getContactor());
+   }
 
    while (keep_on_trucking)
    {

@@ -48,6 +48,11 @@ LeafMultiPack::~LeafMultiPack()
 {
 }
 
+uint32_t LeafMultiPack::getFailsafeStatus() const
+{
+	return m_1monitor->getFailsafeStatus();
+}
+
 uint32_t LeafMultiPack::getContactorStatus() const
 {
    return (m_1monitor->getContactorStatus());

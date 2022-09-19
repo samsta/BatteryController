@@ -49,6 +49,7 @@ public:
    virtual const char* getBatteryName() const;
 
    virtual uint32_t getContactorStatus() const;
+   virtual uint32_t getFailsafeStatus() const;
 
    // no need for getMonitor as this (LeafMultiPack) is the montior
    // need to pass internal contactor to inverter

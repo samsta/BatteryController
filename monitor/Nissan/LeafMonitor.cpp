@@ -395,7 +395,7 @@ uint32_t LeafMonitor::getContactorStatus() const
 	return m_contactor_status;
 }
 
-uint32_t Monitor::getFailsafeStatus() const
+uint32_t LeafMonitor::getFailsafeStatus() const
 {
 	return m_failsafe_status;
 }

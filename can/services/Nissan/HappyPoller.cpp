@@ -32,14 +32,14 @@ HappyPoller::~HappyPoller()
 void HappyPoller::poll()
 {
    //todo: if necessary, delay sending of message for a bit at startup
-   m_sender.sink(StandardDataFrame(ID_LBC_HEARTBEAT_11A, m_heartbeat_11A[m_heartbeat_counter]));
+   // m_sender.sink(StandardDataFrame(ID_LBC_HEARTBEAT_11A, m_heartbeat_11A[m_heartbeat_counter]));
    m_heartbeat_counter = (m_heartbeat_counter + 1) % 4;
 
    // 1F2 uses 11A counter
-   m_sender.sink(StandardDataFrame(ID_LBC_VCM_1F2, m_vcm_1F2[m_heartbeat_counter]));
+   // m_sender.sink(StandardDataFrame(ID_LBC_VCM_1F2, m_vcm_1F2[m_heartbeat_counter]));
 
    // 1D4 uses 11A counter
-   m_sender.sink(StandardDataFrame(ID_LBC_VCM_1D4, m_vcm_1D4[m_heartbeat_counter]));
+   // m_sender.sink(StandardDataFrame(ID_LBC_VCM_1D4, m_vcm_1D4[m_heartbeat_counter]));
 
 }
 
