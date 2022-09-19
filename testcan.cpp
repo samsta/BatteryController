@@ -54,9 +54,9 @@ int main(int argc, const char** argv)
    sigemptyset(&all_signals);
    sigaddset(&all_signals, SIGINT);
 
-   if (argc != 4)
+   if (argc != 3)
    {
-      fprintf(stderr, "usage: %s <can_interface_battery> <can_interface_inverter> <usb_port_name>\n", argv[0]);
+      fprintf(stderr, "usage: %s <can_interface_inverter> <usb_port_battery>\n", argv[0]);
       return 1;
    }
 
@@ -71,9 +71,9 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
-   core::USBPort usb_port(argv[3], epollfd);
+   core::USBPort usb_port(argv[2], epollfd);
 
-   core::CanPort inverter_port(argv[2], epollfd);
+   core::CanPort inverter_port(argv[1], epollfd);
    core::EpollTimer timer(epollfd);
 
    OutputPin positive_relay_1(0, 5, "relay_pos_1");

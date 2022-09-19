@@ -38,7 +38,7 @@ contactor::Contactor& LeafPack::getContactor()
 
 void LeafPack::sink(const can::DataFrame& f)
 {
-   printf("LeafPack::sink\n");
+   // printf("LeafPack::sink\n"); //JFS
    m_happy_poller.received(f);
    m_poller.received(f);
    m_aggregator.sink(f);

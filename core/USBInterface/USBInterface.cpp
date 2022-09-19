@@ -112,7 +112,7 @@ void USBPort::handle()
          }
          else
          {
-            printf("Failed to find 0x0a End of Msg\n");
+            printf("Failed to find 0x0a End of Msg\n");//JFS
             bytesread = 0;
          }
       }
@@ -141,7 +141,7 @@ void USBPort::handle()
                   frame.data[i] = HextoDec( &inbuf[i*2 + 9], 2);
                }
 
-               printf("Received from port = %d\n", port);
+               // printf("Received from port = %d\n", port);//JFS
                // use the port number to know where to send it
                if (m_sinkInbound[port-1] != nullptr) {
                   m_sinkInbound[port-1]->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
@@ -240,7 +240,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    // put a CR at the end of the message
    uint8msg[25] = 0xd;
 
-   printf("Sending to port = %d\n",m_index+1);
+   // printf("Sending to port = %d\n",m_index+1);//JFS
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));
    if (x<0)
    {
