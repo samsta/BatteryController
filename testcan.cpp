@@ -28,6 +28,8 @@
 
 #include <signal.h>
 
+#undef CONSOLE
+
 using namespace core::libgpiod;
 namespace color = logging::color::ansi;
 
@@ -88,6 +90,7 @@ int main(int argc, const char** argv)
    // OutputPin negative_relay_3(0, 12, "relay_neg_3");
    // OutputPin indicator_led_3(0, 10, "led_3");
 
+   #ifdef CONSOLE
    core::ConsolePresenter console(timer);
    if (console.isOperational())
    {
@@ -105,7 +108,8 @@ int main(int argc, const char** argv)
    {
       std::cerr << "Don't have a terminal to run console presenter, so I'll proceed logging to stdout" << std::endl;
    }
-   
+   #endif
+
    packs::Nissan::LeafPack battery_pack_1(
          usb_port.getSinkOutbound(0),
          timer,
@@ -139,7 +143,7 @@ int main(int argc, const char** argv)
 
 
    packs::Nissan::LeafMultiPack multi_battery(
-                     2,
+                     1,
                      pbatmon1,
                      pbatcon1,
                      // battery_pack_2.getMonitor(),
@@ -159,11 +163,13 @@ int main(int argc, const char** argv)
    inverter_port.setupLogger(*log, "<INV OUT>", color::green);
    inverter_port.setSink(inverter_message_factory);
 
+   #ifdef CONSOLE
    if (console.isOperational())
    {
-      console.setMonitor(battery_pack_1.getMonitor());
-      console.setContactor(battery_pack_1.getContactor());
+      console.setMonitor(multi_battery);
+      console.setContactor(multi_battery);
    }
+   #endif
 
    while (keep_on_trucking)
    {

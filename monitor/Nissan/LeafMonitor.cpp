@@ -315,11 +315,13 @@ float LeafMonitor::getTemperature() const
 
 float LeafMonitor::getSocPercent() const
 {
+   printf("LeafMonitor::getSocPercent()\n");
    return m_soc_percent;
 }
 
 float LeafMonitor::getSohPercent() const
 {
+   printf("LeafMonitor::getSohPercent()\n");
    return m_soh_percent;
 }
 
@@ -355,17 +357,18 @@ unsigned LeafMonitor::getNumberOfModules() const
 
 uint32_t LeafMonitor::getManufacturingDateUnixTime() const
 {
-   return 0; // TODO - where do we get this from?
+   return 1; // TODO - where do we get this from?
 }
 
 const char* LeafMonitor::getManufacturerName() const
 {
-   return "TIML";
+   printf("LeafMonitor::getManufacturerName()\n");
+   return "TIML-LM";
 }
 
 const char* LeafMonitor::getBatteryName() const
 {
-   return "LeafG2";
+   return "LeafG2-LM";
 }
 
 float LeafMonitor::getMaxChargeVoltage() const

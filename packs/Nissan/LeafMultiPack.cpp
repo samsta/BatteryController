@@ -130,11 +130,13 @@ float LeafMultiPack::getTemperature() const
 
 float LeafMultiPack::getSocPercent() const
 {
+   printf("LeafMultiPack::getSocPercent()");
    return m_1monitor->getSocPercent();
 }
 
 float LeafMultiPack::getSohPercent() const
 {
+   printf("LeafMultiPack::getSohPercent()");
    return m_1monitor->getSohPercent();
 }
 
@@ -150,12 +152,12 @@ float LeafMultiPack::getCapacityKwh() const
 
 uint32_t LeafMultiPack::getSystemVersion() const
 {
-   return 1; // TODO - come up with a versioning scheme
+   return 2; // TODO - come up with a versioning scheme
 }
 
 uint32_t LeafMultiPack::getSerialNumber() const
 {
-   return 1; // TODO - do we configure this, or can we get it from the battery?
+   return 2; // TODO - do we configure this, or can we get it from the battery?
 }
 
 float LeafMultiPack::getNominalCapacityKwh() const
@@ -170,17 +172,18 @@ unsigned LeafMultiPack::getNumberOfModules() const
 
 uint32_t LeafMultiPack::getManufacturingDateUnixTime() const
 {
-   return 0; // TODO - where do we get this from?
+   return 2; // TODO - where do we get this from?
 }
 
 const char* LeafMultiPack::getManufacturerName() const
 {
-   return "TIML";
+   printf("LeafMultiPack::getManufacturerName()");
+   return "TIML-LMP";
 }
 
 const char* LeafMultiPack::getBatteryName() const
 {
-   return "LeafG2";
+   return "LeafG2-LMP";
 }
 
 float LeafMultiPack::getMaxChargeVoltage() const
