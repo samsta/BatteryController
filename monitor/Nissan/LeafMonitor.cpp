@@ -315,13 +315,13 @@ float LeafMonitor::getTemperature() const
 
 float LeafMonitor::getSocPercent() const
 {
-   printf("LeafMonitor::getSocPercent()\n");
+   // printf("LeafMonitor::getSocPercent()\n");
    return m_soc_percent;
 }
 
 float LeafMonitor::getSohPercent() const
 {
-   printf("LeafMonitor::getSohPercent()\n");
+   // printf("LeafMonitor::getSohPercent()\n");
    return m_soh_percent;
 }
 
@@ -362,7 +362,7 @@ uint32_t LeafMonitor::getManufacturingDateUnixTime() const
 
 const char* LeafMonitor::getManufacturerName() const
 {
-   printf("LeafMonitor::getManufacturerName()\n");
+   // printf("LeafMonitor::getManufacturerName()\n");
    return "TIML-LM";
 }
 

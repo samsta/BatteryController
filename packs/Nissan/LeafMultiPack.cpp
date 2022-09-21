@@ -76,7 +76,8 @@ bool LeafMultiPack::isSafeToOperate() const
 
 bool LeafMultiPack::isClosed() const
 {
-   return m_state == CLOSED;
+   return (m_1monitor->getContactorStatus() == CLOSED);
+   // return m_state == CLOSED;
 }
 
 void LeafMultiPack::close()
@@ -130,13 +131,13 @@ float LeafMultiPack::getTemperature() const
 
 float LeafMultiPack::getSocPercent() const
 {
-   printf("LeafMultiPack::getSocPercent()");
+   // printf("LeafMultiPack::getSocPercent()");
    return m_1monitor->getSocPercent();
 }
 
 float LeafMultiPack::getSohPercent() const
 {
-   printf("LeafMultiPack::getSohPercent()");
+   // printf("LeafMultiPack::getSohPercent()");
    return m_1monitor->getSohPercent();
 }
 
@@ -177,7 +178,7 @@ uint32_t LeafMultiPack::getManufacturingDateUnixTime() const
 
 const char* LeafMultiPack::getManufacturerName() const
 {
-   printf("LeafMultiPack::getManufacturerName()");
+   // printf("LeafMultiPack::getManufacturerName()");
    return "TIML-LMP";
 }
 
