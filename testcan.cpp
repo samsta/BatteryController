@@ -28,7 +28,7 @@
 
 #include <signal.h>
 
-#undef CONSOLE
+#define CONSOLE
 
 using namespace core::libgpiod;
 namespace color = logging::color::ansi;
@@ -146,10 +146,10 @@ int main(int argc, const char** argv)
                      1,
                      pbatmon1,
                      pbatcon1,
-                     // battery_pack_2.getMonitor(),
-                     // battery_pack_2.getContactor(),
-                     // battery_pack_3.getMonitor(),
-                     // battery_pack_3.getContactor(),
+                     nullptr,
+                     nullptr,
+                     nullptr,
+                     nullptr,
                      log);
 
 
@@ -166,8 +166,10 @@ int main(int argc, const char** argv)
    #ifdef CONSOLE
    if (console.isOperational())
    {
-      console.setMonitor(multi_battery);
-      console.setContactor(multi_battery);
+      // console.setMonitor(multi_battery);
+      // console.setContactor(multi_battery);
+      console.setMonitor(battery_pack_1.getMonitor());
+      console.setContactor(battery_pack_1.getContactor());
    }
    #endif
 

@@ -19,10 +19,10 @@ public:
    LeafMultiPack( unsigned int num_packs,
                   monitor::Monitor* monitor1,
                   contactor::Contactor* contactor1,
-                  // monitor::Monitor& monitor2,
-                  // contactor::Contactor& contactor2,
-                  // monitor::Monitor& monitor3,
-                  // contactor::Contactor& contactor3,
+                  monitor::Monitor* monitor2,
+                  contactor::Contactor* contactor2,
+                  monitor::Monitor* monitor3,
+                  contactor::Contactor* contactor3,
                   logging::ostream* log = nullptr);
 
    ~LeafMultiPack();
@@ -55,18 +55,14 @@ public:
    // need to pass internal contactor to inverter
    contactor::Contactor& getContactor();
 
-   // static const unsigned NUM_PACKS = 3;
+   static const unsigned NUM_PACKS = 3;
 
 private:
    unsigned int m_num_packs;
+   // array of battery pack pointers
+   monitor::Monitor*     m_pmonitor[NUM_PACKS];
+   contactor::Contactor* m_pcontactor[NUM_PACKS];
 
-   // input from battery packs
-   monitor::Monitor*     m_1monitor;
-   contactor::Contactor* m_1contactor;
-   // monitor::Monitor&     m_2monitor;
-   // contactor::Contactor& m_2contactor;
-   // monitor::Monitor&     m_3monitor;
-   // contactor::Contactor& m_3contactor;
    logging::ostream*     m_log;
 
    bool m_voltages_ok;
