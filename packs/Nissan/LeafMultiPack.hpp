@@ -57,6 +57,12 @@ public:
 
    static const unsigned NUM_PACKS = 3;
 
+   virtual void setSafeToOperate(bool);
+   virtual bool isSafeToOperate() const;
+   virtual bool isClosed() const;
+   virtual void close();
+   virtual void open();
+
 private:
    unsigned int m_num_packs;
    // array of battery pack pointers
@@ -94,11 +100,7 @@ private:
       CLOSED
    };
 
-   virtual void setSafeToOperate(bool);
-   virtual bool isSafeToOperate() const;
-   virtual bool isClosed() const;
-   virtual void close();
-   virtual void open();
+
    void updateRelays();
 
    bool  m_safe_to_operate;
