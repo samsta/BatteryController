@@ -20,9 +20,9 @@ public:
     LeafMultiPack                         m_pack;
 };
 
-TEST_F(TestLeafMultipack, isClosedCallsGetContactorStatusOnMonitor)
+TEST_F(TestLeafMultipack, isClosedCallsisClosedOnContactor)
 {
-    EXPECT_CALL(m_monitor1, getContactorStatus());
+    EXPECT_CALL(m_contactor1, isClosed());
 
     m_pack.isClosed();
 }

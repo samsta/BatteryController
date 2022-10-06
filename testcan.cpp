@@ -166,10 +166,8 @@ int main(int argc, const char** argv)
    #ifdef CONSOLE
    if (console.isOperational())
    {
-      // console.setMonitor(multi_battery);
-      // console.setContactor(multi_battery);
-      console.setMonitor(battery_pack_1.getMonitor());
-      console.setContactor(battery_pack_1.getContactor());
+      console.setMonitor(multi_battery);
+      console.setContactor(multi_battery);
    }
    #endif
 

@@ -74,8 +74,7 @@ bool LeafMultiPack::isSafeToOperate() const
 
 bool LeafMultiPack::isClosed() const
 {
-   return (m_pmonitor[0]->getContactorStatus() == CLOSED);
-   // return m_state == CLOSED;
+   return (m_pcontactor[0]->isClosed());
 }
 
 void LeafMultiPack::close()
