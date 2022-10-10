@@ -8,24 +8,58 @@ using namespace testing;
 namespace packs {
 namespace Nissan {
 
-class TestLeafMultipack: public Test {
+class TestLeafMultipack1: public Test {
 public:
-    TestLeafMultipack():
-        m_pack(1, &m_monitor1, &m_contactor1, nullptr, nullptr, nullptr, nullptr)
+    TestLeafMultipack1():
+        m_multipack(m_vmonitor, m_vcontactor, nullptr)
     {
     }
 
     NiceMock<mocks::monitor::Monitor>     m_monitor1;
     NiceMock<mocks::contactor::Contactor> m_contactor1;
-    LeafMultiPack                         m_pack;
+
+   std::vector<monitor::Monitor*>         m_vmonitor = {&m_monitor1};
+   std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1};
+
+    LeafMultiPack                         m_multipack;
 };
 
-TEST_F(TestLeafMultipack, isClosedCallsisClosedOnContactor)
+TEST_F(TestLeafMultipack1, isClosedCallsisClosedOn1Contactor)
 {
     EXPECT_CALL(m_contactor1, isClosed());
 
-    m_pack.isClosed();
+    EXPECT_FALSE(m_multipack.isClosed());
 }
+
+ class TestLeafMultipack3: public Test {
+ public:
+     TestLeafMultipack3():
+         m_multipack(m_vmonitor, m_vcontactor, nullptr)
+     {
+     }
+
+     NiceMock<mocks::monitor::Monitor>     m_monitor1;
+     NiceMock<mocks::contactor::Contactor> m_contactor1;
+     NiceMock<mocks::monitor::Monitor>     m_monitor2;
+     NiceMock<mocks::contactor::Contactor> m_contactor2;
+     NiceMock<mocks::monitor::Monitor>     m_monitor3;
+     NiceMock<mocks::contactor::Contactor> m_contactor3;
+
+    std::vector<monitor::Monitor*>         m_vmonitor = {&m_monitor1, &m_monitor2, &m_monitor3};
+    std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1, &m_contactor2, &m_contactor3};
+
+     LeafMultiPack                         m_multipack;
+ };
+
+ TEST_F(TestLeafMultipack3, isClosedCallsisClosedOn3Contactors)
+ {
+     EXPECT_CALL(m_contactor1, isClosed());
+     EXPECT_CALL(m_contactor2, isClosed());
+     EXPECT_CALL(m_contactor3, isClosed());
+
+     EXPECT_FALSE(m_multipack.isClosed());
+//     m_multipack.isClosed();
+ }
 
 }
 }

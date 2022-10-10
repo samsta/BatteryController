@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <sys/epoll.h>
 #include <fstream>
+#include <vector>
 
 #include "packs/Nissan/LeafPack.hpp"
 #include "packs/Nissan/LeafMultiPack.hpp"
@@ -117,8 +118,12 @@ int main(int argc, const char** argv)
          negative_relay_1,
          indicator_led_1,
          log);
-   monitor::Monitor* pbatmon1 = &battery_pack_1.getMonitor();
-   contactor::Contactor* pbatcon1 = &battery_pack_1.getContactor();
+
+   std::vector<monitor::Monitor*> vbatterymon = {&battery_pack_1.getMonitor()};
+   std::vector<contactor::Contactor*> vbatterycon = {&battery_pack_1.getContactor()};
+
+   // monitor::Monitor* pbatmon1 = &battery_pack_1.getMonitor();
+   // contactor::Contactor* pbatcon1 = &battery_pack_1.getContactor();
 
    // packs::Nissan::LeafPack battery_pack_2(
    //      usb_port.getSinkOutbound(1),
@@ -143,13 +148,8 @@ int main(int argc, const char** argv)
 
 
    packs::Nissan::LeafMultiPack multi_battery(
-                     1,
-                     pbatmon1,
-                     pbatcon1,
-                     nullptr,
-                     nullptr,
-                     nullptr,
-                     nullptr,
+                     vbatterymon,
+                     vbatterycon,
                      log);
 
 

@@ -5,18 +5,13 @@
 namespace packs {
 namespace Nissan {
 
-LeafMultiPack::LeafMultiPack(unsigned int num_packs,
-                     monitor::Monitor* monitor1,
-                     contactor::Contactor* contactor1,
-                     monitor::Monitor* monitor2,
-                     contactor::Contactor* contactor2,
-                     monitor::Monitor* monitor3,
-                     contactor::Contactor* contactor3,
-                     logging::ostream* log):
-      m_num_packs(num_packs),
+LeafMultiPack::LeafMultiPack(
+            std::vector<monitor::Monitor*> vmonitor,
+            std::vector<contactor::Contactor*> vcontactor,
+            logging::ostream* log):
 
-      m_pmonitor{ monitor1, monitor2, monitor3},
-      m_pcontactor{ contactor1, contactor2, contactor3},
+      m_vmonitor(vmonitor),
+      m_vcontactor(vcontactor),
       m_log(log),
       m_voltages_ok(false),
       m_temperatures_ok(false),
@@ -39,7 +34,6 @@ LeafMultiPack::LeafMultiPack(unsigned int num_packs,
       m_requested_state(OPEN),
       m_state(OPEN)
 {
-   if (m_num_packs > NUM_PACKS) m_num_packs = NUM_PACKS;
 }
 
 LeafMultiPack::~LeafMultiPack()
@@ -48,13 +42,13 @@ LeafMultiPack::~LeafMultiPack()
 
 uint32_t LeafMultiPack::getFailsafeStatus() const
 {
-	return m_pmonitor[0]->getFailsafeStatus();
+	return m_vmonitor[0]->getFailsafeStatus();
 }
 
 uint32_t LeafMultiPack::getContactorStatus() const
 {
-   return (m_pmonitor[0]->getContactorStatus());
-   // return (m_pmonitor[0]->getContactorStatus() | m_2monitor.getContactorStatus());
+   return (m_vmonitor[0]->getContactorStatus());
+   // return (m_vmonitor[0]->getContactorStatus() | m_2monitor.getContactorStatus());
 }
 
 // disable compiler warning for this method
@@ -74,7 +68,14 @@ bool LeafMultiPack::isSafeToOperate() const
 
 bool LeafMultiPack::isClosed() const
 {
-   return (m_pcontactor[0]->isClosed());
+   bool result = true;
+//   for (const bool& value: m_vmonitor->isClosed())
+   for (unsigned i=0; i<m_vmonitor.size(); i++)
+   {
+//      result &= value;
+      result &= m_vcontactor[i]->isClosed();
+   }
+   return result;
 }
 
 void LeafMultiPack::close()
@@ -91,12 +92,12 @@ void LeafMultiPack::open()
 
 void LeafMultiPack::updateRelays()
 {
-   m_safe_to_operate = m_pcontactor[0]->isSafeToOperate(); // & m_2contactor.isSafeToOperate();
+   m_safe_to_operate = m_vcontactor[0]->isSafeToOperate(); // & m_2contactor.isSafeToOperate();
    if (m_safe_to_operate && m_requested_state == CLOSED)
    {
       if (m_state == OPEN)
       {
-         m_pcontactor[0]->close();
+         m_vcontactor[0]->close();
          // m_2contactor.close();
       }
    }
@@ -104,7 +105,7 @@ void LeafMultiPack::updateRelays()
    {
       if (m_state != OPEN)
       {
-         m_pcontactor[0]->open();
+         m_vcontactor[0]->open();
          // m_2contactor.open();
       }
    }
@@ -112,40 +113,40 @@ void LeafMultiPack::updateRelays()
 
 float LeafMultiPack::getVoltage() const
 {
-   return m_pmonitor[0]->getVoltage();
-   // return (m_pmonitor[0]->getVoltage() + m_2monitor.getVoltage())/ 2.0;
+   return m_vmonitor[0]->getVoltage();
+   // return (m_vmonitor[0]->getVoltage() + m_2monitor.getVoltage())/ 2.0;
 }
 
 float LeafMultiPack::getCurrent() const
 {
-   return m_pmonitor[0]->getCurrent();
+   return m_vmonitor[0]->getCurrent();
 }
 
 float LeafMultiPack::getTemperature() const
 {
-   return  m_pmonitor[0]->getTemperature();
+   return  m_vmonitor[0]->getTemperature();
 }
 
 float LeafMultiPack::getSocPercent() const
 {
    // printf("LeafMultiPack::getSocPercent()");
-   return m_pmonitor[0]->getSocPercent();
+   return m_vmonitor[0]->getSocPercent();
 }
 
 float LeafMultiPack::getSohPercent() const
 {
    // printf("LeafMultiPack::getSohPercent()");
-   return m_pmonitor[0]->getSohPercent();
+   return m_vmonitor[0]->getSohPercent();
 }
 
 float LeafMultiPack::getEnergyRemainingKwh() const
 {
-   return m_pmonitor[0]->getEnergyRemainingKwh();
+   return m_vmonitor[0]->getEnergyRemainingKwh();
 }
 
 float LeafMultiPack::getCapacityKwh() const
 {
-   return m_pmonitor[0]->getCapacityKwh();
+   return m_vmonitor[0]->getCapacityKwh();
 }
 
 uint32_t LeafMultiPack::getSystemVersion() const
@@ -160,12 +161,12 @@ uint32_t LeafMultiPack::getSerialNumber() const
 
 float LeafMultiPack::getNominalCapacityKwh() const
 {
-   return m_pmonitor[0]->getNominalCapacityKwh(); // NOMINAL_CAPACITY_KWH; // TODO - configurable
+   return m_vmonitor[0]->getNominalCapacityKwh(); // NOMINAL_CAPACITY_KWH; // TODO - configurable
 }
 
 unsigned LeafMultiPack::getNumberOfModules() const
 {
-   return m_pmonitor[0]->getNumberOfModules(); // NUM_MODULES; // TODO - configurable
+   return m_vmonitor[0]->getNumberOfModules(); // NUM_MODULES; // TODO - configurable
 }
 
 uint32_t LeafMultiPack::getManufacturingDateUnixTime() const
@@ -186,22 +187,22 @@ const char* LeafMultiPack::getBatteryName() const
 
 float LeafMultiPack::getMaxChargeVoltage() const
 {
-   return m_pmonitor[0]->getMaxChargeVoltage(); 
+   return m_vmonitor[0]->getMaxChargeVoltage(); 
 }
 
 float LeafMultiPack::getMinDischargeVoltage() const
 {
-   return m_pmonitor[0]->getMinDischargeVoltage(); 
+   return m_vmonitor[0]->getMinDischargeVoltage(); 
 }
 
 float LeafMultiPack::getChargeCurrentLimit() const
 {
-   return m_pmonitor[0]->getChargeCurrentLimit();
+   return m_vmonitor[0]->getChargeCurrentLimit();
 }
 
 float LeafMultiPack::getDischargeCurrentLimit() const
 {
-   return m_pmonitor[0]->getDischargeCurrentLimit();
+   return m_vmonitor[0]->getDischargeCurrentLimit();
 }
 
 }

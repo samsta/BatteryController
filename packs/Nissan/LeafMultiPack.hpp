@@ -4,6 +4,7 @@
 #define PACKS_NISSAN_LEAFMULTIPACK_HPP_
 
 #include <math.h>
+#include <vector>
 #include "monitor/Monitor.hpp"
 #include "contactor/Contactor.hpp"
 #include "contactor/Nissan/LeafContactor.hpp"
@@ -16,13 +17,8 @@ class LeafMultiPack: public monitor::Monitor, public contactor::Contactor
 {
 public:
 
-   LeafMultiPack( unsigned int num_packs,
-                  monitor::Monitor* monitor1,
-                  contactor::Contactor* contactor1,
-                  monitor::Monitor* monitor2,
-                  contactor::Contactor* contactor2,
-                  monitor::Monitor* monitor3,
-                  contactor::Contactor* contactor3,
+   LeafMultiPack( std::vector<monitor::Monitor*> vmonitor,
+                  std::vector<contactor::Contactor*> vcontactor,
                   logging::ostream* log = nullptr);
 
    ~LeafMultiPack();
@@ -55,8 +51,6 @@ public:
    // need to pass internal contactor to inverter
    contactor::Contactor& getContactor();
 
-   static const unsigned NUM_PACKS = 3;
-
    virtual void setSafeToOperate(bool);
    virtual bool isSafeToOperate() const;
    virtual bool isClosed() const;
@@ -64,10 +58,8 @@ public:
    virtual void open();
 
 private:
-   unsigned int m_num_packs;
-   // array of battery pack pointers
-   monitor::Monitor*     m_pmonitor[NUM_PACKS];
-   contactor::Contactor* m_pcontactor[NUM_PACKS];
+   std::vector<monitor::Monitor*> m_vmonitor;
+   std::vector<contactor::Contactor*> m_vcontactor;
 
    logging::ostream*     m_log;
 
@@ -99,7 +91,6 @@ private:
       CLOSING,
       CLOSED
    };
-
 
    void updateRelays();
 
