@@ -1,8 +1,12 @@
 # BatteryController
-BatteryController is a interpreter package to integrate EV batteries & inverters. Specifically (at a high level):
+BatteryController is an interpreter package to integrate EV batteries & inverters. Specifically (at a high level):
+
 •	Translate communications
+
 •	Control power connections
+
 •	Report status to other systems
+
 It is written in C++ 
 # Operation
 On initial commissioning the battery’s voltages are manually matched and then connected to the 400V DC bus.
