@@ -9,6 +9,8 @@ namespace ansi {
    const char* bright_green = "\x1b[92m";
    const char* blue         = "\x1b[34m";
    const char* bright_blue  = "\x1b[94m";
+   const char* magenta		= "\x1b[35m";
+   const char* cyan			= "\x1b[36m";
    const char* reset        = "\x1b[0m";
 }
 }

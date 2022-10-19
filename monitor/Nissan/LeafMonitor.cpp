@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-#include "Monitor.hpp"
 #include "contactor/Contactor.hpp"
 #include <math.h>
+#include <monitor/Nissan/LeafMonitor.hpp>
 
 using namespace can::messages::Nissan;
 
@@ -50,7 +50,7 @@ inline float lower_limit(float value, const float warn_limit, const float critic
 }
 }
 
-Monitor::Monitor(contactor::Contactor& contactor):
+LeafMonitor::LeafMonitor(contactor::Contactor& contactor):
       m_contactor(contactor),
       m_voltages_ok(false),
       m_temperatures_ok(false),
@@ -74,7 +74,7 @@ Monitor::Monitor(contactor::Contactor& contactor):
    m_contactor.setSafeToOperate(false);
 }
 
-void Monitor::sink(const can::messages::Nissan::Message& message)
+void LeafMonitor::sink(const can::messages::Nissan::Message& message)
 {
    if (not message.valid()) return;
 
@@ -110,7 +110,7 @@ void Monitor::sink(const can::messages::Nissan::Message& message)
    }
 }
 
-void Monitor::process(const CellVoltageRange& voltage_range)
+void LeafMonitor::process(const CellVoltageRange& voltage_range)
 {
    if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE &&
        voltage_range.getMin() > CRITICALLY_LOW_VOLTAGE    &&
@@ -136,7 +136,7 @@ void Monitor::process(const CellVoltageRange& voltage_range)
    updateOperationalSafety();
 }
 
-void Monitor::process(const PackTemperatures& temperatures)
+void LeafMonitor::process(const PackTemperatures& temperatures)
 {
    unsigned num_sensors_missing = 0;
    float max_temp = NAN, min_temp, accumulated_temp = NAN;
@@ -194,7 +194,7 @@ void Monitor::process(const PackTemperatures& temperatures)
    updateOperationalSafety();
 }
 
-void Monitor::process(const BatteryState& battery_state)
+void LeafMonitor::process(const BatteryState& battery_state)
 {
    //m_soc_percent = battery_state.getSocPercent(); replaced with useable_soc
    m_soh_percent = battery_state.getHealthPercent();
@@ -202,7 +202,7 @@ void Monitor::process(const BatteryState& battery_state)
    //m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
 }
 
-void Monitor::process(const BatteryStatus& battery_status)
+void LeafMonitor::process(const BatteryStatus& battery_status)
 {
    m_current = battery_status.getCurrent();
    m_voltage = battery_status.getVoltage();
@@ -211,7 +211,7 @@ void Monitor::process(const BatteryStatus& battery_status)
    m_failsafe_status = battery_status.getFailsafeStatus();
 }
 
-void Monitor::process(const BatteryPowerLimits& battery_power)
+void LeafMonitor::process(const BatteryPowerLimits& battery_power)
 {
    m_discharge_power_limit = battery_power.getDischargePowerLimit_kW();
    m_charge_power_limit = battery_power.getChargePowerLimit_kW();
@@ -223,7 +223,7 @@ void Monitor::process(const BatteryPowerLimits& battery_power)
    }
 }
 
-void Monitor::calculateTemperatureLimitFactor(float min_temp, float max_temp)
+void LeafMonitor::calculateTemperatureLimitFactor(float min_temp, float max_temp)
 {
    if (max_temp < CRITICALLY_HIGH_TEMPERATURE &&
        min_temp > CRITICALLY_LOW_TEMPERATURE)
@@ -253,7 +253,7 @@ void Monitor::calculateTemperatureLimitFactor(float min_temp, float max_temp)
    }
 }
 
-void Monitor::calculateCurrentLimitByVoltage(float min_voltage, float max_voltage)
+void LeafMonitor::calculateCurrentLimitByVoltage(float min_voltage, float max_voltage)
 {
    if (max_voltage > CRITICALLY_HIGH_VOLTAGE)
    {
@@ -288,7 +288,7 @@ void Monitor::calculateCurrentLimitByVoltage(float min_voltage, float max_voltag
    }
 }
 
-void Monitor::updateOperationalSafety()
+void LeafMonitor::updateOperationalSafety()
 {
    bool everything_ok = m_voltages_ok && m_temperatures_ok;
    if (everything_ok != m_everything_ok)
@@ -298,104 +298,107 @@ void Monitor::updateOperationalSafety()
    m_everything_ok = everything_ok;
 }
 
-float Monitor::getVoltage() const
+float LeafMonitor::getVoltage() const
 {
    return m_voltage;
 }
 
-float Monitor::getCurrent() const
+float LeafMonitor::getCurrent() const
 {
    return m_current;
 }
 
-float Monitor::getTemperature() const
+float LeafMonitor::getTemperature() const
 {
    return m_average_temperature;
 }
 
-float Monitor::getSocPercent() const
+float LeafMonitor::getSocPercent() const
 {
+   // printf("LeafMonitor::getSocPercent()\n");
    return m_soc_percent;
 }
 
-float Monitor::getSohPercent() const
+float LeafMonitor::getSohPercent() const
 {
+   // printf("LeafMonitor::getSohPercent()\n");
    return m_soh_percent;
 }
 
-float Monitor::getEnergyRemainingKwh() const
+float LeafMonitor::getEnergyRemainingKwh() const
 {
    return m_energy_remaining_kwh;
 }
 
-float Monitor::getCapacityKwh() const
+float LeafMonitor::getCapacityKwh() const
 {
    return m_capacity_kwh;
 }
 
-uint32_t Monitor::getSystemVersion() const
+uint32_t LeafMonitor::getSystemVersion() const
 {
    return 1; // TODO - come up with a versioning scheme
 }
 
-uint32_t Monitor::getSerialNumber() const
+uint32_t LeafMonitor::getSerialNumber() const
 {
    return 1; // TODO - do we configure this, or can we get it from the battery?
 }
 
-float Monitor::getNominalCapacityKwh() const
+float LeafMonitor::getNominalCapacityKwh() const
 {
    return NOMINAL_CAPACITY_KWH; // TODO - configurable
 }
 
-unsigned Monitor::getNumberOfModules() const
+unsigned LeafMonitor::getNumberOfModules() const
 {
    return NUM_MODULES; // TODO - configurable
 }
 
-uint32_t Monitor::getManufacturingDateUnixTime() const
+uint32_t LeafMonitor::getManufacturingDateUnixTime() const
 {
-   return 0; // TODO - where do we get this from?
+   return 1; // TODO - where do we get this from?
 }
 
-const char* Monitor::getManufacturerName() const
+const char* LeafMonitor::getManufacturerName() const
 {
-   return "TIML";
+   // printf("LeafMonitor::getManufacturerName()\n");
+   return "TIML-LM";
 }
 
-const char* Monitor::getBatteryName() const
+const char* LeafMonitor::getBatteryName() const
 {
-   return "LeafG2";
+   return "LeafG2-LM";
 }
 
-float Monitor::getMaxChargeVoltage() const
+float LeafMonitor::getMaxChargeVoltage() const
 {
    return CRITICALLY_HIGH_VOLTAGE * NUM_CELLS;
 }
 
-float Monitor::getMinDischargeVoltage() const
+float LeafMonitor::getMinDischargeVoltage() const
 {
    return CRITICALLY_LOW_VOLTAGE * NUM_CELLS;
 }
 
-float Monitor::getChargeCurrentLimit() const
+float LeafMonitor::getChargeCurrentLimit() const
 {
    //return m_charge_cur_fac_by_voltage * m_cur_fac_by_temperature * NOMINAL_CURRENT_LIMIT;
    return m_charge_current_limit;
 }
 
-float Monitor::getDischargeCurrentLimit() const
+float LeafMonitor::getDischargeCurrentLimit() const
 {
    //return m_discharge_cur_fac_by_voltage * m_cur_fac_by_temperature * NOMINAL_CURRENT_LIMIT;
    return m_discharge_current_limit;
 }
 
-uint32_t Monitor::getContactorStatus() const
+uint32_t LeafMonitor::getContactorStatus() const
 {
 	return m_contactor_status;
 }
 
-uint32_t Monitor::getFailsafeStatus() const
+uint32_t LeafMonitor::getFailsafeStatus() const
 {
 	return m_failsafe_status;
 }

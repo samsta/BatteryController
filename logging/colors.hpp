@@ -12,6 +12,8 @@ namespace ansi {
    extern const char* bright_green;
    extern const char* blue;
    extern const char* bright_blue;
+   extern const char* magenta;
+   extern const char* cyan;
    extern const char* reset;
 }
 }

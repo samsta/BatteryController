@@ -9,8 +9,10 @@
 #include <stdio.h>
 #include <sys/epoll.h>
 #include <fstream>
+#include <vector>
 
 #include "packs/Nissan/LeafPack.hpp"
+#include "packs/Nissan/LeafMultiPack.hpp"
 #include "can/services/SMA/MessageFactory.hpp"
 #include "can/services/TSUN/MessageFactory.hpp"
 #include "inverter/SMA/SunnyBoyStorage.hpp"
@@ -21,15 +23,19 @@
 #include "core/SocketCan/CanPort.hpp"
 #include "core/Linux/EpollTimer.hpp"
 #include "core/Timer.hpp"
+#include "core/USBInterface/USBInterface.hpp"
 #include "core/Linux/ConsolePresenter.hpp"
 #include "logging/colors.hpp"
 
 #include <signal.h>
 
+#define CONSOLE
+
 using namespace core::libgpiod;
 namespace color = logging::color::ansi;
 
 namespace {
+   // this code required to catch ctrl-c and cleanly exit the program (open contactors)
   volatile sig_atomic_t keep_on_trucking = true;
   void handle_break(int thissig) {
     if (thissig == SIGINT) keep_on_trucking = false;
@@ -42,24 +48,18 @@ int main(int argc, const char** argv)
    logging::ostream* log = &std::cout;
    std::ofstream logfile;
    
+   // this code required to catch ctrl-c and cleanly exit the program (open contactors)
    struct sigaction action;
    memset(&action, 0, sizeof(struct sigaction));
    action.sa_handler = handle_break;
    sigaction(SIGINT, &action, NULL);
-
    sigset_t all_signals;
    sigemptyset(&all_signals);
    sigaddset(&all_signals, SIGINT);
 
-//   struct sigaction sigbreak;
-//   sigbreak.sa_handler = &handle_break;
-//   sigemptyset(&sigbreak.sa_mask);
-//   sigbreak.sa_flags = 0;
-//   if (sigaction(SIGINT, &sigbreak, NULL) != 0) std::perror("sigaction");
-
    if (argc != 3)
    {
-      fprintf(stderr, "usage: %s <can_interface_battery> <can_interface_inverter>\n", argv[0]);
+      fprintf(stderr, "usage: %s <can_interface_inverter> <usb_port_battery>\n", argv[0]);
       return 1;
    }
 
@@ -74,14 +74,24 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
-   core::CanPort battery_port(argv[1], epollfd);
-   core::CanPort inverter_port(argv[2], epollfd);
+   core::USBPort usb_port(argv[2], epollfd);
+
+   core::CanPort inverter_port(argv[1], epollfd);
    core::EpollTimer timer(epollfd);
 
-   OutputPin positive_relay(0, 5, "relay_pos");
-   OutputPin negative_relay(0, 6, "relay_neg");
-   OutputPin indicator_led(0, 4, "led1");
+   OutputPin positive_relay_1(0, 5, "relay_pos_1");
+   OutputPin negative_relay_1(0, 6, "relay_neg_1");
+   OutputPin indicator_led_1(0, 4, "led_1");
 
+   // OutputPin positive_relay_2(0, 8, "relay_pos_2");
+   // OutputPin negative_relay_2(0, 9, "relay_neg_2");
+   // OutputPin indicator_led_2(0, 7, "led_2");
+
+   // OutputPin positive_relay_3(0, 11, "relay_pos_3");
+   // OutputPin negative_relay_3(0, 12, "relay_neg_3");
+   // OutputPin indicator_led_3(0, 10, "led_3");
+
+   #ifdef CONSOLE
    core::ConsolePresenter console(timer);
    if (console.isOperational())
    {
@@ -99,46 +109,76 @@ int main(int argc, const char** argv)
    {
       std::cerr << "Don't have a terminal to run console presenter, so I'll proceed logging to stdout" << std::endl;
    }
-   
-   packs::Nissan::LeafPack battery_pack(
-         battery_port,
+   #endif
+
+   packs::Nissan::LeafPack battery_pack_1(
+         usb_port.getSinkOutbound(0),
          timer,
-         positive_relay,
-         negative_relay,
-         indicator_led,
+         positive_relay_1,
+         negative_relay_1,
+         indicator_led_1,
          log);
 
-   battery_port.setupLogger(*log, "<BAT OUT>", color::blue);
-   battery_port.setSink(battery_pack);
+   std::vector<monitor::Monitor*> vbatterymon = {&battery_pack_1.getMonitor()};
+   std::vector<contactor::Contactor*> vbatterycon = {&battery_pack_1.getContactor()};
 
-   
-//   inverter::SMA::SunnyBoyStorage inverter(inverter_sender, timer, monitor, contactor);
-//   can::services::SMA::MessageFactory inverter_sink(inverter, &std::cout);
+   // monitor::Monitor* pbatmon1 = &battery_pack_1.getMonitor();
+   // contactor::Contactor* pbatcon1 = &battery_pack_1.getContactor();
+
+   // packs::Nissan::LeafPack battery_pack_2(
+   //      usb_port.getSinkOutbound(1),
+   //      timer,
+   //      positive_relay_2,
+   //      negative_relay_2,
+   //      indicator_led_2,
+   //      log);
+
+   // packs::Nissan::LeafPack battery_pack_3(
+   //      usb_port.getSinkOutbound(2),
+   //      timer,
+   //      positive_relay_3,
+   //      negative_relay_3,
+   //      indicator_led_3,
+   //      log);
+
+   usb_port.setupLogger(*log, "<USB OUT>", color::cyan);
+   usb_port.setSinkInbound(0, battery_pack_1);
+   // usb_port.setSinkInbound(1, battery_pack_2);
+   // usb_port.setSinkInbound(1, battery_pack_3);
+
+
+   packs::Nissan::LeafMultiPack multi_battery(
+                     vbatterymon,
+                     vbatterycon,
+                     log);
+
 
    inverter::TSUN::TSOL_H50K inverter(
          inverter_port,
          timer,
-         battery_pack.getMonitor(),
-         battery_pack.getContactor());
+         multi_battery,
+         multi_battery);
    can::services::TSUN::MessageFactory inverter_message_factory(inverter, log);
 
    inverter_port.setupLogger(*log, "<INV OUT>", color::green);
    inverter_port.setSink(inverter_message_factory);
 
+   #ifdef CONSOLE
    if (console.isOperational())
    {
-      console.setMonitor(battery_pack.getMonitor());
-      console.setContactor(battery_pack.getContactor());
+      console.setMonitor(multi_battery);
+      console.setContactor(multi_battery);
    }
+   #endif
 
    while (keep_on_trucking)
    {
-	  sigprocmask(SIG_BLOCK, &all_signals, NULL);
+      sigprocmask(SIG_BLOCK, &all_signals, NULL);
       nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
-	  sigprocmask(SIG_UNBLOCK, &all_signals, NULL);
+      sigprocmask(SIG_UNBLOCK, &all_signals, NULL);
       if (nfds == -1) {
-          perror("epoll_wait error");
-          keep_on_trucking = false;
+         perror("epoll_wait error");
+         keep_on_trucking = false;
       }
 
       for (int n = 0; n < nfds; ++n)

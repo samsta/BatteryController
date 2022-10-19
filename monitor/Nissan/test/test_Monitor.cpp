@@ -1,6 +1,6 @@
 #include <gmock/gmock.h>
+#include <monitor/Nissan/LeafMonitor.hpp>
 #include <limits>
-#include "monitor/Nissan/Monitor.hpp"
 #include "mocks/contactor/Contactor.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/CellVoltageRange.hpp"
@@ -63,13 +63,13 @@ PackTemperatures goodPackTemperatures()
    return allPackTemperatures(ARBITRARY_SAFE_TEMPERATURE);
 }
 
-TEST(Monitor, contactorDeclaredUnsafeUponConstruction)
+TEST(LeafMonitor, contactorDeclaredUnsafeUponConstruction)
 {
    NiceMock<mocks::contactor::Contactor> contactor;
 
    EXPECT_CALL(contactor, setSafeToOperate(false));
 
-   Monitor monitor(contactor);
+   LeafMonitor monitor(contactor);
 }
 
 class MonitorConstructed: public Test
@@ -80,7 +80,7 @@ public:
    }
 
    NiceMock<mocks::contactor::Contactor> contactor;
-   Monitor monitor;
+   LeafMonitor monitor;
 };
 
 TEST_F(MonitorConstructed, contactorNotDeclaredSafeWithOnlyGoodCellVoltageRange)
