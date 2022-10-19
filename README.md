@@ -84,3 +84,46 @@ Some useful views to Open:
 
 Note: If you add source files to Eclipse, you have to add them to the CMakeLists.txt in the same directory too. This is so we can build stuff outside of Eclipse, e.g. on the Pi where we just use `CMake` and `make` and no IDE.
 
+
+
+Rough structure and description of key softare objects:
+
+## Monitor
+
+- receives decoded CAN messages from the Battery
+- retains measurement and identity data and exposes methods to query the data
+- determines current limits and exposes methods to query them
+- determines whether it is safe to operate the contactor
+   - it uses a reference to a contactor instance to do that
+  
+## Contactor
+
+- is told (by Monitor) whether it is safe to be operated
+- is requested to open or close by Inverter
+   - however, the request is only actioned when safe to operate
+- exposes a method to query whether it is actually opened
+
+## Inverter (SunnyBoyStorage)
+
+- periodically queries measurement and limit data from Monitor, and the contactor state and sends it out to CAN
+   - it uses a reference to a Timer instance to register its periodic callback
+   - it uses a reference to a Monitor instance to query the data from
+   - it uses a reference to a Contactor instance to query its state
+   - it uses a reference to a FrameSink to send the CAN messages
+- responds with identity data as queried from Monitor when a handshake is received
+   - it uses a reference to a FrameSink to send the CAN messages
+- closes and opens the inverter in response to messages received
+   - it uses a reference to a Contactor instance to open and close the contactor
+   
+
+Auxiliary blocks:
+
+## FrameAggregator
+
+- assembles the diagnostic message groups received from the battery into complete messages
+
+## GroupPoller
+
+- polls the diagnostic message groups from the battery
+
+
