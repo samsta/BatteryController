@@ -61,8 +61,9 @@ LeafMonitor::LeafMonitor(contactor::Contactor& contactor):
       m_capacity_kwh(NAN),
       m_current(NAN),
       m_voltage(NAN),
-      m_cur_fac_by_temperature(0),
-      m_charge_cur_fac_by_voltage(0),
+      m_average_temperature(NAN),
+      //m_cur_fac_by_temperature(0),
+      //m_charge_cur_fac_by_voltage(0),
       m_discharge_cur_fac_by_voltage(0),
       m_discharge_power_limit(NAN),
       m_charge_power_limit(NAN),
@@ -132,7 +133,7 @@ void LeafMonitor::process(const CellVoltageRange& voltage_range)
    if ((voltage_range.getMax() - voltage_range.getMin()) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_contactor_status &= ~CRIT_SPREAD_VOLT;
    else m_contactor_status |= CRIT_SPREAD_VOLT;
 
-   calculateCurrentLimitByVoltage(voltage_range.getMin(), voltage_range.getMax());
+   //calculateCurrentLimitByVoltage(voltage_range.getMin(), voltage_range.getMax());
    updateOperationalSafety();
 }
 
@@ -190,7 +191,7 @@ void LeafMonitor::process(const PackTemperatures& temperatures)
    if (num_sensors_missing <= MAX_TEMP_SENSORS_MISSING) m_contactor_status &= ~MAX_TEMP_MISSING;
    else m_contactor_status |= MAX_TEMP_MISSING;
 
-   calculateTemperatureLimitFactor(min_temp, max_temp);
+   //calculateTemperatureLimitFactor(min_temp, max_temp);
    updateOperationalSafety();
 }
 
@@ -223,70 +224,70 @@ void LeafMonitor::process(const BatteryPowerLimits& battery_power)
    }
 }
 
-void LeafMonitor::calculateTemperatureLimitFactor(float min_temp, float max_temp)
-{
-   if (max_temp < CRITICALLY_HIGH_TEMPERATURE &&
-       min_temp > CRITICALLY_LOW_TEMPERATURE)
-   {
-      if (max_temp >= WARN_HIGH_TEMPERATURE)
-      {
-         m_cur_fac_by_temperature = upper_limit(max_temp,
-                                                WARN_HIGH_TEMPERATURE,
-                                                CRITICALLY_HIGH_TEMPERATURE,
-                                                TEMPERATURE_LIMIT_RESOLUTION);
-      }
-      else if (min_temp <= WARN_LOW_TEMPERATURE)
-      {
-         m_cur_fac_by_temperature = lower_limit(min_temp,
-                                                WARN_LOW_TEMPERATURE,
-                                                CRITICALLY_LOW_TEMPERATURE,
-                                                TEMPERATURE_LIMIT_RESOLUTION);
-      }
-      else
-      {
-         m_cur_fac_by_temperature = 1;
-      }
-   }
-   else
-   {
-      m_cur_fac_by_temperature = 0;
-   }
-}
-
-void LeafMonitor::calculateCurrentLimitByVoltage(float min_voltage, float max_voltage)
-{
-   if (max_voltage > CRITICALLY_HIGH_VOLTAGE)
-   {
-      m_charge_cur_fac_by_voltage = 0;
-   }
-   else if (max_voltage >= WARN_HIGH_VOLTAGE)
-   {
-      m_charge_cur_fac_by_voltage = upper_limit(max_voltage,
-                                                WARN_HIGH_VOLTAGE,
-                                                CRITICALLY_HIGH_VOLTAGE,
-                                                VOLTAGE_LIMIT_RESOLUTION);
-   }
-   else
-   {
-      m_charge_cur_fac_by_voltage = 1;
-   }
-
-   if (min_voltage < CRITICALLY_LOW_VOLTAGE)
-   {
-      m_discharge_cur_fac_by_voltage = 0;
-   }
-   else if (min_voltage <= WARN_LOW_VOLTAGE)
-   {
-      m_discharge_cur_fac_by_voltage = lower_limit(min_voltage,
-                                                   WARN_LOW_VOLTAGE,
-                                                   CRITICALLY_LOW_VOLTAGE,
-                                                   VOLTAGE_LIMIT_RESOLUTION);
-   }
-   else
-   {
-      m_discharge_cur_fac_by_voltage = 1;
-   }
-}
+//void LeafMonitor::calculateTemperatureLimitFactor(float min_temp, float max_temp)
+//{
+//   if (max_temp < CRITICALLY_HIGH_TEMPERATURE &&
+//       min_temp > CRITICALLY_LOW_TEMPERATURE)
+//   {
+//      if (max_temp >= WARN_HIGH_TEMPERATURE)
+//      {
+//         m_cur_fac_by_temperature = upper_limit(max_temp,
+//                                                WARN_HIGH_TEMPERATURE,
+//                                                CRITICALLY_HIGH_TEMPERATURE,
+//                                                TEMPERATURE_LIMIT_RESOLUTION);
+//      }
+//      else if (min_temp <= WARN_LOW_TEMPERATURE)
+//      {
+//         m_cur_fac_by_temperature = lower_limit(min_temp,
+//                                                WARN_LOW_TEMPERATURE,
+//                                                CRITICALLY_LOW_TEMPERATURE,
+//                                                TEMPERATURE_LIMIT_RESOLUTION);
+//      }
+//      else
+//      {
+//         m_cur_fac_by_temperature = 1;
+//      }
+//   }
+//   else
+//   {
+//      m_cur_fac_by_temperature = 0;
+//   }
+//}
+//
+//void LeafMonitor::calculateCurrentLimitByVoltage(float min_voltage, float max_voltage)
+//{
+//   if (max_voltage > CRITICALLY_HIGH_VOLTAGE)
+//   {
+//      m_charge_cur_fac_by_voltage = 0;
+//   }
+//   else if (max_voltage >= WARN_HIGH_VOLTAGE)
+//   {
+//      m_charge_cur_fac_by_voltage = upper_limit(max_voltage,
+//                                                WARN_HIGH_VOLTAGE,
+//                                                CRITICALLY_HIGH_VOLTAGE,
+//                                                VOLTAGE_LIMIT_RESOLUTION);
+//   }
+//   else
+//   {
+//      m_charge_cur_fac_by_voltage = 1;
+//   }
+//
+//   if (min_voltage < CRITICALLY_LOW_VOLTAGE)
+//   {
+//      m_discharge_cur_fac_by_voltage = 0;
+//   }
+//   else if (min_voltage <= WARN_LOW_VOLTAGE)
+//   {
+//      m_discharge_cur_fac_by_voltage = lower_limit(min_voltage,
+//                                                   WARN_LOW_VOLTAGE,
+//                                                   CRITICALLY_LOW_VOLTAGE,
+//                                                   VOLTAGE_LIMIT_RESOLUTION);
+//   }
+//   else
+//   {
+//      m_discharge_cur_fac_by_voltage = 1;
+//   }
+//}
 
 void LeafMonitor::updateOperationalSafety()
 {
