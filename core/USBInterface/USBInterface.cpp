@@ -364,4 +364,62 @@ uint32_t USBPort::HextoDec(unsigned const char *hex, size_t hexlen) {
    }
    return dec;
 }
+
+//---------------------------------------------------------------------------------------------------
+TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid, uint8_t *on_msg, uint8_t *off_msg):
+   m_sender(sender),
+   m_canid(canid)
+   // m_on_msg(on_msg),
+   // m_off_msg(off_msg)
+{
+   memcpy(m_on_msg, on_msg, 8);
+   memcpy(m_off_msg, off_msg, 8);
+}
+
+TeensyRelay::~TeensyRelay()
+{
+   // do we want to turn the relay off on distruction?
+}
+
+void TeensyRelay::setRelayState(bool newstate)
+{
+   m_relay_state = newstate;
+   if (m_relay_state)
+   {
+      m_sender.sink(can::StandardDataFrame(m_canid, m_on_msg));
+   }
+   else
+   {
+      m_sender.sink(can::StandardDataFrame(m_canid, m_off_msg));
+   }
+}
+
+bool TeensyRelay::getRelayState()
+{
+   return m_relay_state;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 } // namespace core

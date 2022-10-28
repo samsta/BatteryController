@@ -83,14 +83,6 @@ int main(int argc, const char** argv)
    OutputPin negative_relay_1(0, 6, "relay_neg_1");
    OutputPin indicator_led_1(0, 4, "led_1");
 
-   // OutputPin positive_relay_2(0, 8, "relay_pos_2");
-   // OutputPin negative_relay_2(0, 9, "relay_neg_2");
-   // OutputPin indicator_led_2(0, 7, "led_2");
-
-   // OutputPin positive_relay_3(0, 11, "relay_pos_3");
-   // OutputPin negative_relay_3(0, 12, "relay_neg_3");
-   // OutputPin indicator_led_3(0, 10, "led_3");
-
    #ifdef CONSOLE
    core::ConsolePresenter console(timer);
    if (console.isOperational())
@@ -145,7 +137,6 @@ int main(int argc, const char** argv)
 
    packs::Nissan::LeafMultiPack multi_battery(
                      vbatterymon,
-                     vbatterycon,
                      log);
 
 

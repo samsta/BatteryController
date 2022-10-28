@@ -7,11 +7,11 @@ namespace Nissan {
 
 LeafMultiPack::LeafMultiPack(
             std::vector<monitor::Monitor*> vmonitor,
-            std::vector<contactor::Contactor*> vcontactor,
+            // std::vector<contactor::Contactor*> vcontactor,
             logging::ostream* log):
 
       m_vmonitor(vmonitor),
-      m_vcontactor(vcontactor),
+      // m_vcontactor(vcontactor),
       m_log(log),
       m_voltages_ok(false),
       m_temperatures_ok(false),
@@ -73,7 +73,7 @@ bool LeafMultiPack::isClosed() const
    for (unsigned i=0; i<m_vmonitor.size(); i++)
    {
 //      result &= value;
-      result &= m_vcontactor[i]->isClosed();
+      // result &= m_vcontactor[i]->isClosed();
    }
    return result;
 }
@@ -92,21 +92,19 @@ void LeafMultiPack::open()
 
 void LeafMultiPack::updateRelays()
 {
-   m_safe_to_operate = m_vcontactor[0]->isSafeToOperate(); // & m_2contactor.isSafeToOperate();
+   // m_safe_to_operate = m_vcontactor[0]->isSafeToOperate(); // & m_2contactor.isSafeToOperate();
    if (m_safe_to_operate && m_requested_state == CLOSED)
    {
       if (m_state == OPEN)
       {
-         m_vcontactor[0]->close();
-         // m_2contactor.close();
+         // m_vcontactor[0]->close();
       }
    }
    else if (not m_safe_to_operate or m_requested_state == OPEN)
    {
       if (m_state != OPEN)
       {
-         m_vcontactor[0]->open();
-         // m_2contactor.open();
+         // m_vcontactor[0]->open();
       }
    }
 }

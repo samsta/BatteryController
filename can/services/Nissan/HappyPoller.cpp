@@ -19,8 +19,7 @@ HappyPoller::HappyPoller(FrameSink& sender, core::Timer& timer):
     m_hcm_clock_50c_counter(0)
 {
    // was 10ms as on a real Leaf but that's unnecessary for our application
-   // I have set this to 200... must be 200 to pass the 'tests' test_HappyPoller.cpp
-   // todo I do not know at this time if 200 will satisfy the real battery
+   // testing has shown the battery doesn't care at all about this message
    m_timer.registerPeriodicCallback(&m_heartbeat_poll_callback, 10 * 60 * 1000); // set to 10 minutes
 }
 

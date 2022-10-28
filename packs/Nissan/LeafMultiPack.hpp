@@ -18,7 +18,7 @@ class LeafMultiPack: public monitor::Monitor, public contactor::Contactor
 public:
 
    LeafMultiPack( std::vector<monitor::Monitor*> vmonitor,
-                  std::vector<contactor::Contactor*> vcontactor,
+                  // std::vector<contactor::Contactor*> vcontactor,
                   logging::ostream* log = nullptr);
 
    ~LeafMultiPack();
@@ -59,7 +59,7 @@ public:
 
 private:
    std::vector<monitor::Monitor*> m_vmonitor;
-   std::vector<contactor::Contactor*> m_vcontactor;
+   // std::vector<contactor::Contactor*> m_vcontactor;
 
    logging::ostream*     m_log;
 

@@ -71,6 +71,26 @@ private:
    std::string       m_log_color_reset;
 };
 
+//---------------------------------------------------------------------------------------------------
+class TeensyRelay
+{
+public:
+   TeensyRelay(can::FrameSink& sender, uint32_t canid, uint8_t *on_msg, uint8_t *off_msg);
+   ~TeensyRelay();
+
+   bool getRelayState();
+   void setRelayState(bool newstate);
+
+private:
+   can::FrameSink&   m_sender;
+   uint32_t m_canid;
+   uint8_t m_on_msg[8];
+   uint8_t m_off_msg[8];
+   bool m_relay_state;
+   
+};
+
+
 }
 
 #endif /* CORE_USBINTERFACE_USBINTERFACE_HPP_ */
