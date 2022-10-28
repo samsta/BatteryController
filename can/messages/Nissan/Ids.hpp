@@ -15,6 +15,8 @@ enum Ids {
    ID_LBC_VCM_1F2       = 0x1F2,
    ID_LBC_VCM_1D4       = 0x1D4,
    ID_LBC_DATA_REQUEST  = 0x79B,
+   ID_TNSY_DC_SAFE_RLY  = 0X800,
+   ID_TNSY_LBC_PWR_RLY  = 0X801,
 
    // LBC sends...
    ID_LBC_STATUS_55B    = 0x55B,

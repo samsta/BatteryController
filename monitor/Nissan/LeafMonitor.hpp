@@ -35,7 +35,7 @@ namespace Nissan {
 class LeafMonitor: public monitor::Monitor, public can::messages::Nissan::MessageSink
 {
 public:
-   explicit LeafMonitor(contactor::Contactor&);
+   explicit LeafMonitor();
 
    virtual void sink(const can::messages::Nissan::Message&);
 
@@ -71,10 +71,10 @@ private:
    void process(const can::messages::Nissan::BatteryPowerLimits&);
    void updateOperationalSafety();
 
-   void calculateTemperatureLimitFactor(float min, float max);
-   void calculateCurrentLimitByVoltage(float min, float max);
+   // void calculateTemperatureLimitFactor(float min, float max);
+   // void calculateCurrentLimitByVoltage(float min, float max);
 
-   contactor::Contactor& m_contactor;
+   // contactor::Contactor& m_contactor;
    bool m_voltages_ok;
    bool m_temperatures_ok;
    bool m_everything_ok;
@@ -97,7 +97,8 @@ private:
    float m_discharge_current_limit;
    float m_charge_current_limit;
 
-   uint32_t m_contactor_status;
+   uint32_t m_volttemp_status;
+   uint32_t m_safe_to_operate;
    uint32_t m_failsafe_status;
 };
 

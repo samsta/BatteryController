@@ -19,19 +19,16 @@ public:
    LeafPack(
          can::FrameSink& sender,
          core::Timer& timer,
-         core::OutputPin& positive_relay,
-         core::OutputPin& negative_relay,
-         core::OutputPin& indicator,
          logging::ostream* log);
 
    virtual void sink(const can::DataFrame& f);
 
    monitor::Monitor& getMonitor();
-   contactor::Contactor& getContactor();
+   // write a method to send the message to control the SAFE relay
+   // write a method to send the message to control the LBC relay
 
 private:
 
-   contactor::Nissan::LeafContactor       m_contactor;
    monitor::Nissan::LeafMonitor           m_monitor;
    can::services::Nissan::MessageFactory  m_message_factory;
    can::services::Nissan::FrameAggregator m_aggregator;
