@@ -76,9 +76,9 @@ private:
    float m_voltage;
    float m_average_temperature;
 
-   float m_cur_fac_by_temperature;
-   float m_charge_cur_fac_by_voltage;
-   float m_discharge_cur_fac_by_voltage;
+   // float m_cur_fac_by_temperature;
+   // float m_charge_cur_fac_by_voltage;
+   // float m_discharge_cur_fac_by_voltage;
 
    float m_discharge_power_limit;
    float m_charge_power_limit;

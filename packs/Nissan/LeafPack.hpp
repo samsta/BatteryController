@@ -9,6 +9,7 @@
 #include "can/services/Nissan/MessageFactory.hpp"
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "can/services/Nissan/HappyPoller.hpp"
+#include "core/USBInterface/USBInterface.hpp"
 
 namespace packs {
 namespace Nissan {
@@ -24,11 +25,11 @@ public:
    virtual void sink(const can::DataFrame& f);
 
    monitor::Monitor& getMonitor();
-   // write a method to send the message to control the SAFE relay
-   // write a method to send the message to control the LBC relay
+   core::PackSafetyLBC& getPackSafetyLBC();
 
 private:
 
+   core::PackSafetyLBC                   m_packsafetylbc;
    monitor::Nissan::LeafMonitor           m_monitor;
    can::services::Nissan::MessageFactory  m_message_factory;
    can::services::Nissan::FrameAggregator m_aggregator;

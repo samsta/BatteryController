@@ -75,7 +75,7 @@ private:
 class TeensyRelay
 {
 public:
-   TeensyRelay(can::FrameSink& sender, uint32_t canid, uint8_t *on_msg, uint8_t *off_msg);
+   TeensyRelay(can::FrameSink& sender, uint32_t canid);
    ~TeensyRelay();
 
    bool getRelayState();
@@ -84,13 +84,28 @@ public:
 private:
    can::FrameSink&   m_sender;
    uint32_t m_canid;
-   uint8_t m_on_msg[8];
-   uint8_t m_off_msg[8];
    bool m_relay_state;
-   
+
+   const uint8_t m_off_msg[8] = { 0x55, 0x55, 0x00, 0x00, 0x00, 0x00 };
+   const uint8_t m_on_msg[8] = { 0xAA, 0xAA, 0x00, 0x00, 0x00, 0x00 };
 };
 
+//---------------------------------------------------------------------------------------------------
+class PackSafetyLBC
+{
+public:
+   PackSafetyLBC(can::FrameSink& sender);
+   // ~PackSafetyLBC();
+
+   void setSafetyRelayState(bool newstate);
+   void setLBCRelayState(bool newstate);
+   bool getSafetyRelayState();
+   bool getLBCRelayState();
+
+private:
+   TeensyRelay m_safetyrelay;
+   TeensyRelay m_LBCrelay;
+};
 
 }
-
 #endif /* CORE_USBINTERFACE_USBINTERFACE_HPP_ */

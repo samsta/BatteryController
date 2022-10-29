@@ -366,19 +366,15 @@ uint32_t USBPort::HextoDec(unsigned const char *hex, size_t hexlen) {
 }
 
 //---------------------------------------------------------------------------------------------------
-TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid, uint8_t *on_msg, uint8_t *off_msg):
+TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid):
    m_sender(sender),
    m_canid(canid)
-   // m_on_msg(on_msg),
-   // m_off_msg(off_msg)
 {
-   memcpy(m_on_msg, on_msg, 8);
-   memcpy(m_off_msg, off_msg, 8);
 }
 
 TeensyRelay::~TeensyRelay()
 {
-   // do we want to turn the relay off on distruction?
+   // ********************** do we want to turn the relay off on distruction?
 }
 
 void TeensyRelay::setRelayState(bool newstate)
@@ -399,27 +395,29 @@ bool TeensyRelay::getRelayState()
    return m_relay_state;
 }
 
+//---------------------------------------------------------------------------------------------------
 
+PackSafetyLBC::PackSafetyLBC(can::FrameSink& sender):
+   m_safetyrelay(sender, 0x800),
+   m_LBCrelay(sender, 0x801)
+{
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void PackSafetyLBC::setSafetyRelayState(bool newstate)
+{
+   m_safetyrelay.setRelayState(newstate);
+}
+void PackSafetyLBC::setLBCRelayState(bool newstate)
+{
+   m_LBCrelay.setRelayState(newstate);
+}
+bool PackSafetyLBC::getSafetyRelayState()
+{
+   return m_safetyrelay.getRelayState();
+}
+bool PackSafetyLBC::getLBCRelayState()
+{
+   return m_LBCrelay.getRelayState();
+}
 
 } // namespace core

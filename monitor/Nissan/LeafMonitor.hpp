@@ -11,6 +11,7 @@
 #include "can/messages/Nissan/CellVoltageRange.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/BatteryPowerLimits.hpp"
+#include "core/USBInterface/USBInterface.hpp"
 
 namespace contactor {
 class Contactor;
@@ -35,7 +36,7 @@ namespace Nissan {
 class LeafMonitor: public monitor::Monitor, public can::messages::Nissan::MessageSink
 {
 public:
-   explicit LeafMonitor();
+   explicit LeafMonitor(core::PackSafetyLBC&);
 
    virtual void sink(const can::messages::Nissan::Message&);
 
@@ -74,7 +75,7 @@ private:
    // void calculateTemperatureLimitFactor(float min, float max);
    // void calculateCurrentLimitByVoltage(float min, float max);
 
-   // contactor::Contactor& m_contactor;
+   core::PackSafetyLBC& m_packsafetlbc;
    bool m_voltages_ok;
    bool m_temperatures_ok;
    bool m_everything_ok;
@@ -90,7 +91,7 @@ private:
 
    //float m_cur_fac_by_temperature;
    //float m_charge_cur_fac_by_voltage;
-   float m_discharge_cur_fac_by_voltage;
+   // float m_discharge_cur_fac_by_voltage;
 
    float m_discharge_power_limit;
    float m_charge_power_limit;

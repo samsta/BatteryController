@@ -50,7 +50,8 @@ inline float lower_limit(float value, const float warn_limit, const float critic
 }
 }
 
-LeafMonitor::LeafMonitor():
+LeafMonitor::LeafMonitor(core::PackSafetyLBC& packsafetylbc):
+      m_packsafetlbc(packsafetylbc),
       m_voltages_ok(false),
       m_temperatures_ok(false),
       m_everything_ok(false),
@@ -61,7 +62,7 @@ LeafMonitor::LeafMonitor():
       m_current(NAN),
       m_voltage(NAN),
       m_average_temperature(NAN),
-      m_discharge_cur_fac_by_voltage(0),
+      // m_discharge_cur_fac_by_voltage(0),
       m_discharge_power_limit(NAN),
       m_charge_power_limit(NAN),
       m_discharge_current_limit(0),
