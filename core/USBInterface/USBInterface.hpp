@@ -76,7 +76,7 @@ class TeensyRelay
 {
 public:
    TeensyRelay(can::FrameSink& sender, uint32_t canid);
-   ~TeensyRelay();
+   // ~TeensyRelay();
 
    bool getRelayState();
    void setRelayState(bool newstate);
@@ -95,6 +95,7 @@ class PackSafetyLBC
 {
 public:
    PackSafetyLBC(can::FrameSink& sender);
+   PackSafetyLBC();
    // ~PackSafetyLBC();
 
    void setSafetyRelayState(bool newstate);

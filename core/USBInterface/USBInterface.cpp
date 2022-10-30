@@ -372,10 +372,10 @@ TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid):
 {
 }
 
-TeensyRelay::~TeensyRelay()
-{
-   // ********************** do we want to turn the relay off on distruction?
-}
+// TeensyRelay::~TeensyRelay()
+// {
+//    // ********************** do we want to turn the relay off on distruction?
+// }
 
 void TeensyRelay::setRelayState(bool newstate)
 {

@@ -2,10 +2,12 @@
 #include <monitor/Nissan/LeafMonitor.hpp>
 #include <limits>
 #include "mocks/contactor/Contactor.hpp"
+#include "mocks/core/Timer.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/CellVoltageRange.hpp"
 #include "can/messages/Nissan/BatteryState.hpp"
 #include "can/messages/Nissan/BatteryStatus.hpp"
+#include "core/USBInterface/USBInterface.hpp"
 
 using namespace testing;
 using namespace monitor::Nissan;
@@ -72,14 +74,16 @@ PackTemperatures goodPackTemperatures()
 //    LeafMonitor monitor(contactor);
 // }
 
+
 class MonitorConstructed: public Test
 {
 public:
-   MonitorConstructed(): monitor()
+   MonitorConstructed(): monitor(packsafetlbc)
    {
    }
 
    // NiceMock<mocks::contactor::Contactor> contactor;
+   NiceMock<mocks::core::PackSafetyLBC> packsafetlbc;
    LeafMonitor monitor;
 };
 
@@ -147,6 +151,7 @@ public:
 //    monitor.sink(goodPackTemperatures());
 //    monitor.sink(CellVoltageRange());
 // }
+
 
 class MonitorSafeToOperate: public MonitorConstructed
 {
@@ -270,6 +275,7 @@ public:
 //    monitor.sink(goodPackTemperatures()
 //                 .setTemperature(PackTemperatures::NUM_SENSORS / 2, CRITICALLY_LOW_TEMPERATURE));
 // }
+
 
 TEST_F(MonitorConstructed, valuesDefaultToNaN)
 {
@@ -435,4 +441,5 @@ TEST_F(MonitorSafeToOperate, contactorFlagVoltageCriticallyHigh)
 
    EXPECT_TRUE(monitor.getContactorStatus() & CRIT_HIGH_VOLT);
 }
+
 }
