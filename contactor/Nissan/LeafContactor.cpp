@@ -173,22 +173,24 @@ void LeafSafetyRelay::updateRelay()
 {
    if (m_safe_to_operate && m_requested_state == CLOSED)
    {
-      if (m_state == OPEN) closeRelay();
+      closeRelay();
    }
    else if (not m_safe_to_operate or m_requested_state == OPEN)
    {
-      if (m_state != OPEN) openRelay();
+      openRelay();
    }
 }
 
 void LeafSafetyRelay::closeRelay()
 {
       m_sender.sink(can::StandardDataFrame(m_canid, m_off_msg));
+      m_state = CLOSED;
 }
 
 void LeafSafetyRelay::openRelay()
 {
       m_sender.sink(can::StandardDataFrame(m_canid, m_on_msg));
+      m_state = OPEN;
 }
 
 
