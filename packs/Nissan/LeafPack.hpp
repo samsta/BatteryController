@@ -28,7 +28,7 @@ public:
 
 private:
 
-   contactor::Nissan::LeafSafetyRelay       m_contactor;
+   contactor::Nissan::LeafSafetyRelay     m_contactor;
    monitor::Nissan::LeafMonitor           m_monitor;
    can::services::Nissan::MessageFactory  m_message_factory;
    can::services::Nissan::FrameAggregator m_aggregator;

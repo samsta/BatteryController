@@ -129,14 +129,16 @@ LeafSafetyRelay::LeafSafetyRelay(
          m_sender(sender),
          m_safe_to_operate(false),
          m_requested_state(OPEN),
-         m_state(OPEN)
+         m_state(CLOSED)
 {
+   printf("LeafSafetyRelay CONSTRUCTOR\n");
    // openRelay();
 }
 
 LeafSafetyRelay::~LeafSafetyRelay()
 {
-   closeRelay();
+   printf("LeafSafetyRelay DISTRUCTOR\n");
+   // closeRelay(); // this doesnt work, presumably, the CAN functions are already shutdown... needs looking into
 }
 
 void LeafSafetyRelay::setSafeToOperate(bool is_safe)

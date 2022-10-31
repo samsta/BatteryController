@@ -29,7 +29,8 @@
 
 #include <signal.h>
 
-#define CONSOLE
+// #define CONSOLE
+#undef CONSOLE
 
 using namespace core::libgpiod;
 namespace color = logging::color::ansi;
@@ -79,9 +80,9 @@ int main(int argc, const char** argv)
    core::CanPort inverter_port(argv[1], epollfd);
    core::EpollTimer timer(epollfd);
 
-   OutputPin positive_relay_1(0, 5, "relay_pos_1");
-   OutputPin negative_relay_1(0, 6, "relay_neg_1");
-   OutputPin indicator_led_1(0, 4, "led_1");
+   // OutputPin positive_relay_1(0, 5, "relay_pos_1");
+   // OutputPin negative_relay_1(0, 6, "relay_neg_1");
+   // OutputPin indicator_led_1(0, 4, "led_1");
 
    #ifdef CONSOLE
    core::ConsolePresenter console(timer);

@@ -9,8 +9,7 @@ LeafPack::LeafPack(
             can::FrameSink& sender,
             core::Timer& timer,
             logging::ostream* log):
-   m_contactor(
-      sender),
+   m_contactor(sender),
    m_monitor(m_contactor),
    m_message_factory(m_monitor, log),
    m_aggregator(m_message_factory),
