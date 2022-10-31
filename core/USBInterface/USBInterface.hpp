@@ -71,42 +71,42 @@ private:
    std::string       m_log_color_reset;
 };
 
-//---------------------------------------------------------------------------------------------------
-class TeensyRelay
-{
-public:
-   TeensyRelay(can::FrameSink& sender, uint32_t canid);
-   // ~TeensyRelay();
+// //---------------------------------------------------------------------------------------------------
+// class TeensyRelay
+// {
+// public:
+//    TeensyRelay(can::FrameSink& sender, uint32_t canid);
+//    // ~TeensyRelay();
 
-   bool getRelayState();
-   void setRelayState(bool newstate);
+//    bool getRelayState();
+//    void setRelayState(bool newstate);
 
-private:
-   can::FrameSink&   m_sender;
-   uint32_t m_canid;
-   bool m_relay_state;
+// private:
+//    can::FrameSink&   m_sender;
+//    uint32_t m_canid;
+//    bool m_relay_state;
 
-   const uint8_t m_off_msg[8] = { 0x55, 0x55, 0x00, 0x00, 0x00, 0x00 };
-   const uint8_t m_on_msg[8] = { 0xAA, 0xAA, 0x00, 0x00, 0x00, 0x00 };
-};
+//    const uint8_t m_off_msg[8] = { 0x55, 0x55, 0x00, 0x00, 0x00, 0x00 };
+//    const uint8_t m_on_msg[8] = { 0xAA, 0xAA, 0x00, 0x00, 0x00, 0x00 };
+// };
 
-//---------------------------------------------------------------------------------------------------
-class PackSafetyLBC
-{
-public:
-   PackSafetyLBC(can::FrameSink& sender);
-   PackSafetyLBC();
-   // ~PackSafetyLBC();
+// //---------------------------------------------------------------------------------------------------
+// class PackSafetyLBC
+// {
+// public:
+//    PackSafetyLBC(can::FrameSink& sender);
+//    PackSafetyLBC();
+//    // ~PackSafetyLBC();
 
-   void setSafetyRelayState(bool newstate);
-   void setLBCRelayState(bool newstate);
-   bool getSafetyRelayState();
-   bool getLBCRelayState();
+//    void setSafetyRelayState(bool newstate);
+//    void setLBCRelayState(bool newstate);
+//    bool getSafetyRelayState();
+//    bool getLBCRelayState();
 
-private:
-   TeensyRelay m_safetyrelay;
-   TeensyRelay m_LBCrelay;
-};
+// private:
+//    TeensyRelay m_safetyrelay;
+//    TeensyRelay m_LBCrelay;
+// };
 
 }
 #endif /* CORE_USBINTERFACE_USBINTERFACE_HPP_ */

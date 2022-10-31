@@ -9,7 +9,6 @@
 #include "can/services/Nissan/MessageFactory.hpp"
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "can/services/Nissan/HappyPoller.hpp"
-#include "core/USBInterface/USBInterface.hpp"
 
 namespace packs {
 namespace Nissan {
@@ -25,11 +24,11 @@ public:
    virtual void sink(const can::DataFrame& f);
 
    monitor::Monitor& getMonitor();
-   core::PackSafetyLBC& getPackSafetyLBC();
+   contactor::Contactor& getContactor();
 
 private:
 
-   core::PackSafetyLBC                   m_packsafetylbc;
+   contactor::Nissan::LeafSafetyRelay       m_contactor;
    monitor::Nissan::LeafMonitor           m_monitor;
    can::services::Nissan::MessageFactory  m_message_factory;
    can::services::Nissan::FrameAggregator m_aggregator;

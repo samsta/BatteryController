@@ -365,59 +365,59 @@ uint32_t USBPort::HextoDec(unsigned const char *hex, size_t hexlen) {
    return dec;
 }
 
-//---------------------------------------------------------------------------------------------------
-TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid):
-   m_sender(sender),
-   m_canid(canid)
-{
-}
-
-// TeensyRelay::~TeensyRelay()
+// //---------------------------------------------------------------------------------------------------
+// TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid):
+//    m_sender(sender),
+//    m_canid(canid)
 // {
-//    // ********************** do we want to turn the relay off on distruction?
 // }
 
-void TeensyRelay::setRelayState(bool newstate)
-{
-   m_relay_state = newstate;
-   if (m_relay_state)
-   {
-      m_sender.sink(can::StandardDataFrame(m_canid, m_on_msg));
-   }
-   else
-   {
-      m_sender.sink(can::StandardDataFrame(m_canid, m_off_msg));
-   }
-}
+// // TeensyRelay::~TeensyRelay()
+// // {
+// //    // ********************** do we want to turn the relay off on distruction?
+// // }
 
-bool TeensyRelay::getRelayState()
-{
-   return m_relay_state;
-}
+// void TeensyRelay::setRelayState(bool newstate)
+// {
+//    m_relay_state = newstate;
+//    if (m_relay_state)
+//    {
+//       m_sender.sink(can::StandardDataFrame(m_canid, m_on_msg));
+//    }
+//    else
+//    {
+//       m_sender.sink(can::StandardDataFrame(m_canid, m_off_msg));
+//    }
+// }
 
-//---------------------------------------------------------------------------------------------------
+// bool TeensyRelay::getRelayState()
+// {
+//    return m_relay_state;
+// }
 
-PackSafetyLBC::PackSafetyLBC(can::FrameSink& sender):
-   m_safetyrelay(sender, 0x800),
-   m_LBCrelay(sender, 0x801)
-{
-}
+// //---------------------------------------------------------------------------------------------------
 
-void PackSafetyLBC::setSafetyRelayState(bool newstate)
-{
-   m_safetyrelay.setRelayState(newstate);
-}
-void PackSafetyLBC::setLBCRelayState(bool newstate)
-{
-   m_LBCrelay.setRelayState(newstate);
-}
-bool PackSafetyLBC::getSafetyRelayState()
-{
-   return m_safetyrelay.getRelayState();
-}
-bool PackSafetyLBC::getLBCRelayState()
-{
-   return m_LBCrelay.getRelayState();
-}
+// PackSafetyLBC::PackSafetyLBC(can::FrameSink& sender):
+//    m_safetyrelay(sender, 0x800),
+//    m_LBCrelay(sender, 0x801)
+// {
+// }
+
+// void PackSafetyLBC::setSafetyRelayState(bool newstate)
+// {
+//    m_safetyrelay.setRelayState(newstate);
+// }
+// void PackSafetyLBC::setLBCRelayState(bool newstate)
+// {
+//    m_LBCrelay.setRelayState(newstate);
+// }
+// bool PackSafetyLBC::getSafetyRelayState()
+// {
+//    return m_safetyrelay.getRelayState();
+// }
+// bool PackSafetyLBC::getLBCRelayState()
+// {
+//    return m_LBCrelay.getRelayState();
+// }
 
 } // namespace core

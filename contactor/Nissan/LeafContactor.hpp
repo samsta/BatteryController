@@ -7,6 +7,8 @@
 #include "core/Callback.hpp"
 #include "core/OutputPin.hpp"
 #include "core/Timer.hpp"
+#include "can/FrameSink.hpp"
+#include "can/StandardDataFrame.hpp"
 #include "logging/stream.hpp"
 
 namespace contactor {
@@ -53,6 +55,41 @@ private:
 
    core::Callback<LeafContactor> m_delayed_close;
 };
+
+//---------------------------------------------------------------------------------------------------
+class LeafSafetyRelay: public Contactor
+{
+public:
+   LeafSafetyRelay(can::FrameSink& sender);
+   ~LeafSafetyRelay();
+
+   virtual void setSafeToOperate(bool);
+   virtual bool isSafeToOperate() const;
+   virtual bool isClosed() const;
+   virtual void close();
+   virtual void open();
+
+private:
+   enum State {
+      OPEN,
+      CLOSED
+   };
+
+   void openRelay();
+   void closeRelay();
+   void updateRelay();
+
+   can::FrameSink&   m_sender;
+   bool  m_safe_to_operate;
+   State m_requested_state;
+   State m_state;
+
+   const uint32_t m_canid = 0x800;
+   const uint8_t m_off_msg[8] = { 0x55, 0x55, 0x00, 0x00, 0x00, 0x00 };
+   const uint8_t m_on_msg[8] = { 0xAA, 0xAA, 0x00, 0x00, 0x00, 0x00 };
+};
+
+
 
 }
 }

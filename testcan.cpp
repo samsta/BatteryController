@@ -110,23 +110,14 @@ int main(int argc, const char** argv)
 
    std::vector<monitor::Monitor*> vbatterymon = {&battery_pack_1.getMonitor()};
 
-   // monitor::Monitor* pbatmon1 = &battery_pack_1.getMonitor();
-   // contactor::Contactor* pbatcon1 = &battery_pack_1.getContactor();
-
-   // packs::Nissan::LeafPack battery_pack_2(
+      // packs::Nissan::LeafPack battery_pack_2(
    //      usb_port.getSinkOutbound(1),
    //      timer,
-   //      positive_relay_2,
-   //      negative_relay_2,
-   //      indicator_led_2,
    //      log);
 
    // packs::Nissan::LeafPack battery_pack_3(
    //      usb_port.getSinkOutbound(2),
    //      timer,
-   //      positive_relay_3,
-   //      negative_relay_3,
-   //      indicator_led_3,
    //      log);
 
    usb_port.setupLogger(*log, "<USB OUT>", color::cyan);

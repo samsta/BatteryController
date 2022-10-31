@@ -22,14 +22,14 @@ public:
 //    MOCK_METHOD(void, setRelayState,(bool newstate));
 // };
 
-class PackSafetyLBC: public ::core::PackSafetyLBC
-{
-public:
-   MOCK_METHOD(void, setSafetyRelayState, (bool newstate));
-   MOCK_METHOD(void, setLBCRelayState, (bool newstate));
-   MOCK_METHOD(bool, getSafetyRelayState, ());
-   MOCK_METHOD(bool, getLBCRelayState, ());
-};
+// class PackSafetyLBC: public ::core::PackSafetyLBC
+// {
+// public:
+//    MOCK_METHOD(void, setSafetyRelayState, (bool newstate));
+//    MOCK_METHOD(void, setLBCRelayState, (bool newstate));
+//    MOCK_METHOD(bool, getSafetyRelayState, ());
+//    MOCK_METHOD(bool, getLBCRelayState, ());
+// };
 
 }
 }

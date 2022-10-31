@@ -123,6 +123,72 @@ void LeafContactor::closePositiveRelay()
    m_state = CLOSED;
 }
 
+//---------------------------------------------------------------------------------------------------
+LeafSafetyRelay::LeafSafetyRelay(
+   can::FrameSink& sender):
+         m_sender(sender),
+         m_safe_to_operate(false),
+         m_requested_state(OPEN),
+         m_state(OPEN)
+{
+   // openRelay();
+}
+
+LeafSafetyRelay::~LeafSafetyRelay()
+{
+   closeRelay();
+}
+
+void LeafSafetyRelay::setSafeToOperate(bool is_safe)
+{
+   m_safe_to_operate = is_safe;
+   updateRelay();
+}
+
+bool LeafSafetyRelay::isSafeToOperate() const
+{
+   return m_safe_to_operate;
+}
+
+bool LeafSafetyRelay::isClosed() const
+{
+   return m_state == CLOSED;
+}
+
+void LeafSafetyRelay::close()
+{
+   m_requested_state = CLOSED;
+   updateRelay();
+}
+
+void LeafSafetyRelay::open()
+{
+   m_requested_state = OPEN;
+   updateRelay();
+}
+
+void LeafSafetyRelay::updateRelay()
+{
+   if (m_safe_to_operate && m_requested_state == CLOSED)
+   {
+      if (m_state == OPEN) closeRelay();
+   }
+   else if (not m_safe_to_operate or m_requested_state == OPEN)
+   {
+      if (m_state != OPEN) openRelay();
+   }
+}
+
+void LeafSafetyRelay::closeRelay()
+{
+      m_sender.sink(can::StandardDataFrame(m_canid, m_off_msg));
+}
+
+void LeafSafetyRelay::openRelay()
+{
+      m_sender.sink(can::StandardDataFrame(m_canid, m_on_msg));
+}
+
 
 }
 }
