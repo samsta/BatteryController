@@ -32,7 +32,7 @@ public:
    MOCK_METHOD(float, getChargeCurrentLimit, (), (const));
    MOCK_METHOD(float, getDischargeCurrentLimit, (), (const));
 
-   MOCK_METHOD(uint32_t, getContactorStatus, (),  (const));
+   MOCK_METHOD(uint32_t, getVoltTempStatus, (),  (const));
    MOCK_METHOD(uint32_t, getFailsafeStatus, (),  (const));
 };
 

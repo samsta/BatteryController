@@ -397,21 +397,21 @@ TEST_F(MonitorSafeToOperate, contactorFlagTemperatureCriticallyHigh)
 {
    monitor.sink(allPackTemperatures(CRITICALLY_HIGH_TEMPERATURE));
 
-   EXPECT_TRUE(monitor.getContactorStatus() & CRIT_HIGH_TEMP);
+   EXPECT_TRUE(monitor.getVoltTempStatus() & CRIT_HIGH_TEMP);
 }
 
 TEST_F(MonitorSafeToOperate, contactorFlagTemperatureCriticallyLow)
 {
    monitor.sink(allPackTemperatures(CRITICALLY_LOW_TEMPERATURE));
 
-   EXPECT_TRUE(monitor.getContactorStatus() & CRIT_LOW_TEMP);
+   EXPECT_TRUE(monitor.getVoltTempStatus() & CRIT_LOW_TEMP);
 }
 
 TEST_F(MonitorSafeToOperate, contactorFlagTemperatureSenseMissing)
 {
    monitor.sink(allPackTemperatures(NAN));
 
-   EXPECT_TRUE(monitor.getContactorStatus() & MAX_TEMP_MISSING);
+   EXPECT_TRUE(monitor.getVoltTempStatus() & MAX_TEMP_MISSING);
 }
 
 TEST_F(MonitorSafeToOperate, contactorFlagVoltageRangeSpreadCritical)
@@ -420,7 +420,7 @@ TEST_F(MonitorSafeToOperate, contactorFlagVoltageRangeSpreadCritical)
                 .setMin(ARBITRARY_SAFE_VOLTAGE)
                 .setMax(ARBITRARY_SAFE_VOLTAGE + CRITICAL_SPREAD_VOLTAGE + TOLERANCE));
 
-   EXPECT_TRUE(monitor.getContactorStatus() & CRIT_SPREAD_VOLT);
+   EXPECT_TRUE(monitor.getVoltTempStatus() & CRIT_SPREAD_VOLT);
 }
 
 TEST_F(MonitorSafeToOperate, contactorFlagVoltageCriticallyLow)
@@ -429,7 +429,7 @@ TEST_F(MonitorSafeToOperate, contactorFlagVoltageCriticallyLow)
                 .setMin(CRITICALLY_LOW_VOLTAGE)
                 .setMax(CRITICALLY_LOW_VOLTAGE + TOLERANCE));
 
-   EXPECT_TRUE(monitor.getContactorStatus() & CRIT_LOW_VOLT);
+   EXPECT_TRUE(monitor.getVoltTempStatus() & CRIT_LOW_VOLT);
 }
 
 TEST_F(MonitorSafeToOperate, contactorFlagVoltageCriticallyHigh)
@@ -438,7 +438,7 @@ TEST_F(MonitorSafeToOperate, contactorFlagVoltageCriticallyHigh)
                 .setMin(CRITICALLY_HIGH_VOLTAGE - TOLERANCE)
                 .setMax(CRITICALLY_HIGH_VOLTAGE));
 
-   EXPECT_TRUE(monitor.getContactorStatus() & CRIT_HIGH_VOLT);
+   EXPECT_TRUE(monitor.getVoltTempStatus() & CRIT_HIGH_VOLT);
 }
 
 }

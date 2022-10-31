@@ -60,7 +60,7 @@ public:
    virtual const char* getManufacturerName() const;
    virtual const char* getBatteryName() const;
    
-   uint32_t getContactorStatus() const;
+   uint32_t getVoltTempStatus() const;
    uint32_t getFailsafeStatus() const;
 
 private:

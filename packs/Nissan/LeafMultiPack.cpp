@@ -45,9 +45,9 @@ uint32_t LeafMultiPack::getFailsafeStatus() const
 	return m_vmonitor[0]->getFailsafeStatus();
 }
 
-uint32_t LeafMultiPack::getContactorStatus() const
+uint32_t LeafMultiPack::getVoltTempStatus() const
 {
-   return (m_vmonitor[0]->getContactorStatus());
+   return (m_vmonitor[0]->getVoltTempStatus());
    // return (m_vmonitor[0]->getContactorStatus() | m_2monitor.getContactorStatus());
 }
 

@@ -44,7 +44,7 @@ public:
    virtual const char* getManufacturerName() const;
    virtual const char* getBatteryName() const;
 
-   virtual uint32_t getContactorStatus() const;
+   virtual uint32_t getVoltTempStatus() const;
    virtual uint32_t getFailsafeStatus() const;
 
    // no need for getMonitor as this (LeafMultiPack) is the montior

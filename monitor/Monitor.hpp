@@ -34,7 +34,7 @@ public:
    virtual float getChargeCurrentLimit() const = 0;
    virtual float getDischargeCurrentLimit() const = 0;
 
-   virtual uint32_t getContactorStatus() const = 0;
+   virtual uint32_t getVoltTempStatus() const = 0;
    virtual uint32_t getFailsafeStatus() const = 0;
 };
 

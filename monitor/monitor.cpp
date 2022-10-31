@@ -6,7 +6,7 @@ namespace monitor {
 logging::ostream& operator<<(logging::ostream& os, const Monitor& m)
 {
    os << "Failsafe Status          " << std::bitset<3>(m.getFailsafeStatus()) << " bits (" << m.getFailsafeStatus() << ")" << std::endl;
-   os << "Contactor Status         " << std::bitset<6>(m.getContactorStatus()) << " bits" << std::endl;
+   os << "Contactor Status         " << std::bitset<6>(m.getVoltTempStatus()) << " bits" << std::endl;
    os << "Voltage:                 " << m.getVoltage() << " V" << std::endl;
    os << "Current:                 " << m.getCurrent() << " A" << std::endl;
    os << "Temperature:             " << m.getTemperature() << " degC" << std::endl;

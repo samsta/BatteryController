@@ -394,7 +394,7 @@ float LeafMonitor::getDischargeCurrentLimit() const
    return m_discharge_current_limit;
 }
 
-uint32_t LeafMonitor::getContactorStatus() const
+uint32_t LeafMonitor::getVoltTempStatus() const
 {
 	return m_volt_temp_status;
 }
