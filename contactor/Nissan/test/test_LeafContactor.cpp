@@ -5,9 +5,11 @@
 #include "mocks/core/Timer.hpp"
 #include "can/FrameSink.hpp"
 #include "can/StandardDataFrame.hpp"
+#include "can/messages/Nissan/Ids.hpp"
 
 using namespace testing;
 using namespace can;
+using namespace can::messages::Nissan;
 
 namespace contactor {
 namespace Nissan {
@@ -195,23 +197,27 @@ public:
    MOCK_METHOD1(sink, void(const DataFrame&));
 };
 
-// class LeafSafetyRelayTest: public Test
+MATCHER_P(AsString, str, std::string(negation ? " doesn't equal " : " equals ") + str){
+   return testing::internal::CaseInsensitiveStringEquals<std::string>(PrintToString(arg), str);
+}
+
+// class TeensyRelayTest: public Test
 // {
 // public:
-//    LeafSafetyRelayTest():
+//    TeensyRelayTest():
 //        sender() // THIS DOES NOT WORK!?!?!?!?!?!?!?!!?
 //    {
 //    }
 
 //    TestSender        sender;
-//    LeafSafetyRelay   contactor;  
+//    TeensyRelay   contactor;  
 // };
 
 // MATCHER_P(AsString, str, std::string(negation ? " doesn't equal " : " equals ") + str){
 //    return testing::internal::CaseInsensitiveStringEquals<std::string>(PrintToString(arg), str);
 // }
 
-// TEST_F(LeafSafetyRelayTest, initiallyOpensRelay)
+// TEST_F(TeensyRelayTest, initiallyOpensRelay)
 // {
 //    EXPECT_CALL(sender, sink(AsString("800#5555000000000000")));
 
@@ -219,30 +225,27 @@ public:
    
 // }
 
-MATCHER_P(AsString, str, std::string(negation ? " doesn't equal " : " equals ") + str){
-   return testing::internal::CaseInsensitiveStringEquals<std::string>(PrintToString(arg), str);
-}
 
-TEST(LeafSafetyRelayT, openRelayWhenUnsafe)
+TEST(TeensyRelayT, openRelayWhenUnsafe)
 {
    TestSender sender;
-   LeafSafetyRelay leafsafetyrelay(sender);
+   TeensyRelay TeensyRelay(sender, ID_TNSY_DC_SAFE_RLY);
 
    // relay should open when unsafe
    EXPECT_CALL(sender, sink(AsString("800#AAAA000000000000")));
 
-   leafsafetyrelay.setSafeToOperate(false);
+   TeensyRelay.setSafeToOperate(false);
 }
 
-TEST(LeafSafetyRelayT, closeRelayWhenSafe)
+TEST(TeensyRelayT, closeRelayWhenSafe)
 {
    TestSender sender;
-   LeafSafetyRelay leafsafetyrelay(sender);
+   TeensyRelay TeensyRelay(sender, ID_TNSY_DC_SAFE_RLY);
 
    // relay should close when safe
    EXPECT_CALL(sender, sink(AsString("800#5555000000000000")));
 
-   leafsafetyrelay.setSafeToOperate(true);
+   TeensyRelay.setSafeToOperate(true);
 }
 
 }

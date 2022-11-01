@@ -10,6 +10,9 @@
 #include "can/FrameSink.hpp"
 #include "can/StandardDataFrame.hpp"
 #include "logging/stream.hpp"
+#include "can/messages/Nissan/Ids.hpp"
+
+using namespace can::messages::Nissan;
 
 namespace contactor {
 namespace Nissan {
@@ -57,11 +60,11 @@ private:
 };
 
 //---------------------------------------------------------------------------------------------------
-class LeafSafetyRelay: public Contactor
+class TeensyRelay: public Contactor
 {
 public:
-   LeafSafetyRelay(can::FrameSink& sender);
-   ~LeafSafetyRelay();
+   TeensyRelay(can::FrameSink& sender, uint32_t canid);
+   ~TeensyRelay();
 
    virtual void setSafeToOperate(bool);
    virtual bool isSafeToOperate() const;
@@ -78,11 +81,11 @@ private:
    void updateRelay();
 
    can::FrameSink&   m_sender;
+   uint32_t m_canid;
    bool  m_safe_to_operate;
    State m_requested_state;
    State m_state;
 
-   const uint32_t m_canid = 0x800;
    const uint8_t m_off_msg[8] = { 0x55, 0x55, 0x00, 0x00, 0x00, 0x00 };
    const uint8_t m_on_msg[8] = { 0xAA, 0xAA, 0x00, 0x00, 0x00, 0x00 };
 };
