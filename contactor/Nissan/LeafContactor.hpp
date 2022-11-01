@@ -75,8 +75,6 @@ private:
       CLOSED
    };
 
-   void openRelay();
-   void closeRelay();
    void updateRelay();
 
    can::FrameSink&   m_sender;

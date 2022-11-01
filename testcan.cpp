@@ -29,8 +29,8 @@
 
 #include <signal.h>
 
-// #define CONSOLE
-#undef CONSOLE
+#define CONSOLE
+// #undef CONSOLE
 
 using namespace core::libgpiod;
 namespace color = logging::color::ansi;

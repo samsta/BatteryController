@@ -12,6 +12,7 @@ namespace {
 const unsigned DELAY_CLOSE_MS = 3000;
 }
 
+//---------------------------------------------------------------------------------------------------
 LeafContactor::LeafContactor(
    Timer& timer,
    OutputPin& positive_relay,
@@ -124,20 +125,19 @@ void LeafContactor::closePositiveRelay()
 }
 
 //---------------------------------------------------------------------------------------------------
-LeafSafetyRelay::LeafSafetyRelay(
-   can::FrameSink& sender):
+LeafSafetyRelay::LeafSafetyRelay(can::FrameSink& sender):
          m_sender(sender),
          m_safe_to_operate(false),
          m_requested_state(OPEN),
          m_state(CLOSED)
 {
-   printf("LeafSafetyRelay CONSTRUCTOR\n");
+   // printf("LeafSafetyRelay CONSTRUCTOR\n");
    // openRelay();
 }
 
 LeafSafetyRelay::~LeafSafetyRelay()
 {
-   printf("LeafSafetyRelay DISTRUCTOR\n");
+   // printf("LeafSafetyRelay DISTRUCTOR\n");
    // closeRelay(); // this doesnt work, presumably, the CAN functions are already shutdown... needs looking into
 }
 
@@ -159,40 +159,27 @@ bool LeafSafetyRelay::isClosed() const
 
 void LeafSafetyRelay::close()
 {
-   m_requested_state = CLOSED;
-   updateRelay();
-}
-
-void LeafSafetyRelay::open()
-{
-   m_requested_state = OPEN;
-   updateRelay();
-}
-
-void LeafSafetyRelay::updateRelay()
-{
-   if (m_safe_to_operate && m_requested_state == CLOSED)
-   {
-      closeRelay();
-   }
-   else if (not m_safe_to_operate or m_requested_state == OPEN)
-   {
-      openRelay();
-   }
-}
-
-void LeafSafetyRelay::closeRelay()
-{
       m_sender.sink(can::StandardDataFrame(m_canid, m_off_msg));
       m_state = CLOSED;
 }
 
-void LeafSafetyRelay::openRelay()
+void LeafSafetyRelay::open()
 {
       m_sender.sink(can::StandardDataFrame(m_canid, m_on_msg));
       m_state = OPEN;
 }
 
+void LeafSafetyRelay::updateRelay()
+{
+   if (m_safe_to_operate)
+   {
+      close();
+   }
+   else // if (not m_safe_to_operate)
+   {
+      open();
+   }
+}
 
 }
 }

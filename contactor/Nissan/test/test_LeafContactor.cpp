@@ -3,8 +3,11 @@
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "mocks/core/OutputPin.hpp"
 #include "mocks/core/Timer.hpp"
+#include "can/FrameSink.hpp"
+#include "can/StandardDataFrame.hpp"
 
 using namespace testing;
+using namespace can;
 
 namespace contactor {
 namespace Nissan {
@@ -183,6 +186,63 @@ TEST_F(NissanLeafContactorClosedTest, opensIfUnsafe)
    contactor.setSafeToOperate(false);
 
    EXPECT_FALSE(contactor.isClosed());
+}
+
+//---------------------------------------------------------------------------------------------------
+class TestSender: public can::FrameSink
+{
+public:
+   MOCK_METHOD1(sink, void(const DataFrame&));
+};
+
+// class LeafSafetyRelayTest: public Test
+// {
+// public:
+//    LeafSafetyRelayTest():
+//        sender() // THIS DOES NOT WORK!?!?!?!?!?!?!?!!?
+//    {
+//    }
+
+//    TestSender        sender;
+//    LeafSafetyRelay   contactor;  
+// };
+
+// MATCHER_P(AsString, str, std::string(negation ? " doesn't equal " : " equals ") + str){
+//    return testing::internal::CaseInsensitiveStringEquals<std::string>(PrintToString(arg), str);
+// }
+
+// TEST_F(LeafSafetyRelayTest, initiallyOpensRelay)
+// {
+//    EXPECT_CALL(sender, sink(AsString("800#5555000000000000")));
+
+//    contactor.setSafeToOperate(false);
+   
+// }
+
+MATCHER_P(AsString, str, std::string(negation ? " doesn't equal " : " equals ") + str){
+   return testing::internal::CaseInsensitiveStringEquals<std::string>(PrintToString(arg), str);
+}
+
+TEST(LeafSafetyRelayT, openRelayWhenUnsafe)
+{
+   TestSender sender;
+   LeafSafetyRelay leafsafetyrelay(sender);
+
+   // relay should open when unsafe
+   EXPECT_CALL(sender, sink(AsString("800#AAAA000000000000")));
+
+   leafsafetyrelay.setSafeToOperate(false);
+}
+
+TEST(LeafSafetyRelayT, closeRelayWhenSafe)
+{
+   TestSender sender;
+   LeafSafetyRelay leafsafetyrelay(sender);
+
+   // relay should close when safe
+   EXPECT_CALL(sender, sink(AsString("800#5555000000000000")));
+
+   leafsafetyrelay.setSafeToOperate(true);
 }
 
 }
