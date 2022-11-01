@@ -13,12 +13,16 @@
 namespace packs {
 namespace Nissan {
 
-class LeafMultiPack: public monitor::Monitor, public contactor::Contactor
+class LeafMultiPack: public monitor::Monitor
 {
 public:
 
    LeafMultiPack( std::vector<monitor::Monitor*> vmonitor,
-                  // std::vector<contactor::Contactor*> vcontactor,
+                  std::vector<contactor::Contactor*> vcontactor,
+                  core::Timer& timer,
+                  core::OutputPin& positive_relay,
+                  core::OutputPin& negative_relay,
+                  core::OutputPin& indicator,
                   logging::ostream* log = nullptr);
 
    ~LeafMultiPack();
@@ -49,17 +53,13 @@ public:
 
    // no need for getMonitor as this (LeafMultiPack) is the montior
    // need to pass internal contactor to inverter
-   contactor::Contactor& getContactor();
-
-   virtual void setSafeToOperate(bool);
-   virtual bool isSafeToOperate() const;
-   virtual bool isClosed() const;
-   virtual void close();
-   virtual void open();
+   contactor::Contactor& getMainContactor();
 
 private:
    std::vector<monitor::Monitor*> m_vmonitor;
-   // std::vector<contactor::Contactor*> m_vcontactor;
+   std::vector<contactor::Contactor*> m_vcontactor;
+
+   contactor::Nissan::LeafContactor m_main_contactor;
 
    logging::ostream*     m_log;
 
@@ -76,27 +76,10 @@ private:
    float m_voltage;
    float m_average_temperature;
 
-   // float m_cur_fac_by_temperature;
-   // float m_charge_cur_fac_by_voltage;
-   // float m_discharge_cur_fac_by_voltage;
-
    float m_discharge_power_limit;
    float m_charge_power_limit;
    float m_discharge_current_limit;
    float m_charge_current_limit;
-
-   private:
-      enum State {
-      OPEN,
-      CLOSING,
-      CLOSED
-   };
-
-   void updateRelays();
-
-   bool  m_safe_to_operate;
-   State m_requested_state;
-   State m_state;
 
 };
 

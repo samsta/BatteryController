@@ -7,11 +7,21 @@ namespace Nissan {
 
 LeafMultiPack::LeafMultiPack(
             std::vector<monitor::Monitor*> vmonitor,
-            // std::vector<contactor::Contactor*> vcontactor,
+            std::vector<contactor::Contactor*> vcontactor,
+            core::Timer& timer,
+            core::OutputPin& positive_relay,
+            core::OutputPin& negative_relay,
+            core::OutputPin& indicator,
             logging::ostream* log):
 
       m_vmonitor(vmonitor),
-      // m_vcontactor(vcontactor),
+      m_vcontactor(vcontactor),
+      m_main_contactor(
+         timer,
+         positive_relay,
+         negative_relay,
+         indicator,
+         log),
       m_log(log),
       m_voltages_ok(false),
       m_temperatures_ok(false),
@@ -23,16 +33,10 @@ LeafMultiPack::LeafMultiPack(
       m_current(NAN),
       m_voltage(NAN),
       m_average_temperature(NAN),
-      // m_cur_fac_by_temperature(0),
-      // m_charge_cur_fac_by_voltage(0),
-      // m_discharge_cur_fac_by_voltage(0),
       m_discharge_power_limit(NAN),
       m_charge_power_limit(NAN),
       m_discharge_current_limit(0),
-      m_charge_current_limit(0),
-      m_safe_to_operate(false),
-      m_requested_state(OPEN),
-      m_state(OPEN)
+      m_charge_current_limit(0)
 {
 }
 
@@ -48,71 +52,12 @@ uint32_t LeafMultiPack::getFailsafeStatus() const
 uint32_t LeafMultiPack::getVoltTempStatus() const
 {
    return (m_vmonitor[0]->getVoltTempStatus());
-   // return (m_vmonitor[0]->getContactorStatus() | m_2monitor.getContactorStatus());
 }
 
-// disable compiler warning for this method
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-void LeafMultiPack::setSafeToOperate(bool is_safe)
-{
-   // should never be called!
-   printf("\nLeafMultiPack::setSafeToOperate called: THIS SHOULD NEVER HAPPEN!\n");
-}
-#pragma GCC diagnostic pop
-
-bool LeafMultiPack::isSafeToOperate() const
-{
-   return m_safe_to_operate;
-}
-
-bool LeafMultiPack::isClosed() const
-{
-   bool result = true;
-//   for (const bool& value: m_vmonitor->isClosed())
-   for (unsigned i=0; i<m_vmonitor.size(); i++)
-   {
-//      result &= value;
-      // result &= m_vcontactor[i]->isClosed();
-   }
-   return result;
-}
-
-void LeafMultiPack::close()
-{
-   m_requested_state = CLOSED;
-   updateRelays();
-}
-
-void LeafMultiPack::open()
-{
-   m_requested_state = OPEN;
-   updateRelays();
-}
-
-void LeafMultiPack::updateRelays()
-{
-   // m_safe_to_operate = m_vcontactor[0]->isSafeToOperate(); // & m_2contactor.isSafeToOperate();
-   if (m_safe_to_operate && m_requested_state == CLOSED)
-   {
-      if (m_state == OPEN)
-      {
-         // m_vcontactor[0]->close();
-      }
-   }
-   else if (not m_safe_to_operate or m_requested_state == OPEN)
-   {
-      if (m_state != OPEN)
-      {
-         // m_vcontactor[0]->open();
-      }
-   }
-}
 
 float LeafMultiPack::getVoltage() const
 {
    return m_vmonitor[0]->getVoltage();
-   // return (m_vmonitor[0]->getVoltage() + m_2monitor.getVoltage())/ 2.0;
 }
 
 float LeafMultiPack::getCurrent() const
@@ -127,13 +72,11 @@ float LeafMultiPack::getTemperature() const
 
 float LeafMultiPack::getSocPercent() const
 {
-   // printf("LeafMultiPack::getSocPercent()");
    return m_vmonitor[0]->getSocPercent();
 }
 
 float LeafMultiPack::getSohPercent() const
 {
-   // printf("LeafMultiPack::getSohPercent()");
    return m_vmonitor[0]->getSohPercent();
 }
 
@@ -174,7 +117,6 @@ uint32_t LeafMultiPack::getManufacturingDateUnixTime() const
 
 const char* LeafMultiPack::getManufacturerName() const
 {
-   // printf("LeafMultiPack::getManufacturerName()");
    return "TIML-LMP";
 }
 
@@ -201,6 +143,11 @@ float LeafMultiPack::getChargeCurrentLimit() const
 float LeafMultiPack::getDischargeCurrentLimit() const
 {
    return m_vmonitor[0]->getDischargeCurrentLimit();
+}
+
+contactor::Contactor& LeafMultiPack::getMainContactor()
+{
+   return m_main_contactor;
 }
 
 }

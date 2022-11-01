@@ -80,9 +80,9 @@ int main(int argc, const char** argv)
    core::CanPort inverter_port(argv[1], epollfd);
    core::EpollTimer timer(epollfd);
 
-   // OutputPin positive_relay_1(0, 5, "relay_pos_1");
-   // OutputPin negative_relay_1(0, 6, "relay_neg_1");
-   // OutputPin indicator_led_1(0, 4, "led_1");
+   OutputPin positive_relay_1(0, 5, "relay_pos_1");
+   OutputPin negative_relay_1(0, 6, "relay_neg_1");
+   OutputPin indicator_led_1(0, 4, "led_1");
 
    #ifdef CONSOLE
    core::ConsolePresenter console(timer);
@@ -110,6 +110,7 @@ int main(int argc, const char** argv)
          log);
 
    std::vector<monitor::Monitor*> vbatterymon = {&battery_pack_1.getMonitor()};
+   std::vector<contactor::Contactor*> vbatterycon = {&battery_pack_1.getContactor()};
 
       // packs::Nissan::LeafPack battery_pack_2(
    //      usb_port.getSinkOutbound(1),
@@ -129,14 +130,18 @@ int main(int argc, const char** argv)
 
    packs::Nissan::LeafMultiPack multi_battery(
                      vbatterymon,
+                     vbatterycon,
+                     timer,
+                     positive_relay_1,
+                     negative_relay_1,
+                     indicator_led_1,
                      log);
-
 
    inverter::TSUN::TSOL_H50K inverter(
          inverter_port,
          timer,
          multi_battery,
-         multi_battery);
+         multi_battery.getMainContactor());
    can::services::TSUN::MessageFactory inverter_message_factory(inverter, log);
 
    inverter_port.setupLogger(*log, "<INV OUT>", color::green);
@@ -146,7 +151,7 @@ int main(int argc, const char** argv)
    if (console.isOperational())
    {
       console.setMonitor(multi_battery);
-      console.setContactor(multi_battery);
+      console.setContactor(multi_battery.getMainContactor());
    }
    #endif
 

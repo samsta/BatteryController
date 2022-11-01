@@ -62,8 +62,6 @@ LeafMonitor::LeafMonitor(contactor::Contactor& contactor):
       m_current(NAN),
       m_voltage(NAN),
       m_average_temperature(NAN),
-      //m_cur_fac_by_temperature(0),
-      //m_charge_cur_fac_by_voltage(0),
       m_discharge_cur_fac_by_voltage(0),
       m_discharge_power_limit(NAN),
       m_charge_power_limit(NAN),
@@ -316,13 +314,11 @@ float LeafMonitor::getTemperature() const
 
 float LeafMonitor::getSocPercent() const
 {
-   // printf("LeafMonitor::getSocPercent()\n");
    return m_soc_percent;
 }
 
 float LeafMonitor::getSohPercent() const
 {
-   // printf("LeafMonitor::getSohPercent()\n");
    return m_soh_percent;
 }
 
@@ -363,7 +359,6 @@ uint32_t LeafMonitor::getManufacturingDateUnixTime() const
 
 const char* LeafMonitor::getManufacturerName() const
 {
-   // printf("LeafMonitor::getManufacturerName()\n");
    return "TIML-LM";
 }
 
@@ -384,13 +379,11 @@ float LeafMonitor::getMinDischargeVoltage() const
 
 float LeafMonitor::getChargeCurrentLimit() const
 {
-   //return m_charge_cur_fac_by_voltage * m_cur_fac_by_temperature * NOMINAL_CURRENT_LIMIT;
    return m_charge_current_limit;
 }
 
 float LeafMonitor::getDischargeCurrentLimit() const
 {
-   //return m_discharge_cur_fac_by_voltage * m_cur_fac_by_temperature * NOMINAL_CURRENT_LIMIT;
    return m_discharge_current_limit;
 }
 
