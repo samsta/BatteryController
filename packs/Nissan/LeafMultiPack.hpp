@@ -56,13 +56,16 @@ public:
    contactor::Contactor& getMainContactor();
 
 private:
-   std::vector<monitor::Monitor*> m_vmonitor;
-   std::vector<contactor::Contactor*> m_vcontactor;
+   void periodicCallback();
 
-   contactor::Nissan::LeafContactor m_main_contactor;
+   std::vector<monitor::Monitor*>      m_vmonitor;
+   std::vector<contactor::Contactor*>  m_vsafety_relay;
+   core::Timer&                        m_timer;
+   contactor::Nissan::LeafContactor    m_main_contactor;
 
    logging::ostream*     m_log;
 
+   core::Callback<LeafMultiPack> m_periodic_callback;
    bool m_voltages_ok;
    bool m_temperatures_ok;
    bool m_everything_ok;

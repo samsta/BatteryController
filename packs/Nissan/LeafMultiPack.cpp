@@ -7,7 +7,7 @@ namespace Nissan {
 
 LeafMultiPack::LeafMultiPack(
             std::vector<monitor::Monitor*> vmonitor,
-            std::vector<contactor::Contactor*> vcontactor,
+            std::vector<contactor::Contactor*> vsafetyrelay,
             core::Timer& timer,
             core::OutputPin& positive_relay,
             core::OutputPin& negative_relay,
@@ -15,7 +15,8 @@ LeafMultiPack::LeafMultiPack(
             logging::ostream* log):
 
       m_vmonitor(vmonitor),
-      m_vcontactor(vcontactor),
+      m_vsafety_relay(vsafetyrelay),
+      m_timer(timer),
       m_main_contactor(
          timer,
          positive_relay,
@@ -23,6 +24,7 @@ LeafMultiPack::LeafMultiPack(
          indicator,
          log),
       m_log(log),
+      m_periodic_callback(*this, &LeafMultiPack::periodicCallback),
       m_voltages_ok(false),
       m_temperatures_ok(false),
       m_everything_ok(false),
@@ -38,11 +40,19 @@ LeafMultiPack::LeafMultiPack(
       m_discharge_current_limit(0),
       m_charge_current_limit(0)
 {
+   m_timer.registerPeriodicCallback(&m_periodic_callback, 1000);
 }
 
 LeafMultiPack::~LeafMultiPack()
 {
+   m_timer.deregisterCallback(&m_periodic_callback);
 }
+
+void LeafMultiPack::periodicCallback()
+{
+   printf("PERIODIC CALLBACK\n\r");
+}
+
 
 uint32_t LeafMultiPack::getFailsafeStatus() const
 {
