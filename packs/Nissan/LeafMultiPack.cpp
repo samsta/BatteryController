@@ -7,7 +7,7 @@ namespace Nissan {
 
 LeafMultiPack::LeafMultiPack(
             std::vector<monitor::Monitor*> vmonitor,
-            std::vector<contactor::Contactor*> vsafetyrelay,
+            std::vector<contactor::Contactor*> vsafetyshunt,
             core::Timer& timer,
             core::OutputPin& positive_relay,
             core::OutputPin& negative_relay,
@@ -15,7 +15,7 @@ LeafMultiPack::LeafMultiPack(
             logging::ostream* log):
 
       m_vmonitor(vmonitor),
-      m_vsafety_relay(vsafetyrelay),
+      m_vsafety_shunt(vsafetyshunt),
       m_timer(timer),
       m_main_contactor(
          timer,
@@ -40,7 +40,7 @@ LeafMultiPack::LeafMultiPack(
       m_discharge_current_limit(0),
       m_charge_current_limit(0)
 {
-   m_timer.registerPeriodicCallback(&m_periodic_callback, 1000);
+   m_timer.registerPeriodicCallback(&m_periodic_callback, 500);
 }
 
 LeafMultiPack::~LeafMultiPack()
@@ -50,7 +50,30 @@ LeafMultiPack::~LeafMultiPack()
 
 void LeafMultiPack::periodicCallback()
 {
-   printf("PERIODIC CALLBACK\n\r");
+   // start up proceedure... find healty batteries.
+
+   // calculate inital values for big battery, to pass to inverter
+
+   // close main contactor
+
+   // run proceedure
+   //    monitor batteries
+   //    recalulate values for big battery
+   //    operate shunt if neecessary (resend shunt trigger)
+   //    open main contactor if necessary (extreme case, like loss fo USB comms)
+
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->isEverythingOk())
+      {
+
+      }
+   }
+
+
+
+
+
 }
 
 
@@ -64,6 +87,10 @@ uint32_t LeafMultiPack::getVoltTempStatus() const
    return (m_vmonitor[0]->getVoltTempStatus());
 }
 
+bool LeafMultiPack::isEverythingOk() const
+{
+   return m_everything_ok;
+}
 
 float LeafMultiPack::getVoltage() const
 {

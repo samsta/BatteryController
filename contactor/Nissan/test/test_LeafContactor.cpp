@@ -201,31 +201,6 @@ MATCHER_P(AsString, str, std::string(negation ? " doesn't equal " : " equals ") 
    return testing::internal::CaseInsensitiveStringEquals<std::string>(PrintToString(arg), str);
 }
 
-// class TeensyRelayTest: public Test
-// {
-// public:
-//    TeensyRelayTest():
-//        sender() // THIS DOES NOT WORK!?!?!?!?!?!?!?!!?
-//    {
-//    }
-
-//    TestSender        sender;
-//    TeensyRelay   contactor;  
-// };
-
-// MATCHER_P(AsString, str, std::string(negation ? " doesn't equal " : " equals ") + str){
-//    return testing::internal::CaseInsensitiveStringEquals<std::string>(PrintToString(arg), str);
-// }
-
-// TEST_F(TeensyRelayTest, initiallyOpensRelay)
-// {
-//    EXPECT_CALL(sender, sink(AsString("800#5555000000000000")));
-
-//    contactor.setSafeToOperate(false);
-   
-// }
-
-
 TEST(TeensyRelayT, openRelayWhenUnsafe)
 {
    TestSender sender;

@@ -40,6 +40,7 @@ public:
    virtual void sink(const can::messages::Nissan::Message&);
 
    // monitor::Monitor
+   virtual bool  isEverythingOk() const;
    virtual float getVoltage() const;
    virtual float getCurrent() const;
    virtual float getTemperature() const;
@@ -74,7 +75,7 @@ private:
    void calculateTemperatureLimitFactor(float min, float max);
    void calculateCurrentLimitByVoltage(float min, float max);
 
-   contactor::Contactor& m_contactor;
+   contactor::Contactor& m_safety_shunt;
    bool m_voltages_ok;
    bool m_temperatures_ok;
    bool m_everything_ok;
@@ -88,8 +89,6 @@ private:
    float m_voltage;
    float m_average_temperature;
 
-   //float m_cur_fac_by_temperature;
-   //float m_charge_cur_fac_by_voltage;
    float m_discharge_cur_fac_by_voltage;
 
    float m_discharge_power_limit;

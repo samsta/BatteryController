@@ -20,6 +20,8 @@ public:
          can::FrameSink& sender,
          core::Timer& timer,
          logging::ostream* log);
+   
+   // ~LeafPack();
 
    virtual void sink(const can::DataFrame& f);
 
@@ -30,10 +32,14 @@ private:
 
    contactor::Nissan::TeensyRelay         m_safety_contactor;
    monitor::Nissan::LeafMonitor           m_monitor;
+   core::Timer&                           m_timer;
    can::services::Nissan::MessageFactory  m_message_factory;
    can::services::Nissan::FrameAggregator m_aggregator;
    can::services::Nissan::GroupPoller     m_poller;
    can::services::Nissan::HappyPoller     m_happy_poller;
+   core::Callback<LeafPack>               m_periodic_callback;
+
+   void periodicCallback();
 
 };
 

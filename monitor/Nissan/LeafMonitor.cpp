@@ -51,7 +51,7 @@ inline float lower_limit(float value, const float warn_limit, const float critic
 }
 
 LeafMonitor::LeafMonitor(contactor::Contactor& contactor):
-      m_contactor(contactor),
+      m_safety_shunt(contactor),
       m_voltages_ok(false),
       m_temperatures_ok(false),
       m_everything_ok(false),
@@ -70,7 +70,6 @@ LeafMonitor::LeafMonitor(contactor::Contactor& contactor):
 	   m_volt_temp_status(pow(2,6)-1),
       m_failsafe_status(7)
 {
-   m_contactor.setSafeToOperate(false);
 }
 
 void LeafMonitor::sink(const can::messages::Nissan::Message& message)
@@ -131,7 +130,6 @@ void LeafMonitor::process(const CellVoltageRange& voltage_range)
    if ((voltage_range.getMax() - voltage_range.getMin()) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_volt_temp_status &= ~CRIT_SPREAD_VOLT;
    else m_volt_temp_status |= CRIT_SPREAD_VOLT;
 
-   //calculateCurrentLimitByVoltage(voltage_range.getMin(), voltage_range.getMax());
    updateOperationalSafety();
 }
 
@@ -189,7 +187,6 @@ void LeafMonitor::process(const PackTemperatures& temperatures)
    if (num_sensors_missing <= MAX_TEMP_SENSORS_MISSING) m_volt_temp_status &= ~MAX_TEMP_MISSING;
    else m_volt_temp_status |= MAX_TEMP_MISSING;
 
-   //calculateTemperatureLimitFactor(min_temp, max_temp);
    updateOperationalSafety();
 }
 
@@ -222,79 +219,23 @@ void LeafMonitor::process(const BatteryPowerLimits& battery_power)
    }
 }
 
-//void LeafMonitor::calculateTemperatureLimitFactor(float min_temp, float max_temp)
-//{
-//   if (max_temp < CRITICALLY_HIGH_TEMPERATURE &&
-//       min_temp > CRITICALLY_LOW_TEMPERATURE)
-//   {
-//      if (max_temp >= WARN_HIGH_TEMPERATURE)
-//      {
-//         m_cur_fac_by_temperature = upper_limit(max_temp,
-//                                                WARN_HIGH_TEMPERATURE,
-//                                                CRITICALLY_HIGH_TEMPERATURE,
-//                                                TEMPERATURE_LIMIT_RESOLUTION);
-//      }
-//      else if (min_temp <= WARN_LOW_TEMPERATURE)
-//      {
-//         m_cur_fac_by_temperature = lower_limit(min_temp,
-//                                                WARN_LOW_TEMPERATURE,
-//                                                CRITICALLY_LOW_TEMPERATURE,
-//                                                TEMPERATURE_LIMIT_RESOLUTION);
-//      }
-//      else
-//      {
-//         m_cur_fac_by_temperature = 1;
-//      }
-//   }
-//   else
-//   {
-//      m_cur_fac_by_temperature = 0;
-//   }
-//}
-//
-//void LeafMonitor::calculateCurrentLimitByVoltage(float min_voltage, float max_voltage)
-//{
-//   if (max_voltage > CRITICALLY_HIGH_VOLTAGE)
-//   {
-//      m_charge_cur_fac_by_voltage = 0;
-//   }
-//   else if (max_voltage >= WARN_HIGH_VOLTAGE)
-//   {
-//      m_charge_cur_fac_by_voltage = upper_limit(max_voltage,
-//                                                WARN_HIGH_VOLTAGE,
-//                                                CRITICALLY_HIGH_VOLTAGE,
-//                                                VOLTAGE_LIMIT_RESOLUTION);
-//   }
-//   else
-//   {
-//      m_charge_cur_fac_by_voltage = 1;
-//   }
-//
-//   if (min_voltage < CRITICALLY_LOW_VOLTAGE)
-//   {
-//      m_discharge_cur_fac_by_voltage = 0;
-//   }
-//   else if (min_voltage <= WARN_LOW_VOLTAGE)
-//   {
-//      m_discharge_cur_fac_by_voltage = lower_limit(min_voltage,
-//                                                   WARN_LOW_VOLTAGE,
-//                                                   CRITICALLY_LOW_VOLTAGE,
-//                                                   VOLTAGE_LIMIT_RESOLUTION);
-//   }
-//   else
-//   {
-//      m_discharge_cur_fac_by_voltage = 1;
-//   }
-//}
-
 void LeafMonitor::updateOperationalSafety()
 {
    bool everything_ok = m_voltages_ok && m_temperatures_ok;
-   if (everything_ok != m_everything_ok)
+   if (m_everything_ok && !everything_ok)
    {
-      m_contactor.setSafeToOperate(everything_ok);
+      // everything WAS ok, but now it isn't, trigger the safety shunt
+      m_safety_shunt.setSafeToOperate(false);
+      // int multipack shunt safe to operate should be monitored
+      // if STO is false and current !=0, set it to false again
+      // as this will send a USB message to open the relay
    }
    m_everything_ok = everything_ok;
+}
+
+bool LeafMonitor::isEverythingOk() const
+{
+   return m_everything_ok;
 }
 
 float LeafMonitor::getVoltage() const

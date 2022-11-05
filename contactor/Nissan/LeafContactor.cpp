@@ -128,18 +128,15 @@ void LeafContactor::closePositiveRelay()
 TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid):
          m_sender(sender),
          m_canid(canid),
-         m_safe_to_operate(false),
-         m_requested_state(OPEN),
+         m_safe_to_operate(true),
          m_state(CLOSED)
 {
-   // printf("TeensyRelay CONSTRUCTOR\n");
-   // openRelay();
+   // ensure relay is closed on startup
+   close();
 }
 
 TeensyRelay::~TeensyRelay()
 {
-   // printf("TeensyRelay DISTRUCTOR\n");
-   // closeRelay(); // this doesnt work, presumably, the CAN functions are already shutdown... needs looking into
 }
 
 void TeensyRelay::setSafeToOperate(bool is_safe)

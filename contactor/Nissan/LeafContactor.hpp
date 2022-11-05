@@ -83,7 +83,6 @@ private:
    can::FrameSink&   m_sender;
    uint32_t m_canid;
    bool  m_safe_to_operate;
-   State m_requested_state;
    State m_state;
 
    const uint8_t m_off_msg[8] = { 0x55, 0x55, 0x00, 0x00, 0x00, 0x00 };

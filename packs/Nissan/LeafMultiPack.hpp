@@ -28,6 +28,7 @@ public:
    ~LeafMultiPack();
 
    // monitor::Monitor
+   virtual bool  isEverythingOk() const;
    virtual float getVoltage() const;
    virtual float getCurrent() const;
    virtual float getTemperature() const;
@@ -59,7 +60,7 @@ private:
    void periodicCallback();
 
    std::vector<monitor::Monitor*>      m_vmonitor;
-   std::vector<contactor::Contactor*>  m_vsafety_relay;
+   std::vector<contactor::Contactor*>  m_vsafety_shunt;
    core::Timer&                        m_timer;
    contactor::Nissan::LeafContactor    m_main_contactor;
 
