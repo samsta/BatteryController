@@ -16,17 +16,17 @@ LeafPack::LeafPack(
    m_aggregator(m_message_factory),
    m_poller(sender, timer),
    m_happy_poller(sender, timer),
-   m_periodic_callback(*this, &LeafPack::periodicCallback)
+   m_heartbeat_callback(*this, &LeafPack::heartbeatCallback)
 {
-   m_timer.registerPeriodicCallback(&m_periodic_callback, 5000);
+   m_timer.registerPeriodicCallback(&m_heartbeat_callback, 5000);
 }
 
-// LeafPack::~LeafPack()
-// {
-//    m_timer.deregisterCallback(&m_periodic_callback);
-// }
+LeafPack::~LeafPack()
+{
+   m_timer.deregisterCallback(&m_heartbeat_callback);
+}
 
-void LeafPack::periodicCallback()
+void LeafPack::heartbeatCallback()
 {
    // monitor the heartbeat, if it goes dead, trigger the safety shunt
 

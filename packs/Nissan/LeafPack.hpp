@@ -21,7 +21,7 @@ public:
          core::Timer& timer,
          logging::ostream* log);
    
-   // ~LeafPack();
+   ~LeafPack();
 
    virtual void sink(const can::DataFrame& f);
 
@@ -37,9 +37,9 @@ private:
    can::services::Nissan::FrameAggregator m_aggregator;
    can::services::Nissan::GroupPoller     m_poller;
    can::services::Nissan::HappyPoller     m_happy_poller;
-   core::Callback<LeafPack>               m_periodic_callback;
+   core::Callback<LeafPack>               m_heartbeat_callback;
 
-   void periodicCallback();
+   void heartbeatCallback();
 
 };
 
