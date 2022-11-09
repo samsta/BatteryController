@@ -3,34 +3,94 @@
 #include "mocks/contactor/Contactor.hpp"
 #include "mocks/monitor/Monitor.hpp"
 #include "mocks/core/OutputPin.hpp"
+#include "mocks/core/Timer.hpp"
+#include "logging/colors.hpp"
 
 using namespace testing;
 
 namespace packs {
 namespace Nissan {
 
+TEST(TestLeafMultipack1, setsOutputPinsToDefault)
+{
+   NiceMock<mocks::monitor::Monitor>     m_monitor1;
+   NiceMock<mocks::contactor::Contactor> m_contactor1;
+   mocks::core::Timer timer;
+   mocks::core::OutputPin positive_relay;
+   mocks::core::OutputPin negative_relay;
+   mocks::core::OutputPin indicator_led;
+   std::vector<monitor::Monitor*>         m_vmonitor = {&m_monitor1};
+   std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1};
+
+   EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
+   EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
+   EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
+   
+   LeafMultiPack LMP(      m_vmonitor,
+                           m_vcontactor,
+                           timer,
+                           positive_relay,
+                           negative_relay,
+                           indicator_led,
+                           nullptr);
+
+   // expect contactor to open upon destruction
+   EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
+   EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
+   EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
+}
+
+
+
+
 // class TestLeafMultipack1: public Test {
 // public:
-//     TestLeafMultipack1():
-//         m_multipack(m_vmonitor, nullptr)
-//     {
-//     }
+//    TestLeafMultipack1():
+//       m_multipack(m_vmonitor,
+//                   m_vcontactor,
+//                   timer,
+//                   positive_relay,
+//                   negative_relay,
+//                   indicator_led,
+//                   nullptr)
+//    {
+//    }
 
-//     NiceMock<mocks::monitor::Monitor>     m_monitor1;
-//    //  NiceMock<mocks::contactor::Contactor> m_contactor1;
+//    NiceMock<mocks::monitor::Monitor>     m_monitor1;
+//    NiceMock<mocks::contactor::Contactor> m_contactor1;
+//    mocks::core::Timer timer;
+//    mocks::core::OutputPin positive_relay;
+//    mocks::core::OutputPin negative_relay;
+//    mocks::core::OutputPin indicator_led;
 
 //    std::vector<monitor::Monitor*>         m_vmonitor = {&m_monitor1};
-//    // std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1};
+//    std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1};
 
 //     LeafMultiPack                         m_multipack;
 // };
 
-// // TEST_F(TestLeafMultipack1, isClosedCallsisClosedOn1Contactor)
-// // {
-// //     EXPECT_CALL(m_contactor1, isClosed());
+// TEST_F(TestLeafMultipack1, isClosedCallsisClosedOn1Contactor)
+// {
+//     EXPECT_CALL(m_contactor1, isClosed());
 
-// //     EXPECT_FALSE(m_multipack.isClosed());
-// // }
+//     EXPECT_FALSE(m_multipack.getMainContactor().isClosed());
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //  class TestLeafMultipack3: public Test {
 //  public:
