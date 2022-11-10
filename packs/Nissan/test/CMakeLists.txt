@@ -1,5 +1,5 @@
 include(GoogleTest)
 
 add_executable(test_leaf_multi_pack test_LeafMultiPack.cpp)
-target_link_libraries(test_leaf_multi_pack logging monitor can packs gmock gmock_main)
+target_link_libraries(test_leaf_multi_pack contactor logging monitor can packs gmock gmock_main)
 add_test(test_leaf_multi_pack test_leaf_multi_pack)
