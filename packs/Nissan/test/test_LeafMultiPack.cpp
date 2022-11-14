@@ -40,9 +40,6 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
    EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
 }
 
-
-
-
 // class TestLeafMultipack1: public Test {
 // public:
 //    TestLeafMultipack1():

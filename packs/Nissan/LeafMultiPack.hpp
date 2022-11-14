@@ -28,7 +28,7 @@ public:
    ~LeafMultiPack();
 
    // monitor::Monitor
-   virtual bool  isEverythingOk() const;
+   virtual Monitor::Pack_Status getPackStatus() const;
    virtual float getVoltage() const;
    virtual float getCurrent() const;
    virtual float getTemperature() const;
@@ -69,7 +69,6 @@ private:
    core::Callback<LeafMultiPack> m_periodic_callback;
    bool m_voltages_ok;
    bool m_temperatures_ok;
-   bool m_everything_ok;
 
    float m_soc_percent;
    float m_soh_percent;
@@ -84,6 +83,12 @@ private:
    float m_charge_power_limit;
    float m_discharge_current_limit;
    float m_charge_current_limit;
+
+   Pack_Status m_multipack_status;
+
+   uint m_startup_callback_count;
+   const uint CALLBACK_PERIOD_ms = 1000;
+   const uint MAX_STARTUP_COUNT = 20;  // number of callback periods 
 
 };
 

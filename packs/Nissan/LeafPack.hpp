@@ -38,6 +38,7 @@ private:
    can::services::Nissan::GroupPoller     m_poller;
    can::services::Nissan::HappyPoller     m_happy_poller;
    core::Callback<LeafPack>               m_heartbeat_callback;
+   unsigned                               m_pack_silent_counter;
 
    void heartbeatCallback();
 

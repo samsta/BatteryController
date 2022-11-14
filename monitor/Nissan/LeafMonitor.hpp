@@ -40,7 +40,8 @@ public:
    virtual void sink(const can::messages::Nissan::Message&);
 
    // monitor::Monitor
-   virtual bool  isEverythingOk() const;
+   virtual Monitor::Pack_Status getPackStatus() const;
+
    virtual float getVoltage() const;
    virtual float getCurrent() const;
    virtual float getTemperature() const;
@@ -78,7 +79,7 @@ private:
    contactor::Contactor& m_safety_shunt;
    bool m_voltages_ok;
    bool m_temperatures_ok;
-   bool m_everything_ok;
+   Pack_Status m_pack_status;
 
    float m_soc_percent;
    float m_soh_percent;

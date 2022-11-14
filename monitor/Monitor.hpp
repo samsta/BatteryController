@@ -13,7 +13,15 @@ class Monitor
 public:
    virtual ~Monitor(){};
 
-   virtual bool  isEverythingOk() const = 0;
+   enum Pack_Status {
+      STARTUP,
+      NORMAL_OPERATION,
+      SHUNT_ACTIVIATED,
+      SHUNT_ACT_FAILED,
+      SHUTDOWN
+   };
+
+   virtual Pack_Status getPackStatus() const = 0;
    virtual float getVoltage() const = 0;
    virtual float getCurrent() const = 0;
    virtual float getTemperature() const = 0;

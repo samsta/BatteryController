@@ -5,6 +5,8 @@
 namespace packs {
 namespace Nissan {
 
+const unsigned PACK_SILENT_TIMEOUT_PERIODS = 2;
+
 LeafPack::LeafPack(
             can::FrameSink& sender,
             core::Timer& timer,
@@ -16,7 +18,8 @@ LeafPack::LeafPack(
    m_aggregator(m_message_factory),
    m_poller(sender, timer),
    m_happy_poller(sender, timer),
-   m_heartbeat_callback(*this, &LeafPack::heartbeatCallback)
+   m_heartbeat_callback(*this, &LeafPack::heartbeatCallback),
+   m_pack_silent_counter(0)
 {
    m_timer.registerPeriodicCallback(&m_heartbeat_callback, 5000);
 }
@@ -29,8 +32,25 @@ LeafPack::~LeafPack()
 void LeafPack::heartbeatCallback()
 {
    // monitor the heartbeat, if it goes dead, trigger the safety shunt
+   // TODO monitor to be sure current is zero after it is triggered
+   if (m_monitor.getPackStatus() != monitor::Monitor::STARTUP)
+   {
+      m_pack_silent_counter++;
+   }
+   // printf("PACK HEARTBEAT  %2d\r\n", m_pack_silent_counter);
 
+   if (m_pack_silent_counter >= PACK_SILENT_TIMEOUT_PERIODS)
+   {
+      if (m_pack_silent_counter == PACK_SILENT_TIMEOUT_PERIODS)
+      {
+         // if (m_log) *m_log << "LeafPack went silent." << std::endl;
+         m_pack_silent_counter++;
+      }
+      m_safety_contactor.setSafeToOperate(false);
+      return;
+   }
 }
+
 monitor::Monitor& LeafPack::getMonitor()
 {
    return m_monitor;
@@ -43,6 +63,7 @@ contactor::Contactor& LeafPack::getContactor()
 
 void LeafPack::sink(const can::DataFrame& f)
 {
+   m_pack_silent_counter = 0;
    m_happy_poller.received(f);
    m_poller.received(f);
    m_aggregator.sink(f);

@@ -54,7 +54,7 @@ LeafMonitor::LeafMonitor(contactor::Contactor& contactor):
       m_safety_shunt(contactor),
       m_voltages_ok(false),
       m_temperatures_ok(false),
-      m_everything_ok(false),
+      m_pack_status(STARTUP),
       m_soc_percent(NAN),
       m_soh_percent(NAN),
       m_energy_remaining_kwh(NAN),
@@ -222,20 +222,25 @@ void LeafMonitor::process(const BatteryPowerLimits& battery_power)
 void LeafMonitor::updateOperationalSafety()
 {
    bool everything_ok = m_voltages_ok && m_temperatures_ok;
-   if (m_everything_ok && !everything_ok)
+   if (!everything_ok && m_pack_status == Monitor::NORMAL_OPERATION)
    {
       // everything WAS ok, but now it isn't, trigger the safety shunt
       m_safety_shunt.setSafeToOperate(false);
-      // int multipack shunt safe to operate should be monitored
-      // if STO is false and current !=0, set it to false again
+      m_pack_status = Monitor::SHUNT_ACTIVIATED;
+      // in multipack shunt safe to operate should be monitored
+      // if shunt activede and current !=0, set it to false again
       // as this will send a USB message to open the relay
    }
-   m_everything_ok = everything_ok;
+   else if (everything_ok && m_pack_status == Monitor::STARTUP)
+   {
+      // battery has come right on startup
+      m_pack_status = Monitor::NORMAL_OPERATION;
+   }
 }
 
-bool LeafMonitor::isEverythingOk() const
+Monitor::Pack_Status LeafMonitor::getPackStatus() const
 {
-   return m_everything_ok;
+   return m_pack_status;
 }
 
 float LeafMonitor::getVoltage() const

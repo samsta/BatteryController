@@ -27,7 +27,6 @@ LeafMultiPack::LeafMultiPack(
       m_periodic_callback(*this, &LeafMultiPack::periodicCallback),
       m_voltages_ok(false),
       m_temperatures_ok(false),
-      m_everything_ok(false),
       m_soc_percent(NAN),
       m_soh_percent(NAN),
       m_energy_remaining_kwh(NAN),
@@ -38,9 +37,11 @@ LeafMultiPack::LeafMultiPack(
       m_discharge_power_limit(NAN),
       m_charge_power_limit(NAN),
       m_discharge_current_limit(0),
-      m_charge_current_limit(0)
+      m_charge_current_limit(0),
+      m_multipack_status(monitor::Monitor::STARTUP),
+      m_startup_callback_count(0)
 {
-   m_timer.registerPeriodicCallback(&m_periodic_callback, 500);
+   m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms);
 }
 
 LeafMultiPack::~LeafMultiPack()
@@ -50,6 +51,9 @@ LeafMultiPack::~LeafMultiPack()
 
 void LeafMultiPack::periodicCallback()
 {
+   // data logging!
+   // user interface data? (via sockets?)
+
    // start up proceedure... find healty batteries.
 
    // calculate inital values for big battery, to pass to inverter
@@ -62,20 +66,100 @@ void LeafMultiPack::periodicCallback()
    //    operate shunt if neecessary (resend shunt trigger)
    //    open main contactor if necessary (extreme case, like loss fo USB comms)
 
-   for (uint i=0; i<m_vmonitor.size(); i++)
-   {
-      if (m_vmonitor[i]->isEverythingOk())
-      {
 
-      }
+
+   switch (m_multipack_status) {
+
+      case Monitor::STARTUP:
+         {
+         printf("Startup Sequence %2d\r", 20-m_startup_callback_count);
+         m_startup_callback_count++;
+
+         // see if any packs have failed to achieive normality
+         uint pack_startup_fail = 0;
+         for (uint i=0; i<m_vmonitor.size(); i++)
+         {
+            if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
+            {
+               pack_startup_fail++;
+            }
+         }
+         if ((pack_startup_fail == 0) ||(m_startup_callback_count > MAX_STARTUP_COUNT))
+         {
+            // DO WANT A REDUCED OPERATION STATUS?  if pack_startup_fail !=0 ?
+            // m_multipack_status = Monitor::REDUCED_OPERATION'
+            m_multipack_status = Monitor::NORMAL_OPERATION;
+            // check that there are normal packs (not all packs have failed to startup)
+            if (pack_startup_fail < m_vmonitor.size())
+            {
+               // there are normal packs, close the main contactors
+               m_main_contactor.setSafeToOperate(true);
+            }
+         }
+         }
+         break;
+
+      case Monitor::NORMAL_OPERATION:
+         for (uint i=0; i<m_vmonitor.size(); i++)
+         {
+            if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION)
+            {
+
+            }
+         }
+         break;
+
+      case Monitor::SHUNT_ACTIVIATED:
+      case Monitor::SHUNT_ACT_FAILED:
+      case Monitor::SHUTDOWN:
+      default:
+         break;
    }
 
 
 
+   // if (m_multipack_status == Monitor::STARTUP)
+   // {  
+   //    m_startup_callback_count++;
 
+   //    // see if any packs have failed to achieive normality
+   //    uint pack_startup_fail = 0;
+   //    for (uint i=0; i<m_vmonitor.size(); i++)
+   //    {
+   //       if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
+   //       {
+   //          pack_startup_fail++;
+   //       }
+   //    }
+   //    if (pack_startup_fail == 0)
+   //    {
+   //       // all packs have achieved normality
+   //       m_multipack_status = Monitor::NORMAL_OPERATION;
+   //    }
+   //    // if (m_startup_callback_count > MAX_STARTUP_COUNT && pack_startup_fail > 0)
+   //    // {
+   //    //    // DO WANT A REDUCED OPERATION STATUS? 
+   //    //    m_multipack_status = Monitor::REDUCED_OPERATION'
+   //    // }
+   // }
 
+   // else if (m_multipack_status == Monitor::NORMAL_OPERATION)
+   // {
+   // for (uint i=0; i<m_vmonitor.size(); i++)
+   // {
+   //    if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION)
+   //    {
+
+   //    }
+   // }
+
+   // }
 }
 
+monitor::Monitor::Pack_Status LeafMultiPack::getPackStatus() const
+{
+   return m_multipack_status;
+}
 
 uint32_t LeafMultiPack::getFailsafeStatus() const
 {
@@ -85,11 +169,6 @@ uint32_t LeafMultiPack::getFailsafeStatus() const
 uint32_t LeafMultiPack::getVoltTempStatus() const
 {
    return (m_vmonitor[0]->getVoltTempStatus());
-}
-
-bool LeafMultiPack::isEverythingOk() const
-{
-   return m_everything_ok;
 }
 
 float LeafMultiPack::getVoltage() const
