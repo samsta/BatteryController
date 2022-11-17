@@ -25,15 +25,15 @@ LeafMultiPack::LeafMultiPack(
          log),
       m_log(log),
       m_periodic_callback(*this, &LeafMultiPack::periodicCallback),
-      m_voltages_ok(false),
-      m_temperatures_ok(false),
-      m_soc_percent(NAN),
-      m_soh_percent(NAN),
-      m_energy_remaining_kwh(NAN),
-      m_capacity_kwh(NAN),
-      m_current(NAN),
-      m_voltage(NAN),
-      m_average_temperature(NAN),
+      // m_voltages_ok(false),
+      // m_temperatures_ok(false),
+      // m_soc_percent(NAN),
+      // m_soh_percent(NAN),
+      // m_energy_remaining_kwh(NAN),
+      // m_capacity_kwh(NAN),
+      // m_current(NAN),
+      // m_voltage(NAN),
+      // m_average_temperature(NAN),
       m_discharge_power_limit(NAN),
       m_charge_power_limit(NAN),
       m_discharge_current_limit(0),
@@ -42,6 +42,7 @@ LeafMultiPack::LeafMultiPack(
       m_startup_callback_count(0)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms);
+   printf("\r\nStatus set to STARTUP.\n\r");
 }
 
 LeafMultiPack::~LeafMultiPack()
@@ -67,16 +68,15 @@ void LeafMultiPack::periodicCallback()
    //    open main contactor if necessary (extreme case, like loss fo USB comms)
 
 
-
+   // printf("PERIODIC CALLBACK\n\r");
    switch (m_multipack_status) {
 
       case Monitor::STARTUP:
          {
-         printf("Startup Sequence %2d\r", 20-m_startup_callback_count);
+         uint pack_startup_fail = 0;
          m_startup_callback_count++;
 
          // see if any packs have failed to achieive normality
-         uint pack_startup_fail = 0;
          for (uint i=0; i<m_vmonitor.size(); i++)
          {
             if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
@@ -84,10 +84,13 @@ void LeafMultiPack::periodicCallback()
                pack_startup_fail++;
             }
          }
+         printf("\r\nStartup Sequence %2d  Packs Started %2u",
+               20-m_startup_callback_count, int(m_vmonitor.size()-pack_startup_fail));
          if ((pack_startup_fail == 0) ||(m_startup_callback_count > MAX_STARTUP_COUNT))
          {
-            // DO WANT A REDUCED OPERATION STATUS?  if pack_startup_fail !=0 ?
+            // DO WE WANT A REDUCED OPERATION STATUS if pack_startup_fail !=0 ?
             // m_multipack_status = Monitor::REDUCED_OPERATION'
+            printf("\r\nStatus set to NORMAL_OPERATION.\n\r");
             m_multipack_status = Monitor::NORMAL_OPERATION;
             // check that there are normal packs (not all packs have failed to startup)
             if (pack_startup_fail < m_vmonitor.size())
@@ -100,6 +103,8 @@ void LeafMultiPack::periodicCallback()
          break;
 
       case Monitor::NORMAL_OPERATION:
+         // WHAT HAPPENS DURING NORMAL OPERATION?!?!?!?
+         // the inverter is driving the operation...
          for (uint i=0; i<m_vmonitor.size(); i++)
          {
             if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION)
@@ -173,37 +178,150 @@ uint32_t LeafMultiPack::getVoltTempStatus() const
 
 float LeafMultiPack::getVoltage() const
 {
-   return m_vmonitor[0]->getVoltage();
+   // calculate the average voltage for the packs
+   float avg = 0;
+   uint count = 0;
+   for (uint i=0; i<m_vmonitor.size(); i++)   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         count++;
+         avg += m_vmonitor[i]->getVoltage();
+      }
+   }
+   if (count > 0) {
+      return (avg / count);
+   }
+   else return NAN;
 }
 
 float LeafMultiPack::getCurrent() const
 {
-   return m_vmonitor[0]->getCurrent();
+   // calculate the total for the packs
+   float total = 0;
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         total += m_vmonitor[i]->getCurrent();
+      }
+   }
+   return total;
+}
+
+float LeafMultiPack::getMaxChargeVoltage() const
+{
+   // this is a constant
+   return m_vmonitor[0]->getMaxChargeVoltage(); 
+}
+
+float LeafMultiPack::getMinDischargeVoltage() const
+{
+   // this is a constant
+   return m_vmonitor[0]->getMinDischargeVoltage(); 
+}
+
+float LeafMultiPack::getChargeCurrentLimit() const
+{
+   // calculate the total for the packs
+   float total = 0;
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         total += m_vmonitor[i]->getChargeCurrentLimit();
+      }
+   }
+   return total;
+}
+
+float LeafMultiPack::getDischargeCurrentLimit() const
+{
+   // calculate the total for the packs
+   float total = 0;
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         total += m_vmonitor[i]->getDischargeCurrentLimit();
+      }
+   }
+   return total;
 }
 
 float LeafMultiPack::getTemperature() const
 {
-   return  m_vmonitor[0]->getTemperature();
+   // calculate the average temperature for the packs
+   float avg = 0;
+   uint count = 0;
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         count++;
+         avg += m_vmonitor[i]->getTemperature();
+      }
+   }
+   if (count > 0) {
+      return (avg / count);
+   }
+   else return NAN;
 }
 
 float LeafMultiPack::getSocPercent() const
 {
-   return m_vmonitor[0]->getSocPercent();
+   // calculate the average for the packs
+   float avg = 0;
+   uint count = 0;
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         count++;
+         avg += m_vmonitor[i]->getSocPercent();
+      }
+   }
+   if (count > 0) {
+      return (avg / count);
+   }
+   else return NAN;
 }
 
 float LeafMultiPack::getSohPercent() const
 {
-   return m_vmonitor[0]->getSohPercent();
+   // calculate the average for the packs
+   float avg = 0;
+   uint count = 0;
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         count++;
+         avg += m_vmonitor[i]->getSohPercent();
+      }
+   }
+   if (count > 0) {
+      return (avg / count);
+   }
+   else return NAN;
 }
 
 float LeafMultiPack::getEnergyRemainingKwh() const
 {
-   return m_vmonitor[0]->getEnergyRemainingKwh();
+   // calculate the total for the packs
+   float total = 0;
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         total += m_vmonitor[i]->getEnergyRemainingKwh();
+      }
+   }
+   return total;
 }
 
 float LeafMultiPack::getCapacityKwh() const
 {
-   return m_vmonitor[0]->getCapacityKwh();
+   // calculate the total for the packs
+   float total = 0;
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         total += m_vmonitor[i]->getCapacityKwh();
+      }
+   }
+   return total;
 }
 
 uint32_t LeafMultiPack::getSystemVersion() const
@@ -239,26 +357,6 @@ const char* LeafMultiPack::getManufacturerName() const
 const char* LeafMultiPack::getBatteryName() const
 {
    return "LeafG2-LMP";
-}
-
-float LeafMultiPack::getMaxChargeVoltage() const
-{
-   return m_vmonitor[0]->getMaxChargeVoltage(); 
-}
-
-float LeafMultiPack::getMinDischargeVoltage() const
-{
-   return m_vmonitor[0]->getMinDischargeVoltage(); 
-}
-
-float LeafMultiPack::getChargeCurrentLimit() const
-{
-   return m_vmonitor[0]->getChargeCurrentLimit();
-}
-
-float LeafMultiPack::getDischargeCurrentLimit() const
-{
-   return m_vmonitor[0]->getDischargeCurrentLimit();
 }
 
 contactor::Contactor& LeafMultiPack::getMainContactor()

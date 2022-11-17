@@ -67,17 +67,17 @@ private:
    logging::ostream*     m_log;
 
    core::Callback<LeafMultiPack> m_periodic_callback;
-   bool m_voltages_ok;
-   bool m_temperatures_ok;
+   // bool m_voltages_ok;
+   // bool m_temperatures_ok;
 
-   float m_soc_percent;
-   float m_soh_percent;
-   float m_energy_remaining_kwh;
-   float m_capacity_kwh;
+   // float m_soc_percent;
+   // float m_soh_percent;
+   // float m_energy_remaining_kwh;
+   // float m_capacity_kwh;
 
-   float m_current;
-   float m_voltage;
-   float m_average_temperature;
+   // float m_current;
+   // float m_voltage;
+   // float m_average_temperature;
 
    float m_discharge_power_limit;
    float m_charge_power_limit;

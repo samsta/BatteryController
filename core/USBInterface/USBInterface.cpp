@@ -244,7 +244,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));
    if (x<0)
    {
-      printf("WRITE FAILED\n");
+      std::cerr << "WRITE TO USB PORT FAILED" << std::endl;
       fflush(stdout);
    }
 }
