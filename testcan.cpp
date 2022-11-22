@@ -84,49 +84,35 @@ int main(int argc, const char** argv)
    OutputPin negative_relay_1(0, 6, "relay_neg_1");
    OutputPin indicator_led_1(0, 4, "led_1");
 
-   #ifdef CONSOLE
-   core::ConsolePresenter console(timer);
-   if (console.isOperational())
-   {
-      logfile.open("log.txt");
-      if (logfile.good())
-      {
-         log = &logfile;
-      }
-      else
-      {
-         std::cerr << "Failed opening logfile log.txt: " << strerror(errno) << std::endl;
-      }
-   }
-   else
-   {
-      std::cerr << "Don't have a terminal to run console presenter, so I'll proceed logging to stdout" << std::endl;
-   }
-   #endif
-
    packs::Nissan::LeafPack battery_pack_1(
          usb_port.getSinkOutbound(0),
          timer,
          log);
 
-   std::vector<monitor::Monitor*> vbatterymon = {&battery_pack_1.getMonitor()};
-   std::vector<contactor::Contactor*> vbatterycon = {&battery_pack_1.getContactor()};
-
-      // packs::Nissan::LeafPack battery_pack_2(
-   //      usb_port.getSinkOutbound(1),
-   //      timer,
-   //      log);
+   packs::Nissan::LeafPack battery_pack_2(
+        usb_port.getSinkOutbound(1),
+        timer,
+        log);
 
    // packs::Nissan::LeafPack battery_pack_3(
    //      usb_port.getSinkOutbound(2),
    //      timer,
    //      log);
 
+   // std::vector<monitor::Monitor*> vbatterymon = {&battery_pack_1.getMonitor()};
+   // std::vector<contactor::Contactor*> vbatterycon = {&battery_pack_1.getContactor()};
+
+   std::vector<monitor::Monitor*> vbatterymon = {
+            &battery_pack_1.getMonitor(),
+            &battery_pack_2.getMonitor()};
+   std::vector<contactor::Contactor*> vbatterycon = {
+            &battery_pack_1.getContactor(),
+            &battery_pack_2.getContactor()};
+
    usb_port.setupLogger(*log, "<USB OUT>", color::cyan);
    usb_port.setSinkInbound(0, battery_pack_1);
-   // usb_port.setSinkInbound(1, battery_pack_2);
+   usb_port.setSinkInbound(1, battery_pack_2);
    // usb_port.setSinkInbound(1, battery_pack_3);
-
 
    packs::Nissan::LeafMultiPack multi_battery(
                      vbatterymon,
@@ -148,9 +134,26 @@ int main(int argc, const char** argv)
    inverter_port.setSink(inverter_message_factory);
 
    #ifdef CONSOLE
+   core::ConsolePresenter console(timer, vbatterymon);
    if (console.isOperational())
    {
-      console.setMonitor(multi_battery);
+      logfile.open("log.txt");
+      if (logfile.good())
+      {
+         log = &logfile;
+      }
+      else
+      {
+         std::cerr << "Failed opening logfile log.txt: " << strerror(errno) << std::endl;
+      }
+   }
+   else
+   {
+      std::cerr << "Don't have a terminal to run console presenter, so I'll proceed logging to stdout" << std::endl;
+   }
+   if (console.isOperational())
+   {
+      //console.setMonitor(vbatterymon);
       console.setContactor(multi_battery.getMainContactor());
    }
    #endif

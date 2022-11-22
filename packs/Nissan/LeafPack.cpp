@@ -5,7 +5,7 @@
 namespace packs {
 namespace Nissan {
 
-const unsigned PACK_SILENT_TIMEOUT_PERIODS = 2;
+const unsigned PACK_SILENT_TIMEOUT_PERIODS = 1;
 
 LeafPack::LeafPack(
             can::FrameSink& sender,
@@ -21,7 +21,7 @@ LeafPack::LeafPack(
    m_heartbeat_callback(*this, &LeafPack::heartbeatCallback),
    m_pack_silent_counter(0)
 {
-   m_timer.registerPeriodicCallback(&m_heartbeat_callback, 5000);
+   m_timer.registerPeriodicCallback(&m_heartbeat_callback, 30000);
 }
 
 LeafPack::~LeafPack()
@@ -33,12 +33,9 @@ void LeafPack::heartbeatCallback()
 {
    // monitor the heartbeat, if it goes dead, trigger the safety shunt
    // TODO monitor to be sure current is zero after it is triggered
-   if (m_monitor.getPackStatus() != monitor::Monitor::STARTUP)
-   {
-      m_pack_silent_counter++;
-   }
    // printf("PACK HEARTBEAT  %2d\r\n", m_pack_silent_counter);
 
+   m_pack_silent_counter++;
    if (m_pack_silent_counter >= PACK_SILENT_TIMEOUT_PERIODS)
    {
       if (m_pack_silent_counter == PACK_SILENT_TIMEOUT_PERIODS)

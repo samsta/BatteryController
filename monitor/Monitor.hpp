@@ -4,6 +4,7 @@
 #define _MONITOR_MONITOR_HPP
 
 #include <stdint.h>
+#include <vector>
 #include "logging/stream.hpp"
 
 namespace monitor {
@@ -47,7 +48,7 @@ public:
    virtual uint32_t getFailsafeStatus() const = 0;
 };
 
-logging::ostream& operator<<(logging::ostream& os, const Monitor& monitor);
+logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*> vmonitor);
 
 }
 

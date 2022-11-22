@@ -6,9 +6,9 @@
 
 namespace core {
 
-ConsolePresenter::ConsolePresenter(core::Timer& timer):
+ConsolePresenter::ConsolePresenter(core::Timer& timer, std::vector<monitor::Monitor*> vmonitor):
   m_timer(timer),
-  m_monitor(nullptr),
+  m_vmonitor(vmonitor),
   m_contactor(nullptr),
   m_refresh_callback(*this, &ConsolePresenter::refreshDisplay),
   m_have_curses(false)
@@ -30,9 +30,9 @@ ConsolePresenter::~ConsolePresenter()
    endwin();
 }
 
-void ConsolePresenter::setMonitor(const monitor::Monitor& monitor)
+void ConsolePresenter::setMonitor(std::vector<monitor::Monitor*> vmonitor)
 {
-   m_monitor = &monitor;
+   m_vmonitor = vmonitor;
 }
   
 void ConsolePresenter::setContactor(const contactor::Contactor& contactor)
@@ -50,9 +50,9 @@ void ConsolePresenter::refreshDisplay()
    std::stringstream ss;
    ss << "Monitor:" << std::endl;
    ss << "--------" << std::endl;
-   if (m_monitor)
+   if (m_vmonitor.size()>0)
    {
-      ss << *m_monitor << std::endl;
+      ss << m_vmonitor << std::endl;
    }
    else
    {
