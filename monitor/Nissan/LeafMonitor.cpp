@@ -221,15 +221,21 @@ void LeafMonitor::process(const BatteryPowerLimits& battery_power)
 
 void LeafMonitor::updateOperationalSafety()
 {
+   if (!m_safety_shunt.isSafeToOperate())
+   {
+      m_pack_status = Monitor::SHUNT_ACTIVIATED;
+      // in multipack shunt safe to operate should be monitored
+      // if shunt activated and current !=0, need to alarm or something
+   }
+
    bool everything_ok = m_voltages_ok && m_temperatures_ok;
-   if (!everything_ok && m_pack_status == Monitor::NORMAL_OPERATION)
+   if (!everything_ok && m_pack_status != Monitor::STARTUP)
    {
       // everything WAS ok, but now it isn't, trigger the safety shunt
       m_safety_shunt.setSafeToOperate(false);
       m_pack_status = Monitor::SHUNT_ACTIVIATED;
       // in multipack shunt safe to operate should be monitored
-      // if shunt activede and current !=0, set it to false again
-      // as this will send a USB message to open the relay
+      // if shunt activated and current !=0, need to alarm or something
    }
    else if (everything_ok && m_pack_status == Monitor::STARTUP)
    {
@@ -237,6 +243,11 @@ void LeafMonitor::updateOperationalSafety()
       m_pack_status = Monitor::NORMAL_OPERATION;
    }
 }
+
+// void LeafMonitor::setPackStatus(Monitor::Pack_Status p)
+// {
+//    m_pack_status = p;
+// }
 
 Monitor::Pack_Status LeafMonitor::getPackStatus() const
 {

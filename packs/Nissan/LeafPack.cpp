@@ -21,7 +21,7 @@ LeafPack::LeafPack(
    m_heartbeat_callback(*this, &LeafPack::heartbeatCallback),
    m_pack_silent_counter(0)
 {
-   m_timer.registerPeriodicCallback(&m_heartbeat_callback, 30000);
+   m_timer.registerPeriodicCallback(&m_heartbeat_callback, PACK_CALLBACK_PERIOD_ms);
 }
 
 LeafPack::~LeafPack()
@@ -44,8 +44,10 @@ void LeafPack::heartbeatCallback()
          m_pack_silent_counter++;
       }
       m_safety_contactor.setSafeToOperate(false);
+      m_monitor.updateOperationalSafety();
       return;
    }
+
 }
 
 monitor::Monitor& LeafPack::getMonitor()

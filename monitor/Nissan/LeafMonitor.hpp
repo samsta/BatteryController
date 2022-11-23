@@ -39,9 +39,10 @@ public:
 
    virtual void sink(const can::messages::Nissan::Message&);
 
+   void updateOperationalSafety();
+
    // monitor::Monitor
    virtual Monitor::Pack_Status getPackStatus() const;
-
    virtual float getVoltage() const;
    virtual float getCurrent() const;
    virtual float getTemperature() const;
@@ -71,7 +72,6 @@ private:
    void process(const can::messages::Nissan::BatteryState&);
    void process(const can::messages::Nissan::BatteryStatus&);
    void process(const can::messages::Nissan::BatteryPowerLimits&);
-   void updateOperationalSafety();
 
    void calculateTemperatureLimitFactor(float min, float max);
    void calculateCurrentLimitByVoltage(float min, float max);

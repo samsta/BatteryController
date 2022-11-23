@@ -6,6 +6,13 @@ namespace monitor {
 logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*> vm)
 {
    unsigned i;
+   char text[20];
+
+   os << "Pack Status           ";
+   for (i=0; i<vm.size(); i++) {
+      os << "   " << monitor::getPackStatusText(vm[i]->getPackStatus(), text );}
+   os << std::endl;
+   
    os << "Failsafe Status       ";
    for (i=0; i<vm.size(); i++) {
       os << "   " << std::bitset<3>(vm[i]->getFailsafeStatus()); }
@@ -88,5 +95,31 @@ logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*
 
    return os;
 }
+
+char* getPackStatusText(Monitor::Pack_Status p, char *text)
+{
+   switch (p) {
+   case Monitor::Pack_Status::STARTUP:
+      sprintf(text,"start");
+      break;
+   case Monitor::Pack_Status::NORMAL_OPERATION:
+      sprintf(text,"normal");
+      break;
+   case Monitor::Pack_Status::SHUNT_ACTIVIATED:
+      sprintf(text,"shunt_trig");
+      break;
+   case Monitor::Pack_Status::SHUNT_ACT_FAILED:
+      sprintf(text,"shunt_fail");
+      break;
+   case Monitor::Pack_Status::SHUTDOWN:
+      sprintf(text,"shutdown");
+      break;
+   default:
+      sprintf(text,"invalid");
+   }
+
+   return text;
+}
+
 
 }
