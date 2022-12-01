@@ -85,14 +85,14 @@ void LeafMultiPack::periodicCallback()
             }
          }
          // if (m_startup_callback_count<4) printf("\n\n");
-         printf("\r\nStartup Sequence %2d  Packs Started %2u",
-               MAX_STARTUP_COUNT-m_startup_callback_count,
-               int(m_vmonitor.size()-pack_startup_fail));
+         // printf("\r\nStartup Sequence %2d  Packs Started %2u",
+         //       MAX_STARTUP_COUNT-m_startup_callback_count,
+         //       int(m_vmonitor.size()-pack_startup_fail));
          if ((pack_startup_fail == 0) ||(m_startup_callback_count > MAX_STARTUP_COUNT))
          {
             // DO WE WANT A REDUCED OPERATION STATUS if pack_startup_fail !=0 ?
             // m_multipack_status = Monitor::REDUCED_OPERATION'
-            printf("\r\nStatus set to NORMAL_OPERATION.\n\r");
+            // printf("\r\nStatus set to NORMAL_OPERATION.\n\r");
             m_multipack_status = Monitor::NORMAL_OPERATION;
             // check that there are normal packs (not all packs have failed to startup)
             if (pack_startup_fail < m_vmonitor.size())

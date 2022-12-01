@@ -1,12 +1,20 @@
 #include "Monitor.hpp"
 #include "bitset"
-
+#include <chrono>
 namespace monitor {
 
 logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*> vm)
 {
    unsigned i;
    char text[20];
+
+   static auto start = std::chrono::system_clock::now();
+   auto nowtime = std::chrono::system_clock::now();
+   std::time_t now_time = std::chrono::system_clock::to_time_t(nowtime);
+   std::chrono::duration<double> elapsed_seconds = nowtime - start;
+   
+   os << "Current Time: " << std::ctime(&now_time);
+   os << "Run Time: " << int(elapsed_seconds.count()+0.5) << " seconds" << std::endl;
 
    os << "Pack Status           ";
    for (i=0; i<vm.size(); i++) {
