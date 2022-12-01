@@ -16,54 +16,59 @@ logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*
    os << "Current Time: " << std::ctime(&now_time);
    os << "Run Time: " << int(elapsed_seconds.count()+0.5) << " seconds" << std::endl;
 
+   os << "Battery Number:       ";
+   for (i=0; i<vm.size(); i++) {
+      os << "\t" << i+1;}
+   os << std::endl;
+   
    os << "Pack Status           ";
    for (i=0; i<vm.size(); i++) {
-      os << "   " << monitor::getPackStatusText(vm[i]->getPackStatus(), text );}
+      os << "\t" << monitor::getPackStatusText(vm[i]->getPackStatus(), text );}
    os << std::endl;
    
    os << "Failsafe Status       ";
    for (i=0; i<vm.size(); i++) {
-      os << "   " << std::bitset<3>(vm[i]->getFailsafeStatus()); }
+      os << "\t" << std::bitset<3>(vm[i]->getFailsafeStatus()); }
    os << " bits" << std::endl;
    
    os << "Contactor Status      ";
    for (i=0; i<vm.size(); i++) {
-      os << "   " << std::bitset<6>(vm[i]->getVoltTempStatus());}
+      os << "\t" << std::bitset<6>(vm[i]->getVoltTempStatus());}
    os << " bits" << std::endl;
 
    os << "Voltage:              ";
    for (i=0; i<vm.size(); i++) {
-      os << "   " << vm[i]->getVoltage();}
+      os << "\t" << vm[i]->getVoltage();}
    os << " V" << std::endl;
 
    os << "Current:              ";
    for (i=0; i<vm.size(); i++) {
-      os << "   " << vm[i]->getCurrent();}
+      os << "\t" << vm[i]->getCurrent();}
    os << " A" << std::endl;
 
    os << "Temperature:          ";
    for (i=0; i<vm.size(); i++) {
-      os << "   "  << vm[i]->getTemperature();}
+      os << "\t"  << vm[i]->getTemperature();}
    os << " degC" << std::endl;
 
    os << "SOC:                  ";
    for (i=0; i<vm.size(); i++) {
-      os << "   "  << vm[i]->getSocPercent();}
+      os << "\t"  << vm[i]->getSocPercent();}
    os << " %" << std::endl;
 
    os << "SOH:                  ";
    for (i=0; i<vm.size(); i++) {
-      os << "   "  << vm[i]->getSohPercent();}
+      os << "\t"  << vm[i]->getSohPercent();}
    os << " %" << std::endl;
 
    os << "Energy Remaining:     ";
    for (i=0; i<vm.size(); i++) {
-      os << "   "  << vm[i]->getEnergyRemainingKwh();}
+      os << "\t"  << vm[i]->getEnergyRemainingKwh();}
    os << " kWh" << std::endl;
 
    os << "Capacity:             ";
    for (i=0; i<vm.size(); i++) {
-      os << "   "  << vm[i]->getCapacityKwh();}
+      os << "\t"  << vm[i]->getCapacityKwh();}
    os << " kWh" << std::endl;
    // os << "System Version:          " << vm[i]->getSystemVersion() << std::endl;
    // os << "Serial Number:           " << vm[i]->getSerialNumber() << std::endl;
@@ -83,22 +88,22 @@ logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*
 
    os << "Max Charge Voltage:   ";
    for (i=0; i<vm.size(); i++) {
-      os << "   "  << vm[i]->getMaxChargeVoltage();}
+      os << "\t"  << vm[i]->getMaxChargeVoltage();}
    os << " V" << std::endl;
 
    os << "Min Discharge Voltage:";
    for (i=0; i<vm.size(); i++) {
-      os << "   "  << vm[i]->getMinDischargeVoltage();}
+      os << "\t"  << vm[i]->getMinDischargeVoltage();}
    os << " V" << std::endl;
 
    os << "Charge Current Limit: ";
    for (i=0; i<vm.size(); i++) {
-      os << "   "  << vm[i]->getChargeCurrentLimit();}
+      os << "\t"  << vm[i]->getChargeCurrentLimit();}
    os << " A" << std::endl;
 
    os << "Discharge Current Lmt:";
    for (i=0; i<vm.size(); i++) {
-      os << "   "  << vm[i]->getDischargeCurrentLimit();}
+      os << "\t"  << vm[i]->getDischargeCurrentLimit();}
    os << " A" << std::endl;
 
    return os;
@@ -108,19 +113,19 @@ char* getPackStatusText(Monitor::Pack_Status p, char *text)
 {
    switch (p) {
    case Monitor::Pack_Status::STARTUP:
-      sprintf(text,"start");
+      sprintf(text,"startup");
       break;
    case Monitor::Pack_Status::NORMAL_OPERATION:
       sprintf(text,"normal");
       break;
    case Monitor::Pack_Status::SHUNT_ACTIVIATED:
-      sprintf(text,"shunt_trig");
+      sprintf(text,"shnt_tg");
       break;
    case Monitor::Pack_Status::SHUNT_ACT_FAILED:
-      sprintf(text,"shunt_fail");
+      sprintf(text,"shnt_fl");
       break;
    case Monitor::Pack_Status::SHUTDOWN:
-      sprintf(text,"shutdown");
+      sprintf(text,"shutdwn");
       break;
    default:
       sprintf(text,"invalid");

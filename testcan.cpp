@@ -58,9 +58,9 @@ int main(int argc, const char** argv)
    sigemptyset(&all_signals);
    sigaddset(&all_signals, SIGINT);
 
-   if (argc != 3)
+   if (argc != 3 and argc != 4)
    {
-      fprintf(stderr, "usage: %s <can_interface_inverter> <usb_port_battery>\n", argv[0]);
+      fprintf(stderr, "usage: %s <can_interface_inverter> <usb_port_battery123> [<usb_port_battery456]>\n", argv[0]);
       return 1;
    }
 
@@ -75,7 +75,8 @@ int main(int argc, const char** argv)
       exit(EXIT_FAILURE);
    }
 
-   core::USBPort usb_port(argv[2], epollfd);
+   core::USBPort usb_port1(argv[2], epollfd);
+   core::USBPort usb_port2(argv[3], epollfd);
 
    core::CanPort inverter_port(argv[1], epollfd);
    core::EpollTimer timer(epollfd);
@@ -85,36 +86,62 @@ int main(int argc, const char** argv)
    OutputPin indicator_led_1(0, 4, "led_1");
 
    packs::Nissan::LeafPack battery_pack_1(
-         usb_port.getSinkOutbound(0),
+         usb_port1.getSinkOutbound(0),
          timer,
          log);
 
    packs::Nissan::LeafPack battery_pack_2(
-        usb_port.getSinkOutbound(1),
+        usb_port1.getSinkOutbound(1),
         timer,
         log);
 
    packs::Nissan::LeafPack battery_pack_3(
-        usb_port.getSinkOutbound(2),
+        usb_port1.getSinkOutbound(2),
         timer,
         log);
 
+   packs::Nissan::LeafPack battery_pack_4(
+        usb_port2.getSinkOutbound(0),
+        timer,
+        log);
+
+   packs::Nissan::LeafPack battery_pack_5(
+        usb_port2.getSinkOutbound(1),
+        timer,
+        log);
+
+   packs::Nissan::LeafPack battery_pack_6(
+        usb_port2.getSinkOutbound(2),
+        timer,
+        log);
    // std::vector<monitor::Monitor*> vbatterymon = {&battery_pack_1.getMonitor()};
    // std::vector<contactor::Contactor*> vbatterycon = {&battery_pack_1.getContactor()};
 
    std::vector<monitor::Monitor*> vbatterymon = {
             &battery_pack_1.getMonitor(),
             &battery_pack_2.getMonitor(),
-            &battery_pack_3.getMonitor()};
+            &battery_pack_3.getMonitor(),
+            &battery_pack_4.getMonitor(),
+            &battery_pack_5.getMonitor(),
+            &battery_pack_6.getMonitor()};
    std::vector<contactor::Contactor*> vbatterycon = {
             &battery_pack_1.getContactor(),
             &battery_pack_2.getContactor(),
-            &battery_pack_3.getContactor()};
+            &battery_pack_3.getContactor(),
+            &battery_pack_4.getContactor(),
+            &battery_pack_5.getContactor(),
+            &battery_pack_6.getContactor()};
 
-   usb_port.setupLogger(*log, "<USB OUT>", color::cyan);
-   usb_port.setSinkInbound(0, battery_pack_1);
-   usb_port.setSinkInbound(1, battery_pack_2);
-   usb_port.setSinkInbound(2, battery_pack_3);
+   usb_port1.setupLogger(*log, "<USB1 OUT>", color::cyan);
+   usb_port2.setupLogger(*log, "<USB2 OUT>", color::cyan);
+
+   usb_port1.setSinkInbound(0, battery_pack_1);
+   usb_port1.setSinkInbound(1, battery_pack_2);
+   usb_port1.setSinkInbound(2, battery_pack_3);
+
+   usb_port2.setSinkInbound(0, battery_pack_4);
+   usb_port2.setSinkInbound(1, battery_pack_5);
+   usb_port2.setSinkInbound(2, battery_pack_6);
 
    packs::Nissan::LeafMultiPack multi_battery(
                      vbatterymon,

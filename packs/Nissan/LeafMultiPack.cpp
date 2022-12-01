@@ -42,7 +42,7 @@ LeafMultiPack::LeafMultiPack(
       m_startup_callback_count(0)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms);
-   printf("\r\nStatus set to STARTUP.\n\r");
+   // printf("\r\nStatus set to STARTUP.\n\r");
 }
 
 LeafMultiPack::~LeafMultiPack()
@@ -93,11 +93,11 @@ void LeafMultiPack::periodicCallback()
             // DO WE WANT A REDUCED OPERATION STATUS if pack_startup_fail !=0 ?
             // m_multipack_status = Monitor::REDUCED_OPERATION'
             // printf("\r\nStatus set to NORMAL_OPERATION.\n\r");
-            m_multipack_status = Monitor::NORMAL_OPERATION;
             // check that there are normal packs (not all packs have failed to startup)
             if (pack_startup_fail < m_vmonitor.size())
             {
                // there are normal packs, close the main contactors
+               m_multipack_status = Monitor::NORMAL_OPERATION;
                m_main_contactor.setSafeToOperate(true);
             }
          }
@@ -106,7 +106,7 @@ void LeafMultiPack::periodicCallback()
 
       case Monitor::NORMAL_OPERATION:
          // WHAT HAPPENS DURING NORMAL OPERATION?!?!?!?
-         // the inverter is driving the operation...
+         // the inverter is driving the operation by polling for data...
          for (uint i=0; i<m_vmonitor.size(); i++)
          {
             if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION)
