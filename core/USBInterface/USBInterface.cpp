@@ -76,7 +76,7 @@ void USBPort::setupLogger( logging::ostream& log, const char* logger_prefix, con
 void USBPort::handle()
 {
    uint bytesread;
-   uint8_t inbuf[1000];
+   uint8_t inbuf[200];
    size_t findhash;
    uint16_t port;
    uint16_t canid;
@@ -94,7 +94,7 @@ void USBPort::handle()
    uint32_t loopcount = 0;
    while (bytesread > 0 and loopcount < 10) {
       loopcount++;
-      // printf("HANDLE br= %d  %.*s\n",bytesread, bytesread, inbuf);
+      printf("USBPort br= %d  %.*s\n",bytesread, bytesread, inbuf);
       fflush(stdout);
 
       std::string sbuf((char *)inbuf);
@@ -171,7 +171,7 @@ void USBPort::handle()
             std::cerr << "USBPort: ERROR: bad msg format" << std::endl;
 
             // display bad msg (or diagnostic message)
-            printf("br= %d  %s\n",bytesread, inbuf);
+            printf("fh= %d  br= %d  %.26s\n",(int)findhash, bytesread, inbuf);
             bytesread = 0;
 
          }
