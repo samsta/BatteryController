@@ -86,6 +86,28 @@ int main(int argc, const char** argv)
    OutputPin negative_relay_1(0, 6, "relay_neg_1");
    OutputPin indicator_led_1(0, 4, "led_1");
 
+   std::vector<monitor::Monitor*> vbatterymon;
+
+   #ifdef CONSOLE
+   core::ConsolePresenter console(timer, vbatterymon);
+   if (console.isOperational())
+   {
+      logfile.open("log.txt");
+      if (logfile.good())
+      {
+         log = &logfile;
+      }
+      else
+      {
+         std::cerr << "Failed opening logfile log.txt: " << strerror(errno) << std::endl;
+      }
+   }
+   else
+   {
+      std::cerr << "Don't have a terminal to run console presenter, so I'll proceed logging to stdout" << std::endl;
+   }
+   #endif
+
    // packs::Nissan::LeafPack battery_pack_1(
    //       usb_port1.getSinkOutbound(0),
    //       timer,
@@ -120,14 +142,16 @@ int main(int argc, const char** argv)
         usb_port2.getSinkOutbound(0),
         timer,
         log);
+   
+   vbatterymon.push_back( &battery_pack_6.getMonitor());
 
-   std::vector<monitor::Monitor*> vbatterymon = {
-            // &battery_pack_1.getMonitor(),
-            // &battery_pack_2.getMonitor(),
-            // &battery_pack_3.getMonitor(),
-            // &battery_pack_4.getMonitor(),
-            // &battery_pack_5.getMonitor(),
-            &battery_pack_6.getMonitor()};
+   // std::vector<monitor::Monitor*> vbatterymon = {
+   //          // &battery_pack_1.getMonitor(),
+   //          // &battery_pack_2.getMonitor(),
+   //          // &battery_pack_3.getMonitor(),
+   //          // &battery_pack_4.getMonitor(),
+   //          // &battery_pack_5.getMonitor(),
+   //          &battery_pack_6.getMonitor()};
    std::vector<contactor::Contactor*> vbatterycon = {
             // &battery_pack_1.getContactor(),
             // &battery_pack_2.getContactor(),
@@ -168,26 +192,9 @@ int main(int argc, const char** argv)
    inverter_port.setSink(inverter_message_factory);
 
    #ifdef CONSOLE
-   core::ConsolePresenter console(timer, vbatterymon);
    if (console.isOperational())
    {
-      logfile.open("log.txt");
-      if (logfile.good())
-      {
-         log = &logfile;
-      }
-      else
-      {
-         std::cerr << "Failed opening logfile log.txt: " << strerror(errno) << std::endl;
-      }
-   }
-   else
-   {
-      std::cerr << "Don't have a terminal to run console presenter, so I'll proceed logging to stdout" << std::endl;
-   }
-   if (console.isOperational())
-   {
-      //console.setMonitor(vbatterymon);
+      console.setMonitor(vbatterymon);
       console.setContactor(multi_battery.getMainContactor());
    }
    #endif
