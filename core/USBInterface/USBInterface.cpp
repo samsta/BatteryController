@@ -24,6 +24,7 @@ namespace color = logging::color::ansi;
 namespace core {
 
 USBPort::USBPort(const char* name, int epoll_fd):
+    m_unprocessedSize(0),
     m_epoll_fd(epoll_fd),
     m_fd(open_serial_port(name, 9600)),
     m_name(name),
@@ -76,44 +77,49 @@ void USBPort::setupLogger( logging::ostream& log, const char* logger_prefix, con
 void USBPort::handle()
 {
    uint bytesread;
-   uint8_t inbuf[1000];
    size_t findhash;
    uint16_t port;
    uint16_t canid;
    struct can_frame frame;
 
-   // must clear out inbuf everytime, perhaps there's a better way to do this?
+   // must clear out unprocessed inbuf everytime, perhaps there's a better way to do this?
    // this is really only necessary because we are printf-ing the contents below
-   for (uint32_t i=0; i<sizeof(inbuf); i++)
+   for (uint32_t i=m_unprocessedSize; i<sizeof(m_inBufferUnprocessed); i++)
    {
-    inbuf[i] = 0;
+      m_inBufferUnprocessed[i] = 0;
    }
-   bytesread = read_port(m_fd, inbuf, sizeof(inbuf));
+   // bytesread = read_port(m_fd, m_inBuffer, sizeof(m_inBuffer));
+   bytesread = read_port(m_fd, &m_inBufferUnprocessed[m_unprocessedSize], sizeof(m_inBufferUnprocessed)- m_unprocessedSize);
+
+   // add the new data to the leftover data from the last read
+   // memcpy(&m_inBufferUnprocessed[m_unprocessedSize], &m_inBuffer[0], bytesread);
+   m_unprocessedSize += bytesread;
 
    uint32_t newhead = 0;
    uint32_t loopcount = 0;
-   while (bytesread > 0 and loopcount < 10) {
+   while (m_unprocessedSize >= STD_MSG_SIZE and loopcount < 100)
+   {
       loopcount++;
-      // printf("HANDLE br= %d  %.*s\n",bytesread, bytesread, inbuf);
+      // printf("USBPort br= %d  %.*s\n",m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
       fflush(stdout);
 
-      std::string sbuf((char *)inbuf);
+      std::string sbuf((char *)m_inBufferUnprocessed);
       // find DIAGTEST
       findhash = sbuf.find("DIAG");
       if (findhash != std::string::npos)
       {
          printf("TEENSY Diagnostic Message: ");
          findhash = sbuf.find_first_of(0x0a);
-         if (findhash != std::string::npos and findhash < sizeof(inbuf)) {
-            printf("%.*s\n", (int)findhash, inbuf);
+         if (findhash != std::string::npos and findhash < sizeof(m_inBufferUnprocessed)) {
+            printf("%.*s\n", (int)findhash, m_inBufferUnprocessed);
             fflush(stdout);
             newhead = findhash + 1;
-            bytesread = bytesread - newhead;
+            m_unprocessedSize = m_unprocessedSize - newhead;
          }
          else
          {
             printf("Failed to find 0x0a End of Msg\n");//JFS
-            bytesread = 0;
+            m_unprocessedSize = 0;
          }
       }
       else
@@ -121,12 +127,12 @@ void USBPort::handle()
          // this better be a hex encoded CAN message
          // find #, ID is 8 chars before it
          findhash = sbuf.find_first_of('#');
-         if (findhash == 8 && bytesread >= 25)
+         if (findhash == 8 && m_unprocessedSize >= STD_MSG_SIZE)
          {
             // msg format 0P000xxx P=port xxx=msg id
             // get the can port number from the long id
-            port = HextoDec( &inbuf[findhash - 7], 1);
-            canid = HextoDec( &inbuf[findhash - 3], 3);
+            port = HextoDec( &m_inBufferUnprocessed[findhash - 7], 1);
+            canid = HextoDec( &m_inBufferUnprocessed[findhash - 3], 3);
 
             if (port > 0 && port <= 2 && canid > 0  && canid <= 0x7FF)
             {
@@ -138,7 +144,7 @@ void USBPort::handle()
                z++;
                for (uint8_t i=0 ; i < 8; i++ )
                {
-                  frame.data[i] = HextoDec( &inbuf[i*2 + 9], 2);
+                  frame.data[i] = HextoDec( &m_inBufferUnprocessed[i*2 + 9], 2);
                }
 
                // printf("Received from port = %d\n", port);//JFS
@@ -162,27 +168,26 @@ void USBPort::handle()
                   // todo canid error
                }
             }
-            newhead = 25;
-            bytesread = bytesread - newhead;
+            newhead = STD_MSG_SIZE;
+            m_unprocessedSize = m_unprocessedSize - newhead;
          }
-         else
+         else if (findhash != 8)
          {
             // error, discard data
             std::cerr << "USBPort: ERROR: bad msg format" << std::endl;
 
-            // display bad msg (or diagnostic message)
-            printf("br= %d  %s\n",bytesread, inbuf);
-            bytesread = 0;
+            // display bad msg 
+            printf("fh= %d  br= %d  %.*s\n", (int)findhash, m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
+            m_unprocessedSize = 0;
 
          }
       }
-
       // adjust the data in inbuf
-      if (bytesread != 0)
+      if (m_unprocessedSize != 0)
       {
-         memcpy(&inbuf[0], &inbuf[newhead], bytesread);
+         memcpy(&m_inBufferUnprocessed[0], &m_inBufferUnprocessed[newhead], m_unprocessedSize);
       }
-   }
+   } // while (m_unprocessedSize >= STD_MSG_SIZE and loopcount < 100)
 }
 
 can::FrameSink& USBPort::getSinkOutbound(unsigned index)
@@ -244,7 +249,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));
    if (x<0)
    {
-      printf("WRITE FAILED\n");
+      std::cerr << "WRITE TO USB PORT FAILED" << std::endl;
       fflush(stdout);
    }
 }
