@@ -31,6 +31,11 @@ public:
 private:
    virtual void handle();
 
+   // uint8_t m_inBuffer[256];
+   uint8_t m_inBufferUnprocessed[200];
+   uint m_unprocessedSize;
+   const uint STD_MSG_SIZE = 25;
+
    int             m_epoll_fd;
    int             m_fd;
    std::string     m_name;
@@ -72,4 +77,5 @@ private:
 };
 
 }
+
 #endif /* CORE_USBINTERFACE_USBINTERFACE_HPP_ */
