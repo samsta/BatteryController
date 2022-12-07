@@ -29,47 +29,47 @@ logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*
    os << "Failsafe Status       ";
    for (i=0; i<vm.size(); i++) {
       os << "\t" << std::bitset<3>(vm[i]->getFailsafeStatus()); }
-   os << " bits" << std::endl;
+   os << "\tbits" << std::endl;
    
    os << "Contactor Status      ";
    for (i=0; i<vm.size(); i++) {
       os << "\t" << std::bitset<6>(vm[i]->getVoltTempStatus());}
-   os << " bits" << std::endl;
+   os << "\tbits" << std::endl;
 
    os << "Voltage:              ";
    for (i=0; i<vm.size(); i++) {
       os << "\t" << vm[i]->getVoltage();}
-   os << " V" << std::endl;
+   os << "\tV" << std::endl;
 
    os << "Current:              ";
    for (i=0; i<vm.size(); i++) {
       os << "\t" << vm[i]->getCurrent();}
-   os << " A" << std::endl;
+   os << "\tA" << std::endl;
 
    os << "Temperature:          ";
    for (i=0; i<vm.size(); i++) {
       os << "\t"  << vm[i]->getTemperature();}
-   os << " degC" << std::endl;
+   os << "\tdegC" << std::endl;
 
    os << "SOC:                  ";
    for (i=0; i<vm.size(); i++) {
       os << "\t"  << vm[i]->getSocPercent();}
-   os << " %" << std::endl;
+   os << "\t%" << std::endl;
 
    os << "SOH:                  ";
    for (i=0; i<vm.size(); i++) {
       os << "\t"  << vm[i]->getSohPercent();}
-   os << " %" << std::endl;
+   os << "\t%" << std::endl;
 
    os << "Energy Remaining:     ";
    for (i=0; i<vm.size(); i++) {
       os << "\t"  << vm[i]->getEnergyRemainingKwh();}
-   os << " kWh" << std::endl;
+   os << "\tkWh" << std::endl;
 
    os << "Capacity:             ";
    for (i=0; i<vm.size(); i++) {
       os << "\t"  << vm[i]->getCapacityKwh();}
-   os << " kWh" << std::endl;
+   os << "\tkWh" << std::endl;
    // os << "System Version:          " << vm[i]->getSystemVersion() << std::endl;
    // os << "Serial Number:           " << vm[i]->getSerialNumber() << std::endl;
 
@@ -89,22 +89,22 @@ logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*
    os << "Max Charge Voltage:   ";
    for (i=0; i<vm.size(); i++) {
       os << "\t"  << vm[i]->getMaxChargeVoltage();}
-   os << " V" << std::endl;
+   os << "\tV" << std::endl;
 
    os << "Min Discharge Voltage:";
    for (i=0; i<vm.size(); i++) {
       os << "\t"  << vm[i]->getMinDischargeVoltage();}
-   os << " V" << std::endl;
+   os << "\tV" << std::endl;
 
    os << "Charge Current Limit: ";
    for (i=0; i<vm.size(); i++) {
       os << "\t"  << vm[i]->getChargeCurrentLimit();}
-   os << " A" << std::endl;
+   os << "\tA" << std::endl;
 
    os << "Discharge Current Lmt:";
    for (i=0; i<vm.size(); i++) {
       os << "\t"  << vm[i]->getDischargeCurrentLimit();}
-   os << " A" << std::endl;
+   os << "\tA" << std::endl;
 
    return os;
 }

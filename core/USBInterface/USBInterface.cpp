@@ -82,17 +82,8 @@ void USBPort::handle()
    uint16_t canid;
    struct can_frame frame;
 
-   // must clear out unprocessed inbuf everytime, perhaps there's a better way to do this?
-   // this is really only necessary because we are printf-ing the contents below
-   for (uint32_t i=m_unprocessedSize; i<sizeof(m_inBufferUnprocessed); i++)
-   {
-      m_inBufferUnprocessed[i] = 0;
-   }
-   // bytesread = read_port(m_fd, m_inBuffer, sizeof(m_inBuffer));
-   bytesread = read_port(m_fd, &m_inBufferUnprocessed[m_unprocessedSize], sizeof(m_inBufferUnprocessed)- m_unprocessedSize);
-
    // add the new data to the leftover data from the last read
-   // memcpy(&m_inBufferUnprocessed[m_unprocessedSize], &m_inBuffer[0], bytesread);
+   bytesread = read_port(m_fd, &m_inBufferUnprocessed[m_unprocessedSize], sizeof(m_inBufferUnprocessed)- m_unprocessedSize - 1);
    m_unprocessedSize += bytesread;
 
    uint32_t newhead = 0;

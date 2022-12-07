@@ -31,8 +31,7 @@ public:
 private:
    virtual void handle();
 
-   // uint8_t m_inBuffer[256];
-   uint8_t m_inBufferUnprocessed[200];
+   uint8_t m_inBufferUnprocessed[1024];
    uint m_unprocessedSize;
    const uint STD_MSG_SIZE = 25;
 

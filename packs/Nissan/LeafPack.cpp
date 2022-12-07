@@ -31,7 +31,6 @@ void LeafPack::heartbeatCallback()
 {
    // monitor the heartbeat, if it goes dead, trigger the safety shunt
    // TODO monitor to be sure current is zero after it is triggered
-   // printf("PACK HEARTBEAT  %2d\r\n", m_pack_silent_counter);
 
    m_pack_silent_counter++;
    if (m_pack_silent_counter >= PACK_SILENT_TIMEOUT_PERIODS)
