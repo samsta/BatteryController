@@ -108,11 +108,11 @@ void USBPort::handle()
       findhash = sbuf.find("DIAG");
       if (findhash != std::string::npos)
       {
-         printf("TEENSY Diagnostic Message: ");
+         //JFS printf("TEENSY Diagnostic Message: ");
          findhash = sbuf.find_first_of(0x0a);
          if (findhash != std::string::npos and findhash < sizeof(m_inBufferUnprocessed)) {
-            printf("%.*s\n", (int)findhash, m_inBufferUnprocessed);
-            fflush(stdout);
+            //JFS printf("%.*s\n", (int)findhash, m_inBufferUnprocessed);
+            //JFS fflush(stdout);
             newhead = findhash + 1;
             m_unprocessedSize = m_unprocessedSize - newhead;
          }

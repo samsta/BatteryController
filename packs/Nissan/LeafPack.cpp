@@ -5,8 +5,6 @@
 namespace packs {
 namespace Nissan {
 
-const unsigned PACK_SILENT_TIMEOUT_PERIODS = 1;
-
 LeafPack::LeafPack(
             can::FrameSink& sender,
             core::Timer& timer,

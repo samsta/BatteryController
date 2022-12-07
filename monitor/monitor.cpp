@@ -14,7 +14,7 @@ logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*
    std::chrono::duration<double> elapsed_seconds = nowtime - start;
    
    os << "Current Time: " << std::ctime(&now_time);
-   os << "Run Time: " << int(elapsed_seconds.count()+0.5) << " seconds" << std::endl;
+   os << "Run Time: " << 0.001* int(1000.0*(int(elapsed_seconds.count()+0.5) / 3600.0)) << " hours" << std::endl;
 
    os << "Battery Number:       ";
    for (i=0; i<vm.size(); i++) {

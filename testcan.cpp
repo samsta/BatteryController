@@ -92,7 +92,7 @@ int main(int argc, const char** argv)
    core::ConsolePresenter console(timer, vbatterymon);
    if (console.isOperational())
    {
-      logfile.open("log.txt");
+      logfile.open("log.txt", std::ios_base::openmode::_S_app);
       if (logfile.good())
       {
          log = &logfile;
