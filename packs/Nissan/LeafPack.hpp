@@ -30,7 +30,7 @@ public:
 
 private:
 
-   contactor::Nissan::TeensyRelay         m_safety_contactor;
+   contactor::Nissan::TeensyRelay         m_safety_shunt;
    monitor::Nissan::LeafMonitor           m_monitor;
    core::Timer&                           m_timer;
    can::services::Nissan::MessageFactory  m_message_factory;

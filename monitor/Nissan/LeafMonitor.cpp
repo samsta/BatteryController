@@ -1,3 +1,12 @@
+/*
+ADD TESTS FOR WARN HIGH/LOW VOLTAGE AND WARN HIGH/LOW TEMPS
+ADD LOGGING MESSAGES FOR ALL WARN AND CRITICAL VOLTS/TEMPS
+ADD LOGGING OF VOLTS TEMPS AT SOME REASONABLE INTERVAL (5 MIN?  15 MIN?)
+*/
+
+
+
+
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
 #include "contactor/Contactor.hpp"
@@ -70,6 +79,7 @@ LeafMonitor::LeafMonitor(contactor::Contactor& contactor):
 	   m_volt_temp_status(pow(2,6)-1),
       m_failsafe_status(7)
 {
+   contactor.setSafeToOperate(false);
 }
 
 void LeafMonitor::sink(const can::messages::Nissan::Message& message)

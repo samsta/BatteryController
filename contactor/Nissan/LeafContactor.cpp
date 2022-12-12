@@ -129,14 +129,16 @@ TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid):
          m_sender(sender),
          m_canid(canid),
          m_safe_to_operate(true),
-         m_state(CLOSED)
+         m_state(NORMAL)
 {
-   // ensure relay is closed on startup
-   close();
+   // // ensure relay is closed on startup
+   // close();
 }
 
 TeensyRelay::~TeensyRelay()
 {
+   // close relay on shutdown
+   close();
 }
 
 void TeensyRelay::setSafeToOperate(bool is_safe)
@@ -152,19 +154,19 @@ bool TeensyRelay::isSafeToOperate() const
 
 bool TeensyRelay::isClosed() const
 {
-   return m_state == CLOSED;
+   return m_state == NORMAL;
 }
 
 void TeensyRelay::close()
 {
       m_sender.sink(can::StandardDataFrame(m_canid, m_off_msg));
-      m_state = CLOSED;
+      m_state = NORMAL;
 }
 
 void TeensyRelay::open()
 {
       m_sender.sink(can::StandardDataFrame(m_canid, m_on_msg));
-      m_state = OPEN;
+      m_state = TRIGGERED;
 }
 
 void TeensyRelay::updateRelay()

@@ -9,8 +9,8 @@ LeafPack::LeafPack(
             can::FrameSink& sender,
             core::Timer& timer,
             logging::ostream* log):
-   m_safety_contactor(sender, ID_TNSY_DC_SAFE_RLY),
-   m_monitor(m_safety_contactor),
+   m_safety_shunt(sender, ID_TNSY_DC_SAFE_RLY),
+   m_monitor(m_safety_shunt),
    m_timer(timer),
    m_message_factory(m_monitor, log),
    m_aggregator(m_message_factory),
@@ -40,7 +40,7 @@ void LeafPack::heartbeatCallback()
          // if (m_log) *m_log << "LeafPack went silent." << std::endl;
          m_pack_silent_counter++;
       }
-      m_safety_contactor.setSafeToOperate(false);
+      m_safety_shunt.setSafeToOperate(false);
       m_monitor.updateOperationalSafety();
       return;
    }
@@ -54,7 +54,7 @@ monitor::Monitor& LeafPack::getMonitor()
 
 contactor::Contactor& LeafPack::getContactor()
 {
-   return m_safety_contactor;
+   return m_safety_shunt;
 }
 
 void LeafPack::sink(const can::DataFrame& f)

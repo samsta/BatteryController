@@ -44,7 +44,6 @@ const uint32_t CRIT_LOW_TEMP(1 << 1);
 const uint32_t MAX_TEMP_MISSING(1 << 0);
 
 const float TOLERANCE = 0.0001;
-
 CellVoltageRange goodCellVoltageRange()
 {
    return CellVoltageRange().setMin(ARBITRARY_SAFE_VOLTAGE).setMax(ARBITRARY_SAFE_VOLTAGE);
@@ -65,11 +64,11 @@ PackTemperatures goodPackTemperatures()
    return allPackTemperatures(ARBITRARY_SAFE_TEMPERATURE);
 }
 
-TEST(LeafMonitor, contactorDeclaredUnsafeUponConstruction)
+TEST(LeafMonitor, contactorDeclaredSafeUponConstruction)
 {
    NiceMock<mocks::contactor::Contactor> contactor;
 
-   EXPECT_CALL(contactor, setSafeToOperate(false));
+   EXPECT_CALL(contactor, setSafeToOperate(true));
 
    LeafMonitor monitor(contactor);
 }

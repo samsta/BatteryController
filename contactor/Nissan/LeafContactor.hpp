@@ -74,8 +74,8 @@ public:
 
 private:
    enum State {
-      OPEN,
-      CLOSED
+      NORMAL,
+      TRIGGERED
    };
 
    void updateRelay();
