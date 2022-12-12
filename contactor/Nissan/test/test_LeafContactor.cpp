@@ -201,27 +201,27 @@ MATCHER_P(AsString, str, std::string(negation ? " doesn't equal " : " equals ") 
    return testing::internal::CaseInsensitiveStringEquals<std::string>(PrintToString(arg), str);
 }
 
-TEST(TeensyRelayT, openRelayWhenUnsafe)
+TEST(TeensyRelayT, sendShutTriggerCommand)
 {
    TestSender sender;
    TeensyRelay TeensyRelay(sender, ID_TNSY_DC_SAFE_RLY);
 
-   // relay should open when unsafe
-   EXPECT_CALL(sender, sink(AsString("800#AAAA000000000000")));
-
-   TeensyRelay.setSafeToOperate(false);
-}
-
-TEST(TeensyRelayT, closeRelayWhenSafe)
-{
-   TestSender sender;
-   TeensyRelay TeensyRelay(sender, ID_TNSY_DC_SAFE_RLY);
-
-   // relay should close when safe
+   // send close command to Teensy
    EXPECT_CALL(sender, sink(AsString("800#5555000000000000")));
 
-   TeensyRelay.setSafeToOperate(true);
+   TeensyRelay.close();
 }
+
+// TEST(TeensyRelayT, closeRelayWhenUnsafe)
+// {
+//    TestSender sender;
+//    TeensyRelay TeensyRelay(sender, ID_TNSY_DC_SAFE_RLY);
+
+//    // relay should close when safe
+//    EXPECT_CALL(sender, sink(AsString("800#5555000000000000")));
+
+//    TeensyRelay.setSafeToOperate(false);
+// }
 
 }
 }

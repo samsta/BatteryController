@@ -125,20 +125,77 @@ void LeafContactor::closePositiveRelay()
 }
 
 //---------------------------------------------------------------------------------------------------
-TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid):
+TeensyShuntCtrl::TeensyShuntCtrl(can::FrameSink& sender, uint32_t canid):
          m_sender(sender),
          m_canid(canid),
          m_safe_to_operate(true),
          m_state(NORMAL)
 {
-   // // ensure relay is closed on startup
-   // close();
+   // ensure shunt is closed at startup (relay de-engerized, shunt not triggered, shunt has to be closed manaully)
+   close();
+}
+
+TeensyShuntCtrl::~TeensyShuntCtrl()
+{
+   // close shunt on shutdown, see above
+   close();
+}
+
+void TeensyShuntCtrl::setSafeToOperate(bool is_safe)
+{
+   m_safe_to_operate = is_safe;
+   updateRelay();
+}
+
+bool TeensyShuntCtrl::isSafeToOperate() const
+{
+   return m_safe_to_operate;
+}
+
+bool TeensyShuntCtrl::isClosed() const
+{
+   return m_state == NORMAL;
+}
+
+void TeensyShuntCtrl::close()
+{
+      m_sender.sink(can::StandardDataFrame(m_canid, m_shunt_normal_msg));
+      m_state = NORMAL;
+}
+
+void TeensyShuntCtrl::open()
+{
+      m_sender.sink(can::StandardDataFrame(m_canid, m_shunt_triggered_msg));
+      m_state = TRIGGERED;
+}
+
+void TeensyShuntCtrl::updateRelay()
+{
+   if (m_safe_to_operate)
+   {
+      close();
+   }
+   else // if (not m_safe_to_operate)
+   {
+      open();
+   }
+}
+
+//---------------------------------------------------------------------------------------------------
+TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid):
+         m_sender(sender),
+         m_canid(canid),
+         m_safe_to_operate(true),
+         m_state(OPEN)
+{
+   // open (de-energize) relay on startup
+   open();
 }
 
 TeensyRelay::~TeensyRelay()
 {
-   // close relay on shutdown
-   close();
+   // open (de-energize) relay on shutdown
+   open();
 }
 
 void TeensyRelay::setSafeToOperate(bool is_safe)
@@ -154,19 +211,19 @@ bool TeensyRelay::isSafeToOperate() const
 
 bool TeensyRelay::isClosed() const
 {
-   return m_state == NORMAL;
+   return m_state == CLOSED;
 }
 
 void TeensyRelay::close()
 {
-      m_sender.sink(can::StandardDataFrame(m_canid, m_off_msg));
-      m_state = NORMAL;
+      m_sender.sink(can::StandardDataFrame(m_canid, m_close_msg));
+      m_state = CLOSED;
 }
 
 void TeensyRelay::open()
 {
-      m_sender.sink(can::StandardDataFrame(m_canid, m_on_msg));
-      m_state = TRIGGERED;
+      m_sender.sink(can::StandardDataFrame(m_canid, m_open_msg));
+      m_state = OPEN;
 }
 
 void TeensyRelay::updateRelay()
