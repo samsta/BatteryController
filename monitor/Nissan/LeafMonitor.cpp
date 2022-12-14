@@ -59,8 +59,8 @@ inline float lower_limit(float value, const float warn_limit, const float critic
 }
 }
 
-LeafMonitor::LeafMonitor(contactor::Contactor& contactor):
-      m_safety_shunt(contactor),
+LeafMonitor::LeafMonitor(contactor::Contactor& safety_shunt):
+      m_safety_shunt(safety_shunt),
       m_voltages_ok(false),
       m_temperatures_ok(false),
       m_pack_status(STARTUP),
@@ -79,7 +79,6 @@ LeafMonitor::LeafMonitor(contactor::Contactor& contactor):
 	   m_volt_temp_status(pow(2,6)-1),
       m_failsafe_status(7)
 {
-   contactor.setSafeToOperate(false);
 }
 
 void LeafMonitor::sink(const can::messages::Nissan::Message& message)
