@@ -231,7 +231,7 @@ void LeafMonitor::process(const BatteryPowerLimits& battery_power)
 
 void LeafMonitor::updateOperationalSafety()
 {
-   if (!m_safety_shunt.isSafeToOperate())
+   if (!m_safety_shunt.isSafeToOperate() && m_pack_status == Monitor::STARTUP)
    {
       m_pack_status = Monitor::SHUNT_ACTIVIATED;
       // in multipack shunt safe to operate should be monitored
@@ -251,6 +251,7 @@ void LeafMonitor::updateOperationalSafety()
    {
       // battery has come right on startup
       m_pack_status = Monitor::NORMAL_OPERATION;
+      m_safety_shunt.setSafeToOperate(true);
    }
 }
 

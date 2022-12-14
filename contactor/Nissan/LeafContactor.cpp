@@ -128,7 +128,7 @@ void LeafContactor::closePositiveRelay()
 TeensyShuntCtrl::TeensyShuntCtrl(can::FrameSink& sender, uint32_t canid):
          m_sender(sender),
          m_canid(canid),
-         m_safe_to_operate(true),
+         m_safe_to_operate(false),
          m_state(NORMAL)
 {
    // ensure shunt is closed at startup (relay de-engerized, shunt not triggered, shunt has to be closed manaully)
@@ -182,61 +182,61 @@ void TeensyShuntCtrl::updateRelay()
 }
 
 //---------------------------------------------------------------------------------------------------
-TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid):
-         m_sender(sender),
-         m_canid(canid),
-         m_safe_to_operate(true),
-         m_state(OPEN)
-{
-   // open (de-energize) relay on startup
-   open();
-}
+// TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid):
+//          m_sender(sender),
+//          m_canid(canid),
+//          m_safe_to_operate(true),
+//          m_state(OPEN)
+// {
+//    // open (de-energize) relay on startup
+//    open();
+// }
 
-TeensyRelay::~TeensyRelay()
-{
-   // open (de-energize) relay on shutdown
-   open();
-}
+// TeensyRelay::~TeensyRelay()
+// {
+//    // open (de-energize) relay on shutdown
+//    open();
+// }
 
-void TeensyRelay::setSafeToOperate(bool is_safe)
-{
-   m_safe_to_operate = is_safe;
-   updateRelay();
-}
+// void TeensyRelay::setSafeToOperate(bool is_safe)
+// {
+//    m_safe_to_operate = is_safe;
+//    updateRelay();
+// }
 
-bool TeensyRelay::isSafeToOperate() const
-{
-   return m_safe_to_operate;
-}
+// bool TeensyRelay::isSafeToOperate() const
+// {
+//    return m_safe_to_operate;
+// }
 
-bool TeensyRelay::isClosed() const
-{
-   return m_state == CLOSED;
-}
+// bool TeensyRelay::isClosed() const
+// {
+//    return m_state == CLOSED;
+// }
 
-void TeensyRelay::close()
-{
-      m_sender.sink(can::StandardDataFrame(m_canid, m_close_msg));
-      m_state = CLOSED;
-}
+// void TeensyRelay::close()
+// {
+//       m_sender.sink(can::StandardDataFrame(m_canid, m_close_msg));
+//       m_state = CLOSED;
+// }
 
-void TeensyRelay::open()
-{
-      m_sender.sink(can::StandardDataFrame(m_canid, m_open_msg));
-      m_state = OPEN;
-}
+// void TeensyRelay::open()
+// {
+//       m_sender.sink(can::StandardDataFrame(m_canid, m_open_msg));
+//       m_state = OPEN;
+// }
 
-void TeensyRelay::updateRelay()
-{
-   if (m_safe_to_operate)
-   {
-      close();
-   }
-   else // if (not m_safe_to_operate)
-   {
-      open();
-   }
-}
+// void TeensyRelay::updateRelay()
+// {
+//    if (m_safe_to_operate)
+//    {
+//       close();
+//    }
+//    else // if (not m_safe_to_operate)
+//    {
+//       open();
+//    }
+// }
 
 }
 }

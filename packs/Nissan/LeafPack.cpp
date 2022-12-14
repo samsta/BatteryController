@@ -9,7 +9,7 @@ LeafPack::LeafPack(
             can::FrameSink& sender,
             core::Timer& timer,
             logging::ostream* log):
-   m_safety_shunt(sender, ID_TNSY_DC_SAFE_RLY),
+   m_safety_shunt(sender, ID_TNSY_DC_SHUNT_CTRL),
    m_monitor(m_safety_shunt),
    m_timer(timer),
    m_message_factory(m_monitor, log),

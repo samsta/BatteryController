@@ -85,12 +85,12 @@ public:
    LeafMonitor monitor;
 };
 
-TEST_F(MonitorConstructed, contactorNotDeclaredSafeWithOnlyGoodCellVoltageRange)
-{
-   EXPECT_CALL(contactor, setSafeToOperate(true)).Times(0);
+// TEST_F(MonitorConstructed, contactorNotDeclaredSafeWithOnlyGoodCellVoltageRange)
+// {
+//    EXPECT_CALL(contactor, setSafeToOperate(true)).Times(0);
 
-   monitor.sink(goodCellVoltageRange());
-}
+//    monitor.sink(goodCellVoltageRange());
+// }
 
 // TEST_F(MonitorConstructed, contactorNotDeclaredSafeWithOnlyGoodPackTemperatures)
 // {
