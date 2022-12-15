@@ -11,34 +11,34 @@ using namespace testing;
 namespace packs {
 namespace Nissan {
 
-TEST(TestLeafMultipack1, setsOutputPinsToDefault)
-{
-   NiceMock<mocks::monitor::Monitor>     m_monitor1;
-   NiceMock<mocks::contactor::Contactor> m_contactor1;
-   mocks::core::Timer timer;
-   mocks::core::OutputPin positive_relay;
-   mocks::core::OutputPin negative_relay;
-   mocks::core::OutputPin indicator_led;
-   std::vector<monitor::Monitor*>         m_vmonitor = {&m_monitor1};
-   std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1};
-
-   EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
-   EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
-   EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
-   
-   LeafMultiPack LMP(      m_vmonitor,
-                           m_vcontactor,
-                           timer,
-                           positive_relay,
-                           negative_relay,
-                           indicator_led,
-                           nullptr);
-
-   // expect contactor to open upon destruction
-   EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
-   EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
-   EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
-}
+//TEST(TestLeafMultipack1, setsOutputPinsToDefault)
+//{
+//   NiceMock<mocks::monitor::Monitor>     m_monitor1;
+//   NiceMock<mocks::contactor::Contactor> m_contactor1;
+//   mocks::core::Timer timer;
+//   mocks::core::OutputPin positive_relay;
+//   mocks::core::OutputPin negative_relay;
+//   mocks::core::OutputPin indicator_led;
+//   std::vector<monitor::Monitor*>         m_vmonitor = {&m_monitor1};
+//   std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1};
+//
+//   EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
+//   EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
+//   EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
+//
+//   LeafMultiPack LMP(      m_vmonitor,
+//                           m_vcontactor,
+//                           timer,
+//                           positive_relay,
+//                           negative_relay,
+//                           indicator_led,
+//                           nullptr);
+//
+//   // expect contactor to open upon destruction
+//   EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
+//   EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
+//   EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
+//}
 
 // class TestLeafMultipack1: public Test {
 // public:

@@ -15,6 +15,7 @@ find_package(LibGpiod)
 find_package(Curses)
 
 set(CMAKE_CXX_FLAGS  "-Wall -Werror -Wextra -g -std=c++0x")
+set( CMAKE_CXX_FLAGS " -pthread " )
 
 include(CTest)
 

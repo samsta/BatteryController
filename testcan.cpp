@@ -26,7 +26,7 @@
 #include "core/USBInterface/USBInterface.hpp"
 #include "core/Linux/ConsolePresenter.hpp"
 #include "logging/colors.hpp"
-
+#include "logging/logging.h"
 #include <signal.h>
 
 #define CONSOLE
@@ -34,6 +34,7 @@
 
 using namespace core::libgpiod;
 namespace color = logging::color::ansi;
+using namespace CPlusPlusLogging;
 
 namespace {
    // this code required to catch ctrl-c and cleanly exit the program (open contactors)
@@ -49,6 +50,29 @@ int main(int argc, const char** argv)
    logging::ostream* log = &std::cout;
    std::ofstream logfile;
    
+   // Log message C++ Interface
+   Logger* pLogger = NULL; // Create the object pointer for Logger Class
+   pLogger = Logger::getInstance();
+   pLogger->buffer("first buffer");
+   pLogger->info("INFO");
+   pLogger->alarm("alarm");
+   pLogger->error("error");
+   pLogger->always("always");
+   pLogger->trace("trace");
+   pLogger->debug("debug");
+
+
+   pLogger->updateLogLevel(LOG_LEVEL_INFO);
+
+   pLogger->buffer("second buffer");
+   pLogger->info("INFO");
+   pLogger->alarm("alarm");
+   pLogger->error("error");
+   pLogger->always("always");
+   pLogger->trace("trace");
+   pLogger->debug("debug");
+
+
    // this code required to catch ctrl-c and cleanly exit the program (open contactors)
    struct sigaction action;
    memset(&action, 0, sizeof(struct sigaction));
