@@ -26,12 +26,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // C++ Header File(s)
+#include <logging/logging.hpp>
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
 
 // Code Specific Header Files(s)
-#include "logging.h"
 
 using namespace std;
 using namespace CPlusPlusLogging;

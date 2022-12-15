@@ -26,7 +26,7 @@
 #include "core/USBInterface/USBInterface.hpp"
 #include "core/Linux/ConsolePresenter.hpp"
 #include "logging/colors.hpp"
-#include "logging/logging.h"
+#include "logging/logging.hpp"
 #include <signal.h>
 
 #define CONSOLE
@@ -51,27 +51,9 @@ int main(int argc, const char** argv)
    std::ofstream logfile;
    
    // Log message C++ Interface
-   Logger* pLogger = NULL; // Create the object pointer for Logger Class
+   Logger* pLogger;// = NULL; // Create the object pointer for Logger Class
    pLogger = Logger::getInstance();
-   pLogger->buffer("first buffer");
-   pLogger->info("INFO");
-   pLogger->alarm("alarm");
-   pLogger->error("error");
-   pLogger->always("always");
-   pLogger->trace("trace");
-   pLogger->debug("debug");
-
-
-   pLogger->updateLogLevel(LOG_LEVEL_INFO);
-
-   pLogger->buffer("second buffer");
-   pLogger->info("INFO");
-   pLogger->alarm("alarm");
-   pLogger->error("error");
-   pLogger->always("always");
-   pLogger->trace("trace");
-   pLogger->debug("debug");
-
+   pLogger->info("------------------- BatteryController Started ------------------- ");
 
    // this code required to catch ctrl-c and cleanly exit the program (open contactors)
    struct sigaction action;
@@ -101,7 +83,7 @@ int main(int argc, const char** argv)
 
    // core::USBPort usb_port1(argv[2], epollfd);
    // core::USBPort usb_port2(argv[3], epollfd);
-   core::USBPort usb_port2(argv[2], epollfd);
+   core::USBPort usb_port2(argv[2], epollfd, pLogger);
 
    core::CanPort inverter_port(argv[1], epollfd);
    core::EpollTimer timer(epollfd);

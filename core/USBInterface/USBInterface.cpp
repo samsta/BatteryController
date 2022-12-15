@@ -23,7 +23,7 @@ namespace color = logging::color::ansi;
 
 namespace core {
 
-USBPort::USBPort(const char* name, int epoll_fd):
+USBPort::USBPort(const char* name, int epoll_fd, CPlusPlusLogging::Logger *logg):
     m_unprocessedSize(0),
     m_epoll_fd(epoll_fd),
     m_fd(open_serial_port(name, 9600)),
@@ -37,16 +37,22 @@ USBPort::USBPort(const char* name, int epoll_fd):
     m_log(nullptr),
     m_log_prefix(),
     m_log_color(),
-    m_log_color_reset()
+    m_log_color_reset(),
+    m_logg(logg)
 {
+   std::ostringstream ss;
    struct epoll_event ev;
 
    ev.events = EPOLLIN;
    ev.data.ptr = this;
    if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_fd, &ev) == -1) {
       std::cerr << "ERROR in epoll_ctl(): Failed adding CanPort " << name << " to epoll: " << strerror(errno) << std::endl;
+      ss << "ERROR in epoll_ctl(): Failed adding CanPort " << name << " to epoll: " << strerror(errno);
+      m_logg->error(ss);
       exit(EXIT_FAILURE);
    }
+   ss << "USBPort Initialized: " << name;
+   m_logg->info(ss);
 }
 
 USBPort::~USBPort()

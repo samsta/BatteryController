@@ -6,6 +6,7 @@
 #include "can/FrameSink.hpp"
 #include "core/Linux/EpollHandler.hpp"
 #include "logging/stream.hpp"
+#include <logging/logging.hpp>
 #include <string>
 
 namespace core
@@ -14,7 +15,7 @@ namespace core
 class USBPort: private core::EpollHandler
 {
 public:
-   USBPort(const char* name, int epoll_fd);
+   USBPort(const char* name, int epoll_fd, CPlusPlusLogging::Logger *logg);
    ~USBPort();
 
    void setSinkInbound(unsigned index, can::FrameSink& sink);
@@ -73,6 +74,8 @@ private:
    std::string       m_log_prefix;
    std::string       m_log_color;
    std::string       m_log_color_reset;
+
+   CPlusPlusLogging::Logger* m_logg;
 };
 
 }

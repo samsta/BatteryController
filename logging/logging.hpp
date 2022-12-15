@@ -5,8 +5,8 @@
  *      Author: openonevm
  */
 
-#ifndef LOGGING_LOGGING_H_
-#define LOGGING_LOGGING_H_
+#ifndef LOGGING_LOGGING_HPP_
+#define LOGGING_LOGGING_HPP_
 
 ///////////////////////////////////////////////////////////////////////////////
 // @File Name:     Logger.h                                                  //
@@ -172,4 +172,4 @@ namespace CPlusPlusLogging
 
 
 
-#endif /* LOGGING_LOGGING_H_ */
+#endif /* LOGGING_LOGGING_HPP_ */
