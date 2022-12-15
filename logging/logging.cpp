@@ -47,7 +47,6 @@ Logger::Logger()
    m_LogLevel  = LOG_LEVEL_TRACE;
    m_LogType   = FILE_LOG;
 
-
    int ret=0;
    ret = pthread_mutexattr_settype(&m_Attr, PTHREAD_MUTEX_ERRORCHECK_NP);
    if(ret != 0)
@@ -92,6 +91,12 @@ void Logger::unlock()
 
 void Logger::logIntoFile(std::string& data)
 {
+   // unsigned long pos = m_File.tellp();
+   // if (pos + data.size() > logSize)
+   // {
+	// 	rollLogFiles();	
+   // }
+
    lock();
    m_File << getCurrentTime() << "  " << data << endl;
    unlock();
@@ -348,3 +353,63 @@ void Logger::enableFileLogging()
    m_LogType = FILE_LOG ;
 }
 
+// THIS CODE NEEDS A LOT OF WORK...
+
+// // Interfaces to control roll over mechanism
+// void Logger::updateMaxLogFiles(const ssize_t maxFiles)
+// {
+//    if(maxFiles > 0)
+// 	   maxLogFiles = maxFiles;
+//    else
+// 	   maxLogFiles = MAX_LOG_FILES;
+// }
+
+// void Logger::updateLogSize(const ssize_t size)
+// {
+//    if(size > 0)
+//    	logSize = size;
+//    else
+//       logSize = LOG_FILE_SIZE;
+// }
+
+// // Handle roll over mechanism
+// void Logger::rollLogFiles()
+// {
+//     m_File.close();	
+
+//     if(maxLogFiles > 1)
+//     {
+//          string logFile = logFileName.substr(0, logFileName.length()-4); // removing ".log" from file name
+   
+//          // To check if the maximum files have reached
+//          if(logFilesCount >= maxLogFiles)
+//          {
+//              string deleteFileName = logFile + "_" + to_string(maxLogFiles-1) + ".tar.gz";
+//              remove(deleteFileName.c_str());
+    
+//              logFilesCount--; 	
+//          }
+
+//          // Renaming the files 
+//         for(int i = logFilesCount; i >= 2; --i)
+//        {
+//              string oldLogFileName = logFile + "_" + to_string(i-1) + ".tar.gz";
+//              string newLogFileName = logFile + "_" + to_string(i) + ".tar.gz";
+
+//              rename(oldLogFileName.c_str(), newLogFileName.c_str());
+//          }
+
+//          string cmd = "tar -cf " + logFile + "_1.tar.gz " + logFileName;
+
+//         system(cmd.c_str()); // creating tar file
+//     }
+
+//     remove(logFileName.c_str());
+
+//     m_File.open(logFileName.c_str(), ios::out|ios::app);
+
+//     if(logFilesCount < maxLogFiles)
+//     {
+//         logFilesCount++;
+//     }
+// }

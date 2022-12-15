@@ -1,10 +1,3 @@
-/*
- * logging.h
- *
- *  Created on: Dec 15, 2022
- *      Author: openonevm
- */
-
 #ifndef LOGGING_LOGGING_HPP_
 #define LOGGING_LOGGING_HPP_
 
@@ -35,9 +28,6 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-//#ifndef _LOGGER_H_
-//#define _LOGGER_H_
-
 // C++ Header File(s)
 #include <iostream>
 #include <fstream>
@@ -58,6 +48,12 @@ namespace CPlusPlusLogging
    #define LOG_BUFFER(x)   Logger::getInstance()->buffer(x)
    #define LOG_TRACE(x)    Logger::getInstance()->trace(x)
    #define LOG_DEBUG(x)    Logger::getInstance()->debug(x)
+
+   // Default value for maximum number of log files 
+   #define MAX_LOG_FILES 10
+   
+   // Default size of a log file in bytes
+   #define LOG_FILE_SIZE 3000
 
    // enum for LOG_LEVEL
    typedef enum LOG_LEVEL
@@ -131,6 +127,10 @@ namespace CPlusPlusLogging
          void enableConsoleLogging();
          void enableFileLogging();
 
+         // Interfaces to control roll over mechanism
+         // void updateMaxLogFiles(const ssize_t maxFiles);
+         // void updateLogSize(const ssize_t size);
+
       protected:
          Logger();
          ~Logger();
@@ -145,31 +145,23 @@ namespace CPlusPlusLogging
       private:
          void logIntoFile(std::string& data);
          void logOnConsole(std::string& data);
-//         Logger(const Logger& obj) {}
-//         void operator=(const Logger& obj) {}
+         void rollLogFiles();
 
       private:
          static Logger*          m_Instance;
          std::ofstream           m_File;
 
-#ifdef   WIN32
-         CRITICAL_SECTION        m_Mutex;
-#else
          pthread_mutexattr_t     m_Attr;
          pthread_mutex_t         m_Mutex;
-#endif
 
          LogLevel                m_LogLevel;
          LogType                 m_LogType;
+
+         // unsigned int		 logSize; // Size of a log file in bytes
+         // unsigned int		 maxLogFiles; // Maximum number of log files
+         // unsigned int		 logFilesCount; // Count of existing log files 
    };
 
 } // End of namespace
-
-//#endif // End of _LOGGER_H_
-
-
-
-
-
 
 #endif /* LOGGING_LOGGING_HPP_ */
