@@ -202,9 +202,9 @@ int main(int argc, const char** argv)
          timer,
          multi_battery,
          multi_battery.getMainContactor());
-   can::services::TSUN::MessageFactory inverter_message_factory(inverter, log);
+   can::services::TSUN::MessageFactory inverter_message_factory(inverter, pLogger);
 
-   inverter_port.setupLogger(*log, "<INV OUT>", color::green);
+   inverter_port.setupLogger(*pLogger, "<INV OUT>", color::green);
    inverter_port.setSink(inverter_message_factory);
 
    #ifdef CONSOLE

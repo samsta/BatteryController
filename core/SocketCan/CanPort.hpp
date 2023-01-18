@@ -5,7 +5,7 @@
 
 #include "can/FrameSink.hpp"
 #include "core/Linux/EpollHandler.hpp"
-#include "logging/stream.hpp"
+#include "logging/logging.hpp"
 #include <string>
 
 namespace core
@@ -20,7 +20,7 @@ public:
    void setSink(can::FrameSink& sink);
 
    void setupLogger(
-         logging::ostream& log,
+         CPlusPlusLogging::Logger& log,
          const char* logger_prefix = "",
          const char* logger_color = nullptr);
 
@@ -33,7 +33,7 @@ private:
    std::string     m_name;
    can::FrameSink* m_sink;
 
-   logging::ostream* m_log;
+   CPlusPlusLogging::Logger* m_log;
    std::string       m_log_prefix;
    std::string       m_log_color;
    std::string       m_log_color_reset;

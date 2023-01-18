@@ -77,7 +77,7 @@ void CanPort::setSink(can::FrameSink& sink)
 }
 
 void CanPort::setupLogger(
-      logging::ostream& log,
+      CPlusPlusLogging::Logger& log,
       const char* logger_prefix,
       const char* logger_color)
 {
@@ -117,9 +117,11 @@ void CanPort::handle()
 
 void CanPort::sink(const can::DataFrame& f)
 {
+   std::ostringstream ss;
    if (m_log)
    {
-      *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
+      ss << m_log_color << m_log_prefix << f << m_log_color_reset;
+      m_log->debug(ss);
    }
 
    struct can_frame frame;

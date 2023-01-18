@@ -5,7 +5,7 @@
 
 #include "can/FrameSink.hpp"
 #include "can/messages/Message.hpp"
-#include "logging/stream.hpp"
+#include "logging/logging.hpp"
 
 namespace can {
 namespace services {
@@ -14,13 +14,13 @@ namespace TSUN {
 class MessageFactory: public can::FrameSink
 {
 public:
-   MessageFactory(messages::MessageSink& sink, logging::ostream* log);
+   MessageFactory(messages::MessageSink& sink, CPlusPlusLogging::Logger* log);
 
    virtual void sink(const DataFrame& frame);
 
 private:
    messages::MessageSink& m_sink;
-   logging::ostream* m_log;
+   CPlusPlusLogging::Logger* m_log;
    uint8_t m_message_memory[1024];
 };
 
