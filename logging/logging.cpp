@@ -41,10 +41,10 @@ Logger* Logger::m_Instance = 0;
 // Log file name. File name should be change from here only
 const string logFileName = "MyLogFile.log";
 
-Logger::Logger()
+Logger::Logger(LOG_LEVEL loglevel)
 {
    m_File.open(logFileName.c_str(), ios::out|ios::app);
-   m_LogLevel  = LOG_LEVEL_TRACE;
+   m_LogLevel  = loglevel;
    m_LogType   = FILE_LOG;
 
    int ret=0;
@@ -70,11 +70,11 @@ Logger::~Logger()
    pthread_mutex_destroy(&m_Mutex);
 }
 
-Logger* Logger::getInstance() throw ()
+Logger* Logger::getInstance(LOG_LEVEL loglevel) throw ()
 {
    if (m_Instance == 0)
    {
-      m_Instance = new Logger();
+      m_Instance = new Logger(loglevel);
    }
    return m_Instance;
 }

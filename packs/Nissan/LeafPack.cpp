@@ -8,11 +8,11 @@ namespace Nissan {
 LeafPack::LeafPack(
             can::FrameSink& sender,
             core::Timer& timer,
-            logging::ostream* log):
+            CPlusPlusLogging::Logger* log):
    m_safety_shunt(sender, ID_TNSY_DC_SHUNT_CTRL),
    m_monitor(m_safety_shunt),
    m_timer(timer),
-   m_message_factory(m_monitor, log),
+   m_message_factory(m_monitor, nullptr), // <<<<< log
    m_aggregator(m_message_factory),
    m_poller(sender, timer),
    m_happy_poller(sender, timer),

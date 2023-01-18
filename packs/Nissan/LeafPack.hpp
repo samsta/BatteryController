@@ -9,6 +9,7 @@
 #include "can/services/Nissan/MessageFactory.hpp"
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "can/services/Nissan/HappyPoller.hpp"
+#include "logging/logging.hpp"
 
 namespace packs {
 namespace Nissan {
@@ -19,7 +20,7 @@ public:
    LeafPack(
          can::FrameSink& sender,
          core::Timer& timer,
-         logging::ostream* log);
+         CPlusPlusLogging::Logger* log);
    
    ~LeafPack();
 

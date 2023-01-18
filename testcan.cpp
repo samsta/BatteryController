@@ -34,7 +34,6 @@
 
 using namespace core::libgpiod;
 namespace color = logging::color::ansi;
-using namespace CPlusPlusLogging;
 
 namespace {
    // this code required to catch ctrl-c and cleanly exit the program (open contactors)
@@ -49,11 +48,10 @@ int main(int argc, const char** argv)
 {
    logging::ostream* log = &std::cout;
    std::ofstream logfile;
+   std::ostringstream ss;
    
    // Log message C++ Interface
-   Logger* pLogger;// = NULL; // Create the object pointer for Logger Class
-   pLogger = Logger::getInstance();
-   pLogger->info("------------------- BatteryController Started ------------------- ");
+   CPlusPlusLogging::Logger* pLogger;// = NULL; // Create the object pointer for Logger Class
 
    // this code required to catch ctrl-c and cleanly exit the program (open contactors)
    struct sigaction action;
@@ -64,11 +62,17 @@ int main(int argc, const char** argv)
    sigemptyset(&all_signals);
    sigaddset(&all_signals, SIGINT);
 
-   if (argc != 3 and argc != 4)
+   if (argc != 5)
    {
-      fprintf(stderr, "usage: %s <can_interface_inverter> <usb_port_battery123> [<usb_port_battery456]>\n", argv[0]);
+      fprintf(stderr, "usage: %s <logging level 1-6> <can_interface_inverter> <usb_port_battery123> [<usb_port_battery456]>\n", argv[0]);
       return 1;
    }
+
+   pLogger = CPlusPlusLogging::Logger::getInstance((CPlusPlusLogging::LOG_LEVEL) atoi(argv[1]));
+   //pLogger = CPlusPlusLogging::Logger::getInstance((CPlusPlusLogging::LOG_LEVEL) 6);
+   pLogger->info("------------------- BatteryController Started ------------------- ");
+   ss << "LOG_LEVEL = " << atoi(argv[1]);
+   pLogger->info(ss);
 
    const unsigned MAX_EVENTS = 10;
    struct epoll_event events[MAX_EVENTS];
@@ -83,9 +87,9 @@ int main(int argc, const char** argv)
 
    // core::USBPort usb_port1(argv[2], epollfd);
    // core::USBPort usb_port2(argv[3], epollfd);
-   core::USBPort usb_port2(argv[2], epollfd, pLogger);
+   core::USBPort usb_port2(argv[3], epollfd, pLogger);
 
-   core::CanPort inverter_port(argv[1], epollfd);
+   core::CanPort inverter_port(argv[2], epollfd);
    core::EpollTimer timer(epollfd);
 
    OutputPin positive_relay_1(0, 5, "relay_pos_1");
@@ -147,13 +151,13 @@ int main(int argc, const char** argv)
    packs::Nissan::LeafPack battery_pack_6(
         usb_port2.getSinkOutbound(0),
         timer,
-        log);
+        pLogger);
    vbatterymon.push_back( &battery_pack_6.getMonitor());
 
    packs::Nissan::LeafPack battery_pack_5(
         usb_port2.getSinkOutbound(1),
         timer,
-        log);
+        pLogger);
    vbatterymon.push_back( &battery_pack_5.getMonitor());
 
    // std::vector<monitor::Monitor*> vbatterymon = {
@@ -228,6 +232,8 @@ int main(int argc, const char** argv)
    }
 
    std::cout << "Program EXIT."  << std::endl;
+   pLogger->info("Program EXIT.");
+   pLogger->info("------------------- BatteryController STOPPED ------------------- ");
 
    return 0;
 }
