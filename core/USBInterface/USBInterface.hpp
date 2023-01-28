@@ -15,7 +15,7 @@ namespace core
 class USBPort: private core::EpollHandler
 {
 public:
-   USBPort(const char* name, int epoll_fd, CPlusPlusLogging::Logger *logg);
+   USBPort(const char* name, int epoll_fd, CPlusPlusLogging::Logger* log);
    ~USBPort();
 
    void setSinkInbound(unsigned index, can::FrameSink& sink);
@@ -23,7 +23,7 @@ public:
    can::FrameSink& getSinkOutbound(unsigned index);
 
    void setupLogger(
-         logging::ostream& log,
+         // logging::ostream& log,
          const char* logger_prefix = "",
          const char* logger_color = nullptr);
 
@@ -46,7 +46,7 @@ private:
    public:
       Pack(int fd,
          unsigned index,
-         logging::ostream* m_log
+         CPlusPlusLogging::Logger* m_log
          // ,
          // std::string m_log_prefix,
          // std::string m_log_color,
@@ -55,7 +55,7 @@ private:
    private:
       int m_fd;
       unsigned m_index;
-      logging::ostream* m_log;
+      CPlusPlusLogging::Logger* m_log;
       // std::string       m_log_prefix;
       // std::string       m_log_color;
       // std::string       m_log_color_reset;
@@ -70,12 +70,12 @@ private:
 
    uint32_t HextoDec(unsigned const char *hex, size_t hexlen);
 
-   logging::ostream* m_log;
+   //logging::ostream* m_log;
    std::string       m_log_prefix;
    std::string       m_log_color;
    std::string       m_log_color_reset;
 
-   CPlusPlusLogging::Logger* m_logg;
+   CPlusPlusLogging::Logger* m_log;
 };
 
 }

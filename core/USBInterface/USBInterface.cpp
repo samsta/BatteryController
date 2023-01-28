@@ -23,22 +23,21 @@ namespace color = logging::color::ansi;
 
 namespace core {
 
-USBPort::USBPort(const char* name, int epoll_fd, CPlusPlusLogging::Logger *logg):
+USBPort::USBPort(const char* name, int epoll_fd, CPlusPlusLogging::Logger *log):
     m_unprocessedSize(0),
     m_epoll_fd(epoll_fd),
     m_fd(open_serial_port(name, 9600)),
     m_name(name),
     m_sinkInbound{nullptr, nullptr, nullptr},
     m_packs{
-        {m_fd, 0, m_log},// m_log_prefix, m_log_color, m_log_color_reset},
-        {m_fd, 1, m_log},// m_log_prefix, m_log_color, m_log_color_reset},
-        {m_fd, 2, m_log}//, m_log_prefix, m_log_color, m_log_color_reset}
+        {m_fd, 0, log},// m_log_prefix, m_log_color, m_log_color_reset},
+        {m_fd, 1, log},// m_log_prefix, m_log_color, m_log_color_reset},
+        {m_fd, 2, log}//, m_log_prefix, m_log_color, m_log_color_reset}
     },
-    m_log(nullptr),
     m_log_prefix(),
     m_log_color(),
     m_log_color_reset(),
-    m_logg(logg)
+    m_log(log)
 {
    std::ostringstream ss;
    struct epoll_event ev;
@@ -48,11 +47,11 @@ USBPort::USBPort(const char* name, int epoll_fd, CPlusPlusLogging::Logger *logg)
    if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_fd, &ev) == -1) {
       std::cerr << "ERROR in epoll_ctl(): Failed adding CanPort " << name << " to epoll: " << strerror(errno) << std::endl;
       ss << "ERROR in epoll_ctl(): Failed adding CanPort " << name << " to epoll: " << strerror(errno);
-      m_logg->error(ss);
+      m_log->error(ss);
       exit(EXIT_FAILURE);
    }
    ss << "USBPort Initialized: " << name;
-   m_logg->info(ss);
+   m_log->info(ss);
 }
 
 USBPort::~USBPort()
@@ -69,9 +68,8 @@ void USBPort::setSinkInbound(unsigned index, can::FrameSink& sink)
    m_sinkInbound[index] = &sink;
 }
 
-void USBPort::setupLogger( logging::ostream& log, const char* logger_prefix, const char* logger_color)
+void USBPort::setupLogger( const char* logger_prefix, const char* logger_color)
 {
-   m_log = &log;
    m_log_prefix = logger_prefix;
    if (logger_color)
    {
@@ -87,6 +85,7 @@ void USBPort::handle()
    uint16_t port;
    uint16_t canid;
    struct can_frame frame;
+   char cbuf[1024];
 
    // add the new data to the leftover data from the last read
    bytesread = read_port(m_fd, &m_inBufferUnprocessed[m_unprocessedSize], sizeof(m_inBufferUnprocessed)- m_unprocessedSize - 1);
@@ -98,26 +97,37 @@ void USBPort::handle()
    {
       loopcount++;
       // printf("USBPort br= %d  %.*s\n",m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
-      fflush(stdout);
+      // fflush(stdout);
 
       std::string sbuf((char *)m_inBufferUnprocessed);
       // find DIAGTEST
       findhash = sbuf.find("DIAG");
       if (findhash != std::string::npos)
       {
-         //JFS printf("TEENSY Diagnostic Message: ");
+         std::ostringstream ss;
+         // bool is_info = false;
+         // is this INFO or ERROR?
+         // if (sbuf.find_first_of("INFO") != std::string::npos) is_info = true;
+         // ss << "TEENSY: ";
          findhash = sbuf.find_first_of(0x0a);
          if (findhash != std::string::npos and findhash < sizeof(m_inBufferUnprocessed)) {
-            //JFS printf("%.*s\n", (int)findhash, m_inBufferUnprocessed);
-            //JFS fflush(stdout);
+            printf("TEENSY: %.*s\n", (int)findhash, m_inBufferUnprocessed);
+            fflush(stdout);
+            // sprintf(cbuf, "%.*s", (int)findhash, m_inBufferUnprocessed);
+            // ss << cbuf;
             newhead = findhash + 1;
             m_unprocessedSize = m_unprocessedSize - newhead;
          }
          else
          {
-            printf("Failed to find 0x0a End of Msg\n");//JFS
+            printf("Failed to find 0x0a at end of Diagnostic Msg\n");
+            fflush(stdout);
+            // ss << "Failed to find 0x0a at end of Diagnostic Msg";
+            // is_info = false;
             m_unprocessedSize = 0;
          }
+         // if (is_info) m_log->info(ss);
+         // else m_log->error(ss);
       }
       else
       {
@@ -150,7 +160,9 @@ void USBPort::handle()
                   m_sinkInbound[port-1]->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
                }
                else {
-                  printf("Unexpected CAN msg received on Teensy port %d\n", port);
+                  std::ostringstream ss;
+                  sprintf(cbuf, "Unexpected CAN msg received on Teensy port %d", port);
+                  m_log->error(ss);
                }
             }
             else
@@ -171,10 +183,11 @@ void USBPort::handle()
          else if (findhash != 8)
          {
             // error, discard data
-            std::cerr << "USBPort: ERROR: bad msg format" << std::endl;
-
             // display bad msg 
-            printf("fh= %d  br= %d  %.*s\n", (int)findhash, m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
+            std::ostringstream ss;
+            sprintf(cbuf, "USBPort: Receive ERROR: bad msg format: fh= %d  br= %d  %.*s", (int)findhash, m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
+            ss << cbuf;                        
+            m_log->error(ss);
             m_unprocessedSize = 0;
 
          }
@@ -198,7 +211,7 @@ can::FrameSink& USBPort::getSinkOutbound(unsigned index)
 
 USBPort::Pack::Pack(int fd,
       unsigned index,
-      logging::ostream* log
+      CPlusPlusLogging::Logger* log
       // ,
       // std::string log_prefix,
       // std::string log_color,
@@ -215,11 +228,12 @@ USBPort::Pack::Pack(int fd,
 
 void USBPort::Pack::sink(const can::DataFrame& f)
 {
-//   if (m_log)
-//   {
-//      //  *m_log << m_log_color << m_log_prefix << f << m_log_color_reset << std::endl;
-//      *m_log << "<USB OUT port " << m_index << ">" << f << std::endl;
-//   }
+  if (m_log)
+  {
+      std::ostringstream ss;
+      ss << "<USB OUT port " << m_index << ">" << f;
+      m_log->debug(ss);
+  }
    char msg[100];
    uint8_t uint8msg[26];
 
@@ -246,8 +260,11 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));
    if (x<0)
    {
-      std::cerr << "WRITE TO USB PORT FAILED" << std::endl;
-      fflush(stdout);
+      std::ostringstream ss;
+      ss << "WRITE TO USB PORT FAILED: Port " << m_index;
+      m_log->error(ss);
+      // std::cerr << "WRITE TO USB PORT FAILED" << std::endl;
+      // fflush(stdout);
    }
 }
 

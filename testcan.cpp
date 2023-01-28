@@ -29,8 +29,8 @@
 #include "logging/logging.hpp"
 #include <signal.h>
 
-#define CONSOLE
-// #undef CONSOLE
+//#define CONSOLE
+#undef CONSOLE
 
 using namespace core::libgpiod;
 namespace color = logging::color::ansi;
@@ -176,7 +176,7 @@ int main(int argc, const char** argv)
             &battery_pack_6.getContactor()};
 
    // usb_port1.setupLogger(*log, "<USB1 OUT>", color::cyan);
-   usb_port2.setupLogger(*log, "<USB2 OUT>", color::cyan);
+   usb_port2.setupLogger("<USB2 OUT>", color::cyan);
 
    // usb_port1.setSinkInbound(0, battery_pack_1);
    // usb_port1.setSinkInbound(1, battery_pack_2);
