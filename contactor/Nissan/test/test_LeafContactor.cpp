@@ -30,7 +30,7 @@ TEST(NissanLeafContactor, setsOutputPinsToDefault)
                            positive_relay,
                            negative_relay,
                            indicator_led,
-                           &std::cout);
+                           nullptr);
 
    // expect contactor to open upon destruction
    EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
@@ -51,7 +51,7 @@ public:
                 positive_relay,
                 negative_relay,
                 indicator_led,
-                &std::cout)
+                nullptr)
    {
    }
 

@@ -66,7 +66,8 @@ void MessageFactory::sink(const can::DataFrame& f)
 
    if (m_log)
    {
-      ss << color::bright_blue << "<BAT IN> " << *msg << color::reset;
+      // ss << color::bright_blue << "<BAT IN> " << *msg << color::reset;
+      ss << "<BAT IN> " << *msg;
       m_log->debug(ss);
    }
    m_sink.sink(*msg);

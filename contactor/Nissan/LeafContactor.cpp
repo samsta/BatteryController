@@ -18,7 +18,7 @@ LeafContactor::LeafContactor(
    OutputPin& positive_relay,
    OutputPin& negative_relay,
    OutputPin& indicator,
-   logging::ostream* log):
+   CPlusPlusLogging::Logger* log):
          m_timer(timer),
          m_positive_relay(positive_relay),
          m_negative_relay(negative_relay),
@@ -36,7 +36,9 @@ LeafContactor::~LeafContactor()
 {
    if (m_log)
    {
-	  *m_log << color::red << ">>> opening contractors at destruction" << color::reset << std::endl;
+      std::ostringstream ss;
+      ss << ">>> opening contractors at destruction";
+      m_log->info(ss);
    }
    openBothRelays();
 }
@@ -45,7 +47,9 @@ void LeafContactor::setSafeToOperate(bool is_safe)
 {
    if (m_log)
    {
-      *m_log << color::red << ">>> contactor is " << (is_safe ? "safe" : "unsafe") << " to operate" << color::reset << std::endl;
+      std::ostringstream ss;
+      ss << ">>> contactor is " << (is_safe ? "safe" : "unsafe") << " to operate";
+      m_log->info(ss);
    }
    m_safe_to_operate = is_safe;
    updateRelays();
@@ -81,7 +85,9 @@ void LeafContactor::openBothRelays()
 
    if (m_log)
    {
-      *m_log << color::bright_red << ">>>> contactor opened" << color::reset << std::endl;
+      std::ostringstream ss;
+      ss <<  ">>>> contactor opened";
+      m_log->info(ss);
    }
    m_state = OPEN;
 }
@@ -103,7 +109,9 @@ void LeafContactor::closeNegativeRelay()
    m_state = CLOSING;
    if (m_log)
    {
-      *m_log << color::bright_red << ">>>> contactor closing..." << color::reset << std::endl;
+      std::ostringstream ss;
+      ss << ">>>> contactor closing...";
+      m_log->info(ss);
    }
 
    // the next line delays by DELAY_CLOSE_MS then calls m_delayed_close(callback), m_delayed_close is 
@@ -119,7 +127,9 @@ void LeafContactor::closePositiveRelay()
 
    if (m_log)
    {
-      *m_log << color::bright_red <<  ">>>> contactor closed" << color::reset << std::endl;
+      std::ostringstream ss;
+      ss << ">>>> contactor closed";
+      m_log->info(ss);
    }
    m_state = CLOSED;
 }
@@ -131,7 +141,8 @@ TeensyShuntCtrl::TeensyShuntCtrl(can::FrameSink& sender, uint32_t canid):
          m_safe_to_operate(false),
          m_state(NORMAL)
 {
-   // ensure shunt is closed at startup (relay de-engerized, shunt not triggered, shunt has to be closed manaully)
+   // ensure shunt is closed at startup (relay de-engerized), shunt not triggered,
+   // shunt has to be closed manually (my hand) if it has been triggered
    close();
 }
 

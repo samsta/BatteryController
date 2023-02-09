@@ -42,7 +42,7 @@ private:
    unsigned                               m_pack_silent_counter;
 
    void heartbeatCallback();
-   const uint PACK_CALLBACK_PERIOD_ms = 10000;
+   const uint PACK_CALLBACK_PERIOD_ms = 5000;
    const unsigned PACK_SILENT_TIMEOUT_PERIODS = 3;
 
 };

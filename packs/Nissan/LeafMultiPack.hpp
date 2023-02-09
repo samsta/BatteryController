@@ -5,6 +5,7 @@
 
 #include <math.h>
 #include <vector>
+#include <iostream>
 #include "monitor/Monitor.hpp"
 #include "contactor/Contactor.hpp"
 #include "contactor/Nissan/LeafContactor.hpp"
@@ -23,7 +24,7 @@ public:
                   core::OutputPin& positive_relay,
                   core::OutputPin& negative_relay,
                   core::OutputPin& indicator,
-                  logging::ostream* log = nullptr);
+                  CPlusPlusLogging::Logger *log);
 
    ~LeafMultiPack();
 
@@ -64,7 +65,7 @@ private:
    core::Timer&                        m_timer;
    contactor::Nissan::LeafContactor    m_main_contactor;
 
-   logging::ostream*     m_log;
+   CPlusPlusLogging::Logger* m_log;
 
    core::Callback<LeafMultiPack> m_periodic_callback;
    // bool m_voltages_ok;

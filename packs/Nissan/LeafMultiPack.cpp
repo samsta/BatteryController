@@ -12,7 +12,7 @@ LeafMultiPack::LeafMultiPack(
             core::OutputPin& positive_relay,
             core::OutputPin& negative_relay,
             core::OutputPin& indicator,
-            logging::ostream* log):
+            CPlusPlusLogging::Logger *log):
 
       m_vmonitor(vmonitor),
       m_vsafety_shunt(vsafetyshunt),
@@ -42,7 +42,7 @@ LeafMultiPack::LeafMultiPack(
       m_startup_callback_count(0)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms);
-   // printf("\r\nStatus set to STARTUP.\n\r");
+   m_log->info("mulitpack_status set to STARTUP");
 }
 
 LeafMultiPack::~LeafMultiPack()
@@ -84,21 +84,33 @@ void LeafMultiPack::periodicCallback()
                pack_startup_fail++;
             }
          }
-         // if (m_startup_callback_count<4) printf("\n\n");
-         // printf("\r\nStartup Sequence %2d  Packs Started %2u",
-         //       MAX_STARTUP_COUNT-m_startup_callback_count,
-         //       int(m_vmonitor.size()-pack_startup_fail));
+         std::ostringstream ss;
+         ss << "Startup Sequence:" << m_startup_callback_count << "  Packs Started:"
+               << (int(m_vmonitor.size()-pack_startup_fail));
+         m_log->info(ss);
          if ((pack_startup_fail == 0) ||(m_startup_callback_count > MAX_STARTUP_COUNT))
          {
             // DO WE WANT A REDUCED OPERATION STATUS if pack_startup_fail !=0 ?
             // m_multipack_status = Monitor::REDUCED_OPERATION'
-            // printf("\r\nStatus set to NORMAL_OPERATION.\n\r");
-            // check that there are normal packs (not all packs have failed to startup)
+            // check that there are normal packs (that is, not all packs have failed to startup)
             if (pack_startup_fail < m_vmonitor.size())
             {
                // there are normal packs, close the main contactors
                m_multipack_status = Monitor::NORMAL_OPERATION;
                m_main_contactor.setSafeToOperate(true);
+               std::ostringstream ss;
+               ss <<"multipack_status set to NORMAL_OPERATION";
+               m_log->info(ss);
+            }
+            else
+            {
+               // no packs started, running is pointless
+               m_multipack_status = Monitor::STARTUP_FAILED;
+               m_main_contactor.setSafeToOperate(false);
+               std::ostringstream ss;
+               ss <<"multipack_status set to STARTUP_FAILED";
+               m_log->info(ss);
+
             }
          }
          }

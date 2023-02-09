@@ -11,6 +11,7 @@
 #include "can/StandardDataFrame.hpp"
 #include "logging/stream.hpp"
 #include "can/messages/Nissan/Ids.hpp"
+#include "logging/logging.hpp"
 
 using namespace can::messages::Nissan;
 
@@ -24,7 +25,7 @@ public:
                  core::OutputPin& positive_relay,
                  core::OutputPin& negative_relay,
                  core::OutputPin& indicator,
-                 logging::ostream* log);
+                 CPlusPlusLogging::Logger* log);
 
    ~LeafContactor();
 
@@ -50,7 +51,7 @@ private:
    core::OutputPin&  m_positive_relay;
    core::OutputPin&  m_negative_relay;
    core::OutputPin&  m_indicator;
-   logging::ostream* m_log;
+   CPlusPlusLogging::Logger* m_log;
 
    bool  m_safe_to_operate;
    State m_requested_state;

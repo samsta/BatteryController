@@ -29,8 +29,8 @@
 #include "logging/logging.hpp"
 #include <signal.h>
 
-//#define CONSOLE
-#undef CONSOLE
+#define CONSOLE
+// #undef CONSOLE
 
 using namespace core::libgpiod;
 namespace color = logging::color::ansi;
@@ -69,8 +69,17 @@ int main(int argc, const char** argv)
    }
 
    pLogger = CPlusPlusLogging::Logger::getInstance((CPlusPlusLogging::LOG_LEVEL) atoi(argv[1]));
-   //pLogger = CPlusPlusLogging::Logger::getInstance((CPlusPlusLogging::LOG_LEVEL) 6);
    pLogger->info("------------------- BatteryController Started ------------------- ");
+
+   char ttext[] = "the is a char star";
+   pLogger->info(ttext);
+
+   char tttext[1024]; sprintf(tttext, "fixed length char");
+   pLogger->info(tttext);
+
+   std::string ssstring;
+
+
    ss << "LOG_LEVEL = " << atoi(argv[1]);
    pLogger->info(ss);
 
@@ -195,7 +204,7 @@ int main(int argc, const char** argv)
                      positive_relay_1,
                      negative_relay_1,
                      indicator_led_1,
-                     log);
+                     pLogger);
 
    inverter::TSUN::TSOL_H50K inverter(
          inverter_port,

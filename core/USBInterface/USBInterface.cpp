@@ -108,24 +108,25 @@ void USBPort::handle()
          // bool is_info = false;
          // is this INFO or ERROR?
          // if (sbuf.find_first_of("INFO") != std::string::npos) is_info = true;
-         // ss << "TEENSY: ";
+         ss << "TEENSY: ";
          findhash = sbuf.find_first_of(0x0a);
          if (findhash != std::string::npos and findhash < sizeof(m_inBufferUnprocessed)) {
-            printf("TEENSY: %.*s\n", (int)findhash, m_inBufferUnprocessed);
-            fflush(stdout);
-            // sprintf(cbuf, "%.*s", (int)findhash, m_inBufferUnprocessed);
-            // ss << cbuf;
+            // printf("TEENSY: %.*s\n", (int)findhash, m_inBufferUnprocessed);
+            // fflush(stdout);
+            sprintf(cbuf, "%.*s", (int)findhash, m_inBufferUnprocessed);
+            ss << cbuf;
             newhead = findhash + 1;
             m_unprocessedSize = m_unprocessedSize - newhead;
          }
          else
          {
-            printf("Failed to find 0x0a at end of Diagnostic Msg\n");
-            fflush(stdout);
-            // ss << "Failed to find 0x0a at end of Diagnostic Msg";
+            // printf("Failed to find 0x0a at end of Diagnostic Msg\n");
+            // fflush(stdout);
+            ss << "Failed to find 0x0a at end of Diagnostic Msg";
             // is_info = false;
             m_unprocessedSize = 0;
          }
+         m_log->info(ss);
          // if (is_info) m_log->info(ss);
          // else m_log->error(ss);
       }
