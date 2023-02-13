@@ -120,7 +120,7 @@ void CanPort::sink(const can::DataFrame& f)
    std::ostringstream ss;
    if (m_log)
    {
-      ss << m_log_color << m_log_prefix << f << m_log_color_reset;
+      ss << m_log_prefix << f;
       m_log->debug(ss);
    }
 
