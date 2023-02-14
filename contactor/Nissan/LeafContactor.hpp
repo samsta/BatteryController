@@ -25,7 +25,7 @@ public:
                  core::OutputPin& positive_relay,
                  core::OutputPin& negative_relay,
                  core::OutputPin& indicator,
-                 CPlusPlusLogging::Logger* log);
+                 logging::Logger* log);
 
    ~LeafContactor();
 
@@ -51,7 +51,7 @@ private:
    core::OutputPin&  m_positive_relay;
    core::OutputPin&  m_negative_relay;
    core::OutputPin&  m_indicator;
-   CPlusPlusLogging::Logger* m_log;
+   logging::Logger* m_log;
 
    bool  m_safe_to_operate;
    State m_requested_state;

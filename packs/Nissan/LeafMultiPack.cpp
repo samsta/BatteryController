@@ -12,7 +12,7 @@ LeafMultiPack::LeafMultiPack(
             core::OutputPin& positive_relay,
             core::OutputPin& negative_relay,
             core::OutputPin& indicator,
-            CPlusPlusLogging::Logger *log):
+            logging::Logger *log):
 
       m_vmonitor(vmonitor),
       m_vsafety_shunt(vsafetyshunt),

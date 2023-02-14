@@ -40,7 +40,7 @@ const Message* decode(const can::DataFrame& f, void* mem)
 }
 
 
-MessageFactory::MessageFactory(messages::MessageSink& sink, CPlusPlusLogging::Logger* log):
+MessageFactory::MessageFactory(messages::MessageSink& sink, logging::Logger* log):
    m_sink(sink),
    m_log(log)
 {

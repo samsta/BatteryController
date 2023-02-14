@@ -14,13 +14,13 @@ namespace TSUN {
 class MessageFactory: public can::FrameSink
 {
 public:
-   MessageFactory(messages::MessageSink& sink, CPlusPlusLogging::Logger* log);
+   MessageFactory(messages::MessageSink& sink, logging::Logger* log);
 
    virtual void sink(const DataFrame& frame);
 
 private:
    messages::MessageSink& m_sink;
-   CPlusPlusLogging::Logger* m_log;
+   logging::Logger* m_log;
    uint8_t m_message_memory[1024];
 };
 

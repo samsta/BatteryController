@@ -51,7 +51,7 @@ const Message* decode(const can::DataFrame& f, void* mem)
 }
 
 
-MessageFactory::MessageFactory(messages::Nissan::MessageSink& sink, CPlusPlusLogging::Logger* log):
+MessageFactory::MessageFactory(messages::Nissan::MessageSink& sink, logging::Logger* log):
    m_sink(sink),
    m_log(log)
 {

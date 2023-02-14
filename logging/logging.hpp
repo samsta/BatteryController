@@ -38,7 +38,7 @@
 #include <errno.h>
 #include <pthread.h>
 
-namespace CPlusPlusLogging
+namespace logging
 {
    // Direct Interface for logging into log file or console using MACRO(s)
    // #define LOG_ERROR(x)    Logger::getInstance()->error(x)

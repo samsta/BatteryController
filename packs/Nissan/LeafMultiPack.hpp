@@ -24,7 +24,7 @@ public:
                   core::OutputPin& positive_relay,
                   core::OutputPin& negative_relay,
                   core::OutputPin& indicator,
-                  CPlusPlusLogging::Logger *log);
+                  logging::Logger *log);
 
    ~LeafMultiPack();
 
@@ -65,7 +65,7 @@ private:
    core::Timer&                        m_timer;
    contactor::Nissan::LeafContactor    m_main_contactor;
 
-   CPlusPlusLogging::Logger* m_log;
+   logging ::Logger* m_log;
 
    core::Callback<LeafMultiPack> m_periodic_callback;
    // bool m_voltages_ok;

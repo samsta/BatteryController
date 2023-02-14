@@ -23,7 +23,7 @@ namespace color = logging::color::ansi;
 
 namespace core {
 
-USBPort::USBPort(const char* name, int epoll_fd, CPlusPlusLogging::Logger *log):
+USBPort::USBPort(const char* name, int epoll_fd, logging::Logger *log):
     m_unprocessedSize(0),
     m_epoll_fd(epoll_fd),
     m_fd(open_serial_port(name, 9600)),
@@ -37,7 +37,8 @@ USBPort::USBPort(const char* name, int epoll_fd, CPlusPlusLogging::Logger *log):
     m_log_prefix(),
     m_log_color(),
     m_log_color_reset(),
-    m_log(log)
+    m_log(log),
+    m_class_name(__func__)
 {
    std::ostringstream ss;
    struct epoll_event ev;
@@ -50,7 +51,9 @@ USBPort::USBPort(const char* name, int epoll_fd, CPlusPlusLogging::Logger *log):
       m_log->error(ss);
       exit(EXIT_FAILURE);
    }
-   ss << "USBPort Initialized: " << name;
+   char tttext[1024];
+   sprintf(tttext, "%s:%s:%d  ", m_class_name.c_str(), __func__, __LINE__);
+   ss << tttext << "Initialized: " << name;
    m_log->info(ss);
 }
 
@@ -212,7 +215,7 @@ can::FrameSink& USBPort::getSinkOutbound(unsigned index)
 
 USBPort::Pack::Pack(int fd,
       unsigned index,
-      CPlusPlusLogging::Logger* log
+      logging::Logger* log
       // ,
       // std::string log_prefix,
       // std::string log_color,

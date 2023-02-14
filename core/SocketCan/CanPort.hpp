@@ -20,7 +20,7 @@ public:
    void setSink(can::FrameSink& sink);
 
    void setupLogger(
-         CPlusPlusLogging::Logger& log,
+         logging::Logger& log,
          const char* logger_prefix = "",
          const char* logger_color = nullptr);
 
@@ -33,7 +33,7 @@ private:
    std::string     m_name;
    can::FrameSink* m_sink;
 
-   CPlusPlusLogging::Logger* m_log;
+   logging::Logger* m_log;
    std::string       m_log_prefix;
    std::string       m_log_color;
    std::string       m_log_color_reset;

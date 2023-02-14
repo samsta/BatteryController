@@ -20,7 +20,7 @@ public:
    LeafPack(
          can::FrameSink& sender,
          core::Timer& timer,
-         CPlusPlusLogging::Logger* log);
+         logging::Logger* log);
    
    ~LeafPack();
 
@@ -40,6 +40,7 @@ private:
    can::services::Nissan::HappyPoller     m_happy_poller;
    core::Callback<LeafPack>               m_heartbeat_callback;
    unsigned                               m_pack_silent_counter;
+   logging::Logger               *m_log;
 
    void heartbeatCallback();
    const uint PACK_CALLBACK_PERIOD_ms = 5000;

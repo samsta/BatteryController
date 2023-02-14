@@ -8,11 +8,11 @@ namespace Nissan {
 LeafPack::LeafPack(
             can::FrameSink& sender,
             core::Timer& timer,
-            CPlusPlusLogging::Logger* log):
+            logging::Logger* log):
    m_safety_shunt(sender, ID_TNSY_DC_SHUNT_CTRL),
    m_monitor(m_safety_shunt),
    m_timer(timer),
-   m_message_factory(m_monitor, nullptr), // <<<<< log
+   m_message_factory(m_monitor, log),
    m_aggregator(m_message_factory),
    m_poller(sender, timer),
    m_happy_poller(sender, timer),
@@ -37,7 +37,12 @@ void LeafPack::heartbeatCallback()
    {
       if (m_pack_silent_counter == PACK_SILENT_TIMEOUT_PERIODS)
       {
-         // if (m_log) *m_log << "LeafPack went silent." << std::endl;
+         if (m_log) {
+            char text[1024];
+            sprintf(text, "LeafPack %s: No CAN messages received for %.1f seconds",
+                     "BAT_NAME",float(PACK_SILENT_TIMEOUT_PERIODS * PACK_CALLBACK_PERIOD_ms) / 1000.0);
+            m_log->error(text);
+         }
          m_pack_silent_counter++;
       }
       m_safety_shunt.setSafeToOperate(false);

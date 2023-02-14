@@ -18,7 +18,7 @@ LeafContactor::LeafContactor(
    OutputPin& positive_relay,
    OutputPin& negative_relay,
    OutputPin& indicator,
-   CPlusPlusLogging::Logger* log):
+   logging::Logger* log):
          m_timer(timer),
          m_positive_relay(positive_relay),
          m_negative_relay(negative_relay),

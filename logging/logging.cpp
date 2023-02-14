@@ -34,7 +34,7 @@
 // Code Specific Header Files(s)
 
 using namespace std;
-using namespace CPlusPlusLogging;
+using namespace logging;
 
 Logger* Logger::m_Instance = 0;
 

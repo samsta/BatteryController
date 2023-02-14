@@ -51,7 +51,7 @@ int main(int argc, const char** argv)
    std::ostringstream ss;
    
    // Log message C++ Interface
-   CPlusPlusLogging::Logger* pLogger;// = NULL; // Create the object pointer for Logger Class
+   logging::Logger* pLogger;// = NULL; // Create the object pointer for Logger Class
 
    // this code required to catch ctrl-c and cleanly exit the program (open contactors)
    struct sigaction action;
@@ -68,13 +68,13 @@ int main(int argc, const char** argv)
       return 1;
    }
 
-   pLogger = CPlusPlusLogging::Logger::getInstance((CPlusPlusLogging::LOG_LEVEL) atoi(argv[1]));
+   pLogger = logging::Logger::getInstance((logging::LOG_LEVEL) atoi(argv[1]));
    pLogger->info("------------------- BatteryController Started ------------------- ");
 
    char ttext[] = "the is a char star";
    pLogger->info(ttext);
 
-   char tttext[1024]; sprintf(tttext, "fixed length char");
+   char tttext[1024]; sprintf(tttext, "%s  %s  %d",__func__, __FILE__, __LINE__);
    pLogger->info(tttext);
 
    std::string ssstring;

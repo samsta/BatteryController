@@ -77,7 +77,7 @@ void CanPort::setSink(can::FrameSink& sink)
 }
 
 void CanPort::setupLogger(
-      CPlusPlusLogging::Logger& log,
+      logging::Logger& log,
       const char* logger_prefix,
       const char* logger_color)
 {
