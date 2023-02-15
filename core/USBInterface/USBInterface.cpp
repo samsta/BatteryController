@@ -40,21 +40,23 @@ USBPort::USBPort(const char* name, int epoll_fd, logging::Logger *log):
     m_log(log),
     m_class_name(__func__)
 {
-   std::ostringstream ss;
    struct epoll_event ev;
 
    ev.events = EPOLLIN;
    ev.data.ptr = this;
    if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_fd, &ev) == -1) {
       std::cerr << "ERROR in epoll_ctl(): Failed adding CanPort " << name << " to epoll: " << strerror(errno) << std::endl;
-      ss << "ERROR in epoll_ctl(): Failed adding CanPort " << name << " to epoll: " << strerror(errno);
-      m_log->error(ss);
+      std::string smsg;
+      smsg.append("USBPort: ERROR in epoll_ctl(): Failed adding CanPort ");
+      smsg.append(name);
+      smsg.append(" to epoll: ");
+      smsg.append(strerror(errno));
+      m_log->error(smsg.c_str(), __FILENAME__,__LINE__);
       exit(EXIT_FAILURE);
    }
-   char tttext[1024];
-   sprintf(tttext, "%s:%s:%d  ", m_class_name.c_str(), __func__, __LINE__);
-   ss << tttext << "Initialized: " << name;
-   m_log->info(ss);
+   char msg[1024];
+   sprintf(msg, "USBPort Initialized: %s", m_name.c_str());
+   if (m_log) m_log->info(msg, __FILENAME__, __LINE__);
 }
 
 USBPort::~USBPort()

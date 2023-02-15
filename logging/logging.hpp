@@ -32,11 +32,13 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <string>
+#include <string.h>
 
 // POSIX Socket Header File(s)
 #include <errno.h>
 #include <pthread.h>
+
+#define __FILENAME__ (strrchr(__FILE__,47)+1)
 
 namespace logging
 {
@@ -81,6 +83,7 @@ namespace logging
 
          // Interface for Error Log
          void error(const char* text) throw();
+         void error(const char* text, const char* filename, int linenumber) throw();
          void error(std::string& text) throw();
          void error(std::ostringstream& stream) throw();
 
@@ -101,6 +104,7 @@ namespace logging
 
          // Interface for Info Log
          void info(const char* text) throw();
+         void info(const char* text, const char* filename, int linenumber) throw();
          void info(std::string& text) throw();
          void info(std::ostringstream& stream) throw();
 

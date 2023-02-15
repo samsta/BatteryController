@@ -69,19 +69,11 @@ int main(int argc, const char** argv)
    }
 
    pLogger = logging::Logger::getInstance((logging::LOG_LEVEL) atoi(argv[1]));
-   pLogger->info("------------------- BatteryController Started ------------------- ");
-
-   char ttext[] = "the is a char star";
-   pLogger->info(ttext);
-
-   char tttext[1024]; sprintf(tttext, "%s  %s  %d",__func__, __FILE__, __LINE__);
-   pLogger->info(tttext);
-
-   std::string ssstring;
-
-
-   ss << "LOG_LEVEL = " << atoi(argv[1]);
-   pLogger->info(ss);
+   pLogger->info("------------------- BatteryController Started ------------------- ",__FILENAME__, __LINE__);
+   std::string smsg;
+   smsg.append("LOGGER_LEVEL: ");
+   smsg.append(argv[1]);
+   pLogger->info(smsg);
 
    const unsigned MAX_EVENTS = 10;
    struct epoll_event events[MAX_EVENTS];
@@ -157,13 +149,15 @@ int main(int argc, const char** argv)
    //      timer,
    //      log);
 
-   packs::Nissan::LeafPack battery_pack_6(
+   char BP6[] = "BP6";
+   packs::Nissan::LeafPack battery_pack_6( BP6,
         usb_port2.getSinkOutbound(0),
         timer,
         pLogger);
    vbatterymon.push_back( &battery_pack_6.getMonitor());
 
-   packs::Nissan::LeafPack battery_pack_5(
+   char BP5[] = "BP5";
+   packs::Nissan::LeafPack battery_pack_5( BP5,
         usb_port2.getSinkOutbound(1),
         timer,
         pLogger);

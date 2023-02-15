@@ -5,10 +5,11 @@
 namespace packs {
 namespace Nissan {
 
-LeafPack::LeafPack(
+LeafPack::LeafPack( char *packname,
             can::FrameSink& sender,
             core::Timer& timer,
             logging::Logger* log):
+   m_packname(packname),
    m_safety_shunt(sender, ID_TNSY_DC_SHUNT_CTRL),
    m_monitor(m_safety_shunt),
    m_timer(timer),
@@ -17,9 +18,13 @@ LeafPack::LeafPack(
    m_poller(sender, timer),
    m_happy_poller(sender, timer),
    m_heartbeat_callback(*this, &LeafPack::heartbeatCallback),
-   m_pack_silent_counter(0)
+   m_pack_silent_counter(0),
+   m_log(log)
 {
    m_timer.registerPeriodicCallback(&m_heartbeat_callback, PACK_CALLBACK_PERIOD_ms);
+   char msg[1024];
+   sprintf(msg, "Pack Initialized: %s", m_packname);
+   if (m_log) m_log->info(msg, __FILENAME__, __LINE__);
 }
 
 LeafPack::~LeafPack()

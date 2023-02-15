@@ -138,6 +138,18 @@ void Logger::error(const char* text) throw()
    }
 }
 
+void Logger::error(const char* text, const char* filename, int linenumber) throw()
+{
+   string data;
+   string tmp = std::to_string(linenumber);
+   data.append(text);
+   data.append("  ");
+   data.append(filename);
+   data.append(":");
+   data.append(tmp.c_str());
+   error(data.c_str());
+}
+
 void Logger::error(std::string& text) throw()
 {
    error(text.data());
@@ -250,6 +262,18 @@ void Logger::info(const char* text) throw()
    {
       logOnConsole(data);
    }
+}
+
+void Logger::info(const char* text, const char* filename, int linenumber) throw()
+{
+   string data;
+   string tmp = std::to_string(linenumber);
+   data.append(text);
+   data.append("  ");
+   data.append(filename);
+   data.append(":");
+   data.append(tmp.c_str());
+   info(data.c_str());
 }
 
 void Logger::info(std::string& text) throw()

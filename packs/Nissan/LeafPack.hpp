@@ -18,6 +18,7 @@ class LeafPack: public can::FrameSink
 {
 public:
    LeafPack(
+         char* packname,
          can::FrameSink& sender,
          core::Timer& timer,
          logging::Logger* log);
@@ -31,6 +32,7 @@ public:
 
 private:
 
+   char                                   *m_packname;
    contactor::Nissan::TeensyShuntCtrl     m_safety_shunt;
    monitor::Nissan::LeafMonitor           m_monitor;
    core::Timer&                           m_timer;
@@ -40,7 +42,7 @@ private:
    can::services::Nissan::HappyPoller     m_happy_poller;
    core::Callback<LeafPack>               m_heartbeat_callback;
    unsigned                               m_pack_silent_counter;
-   logging::Logger               *m_log;
+   logging::Logger                        *m_log;
 
    void heartbeatCallback();
    const uint PACK_CALLBACK_PERIOD_ms = 5000;
