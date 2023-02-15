@@ -11,6 +11,7 @@
 #include "can/messages/Nissan/CellVoltageRange.hpp"
 #include "can/messages/Nissan/PackTemperatures.hpp"
 #include "can/messages/Nissan/BatteryPowerLimits.hpp"
+#include "logging/logging.hpp"
 
 namespace contactor {
 class Contactor;
@@ -35,7 +36,10 @@ namespace Nissan {
 class LeafMonitor: public monitor::Monitor, public can::messages::Nissan::MessageSink
 {
 public:
-   explicit LeafMonitor(contactor::Contactor&);
+   explicit LeafMonitor(
+            char *packname,
+            contactor::Contactor&,
+            logging::Logger* log);
 
    virtual void sink(const can::messages::Nissan::Message&);
 
@@ -76,7 +80,9 @@ private:
    void calculateTemperatureLimitFactor(float min, float max);
    void calculateCurrentLimitByVoltage(float min, float max);
 
-   contactor::Contactor& m_safety_shunt;
+   char                    *m_pack_name;
+   contactor::Contactor&   m_safety_shunt;
+   logging::Logger         *m_log;
    bool m_voltages_ok;
    bool m_temperatures_ok;
    Pack_Status m_pack_status;

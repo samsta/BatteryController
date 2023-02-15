@@ -37,7 +37,7 @@ LeafContactor::~LeafContactor()
    if (m_log)
    {
       std::ostringstream ss;
-      ss << ">>> opening contractors at destruction";
+      ss << "LeafContactor: opening contractors at destruction";
       m_log->info(ss);
    }
    openBothRelays();
@@ -48,7 +48,7 @@ void LeafContactor::setSafeToOperate(bool is_safe)
    if (m_log)
    {
       std::ostringstream ss;
-      ss << ">>> contactor is " << (is_safe ? "safe" : "unsafe") << " to operate";
+      ss << "LeafContactor is " << (is_safe ? "safe" : "unsafe") << " to operate";
       m_log->info(ss);
    }
    m_safe_to_operate = is_safe;
@@ -86,7 +86,7 @@ void LeafContactor::openBothRelays()
    if (m_log)
    {
       std::ostringstream ss;
-      ss <<  ">>>> contactor opened";
+      ss <<  "LeafContactor: contactor opened";
       m_log->info(ss);
    }
    m_state = OPEN;
@@ -110,7 +110,7 @@ void LeafContactor::closeNegativeRelay()
    if (m_log)
    {
       std::ostringstream ss;
-      ss << ">>>> contactor closing...";
+      ss << "LeafContactor: closing...";
       m_log->info(ss);
    }
 
@@ -128,16 +128,18 @@ void LeafContactor::closePositiveRelay()
    if (m_log)
    {
       std::ostringstream ss;
-      ss << ">>>> contactor closed";
+      ss << "LeafContactor: contactor closed";
       m_log->info(ss);
    }
    m_state = CLOSED;
 }
 
 //---------------------------------------------------------------------------------------------------
-TeensyShuntCtrl::TeensyShuntCtrl(can::FrameSink& sender, uint32_t canid):
+TeensyShuntCtrl::TeensyShuntCtrl(char *packname, can::FrameSink& sender, uint32_t canid, logging::Logger* log):
+         m_pack_name(packname),
          m_sender(sender),
          m_canid(canid),
+         m_log(log),
          m_safe_to_operate(false),
          m_state(NORMAL)
 {
@@ -172,12 +174,18 @@ void TeensyShuntCtrl::close()
 {
       m_sender.sink(can::StandardDataFrame(m_canid, m_shunt_normal_msg));
       m_state = NORMAL;
+      std::ostringstream ss;
+      ss << "ShuntCtrl: " << m_pack_name << ": shunt de-energized";
+      m_log->info(ss);
 }
 
 void TeensyShuntCtrl::open()
 {
       m_sender.sink(can::StandardDataFrame(m_canid, m_shunt_triggered_msg));
       m_state = TRIGGERED;
+      std::ostringstream ss;
+      ss << "ShuntCtrl: " << m_pack_name << ": SHUNT TRIGGERED";
+      m_log->error(ss);
 }
 
 void TeensyShuntCtrl::updateRelay()

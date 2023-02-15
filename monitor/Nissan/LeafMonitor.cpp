@@ -59,8 +59,13 @@ inline float lower_limit(float value, const float warn_limit, const float critic
 }
 }
 
-LeafMonitor::LeafMonitor(contactor::Contactor& safety_shunt):
+LeafMonitor::LeafMonitor(
+      char *packname,
+      contactor::Contactor& safety_shunt,
+      logging::Logger* log):
+      m_pack_name(packname),
       m_safety_shunt(safety_shunt),
+      m_log(log),
       m_voltages_ok(false),
       m_temperatures_ok(false),
       m_pack_status(STARTUP),
@@ -233,6 +238,11 @@ void LeafMonitor::updateOperationalSafety()
    if (!m_safety_shunt.isSafeToOperate() && m_pack_status == Monitor::STARTUP)
    {
       m_pack_status = Monitor::SHUNT_ACTIVIATED;
+      std::string ss;
+      ss.append("LeafMonitor: ");
+      ss.append(m_pack_name);
+      ss.append(": SHUNT ACTIVIATED during STARTUP");
+      if (m_log) m_log->error(ss.c_str(), __FILENAME__,__LINE__);
       // in multipack shunt safe to operate should be monitored
       // if shunt activated and current !=0, need to alarm or something
    }
@@ -245,12 +255,22 @@ void LeafMonitor::updateOperationalSafety()
       m_pack_status = Monitor::SHUNT_ACTIVIATED;
       // in multipack shunt safe to operate should be monitored
       // if shunt activated and current !=0, need to alarm or something
+      std::string ss;
+      ss.append("LeafMonitor: ");
+      ss.append(m_pack_name);
+      ss.append(": SHUNT ACTIVIATED during NORMAL operation");
+      if (m_log) m_log->error(ss.c_str(), __FILENAME__,__LINE__);
    }
    else if (everything_ok && m_pack_status == Monitor::STARTUP)
    {
       // battery has come right on startup
       m_pack_status = Monitor::NORMAL_OPERATION;
       m_safety_shunt.setSafeToOperate(true);
+      std::string ss;
+      ss.append("LeafMonitor: ");
+      ss.append(m_pack_name);
+      ss.append(": status set to NORMAL, STARTUP completed");
+      if (m_log) m_log->info(ss.c_str(), __FILENAME__,__LINE__);
    }
 }
 

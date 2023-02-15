@@ -70,14 +70,14 @@ TEST(LeafMonitor, contactorDeclaredSafeUponConstruction)
 
    EXPECT_CALL(contactor, setSafeToOperate(false));
 
-   LeafMonitor monitor(contactor);
+   LeafMonitor monitor(nullptr, contactor, nullptr);
 }
 
 
 class MonitorConstructed: public Test
 {
 public:
-   MonitorConstructed(): monitor(contactor)
+   MonitorConstructed(): monitor(nullptr, contactor, nullptr)
    {
    }
 

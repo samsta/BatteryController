@@ -32,7 +32,7 @@ public:
 
 private:
 
-   char                                   *m_packname;
+   char                                   *m_pack_name;
    contactor::Nissan::TeensyShuntCtrl     m_safety_shunt;
    monitor::Nissan::LeafMonitor           m_monitor;
    core::Timer&                           m_timer;

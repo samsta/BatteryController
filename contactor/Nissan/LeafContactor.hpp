@@ -64,7 +64,7 @@ private:
 class TeensyShuntCtrl: public Contactor
 {
 public:
-   TeensyShuntCtrl(can::FrameSink& sender, uint32_t canid);
+   TeensyShuntCtrl(char *packname, can::FrameSink& sender, uint32_t canid, logging::Logger* log);
    ~TeensyShuntCtrl();
 
    virtual void setSafeToOperate(bool);
@@ -81,8 +81,10 @@ private:
 
    void updateRelay();
 
+   char *m_pack_name;
    can::FrameSink&   m_sender;
    uint32_t m_canid;
+   logging::Logger* m_log;
    bool  m_safe_to_operate;
    State m_state;
 

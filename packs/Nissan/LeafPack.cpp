@@ -5,13 +5,14 @@
 namespace packs {
 namespace Nissan {
 
-LeafPack::LeafPack( char *packname,
+LeafPack::LeafPack(
+            char *packname,
             can::FrameSink& sender,
             core::Timer& timer,
             logging::Logger* log):
-   m_packname(packname),
-   m_safety_shunt(sender, ID_TNSY_DC_SHUNT_CTRL),
-   m_monitor(m_safety_shunt),
+   m_pack_name(packname),
+   m_safety_shunt(packname, sender, ID_TNSY_DC_SHUNT_CTRL, log),
+   m_monitor(packname, m_safety_shunt, log),
    m_timer(timer),
    m_message_factory(m_monitor, log),
    m_aggregator(m_message_factory),
@@ -23,13 +24,16 @@ LeafPack::LeafPack( char *packname,
 {
    m_timer.registerPeriodicCallback(&m_heartbeat_callback, PACK_CALLBACK_PERIOD_ms);
    char msg[1024];
-   sprintf(msg, "Pack Initialized: %s", m_packname);
+   sprintf(msg, "LeafPack Initialized: %s", m_pack_name);
    if (m_log) m_log->info(msg, __FILENAME__, __LINE__);
 }
 
 LeafPack::~LeafPack()
 {
    m_timer.deregisterCallback(&m_heartbeat_callback);
+   char msg[1024];
+   sprintf(msg, "LeafPack Distructed: %s", m_pack_name);
+   if (m_log) m_log->info(msg, __FILENAME__, __LINE__);
 }
 
 void LeafPack::heartbeatCallback()
@@ -44,8 +48,8 @@ void LeafPack::heartbeatCallback()
       {
          if (m_log) {
             char text[1024];
-            sprintf(text, "LeafPack %s: No CAN messages received for %.1f seconds",
-                     "BAT_NAME",float(PACK_SILENT_TIMEOUT_PERIODS * PACK_CALLBACK_PERIOD_ms) / 1000.0);
+            sprintf(text, "LeafPack: %s: No CAN messages received for %.1f seconds",
+                     m_pack_name,float(PACK_SILENT_TIMEOUT_PERIODS * PACK_CALLBACK_PERIOD_ms) / 1000.0);
             m_log->error(text);
          }
          m_pack_silent_counter++;

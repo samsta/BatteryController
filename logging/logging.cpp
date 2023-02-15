@@ -155,10 +155,21 @@ void Logger::error(std::string& text) throw()
    error(text.data());
 }
 
+void Logger::error(std::string& text, const char* filename, int linenumber) throw()
+{
+   error(text.data(),filename,linenumber);
+}
+
 void Logger::error(std::ostringstream& stream) throw()
 {
    string text = stream.str();
    error(text.data());
+}
+
+void Logger::error(std::ostringstream& stream, const char* filename, int linenumber) throw()
+{
+   string text = stream.str();
+   error(text.data(),filename,linenumber);
 }
 
 // Interface for Alarm Log
@@ -179,6 +190,18 @@ void Logger::alarm(const char* text) throw()
    }
 }
 
+void Logger::alarm(const char* text, const char* filename, int linenumber) throw()
+{
+   string data;
+   string tmp = std::to_string(linenumber);
+   data.append(text);
+   data.append("  ");
+   data.append(filename);
+   data.append(":");
+   data.append(tmp.c_str());
+   alarm(data.c_str());
+}
+
 void Logger::alarm(std::string& text) throw()
 {
    alarm(text.data());
@@ -188,6 +211,85 @@ void Logger::alarm(std::ostringstream& stream) throw()
 {
    string text = stream.str();
    alarm(text.data());
+}
+
+void Logger::alarm(std::string& text, const char* filename, int linenumber) throw()
+{
+   alarm(text.data(),filename,linenumber);
+}
+
+void Logger::alarm(std::ostringstream& stream, const char* filename, int linenumber) throw()
+{
+   string text = stream.str();
+   alarm(text.data(),filename,linenumber);
+}
+
+// Interface for Info Log
+void Logger::info(const char* text) throw()
+{
+   string data;
+   data.append("[INFO]: ");
+   data.append(text);
+
+   if((m_LogType == FILE_LOG) && (m_LogLevel >= LOG_LEVEL_INFO))
+   {
+      logIntoFile(data);
+   }
+   else if((m_LogType == CONSOLE) && (m_LogLevel >= LOG_LEVEL_INFO))
+   {
+      logOnConsole(data);
+   }
+}
+
+void Logger::info(const char* text, const char* filename, int linenumber) throw()
+{
+   string data;
+   string tmp = std::to_string(linenumber);
+   data.append(text);
+   data.append("  ");
+   data.append(filename);
+   data.append(":");
+   data.append(tmp.c_str());
+   info(data.c_str());
+}
+
+void Logger::info(std::string& text) throw()
+{
+   info(text.data());
+}
+
+void Logger::info(std::string& text, const char* filename, int linenumber) throw()
+{
+   info(text.data(), filename, linenumber);
+}
+
+void Logger::info(std::ostringstream& stream) throw()
+{
+   string text = stream.str();
+   info(text.data());
+}
+
+void Logger::info(std::ostringstream& stream, const char* filename, int linenumber) throw()
+{
+   string text = stream.str();
+   info(text.data(), filename,linenumber);
+}
+
+// Interface for Trace Log
+void Logger::trace(const char* text) throw()
+{
+   string data;
+   data.append("[TRACE]: ");
+   data.append(text);
+
+   if((m_LogType == FILE_LOG) && (m_LogLevel >= LOG_LEVEL_TRACE))
+   {
+      logIntoFile(data);
+   }
+   else if((m_LogType == CONSOLE) && (m_LogLevel >= LOG_LEVEL_TRACE))
+   {
+      logOnConsole(data);
+   }
 }
 
 // Interface for Always Log
@@ -245,63 +347,6 @@ void Logger::buffer(std::ostringstream& stream) throw()
 {
    string text = stream.str();
    buffer(text.data());
-}
-
-// Interface for Info Log
-void Logger::info(const char* text) throw()
-{
-   string data;
-   data.append("[INFO]: ");
-   data.append(text);
-
-   if((m_LogType == FILE_LOG) && (m_LogLevel >= LOG_LEVEL_INFO))
-   {
-      logIntoFile(data);
-   }
-   else if((m_LogType == CONSOLE) && (m_LogLevel >= LOG_LEVEL_INFO))
-   {
-      logOnConsole(data);
-   }
-}
-
-void Logger::info(const char* text, const char* filename, int linenumber) throw()
-{
-   string data;
-   string tmp = std::to_string(linenumber);
-   data.append(text);
-   data.append("  ");
-   data.append(filename);
-   data.append(":");
-   data.append(tmp.c_str());
-   info(data.c_str());
-}
-
-void Logger::info(std::string& text) throw()
-{
-   info(text.data());
-}
-
-void Logger::info(std::ostringstream& stream) throw()
-{
-   string text = stream.str();
-   info(text.data());
-}
-
-// Interface for Trace Log
-void Logger::trace(const char* text) throw()
-{
-   string data;
-   data.append("[TRACE]: ");
-   data.append(text);
-
-   if((m_LogType == FILE_LOG) && (m_LogLevel >= LOG_LEVEL_TRACE))
-   {
-      logIntoFile(data);
-   }
-   else if((m_LogType == CONSOLE) && (m_LogLevel >= LOG_LEVEL_TRACE))
-   {
-      logOnConsole(data);
-   }
 }
 
 void Logger::trace(std::string& text) throw()

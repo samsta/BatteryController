@@ -83,14 +83,27 @@ namespace logging
 
          // Interface for Error Log
          void error(const char* text) throw();
-         void error(const char* text, const char* filename, int linenumber) throw();
          void error(std::string& text) throw();
          void error(std::ostringstream& stream) throw();
+         void error(const char* text, const char* filename, int linenumber) throw();
+         void error(std::string& text, const char* filename, int linenumber) throw();
+         void error(std::ostringstream&, const char* filename, int linenumber) throw();
 
          // Interface for Alarm Log
          void alarm(const char* text) throw();
          void alarm(std::string& text) throw();
          void alarm(std::ostringstream& stream) throw();
+         void alarm(const char* text, const char* filename, int linenumber) throw();
+         void alarm(std::string& text, const char* filename, int linenumber) throw();
+         void alarm(std::ostringstream&, const char* filename, int linenumber) throw();
+
+         // Interface for Info Log
+         void info(const char* text) throw();
+         void info(std::string& text) throw();
+         void info(std::ostringstream& stream) throw();
+         void info(const char* text, const char* filename, int linenumber) throw();
+         void info(std::string& text, const char* filename, int linenumber) throw();
+         void info(std::ostringstream&, const char* filename, int linenumber) throw();
 
          // Interface for Always Log
          void always(const char* text) throw();
@@ -101,12 +114,6 @@ namespace logging
          void buffer(const char* text) throw();
          void buffer(std::string& text) throw();
          void buffer(std::ostringstream& stream) throw();
-
-         // Interface for Info Log
-         void info(const char* text) throw();
-         void info(const char* text, const char* filename, int linenumber) throw();
-         void info(std::string& text) throw();
-         void info(std::ostringstream& stream) throw();
 
          // Interface for Trace log
          void trace(const char* text) throw();
