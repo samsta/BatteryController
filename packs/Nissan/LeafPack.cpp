@@ -42,21 +42,15 @@ void LeafPack::heartbeatCallback()
    // TODO monitor to be sure current is zero after it is triggered
 
    m_pack_silent_counter++;
-   if (m_pack_silent_counter >= PACK_SILENT_TIMEOUT_PERIODS)
+   if (m_pack_silent_counter >= PACK_SILENT_TIMEOUT_PERIODS && m_safety_shunt.isSafeToOperate())
    {
-      if (m_pack_silent_counter == PACK_SILENT_TIMEOUT_PERIODS)
-      {
-         if (m_log) {
-            char text[1024];
-            sprintf(text, "LeafPack: %s: No CAN messages received for %.1f seconds",
-                     m_pack_name,float(PACK_SILENT_TIMEOUT_PERIODS * PACK_CALLBACK_PERIOD_ms) / 1000.0);
-            m_log->alarm(text);
-         }
-         m_pack_silent_counter++;
-      }
+      std::ostringstream ss;
+      ss << "LeafPack: " << m_pack_name << ": No CAN messages received for "
+            << float(PACK_SILENT_TIMEOUT_PERIODS * PACK_CALLBACK_PERIOD_ms) / 1000.0
+            << " seconds";
+      m_log->alarm(ss, __FILENAME__, __LINE__);
       m_safety_shunt.setSafeToOperate(false);
       m_monitor.updateOperationalSafety();
-      return;
    }
 
 }

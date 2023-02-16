@@ -248,7 +248,7 @@ void LeafMonitor::updateOperationalSafety()
    }
 
    bool everything_ok = m_voltages_ok && m_temperatures_ok;
-   if (!everything_ok && m_pack_status != Monitor::STARTUP)
+   if (!everything_ok && m_pack_status == Monitor::NORMAL_OPERATION )
    {
       // everything WAS ok, but now it isn't, trigger the safety shunt
       m_safety_shunt.setSafeToOperate(false);
