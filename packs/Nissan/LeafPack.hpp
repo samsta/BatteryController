@@ -34,6 +34,7 @@ private:
 
    char                                   *m_pack_name;
    contactor::Nissan::TeensyShuntCtrl     m_safety_shunt;
+   contactor::Nissan::TeensyRelay         m_power_relay;
    monitor::Nissan::LeafMonitor           m_monitor;
    core::Timer&                           m_timer;
    can::services::Nissan::MessageFactory  m_message_factory;
@@ -44,9 +45,13 @@ private:
    unsigned                               m_pack_silent_counter;
    logging::Logger                        *m_log;
 
+   bool m_reboot_in_process;
+   unsigned m_reboot_wait_count;
+
    void heartbeatCallback();
    const uint PACK_CALLBACK_PERIOD_ms = 5000;
-   const unsigned PACK_SILENT_TIMEOUT_PERIODS = 3;
+   const unsigned PACK_SILENT_TIMEOUT_PERIODS = 15 * 1000 / PACK_CALLBACK_PERIOD_ms;
+   const unsigned REBOOT_WAIT_PERIODS = 60 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms; 
    const float MAX_SHUNT_OPEN_CURRENT = 0.5;
 };
 

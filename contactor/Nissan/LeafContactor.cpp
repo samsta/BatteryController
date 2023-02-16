@@ -201,61 +201,59 @@ void TeensyShuntCtrl::updateRelay()
 }
 
 //---------------------------------------------------------------------------------------------------
-// TeensyRelay::TeensyRelay(can::FrameSink& sender, uint32_t canid):
-//          m_sender(sender),
-//          m_canid(canid),
-//          m_safe_to_operate(true),
-//          m_state(OPEN)
-// {
-//    // open (de-energize) relay on startup
-//    open();
-// }
+TeensyRelay::TeensyRelay(char *packname, can::FrameSink& sender, uint32_t canid, logging::Logger* log):
+         m_pack_name(packname),
+         m_sender(sender),
+         m_canid(canid),
+         m_log(log),
+         m_state(DE_ENERGIZED)
+{
+   // open (de-energize) relay on startup
+   open();
+}
 
-// TeensyRelay::~TeensyRelay()
-// {
-//    // open (de-energize) relay on shutdown
-//    open();
-// }
+TeensyRelay::~TeensyRelay()
+{
+   // open (de-energize) relay on shutdown
+   open();
+}
 
-// void TeensyRelay::setSafeToOperate(bool is_safe)
-// {
-//    m_safe_to_operate = is_safe;
-//    updateRelay();
-// }
+void TeensyRelay::setState(enum TeensyRelay::State state)
+{
+   m_state = state;
+   if (m_state == ENERGIZED)
+   {
+      close();
+      std::ostringstream ss;
+      ss << "TeensyRelay: " << m_pack_name << ": CLOSED (energized)";
+      m_log->info(ss, __FILENAME__,__LINE__);
+   }
+   else
+   {
+      open();
+      std::ostringstream ss;
+      ss << "TeensyRelay: " << m_pack_name << ": OPEN (de-energized)";
+      m_log->info(ss, __FILENAME__,__LINE__);
+   }
+}
 
-// bool TeensyRelay::isSafeToOperate() const
-// {
-//    return m_safe_to_operate;
-// }
+bool TeensyRelay::isEnergized() const
+{
+   return m_state == ENERGIZED;
+}
 
-// bool TeensyRelay::isClosed() const
-// {
-//    return m_state == CLOSED;
-// }
+void TeensyRelay::close()
+{
+      m_sender.sink(can::StandardDataFrame(m_canid, m_close_msg));
+      m_state = ENERGIZED;
+}
 
-// void TeensyRelay::close()
-// {
-//       m_sender.sink(can::StandardDataFrame(m_canid, m_close_msg));
-//       m_state = CLOSED;
-// }
+void TeensyRelay::open()
+{
+      m_sender.sink(can::StandardDataFrame(m_canid, m_open_msg));
+      m_state = DE_ENERGIZED;
+}
 
-// void TeensyRelay::open()
-// {
-//       m_sender.sink(can::StandardDataFrame(m_canid, m_open_msg));
-//       m_state = OPEN;
-// }
-
-// void TeensyRelay::updateRelay()
-// {
-//    if (m_safe_to_operate)
-//    {
-//       close();
-//    }
-//    else // if (not m_safe_to_operate)
-//    {
-//       open();
-//    }
-// }
 
 }
 }

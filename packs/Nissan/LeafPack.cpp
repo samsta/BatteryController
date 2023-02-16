@@ -12,6 +12,7 @@ LeafPack::LeafPack(
             logging::Logger* log):
    m_pack_name(packname),
    m_safety_shunt(packname, sender, ID_TNSY_DC_SHUNT_CTRL, log),
+   m_power_relay(packname, sender, ID_TNSY_LBC_PWR_RLY, log),
    m_monitor(packname, m_safety_shunt, log),
    m_timer(timer),
    m_message_factory(m_monitor, log),
@@ -20,6 +21,8 @@ LeafPack::LeafPack(
    m_happy_poller(sender, timer),
    m_heartbeat_callback(*this, &LeafPack::heartbeatCallback),
    m_pack_silent_counter(0),
+   m_reboot_in_process(false),
+   m_reboot_wait_count(0),
    m_log(log)
 {
    m_timer.registerPeriodicCallback(&m_heartbeat_callback, PACK_CALLBACK_PERIOD_ms);
@@ -66,6 +69,30 @@ void LeafPack::heartbeatCallback()
          m_safety_shunt.setSafeToOperate(false);
          m_monitor.updateOperationalSafety();
       }
+   }
+
+   // check failsafe status, see if battery needs to be power cycled (aka reboot!)
+   // reboot is the only way to reset failsafe status
+   m_reboot_wait_count++;
+   if ((m_monitor.getFailsafeStatus() & 0b100)
+         && m_reboot_wait_count > REBOOT_WAIT_PERIODS
+         && m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION)
+   {
+      m_reboot_wait_count = 0;
+      m_reboot_in_process = true;
+      std::ostringstream ss;
+      ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
+      m_log->alarm(ss, __FILENAME__, __LINE__);
+      m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
+   }
+   else if (m_reboot_in_process)
+   {
+      m_reboot_in_process = false;
+      std::ostringstream ss;
+      ss << "LeafPack: " << m_pack_name << ": Reboot complete, cannot reboot again for "
+            << REBOOT_WAIT_PERIODS * PACK_CALLBACK_PERIOD_ms / 1000 << " seconds";
+      m_log->alarm(ss, __FILENAME__, __LINE__);
+      m_power_relay.setState(contactor::Nissan::TeensyRelay::DE_ENERGIZED);
    }
 }
 
