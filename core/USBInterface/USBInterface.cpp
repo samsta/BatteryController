@@ -108,7 +108,7 @@ void USBPort::handle()
       std::string sbuf((char *)m_inBufferUnprocessed);
       // find DIAGTEST
       findhash = sbuf.find("DIAG");
-      if (findhash != std::string::npos)
+      if ((findhash != std::string::npos) && (findhash < STD_MSG_SIZE))
       {
          // bool is_info = false;
          // is this INFO or ERROR?
