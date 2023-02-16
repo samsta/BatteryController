@@ -140,7 +140,7 @@ TeensyShuntCtrl::TeensyShuntCtrl(char *packname, can::FrameSink& sender, uint32_
          m_sender(sender),
          m_canid(canid),
          m_log(log),
-         m_safe_to_operate(false),
+         m_safe_to_operate(true),
          m_state(NORMAL)
 {
    // ensure shunt is closed at startup (relay de-engerized), shunt not triggered,
@@ -176,7 +176,7 @@ void TeensyShuntCtrl::close()
       m_state = NORMAL;
       std::ostringstream ss;
       ss << "ShuntCtrl: " << m_pack_name << ": shunt de-energized";
-      m_log->info(ss);
+      m_log->info(ss, __FILENAME__,__LINE__);
 }
 
 void TeensyShuntCtrl::open()
@@ -185,7 +185,7 @@ void TeensyShuntCtrl::open()
       m_state = TRIGGERED;
       std::ostringstream ss;
       ss << "ShuntCtrl: " << m_pack_name << ": SHUNT TRIGGERED";
-      m_log->error(ss);
+      m_log->alarm(ss, __FILENAME__,__LINE__);
 }
 
 void TeensyShuntCtrl::updateRelay()

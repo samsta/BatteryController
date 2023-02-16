@@ -51,12 +51,13 @@ USBPort::USBPort(const char* name, int epoll_fd, logging::Logger *log):
       smsg.append(name);
       smsg.append(" to epoll: ");
       smsg.append(strerror(errno));
-      m_log->error(smsg.c_str(), __FILENAME__,__LINE__);
+      m_log->error(smsg, __FILENAME__,__LINE__);
       exit(EXIT_FAILURE);
    }
-   char msg[1024];
-   sprintf(msg, "USBPort Initialized: %s", m_name.c_str());
-   if (m_log) m_log->info(msg, __FILENAME__, __LINE__);
+   std::string ss;
+   ss.append("USBPort Initialized: ");
+   ss.append(m_name);
+   if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
 }
 
 USBPort::~USBPort()
@@ -90,7 +91,7 @@ void USBPort::handle()
    uint16_t port;
    uint16_t canid;
    struct can_frame frame;
-   char cbuf[1024];
+   char cbuf[2048];
 
    // add the new data to the leftover data from the last read
    bytesread = read_port(m_fd, &m_inBufferUnprocessed[m_unprocessedSize], sizeof(m_inBufferUnprocessed)- m_unprocessedSize - 1);
@@ -109,17 +110,21 @@ void USBPort::handle()
       findhash = sbuf.find("DIAG");
       if (findhash != std::string::npos)
       {
-         std::ostringstream ss;
          // bool is_info = false;
          // is this INFO or ERROR?
          // if (sbuf.find_first_of("INFO") != std::string::npos) is_info = true;
-         ss << "TEENSY: ";
          findhash = sbuf.find_first_of(0x0a);
          if (findhash != std::string::npos and findhash < sizeof(m_inBufferUnprocessed)) {
             // printf("TEENSY: %.*s\n", (int)findhash, m_inBufferUnprocessed);
             // fflush(stdout);
-            sprintf(cbuf, "%.*s", (int)findhash, m_inBufferUnprocessed);
-            ss << cbuf;
+            if (findhash < (sizeof(cbuf)-100))
+            {
+               sprintf(cbuf, "TEENSY:  %.*s", (int)findhash, m_inBufferUnprocessed);
+            }
+            else
+            {
+               sprintf(cbuf,"TEENSY:  MESSAGE OVERSIZE, CAN'T BE DISPLAYED");
+            }
             newhead = findhash + 1;
             m_unprocessedSize = m_unprocessedSize - newhead;
          }
@@ -127,11 +132,11 @@ void USBPort::handle()
          {
             // printf("Failed to find 0x0a at end of Diagnostic Msg\n");
             // fflush(stdout);
-            ss << "Failed to find 0x0a at end of Diagnostic Msg";
+            sprintf(cbuf, "TEENSY: Failed to find 0x0a at end of Diagnostic Msg");
             // is_info = false;
             m_unprocessedSize = 0;
          }
-         m_log->info(ss);
+         m_log->alarm(cbuf,__FILENAME__,__LINE__);
          // if (is_info) m_log->info(ss);
          // else m_log->error(ss);
       }
@@ -166,9 +171,8 @@ void USBPort::handle()
                   m_sinkInbound[port-1]->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
                }
                else {
-                  std::ostringstream ss;
-                  sprintf(cbuf, "Unexpected CAN msg received on Teensy port %d", port);
-                  m_log->error(ss);
+                  sprintf(cbuf, "USBPORT: Unexpected CAN msg received on Teensy port %d", port);
+                  m_log->error(cbuf,__FILENAME__,__LINE__);
                }
             }
             else
@@ -190,10 +194,16 @@ void USBPort::handle()
          {
             // error, discard data
             // display bad msg 
-            std::ostringstream ss;
-            sprintf(cbuf, "USBPort: Receive ERROR: bad msg format: fh= %d  br= %d  %.*s", (int)findhash, m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
-            ss << cbuf;                        
-            m_log->error(ss);
+            if (findhash < (sizeof(cbuf)-100))
+            {
+               sprintf(cbuf, "USBPort: Receive ERROR: bad msg format: fh= %d  br= %d  %.*s", (int)findhash, m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
+            }
+            else
+            {
+               sprintf(cbuf,"USBPort: Receive ERROR: bad msg format: MESSAGE OVERSIZE, CAN'T BE DISPLAYED");
+            }
+
+            m_log->error(cbuf, __FILENAME__,__LINE__);
             m_unprocessedSize = 0;
 
          }
@@ -268,7 +278,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    {
       std::ostringstream ss;
       ss << "WRITE TO USB PORT FAILED: Port " << m_index;
-      m_log->error(ss);
+      m_log->error(ss, __FILENAME__,__LINE__);
       // std::cerr << "WRITE TO USB PORT FAILED" << std::endl;
       // fflush(stdout);
    }
