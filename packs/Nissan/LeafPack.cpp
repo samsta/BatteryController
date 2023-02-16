@@ -50,7 +50,7 @@ void LeafPack::heartbeatCallback()
             char text[1024];
             sprintf(text, "LeafPack: %s: No CAN messages received for %.1f seconds",
                      m_pack_name,float(PACK_SILENT_TIMEOUT_PERIODS * PACK_CALLBACK_PERIOD_ms) / 1000.0);
-            m_log->error(text);
+            m_log->alarm(text);
          }
          m_pack_silent_counter++;
       }

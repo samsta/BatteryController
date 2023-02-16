@@ -87,7 +87,7 @@ void USBPort::setupLogger( const char* logger_prefix, const char* logger_color)
 void USBPort::handle()
 {
    uint bytesread;
-   size_t findhash;
+   size_t findhash,findinfo;
    uint16_t port;
    uint16_t canid;
    struct can_frame frame;
@@ -102,24 +102,23 @@ void USBPort::handle()
    while (m_unprocessedSize >= STD_MSG_SIZE and loopcount < 100)
    {
       loopcount++;
-      // printf("USBPort br= %d  %.*s\n",m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
-      // fflush(stdout);
-
       std::string sbuf((char *)m_inBufferUnprocessed);
       // find DIAGTEST
       findhash = sbuf.find("DIAG");
       if ((findhash != std::string::npos) && (findhash < STD_MSG_SIZE))
       {
-         // bool is_info = false;
+         bool is_info = false;
          // is this INFO or ERROR?
-         // if (sbuf.find_first_of("INFO") != std::string::npos) is_info = true;
+         findinfo = sbuf.find_first_of("INFO");
+         if (findinfo != std::string::npos && findinfo < 10)
+         {
+            is_info = true;
+         } 
          findhash = sbuf.find_first_of(0x0a);
          if (findhash != std::string::npos and findhash < sizeof(m_inBufferUnprocessed)) {
-            // printf("TEENSY: %.*s\n", (int)findhash, m_inBufferUnprocessed);
-            // fflush(stdout);
             if (findhash < (sizeof(cbuf)-100))
             {
-               sprintf(cbuf, "TEENSY:  %.*s", (int)findhash, m_inBufferUnprocessed);
+               sprintf(cbuf, "TEENSY:  %.*s", (int)findhash-1, m_inBufferUnprocessed);
             }
             else
             {
@@ -136,9 +135,8 @@ void USBPort::handle()
             // is_info = false;
             m_unprocessedSize = 0;
          }
-         m_log->alarm(cbuf,__FILENAME__,__LINE__);
-         // if (is_info) m_log->info(ss);
-         // else m_log->error(ss);
+         if (is_info) m_log->info(cbuf,__FILENAME__,__LINE__);
+         else m_log->error(cbuf,__FILENAME__,__LINE__);
       }
       else
       {

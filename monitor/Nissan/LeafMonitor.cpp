@@ -242,7 +242,7 @@ void LeafMonitor::updateOperationalSafety()
       ss.append("LeafMonitor: ");
       ss.append(m_pack_name);
       ss.append(": SHUNT ACTIVIATED during STARTUP");
-      if (m_log) m_log->error(ss.c_str(), __FILENAME__,__LINE__);
+      if (m_log) m_log->alarm(ss.c_str(), __FILENAME__,__LINE__);
       // in multipack shunt safe to operate should be monitored
       // if shunt activated and current !=0, need to alarm or something
    }
@@ -259,7 +259,7 @@ void LeafMonitor::updateOperationalSafety()
       ss.append("LeafMonitor: ");
       ss.append(m_pack_name);
       ss.append(": SHUNT ACTIVIATED during NORMAL operation");
-      if (m_log) m_log->error(ss.c_str(), __FILENAME__,__LINE__);
+      if (m_log) m_log->alarm(ss.c_str(), __FILENAME__,__LINE__);
    }
    else if (everything_ok && m_pack_status == Monitor::STARTUP)
    {
