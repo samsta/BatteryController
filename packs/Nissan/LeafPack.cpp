@@ -38,7 +38,8 @@ LeafPack::~LeafPack()
 
 void LeafPack::heartbeatCallback()
 {
-   // monitor the heartbeat, if it goes dead, trigger the safety shunt
+   // monitor the heartbeat, aka make sure we are receiving CAN messages
+   // from the pack, if it goes dead, trigger the safety shunt
    // TODO monitor to be sure current is zero after it is triggered
 
    m_pack_silent_counter++;
@@ -52,7 +53,20 @@ void LeafPack::heartbeatCallback()
       m_safety_shunt.setSafeToOperate(false);
       m_monitor.updateOperationalSafety();
    }
-
+   else if (!m_safety_shunt.isSafeToOperate())
+   {
+      // check the current is zero when the shut is triggered (actually, check that it is a small value as
+      // the current measurement is not accurate)
+      float x =1.1;
+      if (m_monitor.getCurrent() > MAX_SHUNT_OPEN_CURRENT)
+      {
+         std::ostringstream ss;
+         ss << "LeafPack: " << m_pack_name << ": SHUNT ALREADY TRIGGERED BUT CURRENT NOT ZERO.  CHECK SHUNT OPERATION.";
+         m_log->error(ss, __FILENAME__, __LINE__);
+         m_safety_shunt.setSafeToOperate(false);
+         m_monitor.updateOperationalSafety();
+      }
+   }
 }
 
 monitor::Monitor& LeafPack::getMonitor()

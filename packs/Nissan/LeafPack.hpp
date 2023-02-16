@@ -47,7 +47,7 @@ private:
    void heartbeatCallback();
    const uint PACK_CALLBACK_PERIOD_ms = 5000;
    const unsigned PACK_SILENT_TIMEOUT_PERIODS = 3;
-
+   const float MAX_SHUNT_OPEN_CURRENT = 0.5;
 };
 
 }
