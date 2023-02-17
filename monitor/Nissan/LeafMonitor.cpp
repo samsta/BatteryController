@@ -265,7 +265,6 @@ void LeafMonitor::updateOperationalSafety()
    {
       // battery has come right on startup
       m_pack_status = Monitor::NORMAL_OPERATION;
-      m_safety_shunt.setSafeToOperate(true);
       std::string ss;
       ss.append("LeafMonitor: ");
       ss.append(m_pack_name);
