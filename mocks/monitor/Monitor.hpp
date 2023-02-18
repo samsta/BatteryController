@@ -11,6 +11,7 @@ class Monitor: public ::monitor::Monitor
 public:
 
    MOCK_METHOD(Pack_Status, getPackStatus, (), (const));
+   MOCK_METHOD(void, setPackStatus, (Pack_Status), ());
    MOCK_METHOD(float, getVoltage, (), (const));
    MOCK_METHOD(float, getCurrent, (), (const));
    MOCK_METHOD(float, getTemperature, (), (const));

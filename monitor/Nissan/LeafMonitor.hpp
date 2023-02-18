@@ -47,6 +47,7 @@ public:
 
    // monitor::Monitor
    virtual Monitor::Pack_Status getPackStatus() const;
+   virtual void setPackStatus(Pack_Status packstat);
    virtual float getVoltage() const;
    virtual float getCurrent() const;
    virtual float getTemperature() const;
@@ -67,8 +68,9 @@ public:
    virtual const char* getManufacturerName() const;
    virtual const char* getBatteryName() const;
    
-   uint32_t getVoltTempStatus() const;
-   uint32_t getFailsafeStatus() const;
+   virtual uint32_t getVoltTempStatus() const;
+   virtual uint32_t getFailsafeStatus() const;
+   std::string getAlarmConditionText() const;
 
 private:
    void process(const can::messages::Nissan::CellVoltageRange&);
@@ -77,8 +79,8 @@ private:
    void process(const can::messages::Nissan::BatteryStatus&);
    void process(const can::messages::Nissan::BatteryPowerLimits&);
 
-   void calculateTemperatureLimitFactor(float min, float max);
-   void calculateCurrentLimitByVoltage(float min, float max);
+   // void calculateTemperatureLimitFactor(float min, float max);
+   // void calculateCurrentLimitByVoltage(float min, float max);
 
    char                    *m_pack_name;
    contactor::Contactor&   m_safety_shunt;

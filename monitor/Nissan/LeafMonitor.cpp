@@ -242,24 +242,30 @@ void LeafMonitor::updateOperationalSafety()
       ss.append("LeafMonitor: ");
       ss.append(m_pack_name);
       ss.append(": SHUNT ACTIVIATED during STARTUP");
-      if (m_log) m_log->alarm(ss.c_str(), __FILENAME__,__LINE__);
-      // in multipack shunt safe to operate should be monitored
-      // if shunt activated and current !=0, need to alarm or something
+      if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);
    }
 
    bool everything_ok = m_voltages_ok && m_temperatures_ok;
    if (!everything_ok && m_pack_status == Monitor::NORMAL_OPERATION )
    {
+      // report an alarm about the issue
+      std::string s1;
+      s1.append("LeafMonitor: ");
+      s1.append(m_pack_name);
+      s1.append(":  Alarm Condition(s) Present:");
+      s1.append(getAlarmConditionText());
+      if (m_log) m_log->alarm(s1, __FILENAME__,__LINE__);
+
       // everything WAS ok, but now it isn't, trigger the safety shunt
       m_safety_shunt.setSafeToOperate(false);
       m_pack_status = Monitor::SHUNT_ACTIVIATED;
       // in multipack shunt safe to operate should be monitored
       // if shunt activated and current !=0, need to alarm or something
-      std::string ss;
-      ss.append("LeafMonitor: ");
-      ss.append(m_pack_name);
-      ss.append(": SHUNT ACTIVIATED during NORMAL operation");
-      if (m_log) m_log->alarm(ss.c_str(), __FILENAME__,__LINE__);
+      std::string s2;
+      s2.append("LeafMonitor: ");
+      s2.append(m_pack_name);
+      s2.append(": SHUNT ACTIVIATED during NORMAL operation");
+      if (m_log) m_log->alarm(s2, __FILENAME__,__LINE__);
    }
    else if (everything_ok && m_pack_status == Monitor::STARTUP)
    {
@@ -273,14 +279,14 @@ void LeafMonitor::updateOperationalSafety()
    }
 }
 
-// void LeafMonitor::setPackStatus(Monitor::Pack_Status p)
-// {
-//    m_pack_status = p;
-// }
-
 Monitor::Pack_Status LeafMonitor::getPackStatus() const
 {
    return m_pack_status;
+}
+
+void LeafMonitor::setPackStatus(Monitor::Pack_Status p)
+{
+   m_pack_status = p;
 }
 
 float LeafMonitor::getVoltage() const
@@ -382,5 +388,16 @@ uint32_t LeafMonitor::getFailsafeStatus() const
 {
 	return m_failsafe_status;
 }
+
+std::string LeafMonitor::getAlarmConditionText() const
+{
+
+   std::string ss;
+   ss.append(m_pack_name);
+   ss.append(":  Alarm Condition(s) Present:");
+   ss.append(":\n\t\t\talarm1 \n\t\t\t alarm2");
+   return ss;
+}
+
 }
 }

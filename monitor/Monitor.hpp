@@ -24,6 +24,8 @@ public:
    };
 
    virtual Pack_Status getPackStatus() const = 0;
+   // virtual uint setPackStatus(Pack_Status p) = 0;
+   virtual void setPackStatus(Pack_Status p) = 0;
    virtual float getVoltage() const = 0;
    virtual float getCurrent() const = 0;
    virtual float getTemperature() const = 0;

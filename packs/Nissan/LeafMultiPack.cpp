@@ -179,6 +179,11 @@ monitor::Monitor::Pack_Status LeafMultiPack::getPackStatus() const
    return m_multipack_status;
 }
 
+void LeafMultiPack::setPackStatus(Monitor::Pack_Status p)
+{
+   m_multipack_status = p;
+}
+
 uint32_t LeafMultiPack::getFailsafeStatus() const
 {
 	return m_vmonitor[0]->getFailsafeStatus();
