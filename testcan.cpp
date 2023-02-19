@@ -103,19 +103,19 @@ int main(int argc, const char** argv)
    core::ConsolePresenter console(timer, vbatterymon);
    if (console.isOperational())
    {
-      logfile.open("log.txt", std::ios_base::openmode::_S_app);
-      if (logfile.good())
-      {
-         log = &logfile;
-      }
-      else
-      {
-         std::cerr << "Failed opening logfile log.txt: " << strerror(errno) << std::endl;
-      }
+      // logfile.open("log.txt", std::ios_base::openmode::_S_app);
+      // if (logfile.good())
+      // {
+      //    log = &logfile;
+      // }
+      // else
+      // {
+      //    std::cerr << "Failed opening logfile log.txt: " << strerror(errno) << std::endl;
+      // }
    }
    else
    {
-      std::cerr << "Don't have a terminal to run console presenter, so I'll proceed logging to stdout" << std::endl;
+      std::cerr << "Don't have a terminal to run console presenter" << std::endl;
    }
    #endif
 

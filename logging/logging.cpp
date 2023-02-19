@@ -39,7 +39,7 @@ using namespace logging;
 Logger* Logger::m_Instance = 0;
 
 // Log file name. File name should be change from here only
-const string logFileName = "MyLogFile.log";
+const string logFileName = "BatteryController.log";
 
 Logger::Logger(LOG_LEVEL loglevel)
 {
