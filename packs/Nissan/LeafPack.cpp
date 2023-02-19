@@ -21,6 +21,7 @@ LeafPack::LeafPack(
    m_happy_poller(sender, timer),
    m_heartbeat_callback(*this, &LeafPack::heartbeatCallback),
    m_pack_silent_counter(0),
+   m_startup_count(0),
    m_reboot_in_process(false),
    m_reboot_wait_count(0),
    m_log(log)
@@ -41,10 +42,42 @@ LeafPack::~LeafPack()
 
 void LeafPack::heartbeatCallback()
 {
+
+   // startup: battery must 'come right' in a fix period of time
+   // 'come right' = receive good voltage and temp readings
+   switch (m_monitor.getPackStatus()) {
+
+      case monitor::Monitor::STARTUP:
+         m_startup_count++;
+         if (m_startup_count >= MAX_STARTUP_COUNT)
+         {
+            m_safety_shunt.setSafeToOperate(false);
+            m_monitor.setPackStatus(monitor::Monitor::SHUNT_ACTIVIATED);
+            std::string s2;
+            s2.append("LeafPack: ");
+            s2.append(m_pack_name);
+            s2.append(": Startup time exceeded: SHUNT ACTIVIATED");
+            if (m_log) m_log->alarm(s2, __FILENAME__,__LINE__);
+            std::string s1;
+            s1.append("LeafPack: ");
+            s1.append(m_pack_name);
+            s1.append(":  Alarm Condition(s) Present:");
+            s1.append(m_monitor.getAlarmConditionText());
+            if (m_log) m_log->alarm(s1, __FILENAME__,__LINE__);
+         }
+         break;
+
+      case monitor::Monitor::NORMAL_OPERATION:
+      case monitor::Monitor::STARTUP_FAILED:
+      case monitor::Monitor::SHUNT_ACTIVIATED:
+      case monitor::Monitor::SHUNT_ACT_FAILED:
+      case monitor::Monitor::SHUTDOWN:
+      default:
+         break;
+   }
+
    // monitor the heartbeat, aka make sure we are receiving CAN messages
    // from the pack, if it goes dead, trigger the safety shunt
-   // TODO monitor to be sure current is zero after it is triggered
-
    m_pack_silent_counter++;
    if (m_pack_silent_counter >= PACK_SILENT_TIMEOUT_PERIODS && m_safety_shunt.isSafeToOperate())
    {
@@ -60,9 +93,9 @@ void LeafPack::heartbeatCallback()
    {
       // check the current is zero when the shut is triggered (actually, check that it is a small value as
       // the current measurement is not accurate)
-      float x =1.1;
       if (m_monitor.getCurrent() > MAX_SHUNT_OPEN_CURRENT)
       {
+         m_monitor.setPackStatus(monitor::Monitor::SHUNT_ACT_FAILED);
          std::ostringstream ss;
          ss << "LeafPack: " << m_pack_name << ": SHUNT ALREADY TRIGGERED BUT CURRENT NOT ZERO.  CHECK SHUNT OPERATION.";
          m_log->error(ss, __FILENAME__, __LINE__);

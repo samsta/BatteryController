@@ -6,7 +6,7 @@ namespace monitor {
 logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*> vm)
 {
    unsigned i;
-   char text[20];
+   char text[64];
 
    static auto start = std::chrono::system_clock::now();
    auto nowtime = std::chrono::system_clock::now();
@@ -129,6 +129,31 @@ char* getPackStatusText(Monitor::Pack_Status p, char *text)
       break;
    default:
       sprintf(text,"invalid");
+   }
+
+   return text;
+}
+
+char* getPackStatusTEXT(Monitor::Pack_Status p, char *text)
+{
+   switch (p) {
+   case Monitor::Pack_Status::STARTUP:
+      sprintf(text,"STARTUP");
+      break;
+   case Monitor::Pack_Status::NORMAL_OPERATION:
+      sprintf(text,"NORMAL_OPERATION");
+      break;
+   case Monitor::Pack_Status::SHUNT_ACTIVIATED:
+      sprintf(text,"SHUNT_ACTIVIATED");
+      break;
+   case Monitor::Pack_Status::SHUNT_ACT_FAILED:
+      sprintf(text,"SHUNT_ACT_FAILED");
+      break;
+   case Monitor::Pack_Status::SHUTDOWN:
+      sprintf(text,"SHUTDOWN");
+      break;
+   default:
+      sprintf(text,"INVALID");
    }
 
    return text;

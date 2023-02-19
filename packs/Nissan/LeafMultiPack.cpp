@@ -133,45 +133,6 @@ void LeafMultiPack::periodicCallback()
       default:
          break;
    }
-
-
-
-   // if (m_multipack_status == Monitor::STARTUP)
-   // {  
-   //    m_startup_callback_count++;
-
-   //    // see if any packs have failed to achieive normality
-   //    uint pack_startup_fail = 0;
-   //    for (uint i=0; i<m_vmonitor.size(); i++)
-   //    {
-   //       if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
-   //       {
-   //          pack_startup_fail++;
-   //       }
-   //    }
-   //    if (pack_startup_fail == 0)
-   //    {
-   //       // all packs have achieved normality
-   //       m_multipack_status = Monitor::NORMAL_OPERATION;
-   //    }
-   //    // if (m_startup_callback_count > MAX_STARTUP_COUNT && pack_startup_fail > 0)
-   //    // {
-   //    //    // DO WANT A REDUCED OPERATION STATUS? 
-   //    //    m_multipack_status = Monitor::REDUCED_OPERATION'
-   //    // }
-   // }
-
-   // else if (m_multipack_status == Monitor::NORMAL_OPERATION)
-   // {
-   // for (uint i=0; i<m_vmonitor.size(); i++)
-   // {
-   //    if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION)
-   //    {
-
-   //    }
-   // }
-
-   // }
 }
 
 monitor::Monitor::Pack_Status LeafMultiPack::getPackStatus() const

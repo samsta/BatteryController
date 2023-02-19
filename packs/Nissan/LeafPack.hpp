@@ -43,16 +43,18 @@ private:
    can::services::Nissan::HappyPoller     m_happy_poller;
    core::Callback<LeafPack>               m_heartbeat_callback;
    unsigned                               m_pack_silent_counter;
+   unsigned                               m_startup_count;
    logging::Logger                        *m_log;
 
    bool m_reboot_in_process;
    unsigned m_reboot_wait_count;
 
    void heartbeatCallback();
-   const uint PACK_CALLBACK_PERIOD_ms = 5000;
-   const unsigned PACK_SILENT_TIMEOUT_PERIODS = 15 * 1000 / PACK_CALLBACK_PERIOD_ms;
-   const unsigned REBOOT_WAIT_PERIODS = 60 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms; 
+   const uint PACK_CALLBACK_PERIOD_ms = 1000;
+   const uint PACK_SILENT_TIMEOUT_PERIODS = 15 * 1000 / PACK_CALLBACK_PERIOD_ms;
+   const uint REBOOT_WAIT_PERIODS = 60 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms; 
    const float MAX_SHUNT_OPEN_CURRENT = 0.5;
+   const uint MAX_STARTUP_COUNT = 10 * 1000 / PACK_CALLBACK_PERIOD_ms;
 };
 
 }

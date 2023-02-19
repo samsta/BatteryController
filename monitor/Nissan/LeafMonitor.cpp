@@ -237,7 +237,7 @@ void LeafMonitor::updateOperationalSafety()
 {
    if (!m_safety_shunt.isSafeToOperate() && m_pack_status == Monitor::STARTUP)
    {
-      m_pack_status = Monitor::SHUNT_ACTIVIATED;
+      setPackStatus(Monitor::SHUNT_ACTIVIATED);
       std::string ss;
       ss.append("LeafMonitor: ");
       ss.append(m_pack_name);
@@ -258,9 +258,7 @@ void LeafMonitor::updateOperationalSafety()
 
       // everything WAS ok, but now it isn't, trigger the safety shunt
       m_safety_shunt.setSafeToOperate(false);
-      m_pack_status = Monitor::SHUNT_ACTIVIATED;
-      // in multipack shunt safe to operate should be monitored
-      // if shunt activated and current !=0, need to alarm or something
+      setPackStatus(Monitor::SHUNT_ACTIVIATED);
       std::string s2;
       s2.append("LeafMonitor: ");
       s2.append(m_pack_name);
@@ -270,7 +268,7 @@ void LeafMonitor::updateOperationalSafety()
    else if (everything_ok && m_pack_status == Monitor::STARTUP)
    {
       // battery has come right on startup
-      m_pack_status = Monitor::NORMAL_OPERATION;
+      setPackStatus(Monitor::NORMAL_OPERATION);
       std::string ss;
       ss.append("LeafMonitor: ");
       ss.append(m_pack_name);
@@ -287,6 +285,11 @@ Monitor::Pack_Status LeafMonitor::getPackStatus() const
 void LeafMonitor::setPackStatus(Monitor::Pack_Status p)
 {
    m_pack_status = p;
+
+   std::ostringstream ss;
+   char text[64];
+   ss << "LeafMonitor: " << m_pack_name << ": pack status set to " << getPackStatusTEXT(p,text);
+   m_log->info(ss, __FILENAME__, __LINE__);
 }
 
 float LeafMonitor::getVoltage() const
