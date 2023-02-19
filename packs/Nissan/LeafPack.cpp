@@ -21,7 +21,7 @@ LeafPack::LeafPack(
    m_happy_poller(sender, timer),
    m_heartbeat_callback(*this, &LeafPack::heartbeatCallback),
    m_pack_silent_counter(0),
-   m_startup_count(0),
+   m_startup_counter(0),
    m_reboot_in_process(false),
    m_reboot_wait_count(0),
    m_log(log)
@@ -42,14 +42,13 @@ LeafPack::~LeafPack()
 
 void LeafPack::heartbeatCallback()
 {
-
-   // startup: battery must 'come right' in a fix period of time
+   // startup: battery must 'come right' in a set period of time
    // 'come right' = receive good voltage and temp readings
    switch (m_monitor.getPackStatus()) {
 
       case monitor::Monitor::STARTUP:
-         m_startup_count++;
-         if (m_startup_count >= MAX_STARTUP_COUNT)
+         m_startup_counter++;
+         if (m_startup_counter >= MAX_STARTUP_COUNT)
          {
             m_safety_shunt.setSafeToOperate(false);
             m_monitor.setPackStatus(monitor::Monitor::SHUNT_ACTIVIATED);
@@ -58,12 +57,23 @@ void LeafPack::heartbeatCallback()
             s2.append(m_pack_name);
             s2.append(": Startup time exceeded: SHUNT ACTIVIATED");
             if (m_log) m_log->alarm(s2, __FILENAME__,__LINE__);
-            std::string s1;
-            s1.append("LeafPack: ");
-            s1.append(m_pack_name);
-            s1.append(":  Alarm Condition(s) Present:");
-            s1.append(m_monitor.getAlarmConditionText());
-            if (m_log) m_log->alarm(s1, __FILENAME__,__LINE__);
+            if (m_startup_counter >= m_pack_silent_counter)
+            {
+               std::string s3;
+               s3.append("LeafPack: ");
+               s3.append(m_pack_name);
+               s3.append(": No CAN messages received from Pack during startup.");
+               if (m_log) m_log->alarm(s3, __FILENAME__,__LINE__);
+            }
+            else
+            {
+               std::string s1;
+               s1.append("LeafPack: ");
+               s1.append(m_pack_name);
+               s1.append(":  Alarm Condition(s) Present:");
+               s1.append(m_monitor.getAlarmConditionText());
+               if (m_log) m_log->alarm(s1, __FILENAME__,__LINE__);
+            }
          }
          break;
 

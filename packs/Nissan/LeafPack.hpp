@@ -43,7 +43,7 @@ private:
    can::services::Nissan::HappyPoller     m_happy_poller;
    core::Callback<LeafPack>               m_heartbeat_callback;
    unsigned                               m_pack_silent_counter;
-   unsigned                               m_startup_count;
+   unsigned                               m_startup_counter;
    logging::Logger                        *m_log;
 
    bool m_reboot_in_process;

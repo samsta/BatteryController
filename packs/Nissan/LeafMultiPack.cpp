@@ -88,13 +88,12 @@ void LeafMultiPack::periodicCallback()
             }
          }
          std::ostringstream ss;
-         ss << "Startup Sequence:" << m_startup_callback_count << "  Packs Started:"
+         ss << "LeafMultiPack: Startup Sequence:" << m_startup_callback_count << "  Packs Started:"
                << (int(m_vmonitor.size()-pack_startup_fail));
          m_log->info(ss);
          if ((pack_startup_fail == 0) ||(m_startup_callback_count > MAX_STARTUP_COUNT))
          {
             // DO WE WANT A REDUCED OPERATION STATUS if pack_startup_fail !=0 ?
-            // m_multipack_status = Monitor::REDUCED_OPERATION'
             // check that there are normal packs (that is, not all packs have failed to startup)
             if (pack_startup_fail < m_vmonitor.size())
             {

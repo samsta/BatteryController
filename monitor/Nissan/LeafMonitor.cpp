@@ -397,8 +397,25 @@ std::string LeafMonitor::getAlarmConditionText() const
 
    std::string ss;
    ss.append(m_pack_name);
-   ss.append(":  Alarm Condition(s) Present:");
-   ss.append(":\n\t\t\talarm1 \n\t\t\t alarm2");
+   ss.append(":  Alarm Condition(s) Present:\n\t\t\t\t\t");
+   if (m_volt_temp_status & MAX_TEMP_MISSING) {
+      ss.append("MAX_TEMP_SENSORS_MISSING\n\t\t\t\t\t");
+   }
+   if (m_volt_temp_status & CRIT_LOW_TEMP) {
+      ss.append("CRITICALLY_LOW_TEMPERATURE\n\t\t\t\t\t");
+   }
+   if (m_volt_temp_status & CRIT_HIGH_TEMP) {
+      ss.append("CRITICALLY_HIGH_TEMPERATURE\n\t\t\t\t\t");
+   }
+   if (m_volt_temp_status & CRIT_SPREAD_VOLT) {
+      ss.append("CRITICALLY_HIGH_VOLTAGE_SPREAD\n\t\t\t\t\t");
+   }
+   if (m_volt_temp_status & CRIT_LOW_VOLT) {
+      ss.append("CRITICALLY_LOW_VOLTAGE\n\t\t\t\t\t");
+   }
+   if (m_volt_temp_status & CRIT_HIGH_VOLT) {
+      ss.append("CRITICALLY_HIGH_VOLTAGE\n\t\t\t\t\t");
+   }
    return ss;
 }
 
