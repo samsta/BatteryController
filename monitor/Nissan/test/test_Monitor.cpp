@@ -64,11 +64,12 @@ PackTemperatures goodPackTemperatures()
    return allPackTemperatures(ARBITRARY_SAFE_TEMPERATURE);
 }
 
-TEST(LeafMonitor, contactorDeclaredSafeUponConstruction)
+// contactor is a shunt, it is NOW safe by default at startup
+TEST(LeafMonitor, contactorNotModifedUponConstruction)
 {
    NiceMock<mocks::contactor::Contactor> contactor;
 
-   EXPECT_CALL(contactor, setSafeToOperate(false));
+   EXPECT_CALL(contactor, setSafeToOperate(_)).Times(0);
 
    LeafMonitor monitor(nullptr, contactor, nullptr);
 }

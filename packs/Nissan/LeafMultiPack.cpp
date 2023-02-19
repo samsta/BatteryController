@@ -42,10 +42,10 @@ LeafMultiPack::LeafMultiPack(
       m_startup_callback_count(0)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms);
-   m_log->info("LeafMultiPack: status set to STARTUP");
+   if (m_log) m_log->info("LeafMultiPack: status set to STARTUP");
    std::ostringstream ss;
    ss << "LeafMultiPack: pack startup wait time = " << CALLBACK_PERIOD_ms * MAX_STARTUP_COUNT / 1000 << " seconds";
-   m_log->info(ss);
+   if (m_log) m_log->info(ss);
 }
 
 LeafMultiPack::~LeafMultiPack()
@@ -90,7 +90,7 @@ void LeafMultiPack::periodicCallback()
          std::ostringstream ss;
          ss << "LeafMultiPack: Startup Sequence:" << m_startup_callback_count << "  Packs Started:"
                << (int(m_vmonitor.size()-pack_startup_fail));
-         m_log->info(ss);
+         if (m_log) m_log->info(ss);
          if ((pack_startup_fail == 0) ||(m_startup_callback_count > MAX_STARTUP_COUNT))
          {
             // DO WE WANT A REDUCED OPERATION STATUS if pack_startup_fail !=0 ?
@@ -100,14 +100,14 @@ void LeafMultiPack::periodicCallback()
                // there are normal packs, close the main contactors
                m_multipack_status = Monitor::NORMAL_OPERATION;
                m_main_contactor.setSafeToOperate(true);
-               m_log->info("LeafMultiPack: status set to NORMAL_OPERATION");
+               if (m_log) m_log->info("LeafMultiPack: status set to NORMAL_OPERATION");
             }
             else
             {
                // no packs started, running is pointless
                m_multipack_status = Monitor::STARTUP_FAILED;
                m_main_contactor.setSafeToOperate(false);
-               m_log->info("LeafMultiPack: status set to STARTUP_FAILED");
+               if (m_log) m_log->info("LeafMultiPack: status set to STARTUP_FAILED");
 
             }
          }

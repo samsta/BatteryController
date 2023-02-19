@@ -289,7 +289,7 @@ void LeafMonitor::setPackStatus(Monitor::Pack_Status p)
    std::ostringstream ss;
    char text[64];
    ss << "LeafMonitor: " << m_pack_name << ": pack status set to " << getPackStatusTEXT(p,text);
-   m_log->info(ss, __FILENAME__, __LINE__);
+   if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
 }
 
 float LeafMonitor::getVoltage() const

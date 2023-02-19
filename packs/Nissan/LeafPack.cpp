@@ -95,7 +95,7 @@ void LeafPack::heartbeatCallback()
       ss << "LeafPack: " << m_pack_name << ": No CAN messages received for "
             << float(PACK_SILENT_TIMEOUT_PERIODS * PACK_CALLBACK_PERIOD_ms) / 1000.0
             << " seconds";
-      m_log->alarm(ss, __FILENAME__, __LINE__);
+      if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
       m_safety_shunt.setSafeToOperate(false);
       m_monitor.updateOperationalSafety();
    }
@@ -108,7 +108,7 @@ void LeafPack::heartbeatCallback()
          m_monitor.setPackStatus(monitor::Monitor::SHUNT_ACT_FAILED);
          std::ostringstream ss;
          ss << "LeafPack: " << m_pack_name << ": SHUNT ALREADY TRIGGERED BUT CURRENT NOT ZERO.  CHECK SHUNT OPERATION.";
-         m_log->error(ss, __FILENAME__, __LINE__);
+         if (m_log) m_log->error(ss, __FILENAME__, __LINE__);
          m_safety_shunt.setSafeToOperate(false);
          m_monitor.updateOperationalSafety();
       }
@@ -125,7 +125,7 @@ void LeafPack::heartbeatCallback()
       m_reboot_in_process = true;
       std::ostringstream ss;
       ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
-      m_log->alarm(ss, __FILENAME__, __LINE__);
+      if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
       m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
    }
    else if (m_reboot_in_process)
@@ -134,7 +134,7 @@ void LeafPack::heartbeatCallback()
       std::ostringstream ss;
       ss << "LeafPack: " << m_pack_name << ": Reboot complete, cannot reboot again for "
             << REBOOT_WAIT_PERIODS * PACK_CALLBACK_PERIOD_ms / 1000 << " seconds";
-      m_log->alarm(ss, __FILENAME__, __LINE__);
+      if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
       m_power_relay.setState(contactor::Nissan::TeensyRelay::DE_ENERGIZED);
    }
 }

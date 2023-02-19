@@ -176,7 +176,7 @@ void TeensyShuntCtrl::close()
       m_state = NORMAL;
       std::ostringstream ss;
       ss << "ShuntCtrl: " << m_pack_name << ": shunt de-energized";
-      m_log->info(ss, __FILENAME__,__LINE__);
+      if (m_log) m_log->info(ss, __FILENAME__,__LINE__);
 }
 
 void TeensyShuntCtrl::open()
@@ -185,7 +185,7 @@ void TeensyShuntCtrl::open()
       m_state = TRIGGERED;
       std::ostringstream ss;
       ss << "ShuntCtrl: " << m_pack_name << ": SHUNT TRIGGERED";
-      m_log->alarm(ss, __FILENAME__,__LINE__);
+      if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);
 }
 
 void TeensyShuntCtrl::updateRelay()
@@ -226,14 +226,14 @@ void TeensyRelay::setState(enum TeensyRelay::State state)
       close();
       std::ostringstream ss;
       ss << "TeensyRelay: " << m_pack_name << ": CLOSED (energized)";
-      m_log->info(ss, __FILENAME__,__LINE__);
+      if (m_log) m_log->info(ss, __FILENAME__,__LINE__);
    }
    else
    {
       open();
       std::ostringstream ss;
       ss << "TeensyRelay: " << m_pack_name << ": OPEN (de-energized)";
-      m_log->info(ss, __FILENAME__,__LINE__);
+      if (m_log) m_log->info(ss, __FILENAME__,__LINE__);
    }
 }
 

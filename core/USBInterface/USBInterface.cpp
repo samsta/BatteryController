@@ -51,7 +51,7 @@ USBPort::USBPort(const char* name, int epoll_fd, logging::Logger *log):
       smsg.append(name);
       smsg.append(" to epoll: ");
       smsg.append(strerror(errno));
-      m_log->error(smsg, __FILENAME__,__LINE__);
+      if (m_log) m_log->error(smsg, __FILENAME__,__LINE__);
       exit(EXIT_FAILURE);
    }
    std::string ss;
@@ -135,8 +135,10 @@ void USBPort::handle()
             // is_info = false;
             m_unprocessedSize = 0;
          }
-         if (is_info) m_log->info(cbuf,__FILENAME__,__LINE__);
-         else m_log->error(cbuf,__FILENAME__,__LINE__);
+         if (m_log) {
+            if (is_info) m_log->info(cbuf,__FILENAME__,__LINE__);
+            else m_log->error(cbuf,__FILENAME__,__LINE__);
+         }
       }
       else
       {
@@ -170,7 +172,7 @@ void USBPort::handle()
                }
                else {
                   sprintf(cbuf, "USBPORT: Unexpected CAN msg received on Teensy port %d", port);
-                  m_log->error(cbuf,__FILENAME__,__LINE__);
+                  if (m_log) m_log->error(cbuf,__FILENAME__,__LINE__);
                }
             }
             else
@@ -201,7 +203,7 @@ void USBPort::handle()
                sprintf(cbuf,"USBPort: Receive ERROR: bad msg format: MESSAGE OVERSIZE, CAN'T BE DISPLAYED");
             }
 
-            m_log->error(cbuf, __FILENAME__,__LINE__);
+            if (m_log) m_log->error(cbuf, __FILENAME__,__LINE__);
             m_unprocessedSize = 0;
 
          }
@@ -246,7 +248,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
   {
       std::ostringstream ss;
       ss << "<USB OUT port " << m_index << ">" << f;
-      m_log->debug(ss);
+      if (m_log) m_log->debug(ss);
   }
    char msg[100];
    uint8_t uint8msg[26];
@@ -276,7 +278,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    {
       std::ostringstream ss;
       ss << "WRITE TO USB PORT FAILED: Port " << m_index;
-      m_log->error(ss, __FILENAME__,__LINE__);
+      if (m_log) m_log->error(ss, __FILENAME__,__LINE__);
       // std::cerr << "WRITE TO USB PORT FAILED" << std::endl;
       // fflush(stdout);
    }
