@@ -309,7 +309,7 @@ float LeafMonitor::getTemperature() const
 
 float LeafMonitor::getSocPercent() const
 {
-   return m_soc_percent;
+   // return m_soc_percent;
    return 22.0;
 }
 
