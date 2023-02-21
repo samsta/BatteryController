@@ -95,7 +95,8 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
                       .setPileVoltage(m_monitor.getVoltage())
                       .setPileCurrent(m_monitor.getCurrent())
                       .setBMS2ndTemp(m_monitor.getTemperature())
-                      .setSOC(unsigned(m_monitor.getSocPercent()))
+                      .setSOC(unsigned(22))
+                     //  .setSOC(unsigned(m_monitor.getSocPercent()))
                       .setSOH(unsigned(m_monitor.getSohPercent())));
 
           m_sender.sink(BatteryLimits()
