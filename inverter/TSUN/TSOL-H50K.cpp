@@ -22,7 +22,7 @@ namespace TSUN {
 namespace {
 
 
-const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 2;
+const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 6;
 
 BatteryStatus localBatteryStatus(BatteryStatus::BASIC_STATUS_IDLE);
 
@@ -32,7 +32,7 @@ TSOL_H50K::TSOL_H50K(can::FrameSink& sender,
                      core::Timer& timer,
                      monitor::Monitor& monitor,
                      contactor::Contactor& contactor,
-                     logging::ostream* log):
+                     logging::Logger *log):
       m_sender(sender),
       m_timer(timer),
       m_monitor(monitor),
@@ -57,7 +57,7 @@ void TSOL_H50K::periodicCallback()
    {
       if (m_inverter_silent_counter == INVERTER_SILENT_TIMEOUT_PERIODS)
       {
-         if (m_log) *m_log << "Inverter went silent." << std::endl;
+         if (m_log) m_log->alarm("Inverter CAN bus has gone silent", __FILENAME__, __LINE__);
          m_inverter_silent_counter++;
       }
       m_contactor.open();
@@ -76,7 +76,9 @@ void TSOL_H50K::sink(const Message& message)
       return;
    }
 
+   // TODO add message when inverter starts sending again after being silent
    m_inverter_silent_counter = 0;
+   
 }
 
 
@@ -148,10 +150,10 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
 }
 
 
-unsigned TSOL_H50K::getInverterSilentCounter()
-{
-   return m_inverter_silent_counter;
-}
+// unsigned TSOL_H50K::getInverterSilentCounter()
+// {
+//    return m_inverter_silent_counter;
+// }
 
 }
 }

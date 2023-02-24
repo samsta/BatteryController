@@ -204,7 +204,8 @@ int main(int argc, const char** argv)
          inverter_port,
          timer,
          multi_battery,
-         multi_battery.getMainContactor());
+         multi_battery.getMainContactor(),
+         pLogger);
    can::services::TSUN::MessageFactory inverter_message_factory(inverter, pLogger);
 
    inverter_port.setupLogger(*pLogger, "<INV OUT>", color::green);

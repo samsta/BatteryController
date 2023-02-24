@@ -7,6 +7,7 @@
 #include "core/Timer.hpp"
 #include "inverter/Inverter.hpp"
 #include "monitor/Monitor.hpp"
+#include "logging/logging.hpp"
 
 namespace can {
 namespace messages {
@@ -25,7 +26,7 @@ public:
                    core::Timer& timer,
                    monitor::Monitor& monitor,
                    contactor::Contactor& contactor,
-                   logging::ostream* log = nullptr);
+                   logging::Logger *log);
    ~TSOL_H50K();
 
    virtual void sink(const can::messages::Message&);
@@ -38,11 +39,11 @@ private:
    core::Timer&          m_timer;
    monitor::Monitor&     m_monitor;
    contactor::Contactor& m_contactor;
-   logging::ostream*     m_log;
+   logging::Logger       *m_log;
    core::Callback<TSOL_H50K> m_periodic_callback;
    unsigned              m_inverter_silent_counter;
 
-   unsigned getInverterSilentCounter();
+   // unsigned getInverterSilentCounter();
 };
 
 }

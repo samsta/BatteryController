@@ -52,7 +52,7 @@ TEST(TSOL_H50K, registersAndDeregistersTimerCallbackFor5000MillisecondPeriod)
    {
       core::Invokable* invokable;
       EXPECT_CALL(timer, registerPeriodicCallback(_, 5000)).WillOnce(SaveArg<0>(&invokable));
-      TSOL_H50K sbs(sink, timer, monitor, contactor);
+      TSOL_H50K sbs(sink, timer, monitor, contactor, nullptr);
       EXPECT_CALL(timer, deregisterCallback(invokable));
    }
 }
@@ -62,7 +62,7 @@ class TSOL_H50KAtStartupTest: public Test
 public:
    TSOL_H50KAtStartupTest():
       constructor_expectation(timer, &inverter_alive_callback),
-      sbs(sink, timer, monitor, contactor)
+      sbs(sink, timer, monitor, contactor, nullptr)
    {
    }
 
