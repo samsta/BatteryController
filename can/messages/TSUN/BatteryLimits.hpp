@@ -4,7 +4,7 @@
 #define CAN_MESSAGES_TSUN_BATTERYLIMITS_HPP_
 
 #include "can/StandardDataFrame.hpp"
-#include "can/messages/SMA/Ids.hpp"
+#include "can/messages/TSUN/Ids.hpp"
 
 namespace can {
 namespace messages {
