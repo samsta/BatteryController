@@ -20,7 +20,8 @@ BatteryStatus::BatteryStatus():
 
 // BatteryStatus::BatteryStatus(BatteryStatusFlag battery_status1, BatteryStatusFlag battery_status2 = BatteryStatus::BatteryStatusFlag::BSF_CLEAR):
 BatteryStatus::BatteryStatus(BatteryStatusFlag battery_status1):
-   StandardDataFrame(ID_BATTERY_STATUS, "0000000000000000")
+   StandardDataFrame(ID_BATTERY_STATUS, "0000000000000000"),
+   m_battery_status(0)
 {
    m_alarms[BatteryStatus::AlarmLevel::MILD] = 0;
    m_alarms[BatteryStatus::AlarmLevel::MODERATE] = 0;
@@ -53,30 +54,27 @@ void BatteryStatus::clearBatteryStatus(BatteryStatusFlag battery_status)
 //    return *this;
 // }
 
-bool BatteryStatus::hasAlarm() const
+bool BatteryStatus::hasAlarm(AlarmLevel level) const
 {
-  return (m_alarms[BatteryStatus::AlarmLevel::MILD]
-      | m_alarms[BatteryStatus::AlarmLevel::MODERATE]
-      | m_alarms[BatteryStatus::AlarmLevel::SEVERE]) != 0;
+  return m_alarms[level] != 0;
 }
 
-// bool BatteryStatus::hasAlarm(Alarm alarm) const
-// {
-//    return m_alarms & (1u << alarm);
-// }
+bool BatteryStatus::hasAlarm(AlarmLevel level, AlarmFlag alarm) const
+{
+   return m_alarms[level] & alarm;
+}
 
-// void BatteryStatus::setAlarm(Alarm alarm)
-// {
-//    m_alarms |= 1u << alarm;
-//    setAlarms();
-// }
+void BatteryStatus::setAlarm(AlarmLevel level, AlarmFlag alarm)
+{
+   m_alarms[level] |= alarm;
+   setUnsignedShort(level, m_alarms[level], LSB_FIRST);
+}
 
-// void BatteryStatus::clearAlarm(Alarm alarm)
-// {
-//    m_alarms &= ~(1u << alarm);
-//    setAlarms();
-// }
-
+void BatteryStatus::clearAlarm(AlarmLevel level, AlarmFlag alarm)
+{
+   m_alarms[level] &= ~alarm;
+   setUnsignedShort(level, m_alarms[level], LSB_FIRST);
+}
 
 }
 }
