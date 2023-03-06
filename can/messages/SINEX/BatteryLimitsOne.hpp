@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-#ifndef CAN_MESSAGES_SINEX_BATTERYLIMITS_HPP_
-#define CAN_MESSAGES_SINEX_BATTERYLIMITS_HPP_
+#ifndef CAN_MESSAGES_SINEX_BATTERYLIMITSONE_HPP_
+#define CAN_MESSAGES_SINEX_BATTERYLIMITSONE_HPP_
 
 #include "can/StandardDataFrame.hpp"
 #include "can/messages/SINEX/Ids.hpp"
@@ -29,4 +29,4 @@ public:
 }
 }
 
-#endif /* CAN_MESSAGES_SINEX_BATTERYLIMITS_HPP_ */
+#endif /* CAN_MESSAGES_SINEX_BATTERYLIMITSONE_HPP_ */

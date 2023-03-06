@@ -2,6 +2,7 @@
 #include "can/messages/Message.hpp"
 #include "can/messages/SINEX/InverterHeartbeat.hpp"
 #include "can/messages/SINEX/BatteryLimitsOne.hpp"
+#include "can/messages/SINEX/BatteryLimitsTwo.hpp"
 #include "can/messages/SINEX/BatteryStatus.hpp"
 
 #include <string.h>
@@ -67,6 +68,11 @@ void SE_PWS2::periodicCallback()
                   .setMaxDischargeCurrent(m_monitor.getDischargeCurrentLimit())
                   .setTotalVoltage(m_monitor.getVoltage())
                   .setTotalCurrent(m_monitor.getCurrent()));
+
+      m_sender.sink(BatteryLimitsTwo()
+                  .setMaxChargingVoltage (m_monitor.getMaxChargeVoltage())
+                  .setSOCPercent(m_monitor.getSocPercent())
+                  .setSOHPercent(m_monitor.getSohPercent()));
 
       localBatteryStatus.setBatteryStatus(BatteryStatus::BatteryStatusFlag::BSF_CHARGING_CONTACTOR_CLOSED);
       localBatteryStatus.setBatteryStatus(BatteryStatus::BatteryStatusFlag::BSF_DISCHARGE_CONTACTOR_CLOSED);
