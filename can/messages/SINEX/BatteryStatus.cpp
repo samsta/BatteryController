@@ -48,12 +48,6 @@ void BatteryStatus::clearBatteryStatus(BatteryStatusFlag battery_status)
    setUnsignedShort(0, m_battery_status, LSB_FIRST);
 }
 
-// BatteryStatus& BatteryStatus::setAlarms()
-// {
-//    setUnsignedShort(4, m_alarms, LSB_FIRST);
-//    return *this;
-// }
-
 bool BatteryStatus::hasAlarm(AlarmLevel level) const
 {
   return m_alarms[level] != 0;

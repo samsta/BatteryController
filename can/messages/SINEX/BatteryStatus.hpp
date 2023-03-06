@@ -15,7 +15,7 @@ class BatteryStatus: public StandardDataFrame
 public:
    enum BatteryStatusFlag {
       BSF_CLEAR = 0,
-      BSF_STANDBY_0 = 1u << 0,
+      BSF_STANDBY_0 = 1u,
       BSF_STANDBY_1 = 1u << 1,
       BSF_STANDBY_2 = 1u << 2,
       BSF_FORCED_CHARGING = 1u << 3,
@@ -34,7 +34,7 @@ public:
    };
 
    enum AlarmFlag {
-      ALTERNATE_ALM_0 = 1u << 0,
+      ALTERNATE_ALM_0 = 1u,
       ALTERNATE_ALM_1 = 1u << 1,
       ALTERNATE_ALM_2 = 1u << 2,
       EXCESSIVE_TEMP_DIFF = 1u << 3,
@@ -53,9 +53,9 @@ public:
    };
 
    enum AlarmLevel { // start byte in CAN msg
-      MILD = 3,
-      MODERATE = 5,
-      SEVERE = 7
+      MILD = 2,
+      MODERATE = 4,
+      SEVERE = 6
    };
 
    BatteryStatus();
