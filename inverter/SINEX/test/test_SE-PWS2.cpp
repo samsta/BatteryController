@@ -1,89 +1,118 @@
-//#include <gmock/gmock.h>
-//#include "can/messages/SEPWS2/BatteryCellTempInfo.hpp"
-//#include "can/messages/SEPWS2/BatteryCellVoltInfo.hpp"
-//#include "can/messages/SEPWS2/BatteryForbidden.hpp"
-//#include "can/messages/SEPWS2/BatteryInfo.hpp"
-//#include "can/messages/SEPWS2/BatteryLimits.hpp"
-//#include "can/messages/SEPWS2/BatteryModTempInfo.hpp"
-//#include "can/messages/SEPWS2/BatteryModVoltInfo.hpp"
-//#include "can/messages/SEPWS2/BatteryStatus.hpp"
-//#include "can/messages/SEPWS2/InverterChargeDischargeCmd.hpp"
-//#include "can/messages/SEPWS2/InverterInfoRequest.hpp"
-//#include "can/messages/SEPWS2/InverterSleepAwakeCmd.hpp"
-//#include "core/Callback.hpp"
-//#include "inverter/SEPWS2/TSOL-H50K.hpp"
-//#include "mocks/can/FrameSink.hpp"
-//#include "mocks/contactor/Contactor.hpp"
-//#include "mocks/core/Timer.hpp"
-//#include "mocks/monitor/Monitor.hpp"
-//
-//using namespace testing;
-//using namespace can::messages::SEPWS2;
-//using namespace can;
-//
-//namespace inverter {
-//namespace SEPWS2 {
-//namespace {
-//
-//MATCHER_P(MatchesMessage, m, "")
-//{
-//   return arg == m;
-//}
-//
-//#define EXPECT_NO_CALL(o, m) EXPECT_CALL(o, m).Times(0)
-//
-//class Nonsense: public can::messages::Message
-//{
-//public:
-//   Nonsense(): Message(0x00){}
-//   virtual void toStream(logging::ostream& os) const
-//   {
-//      os << "Nonsense";
-//   }
-//};
-//
-//TEST(SE_PWS2, registersAndDeregistersTimerCallbackFor5000MillisecondPeriod)
-//{
-//   mocks::can::FrameSink sink;
-//   mocks::core::Timer timer;
-//   mocks::monitor::Monitor monitor;
-//   mocks::contactor::Contactor contactor;
-//
-//   {
-//      core::Invokable* invokable;
-//      EXPECT_CALL(timer, registerPeriodicCallback(_, 5000)).WillOnce(SaveArg<0>(&invokable));
-//      SE_PWS2 sbs(sink, timer, monitor, contactor, nullptr);
-//      EXPECT_CALL(timer, deregisterCallback(invokable));
-//   }
-//}
-//
-//class SE_PWS2AtStartupTest: public Test
-//{
-//public:
-//   SE_PWS2AtStartupTest():
-//      constructor_expectation(timer, &inverter_alive_callback),
-//      sbs(sink, timer, monitor, contactor, nullptr)
-//   {
-//   }
-//
-//   NiceMock<mocks::can::FrameSink>       sink;
-//   NiceMock<mocks::core::Timer>          timer;
-//   NiceMock<mocks::monitor::Monitor>     monitor;
-//   NiceMock<mocks::contactor::Contactor> contactor;
-//   core::Invokable*                      inverter_alive_callback;
-//
-//   class ConstructorExpectation
-//   {
-//   public:
-//      ConstructorExpectation(mocks::core::Timer& timer, core::Invokable** invokable)
-//      {
-//         EXPECT_CALL(timer, registerPeriodicCallback(_, _)).WillOnce(SaveArg<0>(invokable));
-//      }
-//   } constructor_expectation;
-//
-//   SE_PWS2 sbs;
-//};
-//
+#include <gmock/gmock.h>
+#include "can/messages/SINEX/BatteryLimitsOne.hpp"
+#include "can/messages/SINEX/BatteryLimitsTwo.hpp"
+#include "can/messages/SINEX/InverterHeartbeat.hpp"
+#include "core/Callback.hpp"
+#include "inverter/SINEX/SE-PWS2.hpp"
+#include "mocks/can/FrameSink.hpp"
+#include "mocks/contactor/Contactor.hpp"
+#include "mocks/core/Timer.hpp"
+#include "mocks/monitor/Monitor.hpp"
+
+using namespace testing;
+using namespace can::messages::SINEX;
+using namespace can;
+
+namespace inverter {
+namespace SINEX {
+namespace {
+
+MATCHER_P(MatchesMessage, m, "")
+{
+  return arg == m;
+}
+
+#define EXPECT_NO_CALL(o, m) EXPECT_CALL(o, m).Times(0)
+
+class Nonsense: public can::messages::Message
+{
+public:
+  Nonsense(): Message(0x00){}
+  virtual void toStream(logging::ostream& os) const
+  {
+     os << "Nonsense";
+  }
+};
+
+TEST(SE_PWS2, registersAndDeregistersTimerCallbackFor500MillisecondPeriod)
+{
+  mocks::can::FrameSink sink;
+  mocks::core::Timer timer;
+  mocks::monitor::Monitor monitor;
+  mocks::contactor::Contactor contactor;
+
+  {
+     core::Invokable* invokable;
+     EXPECT_CALL(timer, registerPeriodicCallback(_, 500)).WillOnce(SaveArg<0>(&invokable));
+     SE_PWS2 sbs(sink, timer, monitor, contactor, nullptr);
+     EXPECT_CALL(timer, deregisterCallback(invokable));
+  }
+}
+
+class SE_PWS2AtStartupTest: public Test
+{
+public:
+  SE_PWS2AtStartupTest():
+     constructor_expectation(timer, &inverter_alive_callback),
+     sbs(sink, timer, monitor, contactor, nullptr)
+  {
+  }
+
+  NiceMock<mocks::can::FrameSink>       sink;
+  NiceMock<mocks::core::Timer>          timer;
+  NiceMock<mocks::monitor::Monitor>     monitor;
+  NiceMock<mocks::contactor::Contactor> contactor;
+  core::Invokable*                      inverter_alive_callback;
+
+  class ConstructorExpectation
+  {
+  public:
+     ConstructorExpectation(mocks::core::Timer& timer, core::Invokable** invokable)
+     {
+        EXPECT_CALL(timer, registerPeriodicCallback(_, _)).WillOnce(SaveArg<0>(invokable));
+     }
+  } constructor_expectation;
+
+  SE_PWS2 sbs;
+};
+
+TEST_F(SE_PWS2AtStartupTest, getHbCount1)
+{
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0001000000000000")));
+
+  EXPECT_EQ(sbs.getHeartbeatValue(), 1);
+}
+
+TEST_F(SE_PWS2AtStartupTest, getHbCountFFFF)
+{
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#FFFF000000000000")));
+
+  EXPECT_EQ(sbs.getHeartbeatValue(), 0xFFFF);
+}
+
+TEST_F(SE_PWS2AtStartupTest, testHbNonConsec)
+{
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0001000000000000")));
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0002000000000000")));
+  EXPECT_FALSE(sbs.getHbNonConsec());
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0004000000000000")));
+  EXPECT_TRUE(sbs.getHbNonConsec());
+}
+
+TEST_F(SE_PWS2AtStartupTest, testHbConsecNearRollover)
+{
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#FFFE000000000000")));
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#FFFF000000000000")));
+  EXPECT_FALSE(sbs.getHbNonConsec());
+}
+
+TEST_F(SE_PWS2AtStartupTest, testHbConsecAtRollover)
+{
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#FFFF000000000000")));
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0000000000000000")));
+  EXPECT_FALSE(sbs.getHbNonConsec());
+}
+
 //TEST_F(SE_PWS2AtStartupTest, doesntBroadcastIfNothingReceivedFromInverter)
 //{
 //   EXPECT_NO_CALL(sink, sink(_));
@@ -105,12 +134,12 @@
 //   sbs.sink(InverterInfoRequest());
 //}
 //
-//TEST_F(SE_PWS2AtStartupTest, requestsToCloseContactor)
-//{
+// TEST_F(SE_PWS2AtStartupTest, requestsToCloseContactor)
+// {
 //   EXPECT_CALL(contactor, close());
-//
+
 //   sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
-//}
+// }
 //
 //TEST_F(SE_PWS2AtStartupTest, requestsToOpenContactorWhenInverterNotAlive)
 //{
@@ -251,6 +280,6 @@
 //   sbs.sink(InverterInfoRequest(can::StandardDataFrame("4200#0000000000000000")));
 //}
 //
-//}
-//}
-//}
+}
+}
+}

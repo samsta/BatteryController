@@ -28,7 +28,6 @@ const Message* decode(const can::DataFrame& f, void* mem)
 
    return NULL;
 }
-
 }
 
 MessageFactory::MessageFactory(messages::MessageSink& sink, logging::Logger* log):
@@ -42,16 +41,13 @@ void MessageFactory::sink(const can::DataFrame& f)
    const Message* msg = decode(f, m_message_memory);
    std::ostringstream ss;
 
-   if (msg == nullptr) return;
+   if (msg == nullptr) return; // TODO should this be an error?
 
-   if (m_log)
-   {
-      ss << "<INV IN>  " << *msg;
-      m_log->debug(ss);
-   }
+   ss << "<INV IN>  " << *msg;
+   if (m_log) m_log->debug(ss);
    m_sink.sink(*msg);
-}
 
+}
 
 }
 }

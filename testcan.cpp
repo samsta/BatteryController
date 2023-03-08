@@ -51,7 +51,8 @@ int main(int argc, const char** argv)
    std::ostringstream ss;
    
    // Log message C++ Interface
-   logging::Logger* pLogger;// = NULL; // Create the object pointer for Logger Class
+   // Create the object pointer for Logger Class
+   logging::Logger* pLogger;
 
    // this code required to catch ctrl-c and cleanly exit the program (open contactors)
    struct sigaction action;

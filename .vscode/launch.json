@@ -8,6 +8,30 @@
          "name": "(gdb) Launch",
          "type": "cppdbg",
          "request": "launch",
+         "program": "${workspaceFolder}/build/inverter/SINEX/test/test_inverter_sinex",
+         "args": [],
+         "stopAtEntry": false,
+         "cwd": "${workspaceFolder}/build/inverter/SINEX/test",
+         "environment": [],
+         "externalConsole": false,
+         "MIMode": "gdb",
+         "setupCommands": [
+             {
+                 "description": "Enable pretty-printing for gdb",
+                 "text": "-enable-pretty-printing",
+                 "ignoreFailures": true
+             },
+             {
+                 "description": "Set Disassembly Flavor to Intel",
+                 "text": "-gdb-set disassembly-flavor intel",
+                 "ignoreFailures": true
+             }
+         ]
+      },
+      {
+         "name": "(gdb) Launch",
+         "type": "cppdbg",
+         "request": "launch",
          "program": "${workspaceFolder}/build/testcan",
          "args": ["4", "vcan0", "/dev/ttyACM0","dummy"],
          "stopAtEntry": false,

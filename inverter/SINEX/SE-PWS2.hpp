@@ -30,6 +30,8 @@ public:
    ~SE_PWS2();
 
    virtual void sink(const can::messages::Message&);
+   uint16_t getHeartbeatValue();
+   bool getHbNonConsec();
 
 private:
    void process(const can::messages::SINEX::InverterHeartbeat& command);
@@ -44,6 +46,7 @@ private:
    uint16_t              m_heartbeat_count;
    bool                  m_first_heartbeat;
    unsigned              m_inverter_silent_counter;
+   bool                  m_hb_non_consec;
 
 };
 
