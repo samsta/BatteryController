@@ -47,10 +47,12 @@ SE_PWS2::~SE_PWS2()
 
 void SE_PWS2::periodicCallback()
 {
+   // this is called every PERIODIC_CALLBACK_ms (500ms at time of writing)
    m_inverter_silent_counter++;
 
    if (m_inverter_silent_counter >= INVERTER_SILENT_TIMEOUT_PERIODS)
    {
+      // if the inverter has gone silent, open the contactor
       if (m_inverter_silent_counter == INVERTER_SILENT_TIMEOUT_PERIODS)
       {
          if (m_log) m_log->alarm("Inverter CAN bus has gone silent", __FILENAME__, __LINE__);
@@ -60,10 +62,10 @@ void SE_PWS2::periodicCallback()
    }
    else 
    {
+      // contactor won't close unless sufficent info has been received from the battery
       m_contactor.close();
 
       // do not send battery info unless the contractor is closed
-      // contact won't close unless sufficent info has been received from the battery
       if (m_contactor.isClosed())
       {
          m_sender.sink(BatteryLimitsOne()
@@ -131,14 +133,12 @@ void SE_PWS2::sink(const Message& message)
       // TODO:log alarm message?
       return;
    }
-
-   // TODO add message when inverter starts sending again after being silent
-   m_inverter_silent_counter = 0;
 }
 
 void SE_PWS2::process(const InverterHeartbeat& command)
 {
    m_hb_non_consec = false;
+
    if (!m_first_heartbeat)
    {
       if (command.getHeartbeatValue() != uint16_t(m_heartbeat_count + 1))
@@ -155,6 +155,9 @@ void SE_PWS2::process(const InverterHeartbeat& command)
       m_first_heartbeat = false;
       m_heartbeat_count = command.getHeartbeatValue();
    }
+
+   // TODO add message when inverter starts sending again after being silent
+   m_inverter_silent_counter = 0;
 }
 
 uint16_t SE_PWS2::getHeartbeatValue()
