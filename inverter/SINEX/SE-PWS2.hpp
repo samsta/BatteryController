@@ -47,7 +47,7 @@ private:
    bool                  m_first_heartbeat;
    unsigned              m_inverter_silent_counter;
    bool                  m_hb_non_consec;
-
+   bool                  m_contactor_closed;
 };
 
 }

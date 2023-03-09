@@ -34,7 +34,8 @@ SE_PWS2::SE_PWS2(can::FrameSink& sender,
       m_heartbeat_count(0),
       m_first_heartbeat(true),
       m_inverter_silent_counter(0),
-      m_hb_non_consec(false)
+      m_hb_non_consec(false),
+      m_contactor_closed(false)
 {
    // send inverter messages at 500ms intervals
    m_timer.registerPeriodicCallback(&m_periodic_callback, PERIODIC_CALLBACK_ms);
@@ -68,6 +69,7 @@ void SE_PWS2::periodicCallback()
       // do not send battery info unless the contractor is closed
       if (m_contactor.isClosed())
       {
+         m_contactor_closed = true;
          m_sender.sink(BatteryLimitsOne()
                      .setMaxChargeCurrent (m_monitor.getChargeCurrentLimit())
                      .setMaxDischargeCurrent(m_monitor.getDischargeCurrentLimit())
@@ -115,9 +117,14 @@ void SE_PWS2::periodicCallback()
       }
       else // contactor is open
       {
-         localBatteryStatus.clearBatteryStatus(BatteryStatus::BatteryStatusFlag::BSF_CHARGING_CONTACTOR_CLOSED);
-         localBatteryStatus.clearBatteryStatus(BatteryStatus::BatteryStatusFlag::BSF_DISCHARGE_CONTACTOR_CLOSED);
-         m_sender.sink(localBatteryStatus);
+         if (m_contactor_closed)
+         {
+            // only send this once, when the contactor opens
+            m_contactor_closed =  false;
+            localBatteryStatus.clearBatteryStatus(BatteryStatus::BatteryStatusFlag::BSF_CHARGING_CONTACTOR_CLOSED);
+            localBatteryStatus.clearBatteryStatus(BatteryStatus::BatteryStatusFlag::BSF_DISCHARGE_CONTACTOR_CLOSED);
+            m_sender.sink(localBatteryStatus);
+         }
       }
    }
 }

@@ -18,7 +18,6 @@ BatteryStatus::BatteryStatus():
    m_alarms[BatteryStatus::AlarmLevel::SEVERE] = 0;
 }
 
-// BatteryStatus::BatteryStatus(BatteryStatusFlag battery_status1, BatteryStatusFlag battery_status2 = BatteryStatus::BatteryStatusFlag::BSF_CLEAR):
 BatteryStatus::BatteryStatus(BatteryStatusFlag battery_status1):
    StandardDataFrame(ID_BATTERY_STATUS, "0000000000000000"),
    m_battery_status(0)
@@ -27,14 +26,7 @@ BatteryStatus::BatteryStatus(BatteryStatusFlag battery_status1):
    m_alarms[BatteryStatus::AlarmLevel::MODERATE] = 0;
    m_alarms[BatteryStatus::AlarmLevel::SEVERE] = 0;
    setBatteryStatus(battery_status1);
-   // setBatteryStatus(battery_status2);
 }
-
-// BatteryStatus& BatteryStatus::setBatteryStatus(BatteryStatusFlag battery_status)
-// {
-//    setUnsignedShort(0, battery_status, LSB_FIRST);
-//    return *this;
-// }
 
 void BatteryStatus::setBatteryStatus(BatteryStatusFlag battery_status)
 {

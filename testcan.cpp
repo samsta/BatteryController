@@ -13,10 +13,8 @@
 
 #include "packs/Nissan/LeafPack.hpp"
 #include "packs/Nissan/LeafMultiPack.hpp"
-#include "can/services/SMA/MessageFactory.hpp"
-#include "can/services/TSUN/MessageFactory.hpp"
-#include "inverter/SMA/SunnyBoyStorage.hpp"
-#include "inverter/TSUN/TSOL-H50K.hpp"
+#include "can/services/SINEX/MessageFactory.hpp"
+#include "inverter/SINEX/SE-PWS2.hpp"
 
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "core/LibGpiod/OutputPin.hpp"
@@ -201,13 +199,13 @@ int main(int argc, const char** argv)
                      indicator_led_1,
                      pLogger);
 
-   inverter::TSUN::TSOL_H50K inverter(
+   inverter::SINEX::SE_PWS2 inverter(
          inverter_port,
          timer,
          multi_battery,
          multi_battery.getMainContactor(),
          pLogger);
-   can::services::TSUN::MessageFactory inverter_message_factory(inverter, pLogger);
+   can::services::SINEX::MessageFactory inverter_message_factory(inverter, pLogger);
 
    inverter_port.setupLogger(*pLogger, "<INV OUT>", color::green);
    inverter_port.setSink(inverter_message_factory);

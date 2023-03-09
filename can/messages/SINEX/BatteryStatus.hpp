@@ -59,12 +59,10 @@ public:
    };
 
    BatteryStatus();
-   // BatteryStatus(BatteryStatusFlag basic_status1, BatteryStatusFlag basic_status2 = BatteryStatus::BatteryStatusFlag::BSF_CLEAR);
    BatteryStatus(BatteryStatusFlag basic_status1);
-   // BatteryStatus& setBatteryStatus(BatteryStatusFlag battery_status);
    void setBatteryStatus(BatteryStatusFlag battery_status);
    void clearBatteryStatus(BatteryStatusFlag battery_status);
-   BatteryStatusFlag getBatteryStatus() const;
+   // BatteryStatusFlag getBatteryStatus() const;
 
    bool hasAlarm(AlarmLevel level) const;
    bool hasAlarm(AlarmLevel level, AlarmFlag flag) const;
