@@ -42,6 +42,9 @@ Logger* Logger::m_Instance = 0;
 const string logFileName = "BatteryController.log";
 
 Logger::Logger(LOG_LEVEL loglevel)
+// Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor):
+//    m_timer(timer),
+//    m_vmonitor(vmonitor)
 {
    m_File.open(logFileName.c_str(), ios::out|ios::app);
    m_LogLevel  = loglevel;
@@ -60,11 +63,15 @@ Logger::Logger(LOG_LEVEL loglevel)
       printf("Logger::Logger() -- Mutex not initialize!!\n");
       exit(0);
    }
+
+   // m_timer.registerPeriodicCallback(&m_datalog_callback, 1000);
+
 }
 
 Logger::~Logger()
 {
    m_File.close();
+   // m_timer.deregisterCallback(&m_datalog_callback);
 
    pthread_mutexattr_destroy(&m_Attr);
    pthread_mutex_destroy(&m_Mutex);
@@ -88,6 +95,16 @@ void Logger::unlock()
 {
    pthread_mutex_unlock(&m_Mutex);
 }
+
+// void Logger::setMonitor(std::vector<monitor::Monitor*> vmonitor)
+// {
+//    m_vmonitor = vmonitor;
+// }
+
+// void Logger::updateDataLog()
+// {
+
+// }
 
 void Logger::logIntoFile(std::string& data)
 {

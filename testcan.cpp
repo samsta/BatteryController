@@ -46,12 +46,8 @@ namespace {
 
 int main(int argc, const char** argv)
 {
-   logging::ostream* log = &std::cout;
    std::ofstream logfile;
    std::ostringstream ss;
-   
-   // Log message C++ Interface
-   logging::Logger* pLogger;// = NULL; // Create the object pointer for Logger Class
 
    // this code required to catch ctrl-c and cleanly exit the program (open contactors)
    struct sigaction action;
@@ -68,7 +64,14 @@ int main(int argc, const char** argv)
       return 1;
    }
 
-   pLogger = logging::Logger::getInstance((logging::LOG_LEVEL) atoi(argv[1]));
+   std::vector<monitor::Monitor*> vbatterymon;
+   logging::Logger logger((logging::LOG_LEVEL) atoi(argv[1]));
+
+   logging::Logger* pLogger;// = NULL; // Create the object pointer for Logger Class
+   pLogger = &logger;
+   // pLogger = logging::Logger::getInstance((logging::LOG_LEVEL) atoi(argv[1]));
+   logger.info("------------------- BatteryController Started ------------------- ",__FILENAME__, __LINE__);
+
    pLogger->info("------------------- BatteryController Started ------------------- ",__FILENAME__, __LINE__);
    std::string smsg;
    smsg.append("LOGGER_LEVEL: ");
@@ -97,23 +100,9 @@ int main(int argc, const char** argv)
    OutputPin negative_relay_1(0, 6, "relay_neg_1");
    OutputPin indicator_led_1(0, 4, "led_1");
 
-   std::vector<monitor::Monitor*> vbatterymon;
-
    #ifdef CONSOLE
    core::ConsolePresenter console(timer, vbatterymon);
-   if (console.isOperational())
-   {
-      // logfile.open("log.txt", std::ios_base::openmode::_S_app);
-      // if (logfile.good())
-      // {
-      //    log = &logfile;
-      // }
-      // else
-      // {
-      //    std::cerr << "Failed opening logfile log.txt: " << strerror(errno) << std::endl;
-      // }
-   }
-   else
+   if (!console.isOperational())
    {
       std::cerr << "Don't have a terminal to run console presenter" << std::endl;
    }
