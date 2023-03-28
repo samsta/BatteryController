@@ -79,9 +79,6 @@ private:
    void process(const can::messages::Nissan::BatteryStatus&);
    void process(const can::messages::Nissan::BatteryPowerLimits&);
 
-   // void calculateTemperatureLimitFactor(float min, float max);
-   // void calculateCurrentLimitByVoltage(float min, float max);
-
    char                    *m_pack_name;
    contactor::Contactor&   m_safety_shunt;
    logging::Logger         *m_log;

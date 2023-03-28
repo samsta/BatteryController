@@ -46,13 +46,8 @@ namespace {
 
 int main(int argc, const char** argv)
 {
-   logging::ostream* log = &std::cout;
    std::ofstream logfile;
    std::ostringstream ss;
-   
-   // Log message C++ Interface
-   // Create the object pointer for Logger Class
-   logging::Logger* pLogger;
 
    // this code required to catch ctrl-c and cleanly exit the program (open contactors)
    struct sigaction action;
@@ -69,12 +64,15 @@ int main(int argc, const char** argv)
       return 1;
    }
 
-   pLogger = logging::Logger::getInstance((logging::LOG_LEVEL) atoi(argv[1]));
-   pLogger->info("------------------- BatteryController Started ------------------- ",__FILENAME__, __LINE__);
+   // create the logging object
+   std::vector<monitor::Monitor*> vbatterymon;
+   logging::Logger logger((logging::LOG_LEVEL) atoi(argv[1]));
+
+   logger.info("------------------- BatteryController Started ------------------- ",__FILENAME__, __LINE__);
    std::string smsg;
    smsg.append("LOGGER_LEVEL: ");
    smsg.append(argv[1]);
-   pLogger->info(smsg);
+   logger.info(smsg);
 
    const unsigned MAX_EVENTS = 10;
    struct epoll_event events[MAX_EVENTS];
@@ -89,7 +87,7 @@ int main(int argc, const char** argv)
 
    // core::USBPort usb_port1(argv[2], epollfd);
    // core::USBPort usb_port2(argv[3], epollfd);
-   core::USBPort usb_port2(argv[3], epollfd, pLogger);
+   core::USBPort usb_port2(argv[3], epollfd, &logger);
 
    core::CanPort inverter_port(argv[2], epollfd);
    core::EpollTimer timer(epollfd);
@@ -98,23 +96,9 @@ int main(int argc, const char** argv)
    OutputPin negative_relay_1(0, 6, "relay_neg_1");
    OutputPin indicator_led_1(0, 4, "led_1");
 
-   std::vector<monitor::Monitor*> vbatterymon;
-
    #ifdef CONSOLE
    core::ConsolePresenter console(timer, vbatterymon);
-   if (console.isOperational())
-   {
-      // logfile.open("log.txt", std::ios_base::openmode::_S_app);
-      // if (logfile.good())
-      // {
-      //    log = &logfile;
-      // }
-      // else
-      // {
-      //    std::cerr << "Failed opening logfile log.txt: " << strerror(errno) << std::endl;
-      // }
-   }
-   else
+   if (!console.isOperational())
    {
       std::cerr << "Don't have a terminal to run console presenter" << std::endl;
    }
@@ -154,14 +138,14 @@ int main(int argc, const char** argv)
    packs::Nissan::LeafPack battery_pack_6( BP6,
         usb_port2.getSinkOutbound(0),
         timer,
-        pLogger);
+        &logger);
    vbatterymon.push_back( &battery_pack_6.getMonitor());
 
    char BP5[] = "BP5";
    packs::Nissan::LeafPack battery_pack_5( BP5,
         usb_port2.getSinkOutbound(1),
         timer,
-        pLogger);
+        &logger);
    vbatterymon.push_back( &battery_pack_5.getMonitor());
 
    // std::vector<monitor::Monitor*> vbatterymon = {
@@ -179,7 +163,7 @@ int main(int argc, const char** argv)
             &battery_pack_5.getContactor(),
             &battery_pack_6.getContactor()};
 
-   // usb_port1.setupLogger(*log, "<USB1 OUT>", color::cyan);
+   // usb_port1.setu&logger(*log, "<USB1 OUT>", color::cyan);
    usb_port2.setupLogger("<USB2 OUT>", color::cyan);
 
    // usb_port1.setSinkInbound(0, battery_pack_1);
@@ -199,17 +183,17 @@ int main(int argc, const char** argv)
                      positive_relay_1,
                      negative_relay_1,
                      indicator_led_1,
-                     pLogger);
+                     &logger);
 
    inverter::TSUN::TSOL_H50K inverter(
          inverter_port,
          timer,
          multi_battery,
          multi_battery.getMainContactor(),
-         pLogger);
-   can::services::TSUN::MessageFactory inverter_message_factory(inverter, pLogger);
+         &logger);
+   can::services::TSUN::MessageFactory inverter_message_factory(inverter, &logger);
 
-   inverter_port.setupLogger(*pLogger, "<INV OUT>", color::green);
+   inverter_port.setupLogger(*&logger, "<INV OUT>", color::green);
    inverter_port.setSink(inverter_message_factory);
 
    #ifdef CONSOLE
@@ -237,8 +221,8 @@ int main(int argc, const char** argv)
    }
 
    std::cout << "Program EXIT."  << std::endl;
-   pLogger->info("Program EXIT.");
-   pLogger->info("------------------- BatteryController STOPPED ------------------- ");
+   logger.info("Program EXIT.");
+   logger.info("------------------- BatteryController STOPPED ------------------- ");
 
    return 0;
 }

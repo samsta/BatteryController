@@ -34,6 +34,10 @@
 #include <sstream>
 #include <string.h>
 
+#include <vector>
+#include "core/Timer.hpp"
+#include "monitor/Monitor.hpp"
+
 // POSIX Socket Header File(s)
 #include <errno.h>
 #include <pthread.h>
@@ -79,7 +83,13 @@ namespace logging
    class Logger
    {
       public:
+         Logger(LOG_LEVEL loglevel);
+         // Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor);
+         ~Logger();
          static Logger* getInstance(LOG_LEVEL loglevel) throw ();
+
+         // void setMonitor(std::vector<monitor::Monitor*> vmonitor);
+         // void updateDataLog();
 
          // Interface for Error Log
          void error(const char* text) throw();
@@ -143,9 +153,6 @@ namespace logging
          // void updateLogSize(const ssize_t size);
 
       protected:
-         Logger(LOG_LEVEL loglevel);
-         ~Logger();
-
          // Wrapper function for lock/unlock
          // For Extensible feature, lock and unlock should be in protected
          void lock();
@@ -156,7 +163,7 @@ namespace logging
       private:
          void logIntoFile(std::string& data);
          void logOnConsole(std::string& data);
-         void rollLogFiles();
+         // void rollLogFiles();
 
       private:
          static Logger*          m_Instance;
@@ -167,6 +174,11 @@ namespace logging
 
          LogLevel                m_LogLevel;
          LogType                 m_LogType;
+
+         // core::Timer&                     m_timer;
+         // std::vector<monitor::Monitor*>   m_vmonitor;
+         // core::Callback<Logger> m_datalog_callback;
+
 
          // unsigned int		 logSize; // Size of a log file in bytes
          // unsigned int		 maxLogFiles; // Maximum number of log files
