@@ -64,16 +64,6 @@ int main(int argc, const char** argv)
       return 1;
    }
 
-   // create the logging object
-   std::vector<monitor::Monitor*> vbatterymon;
-   logging::Logger logger((logging::LOG_LEVEL) atoi(argv[1]));
-
-   logger.info("------------------- BatteryController Started ------------------- ",__FILENAME__, __LINE__);
-   std::string smsg;
-   smsg.append("LOGGER_LEVEL: ");
-   smsg.append(argv[1]);
-   logger.info(smsg);
-
    const unsigned MAX_EVENTS = 10;
    struct epoll_event events[MAX_EVENTS];
    int nfds;
@@ -84,13 +74,22 @@ int main(int argc, const char** argv)
       perror("epoll_create1");
       exit(EXIT_FAILURE);
    }
+   core::EpollTimer timer(epollfd);
+   std::vector<monitor::Monitor*> vbatterymon;
+
+   // create the logging object
+   logging::Logger logger((logging::LOG_LEVEL) atoi(argv[1]), timer, vbatterymon );
+   logger.info("------------------- BatteryController Started ------------------- ",__FILENAME__, __LINE__);
+   std::string smsg;
+   smsg.append("LOGGER_LEVEL: ");
+   smsg.append(argv[1]);
+   logger.info(smsg);
 
    // core::USBPort usb_port1(argv[2], epollfd);
    // core::USBPort usb_port2(argv[3], epollfd);
    core::USBPort usb_port2(argv[3], epollfd, &logger);
 
    core::CanPort inverter_port(argv[2], epollfd);
-   core::EpollTimer timer(epollfd);
 
    OutputPin positive_relay_1(0, 5, "relay_pos_1");
    OutputPin negative_relay_1(0, 6, "relay_neg_1");
@@ -195,6 +194,8 @@ int main(int argc, const char** argv)
 
    inverter_port.setupLogger(*&logger, "<INV OUT>", color::green);
    inverter_port.setSink(inverter_message_factory);
+
+   logger.setMonitor(vbatterymon);
 
    #ifdef CONSOLE
    if (console.isOperational())
