@@ -40,6 +40,7 @@ Logger* Logger::m_Instance = 0;
 
 // Log file name. File name should be change from here only
 const string logFileName = "BatteryController.log";
+const string dataFileName= "BatteryOneDataLog.txt";
 
 Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor):
    m_timer(timer),
@@ -90,6 +91,11 @@ void Logger::unlock()
 void Logger::setMonitor(std::vector<monitor::Monitor*> vmonitor)
 {
    m_vmonitor = vmonitor;
+   if (m_vmonitor.size() > MAX_BATTERIES)
+   {
+      error("MAX_BATTERIES exceeded in data logging", __FILENAME__, __LINE__);
+      // that's all, the program will likely crash but at least you've been warned.
+   }
 }
 
 void Logger::updateDataLog()
@@ -98,9 +104,58 @@ void Logger::updateDataLog()
    {
       if (m_vmonitor[i]->getPackStatus() == monitor::Monitor::Pack_Status::NORMAL_OPERATION )
       {
-
+         m_voltage_ra[i].dataPoint(m_vmonitor[i]->getVoltage());
       }
    }
+
+//   iThisMinute = timeClient.getMinutes();
+//   if ((iPrevMinute != iThisMinute) and (timeClient.getSeconds() >= 5)) {
+//     iPrevMinute = iThisMinute;
+//      //on every minute divisible by 10
+//      if (iThisMinute % 10 == 0) {
+//       // disable interrupt to get readings
+//       detachInterrupt(digitalPinToInterrupt(interruptPin1));
+//       detachInterrupt(digitalPinToInterrupt(interruptPin2));
+//       detachInterrupt(digitalPinToInterrupt(interruptPin3));
+//       // get current readings
+//       instpowerftp1 = instpower1;
+//       instpower1 = 0;
+//       intervalpowerftp1 = intervalpower1;
+//       intervalpower1 = 0;
+//       pulseintervalbegin1 = pulsebegin1;
+//       pulsecountinterval1 = 1;
+//       totalWhftp1 = totalWh1;
+
+//       instpowerftp2 = instpower2;
+//       instpower2 = 0;
+//       intervalpowerftp2 = intervalpower2;
+//       intervalpower2 = 0;
+//       pulseintervalbegin2 = pulsebegin2;
+//       pulsecountinterval2 = 1;
+//       totalWhftp2 = totalWh2;
+
+//       instpowerftp3 = instpower3;
+//       instpower3 = 0;
+//       intervalpowerftp3 = intervalpower3;
+//       intervalpower3 = 0;
+//       pulseintervalbegin3 = pulsebegin3;
+//       pulsecountinterval3 = 1;
+//       totalWhftp3 = totalWh3;
+
+//       WriteData();
+//       FTPFileAndDelete(tempdatafile,"jimster.ca/HeatChart"); 
+
+//       // enable interrupt
+//       attachInterrupt(digitalPinToInterrupt(interruptPin1), onPulse1, FALLING);
+//       attachInterrupt(digitalPinToInterrupt(interruptPin2), onPulse2, FALLING);
+//       attachInterrupt(digitalPinToInterrupt(interruptPin3), onPulse3, FALLING);
+//   }
+//   }
+
+
+
+
+
 
 
 }
@@ -135,6 +190,24 @@ string Logger::getCurrentTime()
    string currentTime = currTime.substr(0, currTime.size()-1);
    return currentTime;
 }
+
+string Logger::getCurrentTimeForDataLog()
+{
+   // NEED TO GET MINUTES SO WE CAN TRIGGER EVERY 10 MINUTES
+   // NEED TO GET MINUTES SO WE CAN TRIGGER EVERY 10 MINUTES
+   // NEED TO GET MINUTES SO WE CAN TRIGGER EVERY 10 MINUTES
+
+   string currTime;
+   //Current date/time based on current time
+   time_t now = time(0);
+   // Convert current time to string
+   currTime.assign(ctime(&now));
+
+   // Last charactor of currentTime is "\n", so remove it
+   string currentTime = currTime.substr(0, currTime.size()-1);
+   return currentTime;
+}
+
 
 // Interface for Error Log
 void Logger::error(const char* text) throw()

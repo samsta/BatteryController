@@ -37,6 +37,8 @@
 #include <vector>
 #include "core/Timer.hpp"
 #include "monitor/Monitor.hpp"
+#include "RunningAvg.hpp"
+// #include "FTPClient.h"
 
 // POSIX Socket Header File(s)
 #include <errno.h>
@@ -157,6 +159,7 @@ namespace logging
          void unlock();
 
          std::string getCurrentTime();
+         std::string getCurrentTimeForDataLog();
 
       private:
          void logIntoFile(std::string& data);
@@ -177,6 +180,9 @@ namespace logging
          std::vector<monitor::Monitor*>   m_vmonitor;
          core::Callback<Logger> m_datalog_callback;
 
+         // float m_voltage, m_current, m_soc_percent, m_charge_limit, m_discharge_limit, m_stored_energy
+         #define MAX_BATTERIES 6         
+         RunningAverage m_voltage_ra[MAX_BATTERIES];
 
          // unsigned int		 logSize; // Size of a log file in bytes
          // unsigned int		 maxLogFiles; // Maximum number of log files
