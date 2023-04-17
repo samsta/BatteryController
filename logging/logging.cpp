@@ -30,13 +30,12 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <iomanip>
 
 // Code Specific Header Files(s)
 
 using namespace std;
 using namespace logging;
-
-Logger* Logger::m_Instance = 0;
 
 // Log file name. File name should be change from here only
 const string logFileName = "BatteryController.log";
@@ -45,7 +44,8 @@ const string dataFileName= "BatteryOneDataLog.txt";
 Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor):
    m_timer(timer),
    m_vmonitor(vmonitor),
-   m_datalog_callback(*this, &Logger::updateDataLog)
+   m_datalog_callback(*this, &Logger::updateDataLog),
+   m_prev_minute(0)
 {
    m_File.open(logFileName.c_str(), ios::out|ios::app);
    m_LogLevel  = loglevel;
@@ -55,17 +55,17 @@ Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Moni
    ret = pthread_mutexattr_settype(&m_Attr, PTHREAD_MUTEX_ERRORCHECK_NP);
    if(ret != 0)
    {
-      printf("Logger::Logger() -- Mutex attribute not initialize!!\n");
+      printf("Logger::Logger() -- Mutex attribute did not initialize!!\n");
       exit(0);
    }
    ret = pthread_mutex_init(&m_Mutex,&m_Attr);
    if(ret != 0)
    {
-      printf("Logger::Logger() -- Mutex not initialize!!\n");
+      printf("Logger::Logger() -- Mutex did not initialize!!\n");
       exit(0);
    }
 
-   m_timer.registerPeriodicCallback(&m_datalog_callback, 1000);
+   m_timer.registerPeriodicCallback(&m_datalog_callback, DATALOG_CALLBACK_PERIOD);
 
 }
 
@@ -77,6 +77,14 @@ Logger::~Logger()
    pthread_mutexattr_destroy(&m_Attr);
    pthread_mutex_destroy(&m_Mutex);
 }
+
+//****************** lock/unlock ******************
+// I believe these have been used when writing to the file because
+// the code was written to allow multiple instances of the logger object,
+// each writing to the same file. There had to be a method
+// to stop two of them writing at the same time.
+// I have changed the code so that it is not possible to have more than one
+// instance so I guess these aren't needed but I will leave them. 
 
 void Logger::lock()
 {
@@ -93,71 +101,73 @@ void Logger::setMonitor(std::vector<monitor::Monitor*> vmonitor)
    m_vmonitor = vmonitor;
    if (m_vmonitor.size() > MAX_BATTERIES)
    {
-      error("MAX_BATTERIES exceeded in data logging", __FILENAME__, __LINE__);
+      error("MAX_BATTERIES exceeded in data logging, that's all, the program will likely crash but at least you've been warned.", __FILENAME__, __LINE__);
       // that's all, the program will likely crash but at least you've been warned.
    }
 }
 
 void Logger::updateDataLog()
 {
+   // called once per minute (DATALOG_CALLBACK_PERIOD)
+   // every  minute take a reading, keep the average, min, max
+   // every 10 minutes write the values to text file
+
+   // take a data reading
    for (unsigned i=0; i<m_vmonitor.size(); i++)
    {
-      if (m_vmonitor[i]->getPackStatus() == monitor::Monitor::Pack_Status::NORMAL_OPERATION )
+      // if (m_vmonitor[i]->getPackStatus() == monitor::Monitor::Pack_Status::NORMAL_OPERATION )
       {
-         m_voltage_ra[i].dataPoint(m_vmonitor[i]->getVoltage());
+         // m_bat_data[1][i].dataPoint(m_vmonitor[i]->getVoltage());
+         // m_bat_data[2][i].dataPoint(m_vmonitor[i]->getCurrent());
+         // m_bat_data[3][i].dataPoint(m_vmonitor[i]->getSocPercent());
+         // m_bat_data[4][i].dataPoint(m_vmonitor[i]->getChargeCurrentLimit());
+         // m_bat_data[5][i].dataPoint(m_vmonitor[i]->getDischargeCurrentLimit());
+         // m_bat_data[6][i].dataPoint(m_vmonitor[i]->getEnergyRemainingKwh());
+         float f = i+1;
+         for (unsigned j=0; j<DATA_COUNT; j++)
+         {
+            float g = j+1;
+            m_bat_data[j][i].dataPoint(g * (f+f/10.0));
+         }
+
       }
    }
 
-//   iThisMinute = timeClient.getMinutes();
-//   if ((iPrevMinute != iThisMinute) and (timeClient.getSeconds() >= 5)) {
-//     iPrevMinute = iThisMinute;
-//      //on every minute divisible by 10
-//      if (iThisMinute % 10 == 0) {
-//       // disable interrupt to get readings
-//       detachInterrupt(digitalPinToInterrupt(interruptPin1));
-//       detachInterrupt(digitalPinToInterrupt(interruptPin2));
-//       detachInterrupt(digitalPinToInterrupt(interruptPin3));
-//       // get current readings
-//       instpowerftp1 = instpower1;
-//       instpower1 = 0;
-//       intervalpowerftp1 = intervalpower1;
-//       intervalpower1 = 0;
-//       pulseintervalbegin1 = pulsebegin1;
-//       pulsecountinterval1 = 1;
-//       totalWhftp1 = totalWh1;
-
-//       instpowerftp2 = instpower2;
-//       instpower2 = 0;
-//       intervalpowerftp2 = intervalpower2;
-//       intervalpower2 = 0;
-//       pulseintervalbegin2 = pulsebegin2;
-//       pulsecountinterval2 = 1;
-//       totalWhftp2 = totalWh2;
-
-//       instpowerftp3 = instpower3;
-//       instpower3 = 0;
-//       intervalpowerftp3 = intervalpower3;
-//       intervalpower3 = 0;
-//       pulseintervalbegin3 = pulsebegin3;
-//       pulsecountinterval3 = 1;
-//       totalWhftp3 = totalWh3;
-
-//       WriteData();
-//       FTPFileAndDelete(tempdatafile,"jimster.ca/HeatChart"); 
-
-//       // enable interrupt
-//       attachInterrupt(digitalPinToInterrupt(interruptPin1), onPulse1, FALLING);
-//       attachInterrupt(digitalPinToInterrupt(interruptPin2), onPulse2, FALLING);
-//       attachInterrupt(digitalPinToInterrupt(interruptPin3), onPulse3, FALLING);
-//   }
-//   }
-
-
-
-
-
-
-
+   // log data every 10 minutes
+   std::time_t t = std::time(0);
+   std::tm* now = std::localtime(&t);
+   unsigned this_minute = now->tm_min;
+   if (m_prev_minute != this_minute) 
+   {
+      m_prev_minute = this_minute;
+      // on every minute evenly divisible by 10
+      if (this_minute %2 == 0)
+      {
+         std::ofstream file;
+         file.open(dataFileName.c_str(), ios::out|ios::app);
+         // write the date and time in quotes            
+         file << std::put_time(now, "\"%Y-%m-%d %H:%M:%S\",");
+         // write the data in quotes
+         for (unsigned i=0; i<m_vmonitor.size(); i++)
+         {
+            for (unsigned j=0; j<DATA_COUNT; j++)
+            {
+               file << "\"" << m_bat_data[j][i].getAverage() << "\",";
+               file << "\"" << m_bat_data[j][i].getMin() << "\",";
+               // no comma on the very last data point
+               if ((j==(DATA_COUNT-1)) && (i==(m_vmonitor.size()-1)))
+                  file << "\"" << m_bat_data[j][i].getMax() << "\"";
+               else
+                  file << "\"" << m_bat_data[j][i].getMax() << "\",";
+               
+               // reset the stats
+               m_bat_data[j][i].reset();
+            }
+         }
+         file << endl;
+         file.close();
+      }
+   }
 }
 
 void Logger::logIntoFile(std::string& data)
@@ -193,10 +203,6 @@ string Logger::getCurrentTime()
 
 string Logger::getCurrentTimeForDataLog()
 {
-   // NEED TO GET MINUTES SO WE CAN TRIGGER EVERY 10 MINUTES
-   // NEED TO GET MINUTES SO WE CAN TRIGGER EVERY 10 MINUTES
-   // NEED TO GET MINUTES SO WE CAN TRIGGER EVERY 10 MINUTES
-
    string currTime;
    //Current date/time based on current time
    time_t now = time(0);

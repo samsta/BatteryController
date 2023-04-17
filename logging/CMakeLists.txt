@@ -1,4 +1,4 @@
-add_library(logging colors.cpp logging.cpp RunningAvg.cpp)
+add_library(logging colors.cpp logging.cpp AvgMinMax.cpp)
 target_include_directories(logging PUBLIC ../ ${CMAKE_BINARY_DIR})
 
 add_subdirectory(no_stl)

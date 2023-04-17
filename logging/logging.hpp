@@ -37,8 +37,7 @@
 #include <vector>
 #include "core/Timer.hpp"
 #include "monitor/Monitor.hpp"
-#include "RunningAvg.hpp"
-// #include "FTPClient.h"
+#include "AvgMinMax.hpp"
 
 // POSIX Socket Header File(s)
 #include <errno.h>
@@ -48,15 +47,6 @@
 
 namespace logging
 {
-   // Direct Interface for logging into log file or console using MACRO(s)
-   // #define LOG_ERROR(x)    Logger::getInstance()->error(x)
-   // #define LOG_ALARM(x)    Logger::getInstance()->alarm(x)
-   // #define LOG_ALWAYS(x)   Logger::getInstance()->always(x)
-   // #define LOG_INFO(x)     Logger::getInstance()->info(x)
-   // #define LOG_BUFFER(x)   Logger::getInstance()->buffer(x)
-   // #define LOG_TRACE(x)    Logger::getInstance()->trace(x)
-   // #define LOG_DEBUG(x)    Logger::getInstance()->debug(x)
-
    // Default value for maximum number of log files 
    #define MAX_LOG_FILES 10
    
@@ -167,7 +157,6 @@ namespace logging
          // void rollLogFiles();
 
       private:
-         static Logger*          m_Instance;
          std::ofstream           m_File;
 
          pthread_mutexattr_t     m_Attr;
@@ -181,8 +170,17 @@ namespace logging
          core::Callback<Logger> m_datalog_callback;
 
          // float m_voltage, m_current, m_soc_percent, m_charge_limit, m_discharge_limit, m_stored_energy
-         #define MAX_BATTERIES 6         
-         RunningAverage m_voltage_ra[MAX_BATTERIES];
+         #define DATALOG_CALLBACK_PERIOD 15 * 1000 // 60 seconds
+         unsigned m_prev_minute;
+         #define MAX_BATTERIES 6
+         #define DATA_COUNT 6
+         AvgMinMax m_bat_data[DATA_COUNT][MAX_BATTERIES];
+         // AvgMinMax m_voltage_amx[MAX_BATTERIES];
+         // AvgMinMax m_current_amx[MAX_BATTERIES];
+         // AvgMinMax m_soc_percent_amx[MAX_BATTERIES];
+         // AvgMinMax m_charge_limit_amx[MAX_BATTERIES];
+         // AvgMinMax m_discharge_limit_amx[MAX_BATTERIES];
+         // AvgMinMax m_stored_energy_amx[MAX_BATTERIES];
 
          // unsigned int		 logSize; // Size of a log file in bytes
          // unsigned int		 maxLogFiles; // Maximum number of log files
