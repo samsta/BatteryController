@@ -51,19 +51,19 @@ Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Moni
    m_LogLevel  = loglevel;
    m_LogType   = FILE_LOG;
 
-   // int ret=0;
-   // ret = pthread_mutexattr_settype(&m_Attr, PTHREAD_MUTEX_ERRORCHECK_NP);
-   // if(ret != 0)
-   // {
-   //    printf("Logger::Logger() -- Mutex attribute did not initialize!!\n");
-   //    exit(0);
-   // }
-   // ret = pthread_mutex_init(&m_Mutex,&m_Attr);
-   // if(ret != 0)
-   // {
-   //    printf("Logger::Logger() -- Mutex did not initialize!!\n");
-   //    exit(0);
-   // }
+   int ret=0;
+   ret = pthread_mutexattr_settype(&m_Attr, PTHREAD_MUTEX_ERRORCHECK_NP);
+   if(ret != 0)
+   {
+      printf("Logger::Logger() -- Mutex attribute did not initialize!!\n");
+      exit(0);
+   }
+   ret = pthread_mutex_init(&m_Mutex,&m_Attr);
+   if(ret != 0)
+   {
+      printf("Logger::Logger() -- Mutex did not initialize!!\n");
+      exit(0);
+   }
 
    m_timer.registerPeriodicCallback(&m_datalog_callback, DATALOG_CALLBACK_PERIOD);
 
@@ -88,12 +88,12 @@ Logger::~Logger()
 
 void Logger::lock()
 {
-   // pthread_mutex_lock(&m_Mutex);
+   pthread_mutex_lock(&m_Mutex);
 }
 
 void Logger::unlock()
 {
-   // pthread_mutex_unlock(&m_Mutex);
+   pthread_mutex_unlock(&m_Mutex);
 }
 
 void Logger::setMonitor(std::vector<monitor::Monitor*> vmonitor)
