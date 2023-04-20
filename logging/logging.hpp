@@ -33,8 +33,15 @@
 #include <fstream>
 #include <sstream>
 #include <string.h>
+#include <sys/stat.h>
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
 
 #include <vector>
+#include <thread>
+#include <curl/curl.h>
+
 #include "core/Timer.hpp"
 #include "monitor/Monitor.hpp"
 #include "AvgMinMax.hpp"
@@ -79,7 +86,6 @@ namespace logging
          ~Logger();
 
          void setMonitor(std::vector<monitor::Monitor*> vmonitor);
-         void updateDataLog();
 
          // Interface for Error Log
          void error(const char* text) throw();
@@ -157,6 +163,10 @@ namespace logging
          // void rollLogFiles();
 
       private:
+         std::thread httpPostThread;
+         void updateDataLog();
+         void httpPOST();
+
          std::ofstream           m_File;
 
          pthread_mutexattr_t     m_Attr;
@@ -170,7 +180,7 @@ namespace logging
          core::Callback<Logger> m_datalog_callback;
 
          // float m_voltage, m_current, m_soc_percent, m_charge_limit, m_discharge_limit, m_stored_energy
-         #define DATALOG_CALLBACK_PERIOD 15 * 1000 // 60 seconds
+         #define DATALOG_CALLBACK_PERIOD 60 * 1000 // 60 seconds
          unsigned m_prev_minute;
          #define MAX_BATTERIES 6
          #define DATA_COUNT 6

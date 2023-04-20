@@ -25,14 +25,7 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-// C++ Header File(s)
 #include <logging/logging.hpp>
-#include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <iomanip>
-
-// Code Specific Header Files(s)
 
 using namespace std;
 using namespace logging;
@@ -40,6 +33,7 @@ using namespace logging;
 // Log file name. File name should be change from here only
 const string logFileName = "BatteryController.log";
 const string dataFileName= "BatteryOneDataLog.txt";
+const string httpPostURL = "http://jimster.ca/BatteryOne/BatteryOne-data-receiver.php";
 
 Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor):
    m_timer(timer),
@@ -65,8 +59,7 @@ Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Moni
       exit(0);
    }
 
-   m_timer.registerPeriodicCallback(&m_datalog_callback, DATALOG_CALLBACK_PERIOD);
-
+   m_timer.registerPeriodicCallback(&m_datalog_callback, 15000);// DATALOG_CALLBACK_PERIOD);
 }
 
 Logger::~Logger()
@@ -137,12 +130,13 @@ void Logger::updateDataLog()
    std::time_t t = std::time(0);
    std::tm* now = std::localtime(&t);
    unsigned this_minute = now->tm_min;
-   if (m_prev_minute != this_minute) 
+   if (true or m_prev_minute != this_minute) 
    {
       m_prev_minute = this_minute;
       // on every minute evenly divisible by 10
-      if (this_minute %2 == 0)
+      if (true or this_minute %1 == 0)  // *********************** EVERY MINUTE *************************
       {
+         // write the pertanent data to a file
          std::ofstream file;
          file.open(dataFileName.c_str(), ios::out|ios::app);
          // write the date and time in quotes            
@@ -166,8 +160,107 @@ void Logger::updateDataLog()
          }
          file << endl;
          file.close();
+
+         // transfer the file to web host in a separate thread
+         // because internet access can block and take some time to complete
+         try {
+            httpPostThread =  std::thread(&Logger::httpPOST, this);
+            httpPostThread.detach();
+         }
+         catch (const std::system_error& e)
+         {
+            std::ostringstream ss;
+            ss << "std::thread failed, failed to transfer battery log data to web host. error:" << e.what();
+            error(ss, __FILENAME__, __LINE__);
+         }
       }
    }
+}
+
+void Logger::httpPOST()
+{
+   info("httppostThread now running.", __FILENAME__, __LINE__);
+
+   CURL *curl;
+   CURLcode res;
+   FILE *hd_src;
+   struct stat file_info;
+   unsigned long fsize;
+   char loggerbuf[1024];
+
+   /* get the file size of the local file */
+   if(stat(dataFileName.c_str(), &file_info)) {
+      sprintf(loggerbuf, "Couldn't open '%s': %s", dataFileName.c_str(), strerror(errno));
+      error(loggerbuf, __FILENAME__, __LINE__);
+      return;
+   }
+   fsize = (unsigned long)file_info.st_size;
+   sprintf(loggerbuf, "Local file size: %lu bytes.", fsize);
+   info(loggerbuf, __FILENAME__, __LINE__);
+
+   // Create a char array to store the contents of the file
+   char* buffer = new char[fsize];
+
+   /* get a FILE * of the same file */
+   hd_src = fopen(dataFileName.c_str(), "r");
+
+   // need to reduce fsize to discard the CRLF at the end as the transfer seems to insert one
+   fsize -= 1;
+   
+   // read contents of file into char buffer
+   size_t retcode = fread(buffer, 1, fsize, hd_src);
+   if(retcode > 0) {
+      sprintf(loggerbuf, "We read %lu bytes from file.", (unsigned long)retcode);
+      info(loggerbuf, __FILENAME__, __LINE__);
+   }
+   else
+   {
+      sprintf(loggerbuf, "Failed to read file. retcode=%lu",(unsigned long)retcode);
+      error(loggerbuf, __FILENAME__, __LINE__);
+      return;
+   }
+
+   // Close the file
+   fclose(hd_src);
+ 
+   /* get a curl handle */
+   curl = curl_easy_init();
+   if(curl) {
+      /* enable http post */
+      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, buffer);
+
+      /* specify target */
+      curl_easy_setopt(curl, CURLOPT_URL, httpPostURL.c_str());
+
+      /* Now run off and do what you have been told! */
+      res = curl_easy_perform(curl);
+      /* Check for errors */
+      if(res != CURLE_OK)
+      {
+         sprintf(loggerbuf, "curl_easy_perform() failed: %s", curl_easy_strerror(res));
+         error(loggerbuf, __FILENAME__, __LINE__);
+         return;
+      }
+
+      /* always cleanup */
+      curl_easy_cleanup(curl);
+   
+      // Free the memory used by the char array
+      delete[] buffer;
+   }
+   curl_global_cleanup();
+
+   // delete data file
+   // int result = remove(dataFileName.c_str());
+   // if (result != 0) {
+   //    sprintf(loggerbuf, "Error deleting file.");
+   //    error(loggerbuf, __FILENAME__, __LINE__);
+   // } else {
+   //    sprintf(loggerbuf, "File deleted successfully.");
+   //    info(loggerbuf, __FILENAME__, __LINE__);
+   // }
+
+   info("httppostThread finished.", __FILENAME__, __LINE__);
 }
 
 void Logger::logIntoFile(std::string& data)
