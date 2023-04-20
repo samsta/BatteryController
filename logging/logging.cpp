@@ -59,7 +59,7 @@ Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Moni
       exit(0);
    }
 
-   m_timer.registerPeriodicCallback(&m_datalog_callback, 15000);// DATALOG_CALLBACK_PERIOD);
+   m_timer.registerPeriodicCallback(&m_datalog_callback, DATALOG_CALLBACK_PERIOD);
 }
 
 Logger::~Logger()
@@ -130,11 +130,11 @@ void Logger::updateDataLog()
    std::time_t t = std::time(0);
    std::tm* now = std::localtime(&t);
    unsigned this_minute = now->tm_min;
-   if (true or m_prev_minute != this_minute) 
+   if (m_prev_minute != this_minute) 
    {
       m_prev_minute = this_minute;
       // on every minute evenly divisible by 10
-      if (true or this_minute %1 == 0)  // *********************** EVERY MINUTE *************************
+      if (this_minute %10 == 0)  
       {
          // write the pertanent data to a file
          std::ofstream file;
@@ -205,7 +205,7 @@ void Logger::httpPOST()
    hd_src = fopen(dataFileName.c_str(), "r");
 
    // need to reduce fsize to discard the CRLF at the end as the transfer seems to insert one
-   fsize -= 1;
+   // fsize -= 1;
    
    // read contents of file into char buffer
    size_t retcode = fread(buffer, 1, fsize, hd_src);
