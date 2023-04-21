@@ -251,14 +251,14 @@ void Logger::httpPOST()
    curl_global_cleanup();
 
    // delete data file
-   // int result = remove(dataFileName.c_str());
-   // if (result != 0) {
-   //    sprintf(loggerbuf, "Error deleting file.");
-   //    error(loggerbuf, __FILENAME__, __LINE__);
-   // } else {
-   //    sprintf(loggerbuf, "File deleted successfully.");
-   //    info(loggerbuf, __FILENAME__, __LINE__);
-   // }
+   int result = remove(dataFileName.c_str());
+   if (result != 0) {
+      sprintf(loggerbuf, "Error deleting file.");
+      error(loggerbuf, __FILENAME__, __LINE__);
+   } else {
+      sprintf(loggerbuf, "File deleted successfully.");
+      info(loggerbuf, __FILENAME__, __LINE__);
+   }
 
    info("httppostThread finished.", __FILENAME__, __LINE__);
 }

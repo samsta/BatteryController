@@ -47,8 +47,8 @@
 #include "AvgMinMax.hpp"
 
 // POSIX Socket Header File(s)
-#include <errno.h>
-#include <pthread.h>
+// #include <errno.h>
+// #include <pthread.h>
 
 #define __FILENAME__ (strrchr(__FILE__,47)+1)
 
