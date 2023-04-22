@@ -166,6 +166,7 @@ namespace logging
          std::thread httpPostThread;
          void updateDataLog();
          void httpPOST();
+         void httpPOSTstr(std::string str);
 
          std::ofstream           m_File;
 
