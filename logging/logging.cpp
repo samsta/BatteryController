@@ -173,20 +173,20 @@ void Logger::updateDataLog()
          file << str;
          file.close();
 
-         httpPOSTstr(str);
+         // httpPOSTstr(str);
 
-         // // transfer the file to web host in a separate thread
-         // // because internet access can block and take some time to complete
-         // try {
-         //    httpPostThread =  std::thread(&Logger::httpPOST, this);
-         //    httpPostThread.detach();
-         // }
-         // catch (const std::system_error& e)
-         // {
-         //    std::ostringstream ss;
-         //    ss << "std::thread failed, failed to transfer battery log data to web host. error:" << e.what();
-         //    error(ss, __FILENAME__, __LINE__);
-         // }
+         // transfer the file to web host in a separate thread
+         // because internet access can block and take some time to complete
+         try {
+            httpPostThread =  std::thread(&Logger::httpPOSTstr, this, str);
+            httpPostThread.detach();
+         }
+         catch (const std::system_error& e)
+         {
+            std::ostringstream ss;
+            ss << "std::thread failed, failed to transfer battery log data to web host. error:" << e.what();
+            error(ss, __FILENAME__, __LINE__);
+         }
       }
    }
 }
