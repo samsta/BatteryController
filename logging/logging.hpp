@@ -182,6 +182,7 @@ namespace logging
 
          // float m_voltage, m_current, m_soc_percent, m_charge_limit, m_discharge_limit, m_stored_energy
          #define DATALOG_CALLBACK_PERIOD 60 * 1000 // 60 seconds
+         bool resetCallback;
          unsigned m_prev_minute;
          #define MAX_BATTERIES 6
          #define DATA_COUNT 6

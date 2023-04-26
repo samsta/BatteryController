@@ -33,33 +33,35 @@ using namespace logging;
 // Log file name. File name should be change from here only
 const string logFileName = "BatteryController.log";
 const string dataFileName= "BatteryOneDataLog.txt";
-const string httpPostURL = "http://jimster.ca/BatteryOne/BatteryOne-data-receiver.php";
+const string httpPostURL = "http://jimster.ca/BatteryOne/TEST-data-receiver.php";
+// const string httpPostURL = "http://jimster.ca/BatteryOne/BatteryOne-data-receiver.php";
 
 Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor):
    m_timer(timer),
    m_vmonitor(vmonitor),
    m_datalog_callback(*this, &Logger::updateDataLog),
+   resetCallback(true),
    m_prev_minute(0)
 {
    m_File.open(logFileName.c_str(), ios::out|ios::app);
    m_LogLevel  = loglevel;
    m_LogType   = FILE_LOG;
 
-   int ret=0;
-   ret = pthread_mutexattr_settype(&m_Attr, PTHREAD_MUTEX_ERRORCHECK_NP);
-   if(ret != 0)
-   {
-      std::cout << "Logger::Logger() -- Mutex did not initialize! ret=" << ret << std::endl;
-      // perror("pthread_mutex_init");
-      // printf("Logger::Logger() -- Mutex attribute did not initialize!!\n");
-      exit(0);
-   }
-   ret = pthread_mutex_init(&m_Mutex,&m_Attr);
-   if(ret != 0)
-   {
-      printf("Logger::Logger() -- Mutex did not initialize!!\n");
-      exit(0);
-   }
+   // int ret=0;
+   // ret = pthread_mutexattr_settype(&m_Attr, PTHREAD_MUTEX_ERRORCHECK_NP);
+   // if(ret != 0)
+   // {
+   //    std::cout << "Logger::Logger() -- Mutex did not initialize! ret=" << ret << std::endl;
+   //    // perror("pthread_mutex_init");
+   //    // printf("Logger::Logger() -- Mutex attribute did not initialize!!\n");
+   //    exit(0);
+   // }
+   // ret = pthread_mutex_init(&m_Mutex,&m_Attr);
+   // if(ret != 0)
+   // {
+   //    printf("Logger::Logger() -- Mutex did not initialize!!\n");
+   //    exit(0);
+   // }
 
    m_timer.registerPeriodicCallback(&m_datalog_callback, 5000);// DATALOG_CALLBACK_PERIOD);
 }
@@ -69,8 +71,8 @@ Logger::~Logger()
    m_File.close();
    m_timer.deregisterCallback(&m_datalog_callback);
 
-   pthread_mutexattr_destroy(&m_Attr);
-   pthread_mutex_destroy(&m_Mutex);
+   // pthread_mutexattr_destroy(&m_Attr);
+   // pthread_mutex_destroy(&m_Mutex);
 }
 
 //****************** lock/unlock ******************
@@ -83,12 +85,12 @@ Logger::~Logger()
 
 void Logger::lock()
 {
-   pthread_mutex_lock(&m_Mutex);
+   // pthread_mutex_lock(&m_Mutex);
 }
 
 void Logger::unlock()
 {
-   pthread_mutex_unlock(&m_Mutex);
+   // pthread_mutex_unlock(&m_Mutex);
 }
 
 void Logger::setMonitor(std::vector<monitor::Monitor*> vmonitor)
@@ -109,6 +111,25 @@ void Logger::updateDataLog()
 
    std:stringstream strstm;
    std::string str;
+   struct stat file_info;
+   unsigned long fsize;
+   char msgbuf[1024];
+
+   std::time_t t = std::time(0);
+   std::tm* now = std::localtime(&t);
+
+   // change the callback to 60 sec interval when it is the first 5 sec of the minute
+   if (resetCallback) {
+         info("reset", __FILENAME__, __LINE__);
+      if (now->tm_sec < 6)
+      {
+         resetCallback = false;
+         m_timer.deregisterCallback(&m_datalog_callback);
+         m_timer.registerPeriodicCallback(&m_datalog_callback, DATALOG_CALLBACK_PERIOD);
+         info("Data logging callback reset to 1 minutes", __FILENAME__, __LINE__);
+      }
+      return;
+   }
    
    // take a data reading
    for (unsigned i=0; i<m_vmonitor.size(); i++)
@@ -132,14 +153,12 @@ void Logger::updateDataLog()
    }
 
    // log data every 10 minutes
-   std::time_t t = std::time(0);
-   std::tm* now = std::localtime(&t);
    unsigned this_minute = now->tm_min;
    if (m_prev_minute != this_minute) 
    {
       m_prev_minute = this_minute;
       // on every minute evenly divisible by 10
-      if (this_minute %1 == 0)  
+      if (this_minute %2 == 0)  
       {
          // write the date and time in quotes            
          strstm << std::put_time(now, "\"%Y-%m-%d %H:%M:%S\",");
@@ -173,7 +192,29 @@ void Logger::updateDataLog()
          file << str;
          file.close();
 
-         // httpPOSTstr(str);
+         // see if filesize is same as str size, in which case
+         // we don't need to read the file
+         if(stat(dataFileName.c_str(), &file_info)) {
+            sprintf(msgbuf, "Couldn't open '%s': %s", dataFileName.c_str(), strerror(errno));
+            error(msgbuf, __FILENAME__, __LINE__);
+            return;
+         }
+         fsize = (unsigned long)file_info.st_size;
+         sprintf(msgbuf, "file size: %lu string size: %lu", fsize, str.length());
+         info(msgbuf, __FILENAME__, __LINE__);
+
+         if (fsize != str.length())
+         {
+            // read the file into str
+            str.clear();
+            std::stringstream buffer;
+            // Open the file for reading
+            std::ifstream file(dataFileName);
+            // Read the file contents into the stringstream
+            buffer << file.rdbuf();
+            str = buffer.str();
+         }
+         // TODO ***********************CHANGE LOGGER CONTRUCTION BACK  SO THAT THE MUTEX WORKS ON RPI
 
          // transfer the file to web host in a separate thread
          // because internet access can block and take some time to complete
@@ -189,6 +230,57 @@ void Logger::updateDataLog()
          }
       }
    }
+}
+
+void Logger::httpPOSTstr(std::string str)
+{
+   info("httpPOSTstr now running.", __FILENAME__, __LINE__);
+   info(str.c_str(), __FILENAME__, __LINE__);
+
+   CURL *curl;
+   CURLcode res;
+   unsigned long fsize;
+   char msgbuf[1024];
+
+   fsize = str.length();
+   sprintf(msgbuf, "Local file size: %lu bytes.", fsize);
+   info(msgbuf, __FILENAME__, __LINE__);
+
+   /* get a curl handle */
+   curl = curl_easy_init();
+   if(curl) {
+      /* enable http post */
+      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, str.c_str());
+
+      /* specify target */
+      curl_easy_setopt(curl, CURLOPT_URL, httpPostURL.c_str());
+
+      /* Now run off and do what you have been told! */
+      res = curl_easy_perform(curl);
+      /* Check for errors */
+      if(res != CURLE_OK)
+      {
+         sprintf(msgbuf, "curl_easy_perform() failed: %s", curl_easy_strerror(res));
+         error(msgbuf, __FILENAME__, __LINE__);
+         return;
+      }
+
+      /* always cleanup */
+      curl_easy_cleanup(curl);
+   }
+   curl_global_cleanup();
+
+   // delete data file
+   int result = remove(dataFileName.c_str());
+   if (result != 0) {
+      sprintf(msgbuf, "Error deleting file.");
+      error(msgbuf, __FILENAME__, __LINE__);
+   } else {
+      sprintf(msgbuf, "File deleted successfully.");
+      info(msgbuf, __FILENAME__, __LINE__);
+   }
+
+   info("httpPOSTstr finished.", __FILENAME__, __LINE__);
 }
 
 void Logger::httpPOST()
@@ -275,57 +367,6 @@ void Logger::httpPOST()
    }
 
    info("httpPOST finished.", __FILENAME__, __LINE__);
-}
-
-void Logger::httpPOSTstr(std::string str)
-{
-   info("httpPOSTstr now running.", __FILENAME__, __LINE__);
-   info(str.c_str(), __FILENAME__, __LINE__);
-
-   CURL *curl;
-   CURLcode res;
-   unsigned long fsize;
-   char msgbuf[1024];
-
-   fsize = str.length();
-   sprintf(msgbuf, "Local file size: %lu bytes.", fsize);
-   info(msgbuf, __FILENAME__, __LINE__);
-
-   /* get a curl handle */
-   curl = curl_easy_init();
-   if(curl) {
-      /* enable http post */
-      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, str.c_str());
-
-      /* specify target */
-      curl_easy_setopt(curl, CURLOPT_URL, httpPostURL.c_str());
-
-      /* Now run off and do what you have been told! */
-      res = curl_easy_perform(curl);
-      /* Check for errors */
-      if(res != CURLE_OK)
-      {
-         sprintf(msgbuf, "curl_easy_perform() failed: %s", curl_easy_strerror(res));
-         error(msgbuf, __FILENAME__, __LINE__);
-         return;
-      }
-
-      /* always cleanup */
-      curl_easy_cleanup(curl);
-   }
-   curl_global_cleanup();
-
-   // // delete data file
-   // int result = remove(dataFileName.c_str());
-   // if (result != 0) {
-   //    sprintf(msgbuf, "Error deleting file.");
-   //    error(msgbuf, __FILENAME__, __LINE__);
-   // } else {
-   //    sprintf(msgbuf, "File deleted successfully.");
-   //    info(msgbuf, __FILENAME__, __LINE__);
-   // }
-
-   info("httpPOSTstr finished.", __FILENAME__, __LINE__);
 }
 
 void Logger::logIntoFile(std::string& data)
