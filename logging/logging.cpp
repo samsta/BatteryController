@@ -33,8 +33,8 @@ using namespace logging;
 // Log file name. File name should be change from here only
 const string logFileName = "BatteryController.log";
 const string dataFileName= "BatteryOneDataLog.txt";
-const string httpPostURL = "http://jimster.ca/BatteryOne/TEST-data-receiver.php";
-// const string httpPostURL = "http://jimster.ca/BatteryOne/BatteryOne-data-receiver.php";
+// const string httpPostURL = "http://jimster.ca/BatteryOne/TEST-data-receiver.php";
+const string httpPostURL = "http://jimster.ca/BatteryOne/BatteryOne-data-receiver.php";
 
 Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor):
    m_timer(timer),
@@ -63,7 +63,8 @@ Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Moni
    //    exit(0);
    // }
 
-   m_timer.registerPeriodicCallback(&m_datalog_callback, 5000);// DATALOG_CALLBACK_PERIOD);
+   // set callback to 5 secs in order to sync up to the start of a minute
+   m_timer.registerPeriodicCallback(&m_datalog_callback, 5000);
 }
 
 Logger::~Logger()
@@ -120,13 +121,13 @@ void Logger::updateDataLog()
 
    // change the callback to 60 sec interval when it is the first 5 sec of the minute
    if (resetCallback) {
-         info("reset", __FILENAME__, __LINE__);
+         // info("reset", __FILENAME__, __LINE__);
       if (now->tm_sec < 6)
       {
          resetCallback = false;
          m_timer.deregisterCallback(&m_datalog_callback);
          m_timer.registerPeriodicCallback(&m_datalog_callback, DATALOG_CALLBACK_PERIOD);
-         info("Data logging callback reset to 1 minutes", __FILENAME__, __LINE__);
+         info("Data logging callback reset to 1 minute", __FILENAME__, __LINE__);
       }
       return;
    }
@@ -158,7 +159,7 @@ void Logger::updateDataLog()
    {
       m_prev_minute = this_minute;
       // on every minute evenly divisible by 10
-      if (this_minute %2 == 0)  
+      if (this_minute %10 == 0)  
       {
          // write the date and time in quotes            
          strstm << std::put_time(now, "\"%Y-%m-%d %H:%M:%S\",");
@@ -200,11 +201,11 @@ void Logger::updateDataLog()
             return;
          }
          fsize = (unsigned long)file_info.st_size;
-         sprintf(msgbuf, "file size: %lu string size: %lu", fsize, str.length());
-         info(msgbuf, __FILENAME__, __LINE__);
 
          if (fsize != str.length())
          {
+            sprintf(msgbuf, "Reading datalog file from disk.  file size: %lu != string size: %lu", fsize, str.length());
+            info(msgbuf, __FILENAME__, __LINE__);
             // read the file into str
             str.clear();
             std::stringstream buffer;
@@ -214,7 +215,6 @@ void Logger::updateDataLog()
             buffer << file.rdbuf();
             str = buffer.str();
          }
-         // TODO ***********************CHANGE LOGGER CONTRUCTION BACK  SO THAT THE MUTEX WORKS ON RPI
 
          // transfer the file to web host in a separate thread
          // because internet access can block and take some time to complete
@@ -234,8 +234,8 @@ void Logger::updateDataLog()
 
 void Logger::httpPOSTstr(std::string str)
 {
-   info("httpPOSTstr now running.", __FILENAME__, __LINE__);
-   info(str.c_str(), __FILENAME__, __LINE__);
+   // TODO ***********************CHANGE LOGGER CONTRUCTION BACK  SO THAT THE MUTEX WORKS ON RPI
+   // info("httpPOSTstr now running.", __FILENAME__, __LINE__);
 
    CURL *curl;
    CURLcode res;
@@ -243,8 +243,8 @@ void Logger::httpPOSTstr(std::string str)
    char msgbuf[1024];
 
    fsize = str.length();
-   sprintf(msgbuf, "Local file size: %lu bytes.", fsize);
-   info(msgbuf, __FILENAME__, __LINE__);
+   // sprintf(msgbuf, "Passed string size: %lu bytes.", fsize);
+   // info(msgbuf, __FILENAME__, __LINE__);
 
    /* get a curl handle */
    curl = curl_easy_init();
@@ -257,116 +257,32 @@ void Logger::httpPOSTstr(std::string str)
 
       /* Now run off and do what you have been told! */
       res = curl_easy_perform(curl);
-      /* Check for errors */
-      if(res != CURLE_OK)
-      {
-         sprintf(msgbuf, "curl_easy_perform() failed: %s", curl_easy_strerror(res));
-         error(msgbuf, __FILENAME__, __LINE__);
-         return;
-      }
 
       /* always cleanup */
       curl_easy_cleanup(curl);
    }
    curl_global_cleanup();
 
-   // delete data file
-   int result = remove(dataFileName.c_str());
-   if (result != 0) {
-      sprintf(msgbuf, "Error deleting file.");
-      error(msgbuf, __FILENAME__, __LINE__);
-   } else {
-      sprintf(msgbuf, "File deleted successfully.");
-      info(msgbuf, __FILENAME__, __LINE__);
-   }
-
-   info("httpPOSTstr finished.", __FILENAME__, __LINE__);
-}
-
-void Logger::httpPOST()
-{
-   info("httpPOST now running.", __FILENAME__, __LINE__);
-
-   CURL *curl;
-   CURLcode res;
-   FILE *hd_src;
-   struct stat file_info;
-   unsigned long fsize;
-   char msgbuf[1024];
-
-   /* get the file size of the local file */
-   if(stat(dataFileName.c_str(), &file_info)) {
-      sprintf(msgbuf, "Couldn't open '%s': %s", dataFileName.c_str(), strerror(errno));
-      error(msgbuf, __FILENAME__, __LINE__);
-      return;
-   }
-   fsize = (unsigned long)file_info.st_size;
-   sprintf(msgbuf, "Local file size: %lu bytes.", fsize);
-   info(msgbuf, __FILENAME__, __LINE__);
-
-   // Create a char array to store the contents of the file
-   char* buffer = new char[fsize];
-
-   /* get a FILE * of the same file */
-   hd_src = fopen(dataFileName.c_str(), "r");
-
-   // need to reduce fsize to discard the CRLF at the end as the transfer seems to insert one
-   // fsize -= 1;
-   
-   // read contents of file into char buffer
-   size_t retcode = fread(buffer, 1, fsize, hd_src);
-   if(retcode > 0) {
-      sprintf(msgbuf, "We read %lu bytes from file.", (unsigned long)retcode);
-      info(msgbuf, __FILENAME__, __LINE__);
-   }
-   else
+   /* Check for errors */
+   if(res != CURLE_OK)
    {
-      sprintf(msgbuf, "Failed to read file. retcode=%lu",(unsigned long)retcode);
+      sprintf(msgbuf, "curl_easy_perform() failed: %s.  Most likey due to loss of internet connection.", curl_easy_strerror(res));
       error(msgbuf, __FILENAME__, __LINE__);
       return;
    }
 
-   // Close the file
-   fclose(hd_src);
- 
-   /* get a curl handle */
-   curl = curl_easy_init();
-   if(curl) {
-      /* enable http post */
-      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, buffer);
-
-      /* specify target */
-      curl_easy_setopt(curl, CURLOPT_URL, httpPostURL.c_str());
-
-      /* Now run off and do what you have been told! */
-      res = curl_easy_perform(curl);
-      /* Check for errors */
-      if(res != CURLE_OK)
-      {
-         sprintf(msgbuf, "curl_easy_perform() failed: %s", curl_easy_strerror(res));
-         error(msgbuf, __FILENAME__, __LINE__);
-         return;
-      }
-
-      /* always cleanup */
-      curl_easy_cleanup(curl);
-   
-      // Free the memory used by the char array
-      delete[] buffer;
-   }
-   curl_global_cleanup();
-
    // delete data file
    int result = remove(dataFileName.c_str());
    if (result != 0) {
-      sprintf(msgbuf, "Error deleting file.");
+      sprintf(msgbuf, "Error deleting datalog file.");
       error(msgbuf, __FILENAME__, __LINE__);
-   } else {
-      sprintf(msgbuf, "File deleted successfully.");
-      info(msgbuf, __FILENAME__, __LINE__);
    }
+   // else {
+   //    sprintf(msgbuf, "File deleted successfully.");
+   //    info(msgbuf, __FILENAME__, __LINE__);
+   // }
 
-   info("httpPOST finished.", __FILENAME__, __LINE__);
+   // info("httpPOSTstr finished.", __FILENAME__, __LINE__);
 }
 
 void Logger::logIntoFile(std::string& data)
