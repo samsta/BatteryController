@@ -17,10 +17,10 @@ void AvgMinMax::dataPoint(float datapoint)
    else {
       // new_average = (old_average * (n-1) + new_value) / n
       m_average = ((m_average * m_count) + datapoint) / (m_count + 1);
-      m_count++;
       if (datapoint > m_max) m_max = datapoint;
       if (datapoint < m_min) m_min = datapoint;
    }
+   m_count++;
 }
 
 float AvgMinMax::getAverage()

@@ -133,21 +133,23 @@ void Logger::updateDataLog()
    }
    
    // take a data reading
+   // i is the battery
    for (unsigned i=0; i<m_vmonitor.size(); i++)
    {
       // if (m_vmonitor[i]->getPackStatus() == monitor::Monitor::Pack_Status::NORMAL_OPERATION )
       {
+         // TEMPERATURE?
          // m_bat_data[1][i].dataPoint(m_vmonitor[i]->getVoltage());
          // m_bat_data[2][i].dataPoint(m_vmonitor[i]->getCurrent());
          // m_bat_data[3][i].dataPoint(m_vmonitor[i]->getSocPercent());
          // m_bat_data[4][i].dataPoint(m_vmonitor[i]->getChargeCurrentLimit());
          // m_bat_data[5][i].dataPoint(m_vmonitor[i]->getDischargeCurrentLimit());
          // m_bat_data[6][i].dataPoint(m_vmonitor[i]->getEnergyRemainingKwh());
-         float f = i+1;
+         
+         // j is the data type (V, I, SOC, etc)
          for (unsigned j=0; j<DATA_COUNT; j++)
          {
-            float g = j+1;
-            m_bat_data[j][i].dataPoint(g * (f+f/10.0));
+            m_bat_data[j][i].dataPoint((i*10 + now->tm_min + j ));
          }
 
       }
