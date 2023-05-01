@@ -111,7 +111,7 @@ void Logger::updateDataLog()
    // every 10 minutes write the values to text file
 
    std:stringstream strstm;
-   std::string str;
+   std::string str,strt;
    struct stat file_info;
    unsigned long fsize;
    char msgbuf[1024];
@@ -126,7 +126,7 @@ void Logger::updateDataLog()
       {
          resetCallback = false;
          m_timer.deregisterCallback(&m_datalog_callback);
-         m_timer.registerPeriodicCallback(&m_datalog_callback, DATALOG_CALLBACK_PERIOD);
+         m_timer.registerPeriodicCallback(&m_datalog_callback, 30000);// DATALOG_CALLBACK_PERIOD);
          info("Data logging callback reset to 1 minute", __FILENAME__, __LINE__);
       }
       return;
@@ -145,8 +145,9 @@ void Logger::updateDataLog()
          // m_bat_data[4][i].dataPoint(m_vmonitor[i]->getChargeCurrentLimit());
          // m_bat_data[5][i].dataPoint(m_vmonitor[i]->getDischargeCurrentLimit());
          // m_bat_data[6][i].dataPoint(m_vmonitor[i]->getEnergyRemainingKwh());
+         // m_bat_data[7][i].dataPoint(m_vmonitor[i]->getTemperature());
          
-         // j is the data type (V, I, SOC, etc)
+           // j is the data type (V, I, SOC, etc)
          for (unsigned j=0; j<DATA_COUNT; j++)
          {
             m_bat_data[j][i].dataPoint((i*10 + now->tm_min + j ));
@@ -168,26 +169,26 @@ void Logger::updateDataLog()
          // write the data in quotes
          for (unsigned i=0; i<m_vmonitor.size(); i++)
          {
+            // datetime
+            str += strstm.str();
+            // battery number
+            str += "\"" + to_string(i) + "\",";
             for (unsigned j=0; j<DATA_COUNT; j++)
             {
-               strstm << "\"" << m_bat_data[j][i].getAverage() << "\",";
-               strstm << "\"" << m_bat_data[j][i].getMin() << "\",";
-               // no comma on the very last data point
-               if ((j==(DATA_COUNT-1)) && (i==(m_vmonitor.size()-1))) {
-                  strstm << "\"" << m_bat_data[j][i].getMax() << "\"";
+               str += + "\"" + floatToString(m_bat_data[j][i].getAverage()) + "\",";
+               str += + "\"" + floatToString(m_bat_data[j][i].getMin()) + "\",";
+               // no comma on the very last data point, but must have a newline character
+               if (j==(DATA_COUNT-1)) {
+                  str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\"\n";
                }
                else {
-                  strstm << "\"" << m_bat_data[j][i].getMax() << "\",";
+                  str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\",";
                }
                
                // reset the stats
                m_bat_data[j][i].reset();
             }
          }
-         strstm << endl;
-
-         // convert to string
-         str = strstm.str();
 
          // write the pertanent data to a file
          std::ofstream file;
@@ -633,6 +634,23 @@ void Logger::enableFileLogging()
 {
    m_LogType = FILE_LOG ;
 }
+
+std::string Logger::floatToString(float f)
+{
+  char buf[50];
+  std::snprintf(buf, sizeof(buf), "%.2f", f);
+  std::string result = std::string(buf);
+  // remove trailing zeros
+  size_t pos = result.find_last_not_of('0');
+  if (pos != std::string::npos && result[pos] == '.') {
+    pos++;  // keep one trailing zero after the decimal point
+  }
+  if (pos != std::string::npos) {
+    result.erase(pos + 1);
+  }
+  return result;
+}
+
 
 // THIS CODE NEEDS A LOT OF WORK...
 

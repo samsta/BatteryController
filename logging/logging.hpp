@@ -168,6 +168,7 @@ namespace logging
          void httpPOSTstr(std::string str);
 
          std::ofstream           m_File;
+         std::string floatToString(float f);
 
          pthread_mutexattr_t     m_Attr;
          pthread_mutex_t         m_Mutex;
@@ -184,7 +185,7 @@ namespace logging
          bool resetCallback;
          unsigned m_prev_minute;
          #define MAX_BATTERIES 6
-         #define DATA_COUNT 6
+         #define DATA_COUNT 7
          AvgMinMax m_bat_data[DATA_COUNT][MAX_BATTERIES];
          // AvgMinMax m_voltage_amx[MAX_BATTERIES];
          // AvgMinMax m_current_amx[MAX_BATTERIES];
