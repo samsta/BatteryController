@@ -180,19 +180,12 @@ namespace logging
          std::vector<monitor::Monitor*>   m_vmonitor;
          core::Callback<Logger> m_datalog_callback;
 
-         // float m_voltage, m_current, m_soc_percent, m_charge_limit, m_discharge_limit, m_stored_energy
          #define DATALOG_CALLBACK_PERIOD 60 * 1000 // 60 seconds
          bool resetCallback;
          unsigned m_prev_minute;
          #define MAX_BATTERIES 6
          #define DATA_COUNT 7
          AvgMinMax m_bat_data[DATA_COUNT][MAX_BATTERIES];
-         // AvgMinMax m_voltage_amx[MAX_BATTERIES];
-         // AvgMinMax m_current_amx[MAX_BATTERIES];
-         // AvgMinMax m_soc_percent_amx[MAX_BATTERIES];
-         // AvgMinMax m_charge_limit_amx[MAX_BATTERIES];
-         // AvgMinMax m_discharge_limit_amx[MAX_BATTERIES];
-         // AvgMinMax m_stored_energy_amx[MAX_BATTERIES];
 
          // unsigned int		 logSize; // Size of a log file in bytes
          // unsigned int		 maxLogFiles; // Maximum number of log files

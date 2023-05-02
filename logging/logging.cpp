@@ -126,7 +126,7 @@ void Logger::updateDataLog()
       {
          resetCallback = false;
          m_timer.deregisterCallback(&m_datalog_callback);
-         m_timer.registerPeriodicCallback(&m_datalog_callback, 30000);// DATALOG_CALLBACK_PERIOD);
+         m_timer.registerPeriodicCallback(&m_datalog_callback, DATALOG_CALLBACK_PERIOD);
          info("Data logging callback reset to 1 minute", __FILENAME__, __LINE__);
       }
       return;
@@ -138,14 +138,13 @@ void Logger::updateDataLog()
    {
       // if (m_vmonitor[i]->getPackStatus() == monitor::Monitor::Pack_Status::NORMAL_OPERATION )
       {
-         // TEMPERATURE?
-         // m_bat_data[1][i].dataPoint(m_vmonitor[i]->getVoltage());
-         // m_bat_data[2][i].dataPoint(m_vmonitor[i]->getCurrent());
-         // m_bat_data[3][i].dataPoint(m_vmonitor[i]->getSocPercent());
-         // m_bat_data[4][i].dataPoint(m_vmonitor[i]->getChargeCurrentLimit());
-         // m_bat_data[5][i].dataPoint(m_vmonitor[i]->getDischargeCurrentLimit());
-         // m_bat_data[6][i].dataPoint(m_vmonitor[i]->getEnergyRemainingKwh());
-         // m_bat_data[7][i].dataPoint(m_vmonitor[i]->getTemperature());
+         // m_bat_data[0][i].dataPoint(m_vmonitor[i]->getVoltage());
+         // m_bat_data[1][i].dataPoint(m_vmonitor[i]->getCurrent());
+         // m_bat_data[2][i].dataPoint(m_vmonitor[i]->getSocPercent());
+         // m_bat_data[3][i].dataPoint(m_vmonitor[i]->getChargeCurrentLimit());
+         // m_bat_data[4][i].dataPoint(m_vmonitor[i]->getDischargeCurrentLimit());
+         // m_bat_data[5][i].dataPoint(m_vmonitor[i]->getEnergyRemainingKwh());
+         // m_bat_data[6][i].dataPoint(m_vmonitor[i]->getTemperature());
          
            // j is the data type (V, I, SOC, etc)
          for (unsigned j=0; j<DATA_COUNT; j++)

@@ -5,7 +5,9 @@
  $hostname="jstulen.netfirmsmysql.com";
 mysql_connect($hostname,$user,$password);
 @mysql_select_db($database) or die( "Unable to select database");
-$insert = "INSERT INTO `BatteryOne`(`TimeStamp`,`BatNum`,`Voltage`,`VoltageMin`,`VoltageMax`,`Current`,`CurrentMin`,`CurrentMax`,`SOCPercent`,`SOCPercentMin`,`SOCPercentMax`,`ChargeLimit`,`ChargeLimitMin`,`ChargeLimitMax`,`DischargeLimit`,`DischargeLimitMin`,`DischargeLimitMax`,`StoredEnergy`,`StoredEnergyMin`,`StoredEnergyMax`,`Temperature`,`TemperatureMin`,`TemperatureMax`) VALUES ";
+$insert = "INSERT INTO `BatteryOne`(`TimeStamp`,`BatNum`,`Voltage`,`VoltageMin`,`VoltageMax`,`Current`,`CurrentMin`,`CurrentMax`," .
+          "`SOCPercent`,`SOCPercentMin`,`SOCPercentMax`,`ChargeLimit`,`ChargeLimitMin`,`ChargeLimitMax`,`DischargeLimit`,`DischargeLimitMin`,`DischargeLimitMax`," .
+          "`StoredEnergy`,`StoredEnergyMin`,`StoredEnergyMax`,`Temperature`,`TemperatureMin`,`TemperatureMax`) VALUES ";
 
 $file = 'BatteryOneDataLog.txt';
 // read the source file
