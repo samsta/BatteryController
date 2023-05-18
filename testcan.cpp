@@ -49,6 +49,16 @@ int main(int argc, const char** argv)
    std::ofstream logfile;
    std::ostringstream ss;
 
+   // *****
+   // FOR FUTURE CONSIDERATION
+   // Set up CAN0
+   std::system("sudo /sbin/ip link set can0 up type can bitrate 250000");
+   std::system("sudo ip link set can0 txqueuelen 1000");
+   // Set up CAN1
+   std::system("sudo /sbin/ip link set can1 up type can bitrate 250000");
+   std::system("sudo ip link set can1 txqueuelen 1000");
+   // *****
+
    // this code required to catch ctrl-c and cleanly exit the program (open contactors)
    struct sigaction action;
    memset(&action, 0, sizeof(struct sigaction));

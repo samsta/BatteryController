@@ -24,29 +24,30 @@
     " WHERE BatNum = 1" .
     " AND TimeStamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)) t2" .
     " ON t1.TimeStamp = t2.TimeStamp";
-
+   //  echo ($query);
     $resultV = $con->query($query);
 
-   //  $con = new mysqli($servername, $username, $password, $dbname);
-   //  if ($con->connect_error) {
-   //      die("Connection failed: " . $con->connect_error);
-   //  }
-   //  else
-   //  {
-   //      // echo ("Connect Successfully\n");
-   //  }
-   //  $query = "SELECT t1.TimeStamp, t1.Voltage0, t2.Voltage1 FROM" .
-   //  " (SELECT TimeStamp, Current as Current1" .
-   //  " FROM BatteryOne" .
-   //  " WHERE BatNum = 0" .
-   //  " AND TimeStamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)) t1" .
-   //  " LEFT JOIN" .
-   //  " (SELECT TimeStamp, Current as Current2" .
-   //  " FROM BatteryOne" .
-   //  " WHERE BatNum = 1" .
-   //  " AND TimeStamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)) t2" .
-   //  " ON t1.TimeStamp = t2.TimeStamp";
-   //  $resultC = $con->query($query);
+    $con = new mysqli($servername, $username, $password, $dbname);
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
+    else
+    {
+        // echo ("Connect Successfully\n");
+    }
+    $query = "SELECT t1.TimeStamp, t1.Current1, t2.Current2 FROM" .
+    " (SELECT TimeStamp, Current as Current1" .
+    " FROM BatteryOne" .
+    " WHERE BatNum = 0" .
+    " AND TimeStamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)) t1" .
+    " LEFT JOIN" .
+    " (SELECT TimeStamp, Current as Current2" .
+    " FROM BatteryOne" .
+    " WHERE BatNum = 1" .
+    " AND TimeStamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)) t2" .
+    " ON t1.TimeStamp = t2.TimeStamp";
+   //  echo ($query);
+    $resultC = $con->query($query);
 
 ?>
 <html>
@@ -93,11 +94,45 @@
         var chartV = new google.visualization.LineChart(document.getElementById('curve_chartV'));
         chartV.draw(dataV, optionsV);
          //--------------------------------------------------------------------------------------------------------------
+         var dataC = new google.visualization.DataTable();
+        dataC.addColumn('datetime', 'TimeStamp');
+        dataC.addColumn('number', 'Current1');
+        dataC.addColumn('number', 'Current2');
+
+        dataC.addRows([
+                <?php
+                  $row = mysqli_fetch_assoc($resultC);
+                  $dt = $row["TimeStamp"];
+                  $yr = substr($dt,0,4);
+                  $mo = substr($dt,5,2);
+                  $day = substr($dt,8,2);
+                  $hr = substr($dt,11,2);
+                  $min = substr($dt,14,2);
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["Current2"]."]";
+                  while($row = mysqli_fetch_assoc($resultC)){
+                        $dt = $row["TimeStamp"];
+                        $yr = substr($dt,0,4);
+                        $mo = substr($dt,5,2);
+                        $day = substr($dt,8,2);
+                        $hr = substr($dt,11,2);
+                        $min = substr($dt,14,2);
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["Current2"]."]";
+                    }
+                ?>
+               ])
+        var optionsC = {
+          title: 'Current',
+          legend: { position: 'bottom' }//,
+        };
+        var chartC = new google.visualization.LineChart(document.getElementById('curve_chartC'));
+        chartC.draw(dataC, optionsC);
+         //--------------------------------------------------------------------------------------------------------------
   
       }
     </script>
   </head>
   <body>
+    <div id="curve_chartC" style="width: 1800px; height: 900px"></div>
     <div id="curve_chartV" style="width: 1800px; height: 900px"></div>
   </body>
 </html>
