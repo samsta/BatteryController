@@ -103,9 +103,9 @@ int main(int argc, const char** argv)
 
    core::CanPort inverter_port(argv[2], epollfd);
 
-   OutputPin pre_charge_relay_1(0, 4, "relay_prechg_1");
-   OutputPin positive_relay_1(0, 5, "relay_pos_1");
-   OutputPin negative_relay_1(0, 6, "relay_neg_1");
+   OutputPin pre_charge_relay_1(0, 4, "relay_prechg_1",core::OutputPin::HIGH);
+   OutputPin positive_relay_1(0, 5, "relay_pos_1",core::OutputPin::HIGH);
+   OutputPin negative_relay_1(0, 6, "relay_neg_1",core::OutputPin::HIGH);
 
    #ifdef CONSOLE
    core::ConsolePresenter console(timer, vbatterymon);
