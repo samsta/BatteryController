@@ -25,86 +25,277 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-// C++ Header File(s)
 #include <logging/logging.hpp>
-#include <iostream>
-#include <cstdlib>
-#include <ctime>
-
-// Code Specific Header Files(s)
 
 using namespace std;
 using namespace logging;
 
-Logger* Logger::m_Instance = 0;
-
 // Log file name. File name should be change from here only
 const string logFileName = "BatteryController.log";
+const string dataFileName= "BatteryOneDataLog.txt";
+// const string httpPostURL = "http://jimster.ca/BatteryOne/TEST-data-receiver.php";
+const string httpPostURL = "http://jimster.ca/BatteryOne/BatteryOne-data-receiver.php";
 
-Logger::Logger(LOG_LEVEL loglevel)
-// Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor):
-//    m_timer(timer),
-//    m_vmonitor(vmonitor)
+Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor):
+   m_timer(timer),
+   m_vmonitor(vmonitor),
+   m_datalog_callback(*this, &Logger::updateDataLog),
+   resetCallback(true),
+   m_prev_minute(0)
 {
    m_File.open(logFileName.c_str(), ios::out|ios::app);
    m_LogLevel  = loglevel;
    m_LogType   = FILE_LOG;
 
-   int ret=0;
-   ret = pthread_mutexattr_settype(&m_Attr, PTHREAD_MUTEX_ERRORCHECK_NP);
-   if(ret != 0)
-   {
-      printf("Logger::Logger() -- Mutex attribute not initialize!!\n");
-      exit(0);
-   }
-   ret = pthread_mutex_init(&m_Mutex,&m_Attr);
-   if(ret != 0)
-   {
-      printf("Logger::Logger() -- Mutex not initialize!!\n");
-      exit(0);
-   }
+   // *** mutex not needed, see lock/unlock below ***
+   // int ret=0;
+   // ret = pthread_mutexattr_settype(&m_Attr, PTHREAD_MUTEX_ERRORCHECK_NP);
+   // if(ret != 0)
+   // {
+   //    std::cout << "Logger::Logger() -- Mutex did not initialize! ret=" << ret << std::endl;
+   //    // perror("pthread_mutex_init");
+   //    // printf("Logger::Logger() -- Mutex attribute did not initialize!!\n");
+   //    exit(0);
+   // }
+   // ret = pthread_mutex_init(&m_Mutex,&m_Attr);
+   // if(ret != 0)
+   // {
+   //    printf("Logger::Logger() -- Mutex did not initialize!!\n");
+   //    exit(0);
+   // }
 
-   // m_timer.registerPeriodicCallback(&m_datalog_callback, 1000);
-
+   // set callback to 5 secs in order to sync up to the start of a minute
+   m_timer.registerPeriodicCallback(&m_datalog_callback, 5000);
 }
 
 Logger::~Logger()
 {
    m_File.close();
-   // m_timer.deregisterCallback(&m_datalog_callback);
+   m_timer.deregisterCallback(&m_datalog_callback);
 
-   pthread_mutexattr_destroy(&m_Attr);
-   pthread_mutex_destroy(&m_Mutex);
+   // pthread_mutexattr_destroy(&m_Attr);
+   // pthread_mutex_destroy(&m_Mutex);
 }
 
-Logger* Logger::getInstance(LOG_LEVEL loglevel) throw ()
-{
-   if (m_Instance == 0)
-   {
-      m_Instance = new Logger(loglevel);
-   }
-   return m_Instance;
-}
+//****************** lock/unlock ******************
+// I believe these have been used when writing to the file because
+// the code was written to allow multiple instances of the logger object,
+// each writing to the same file. There had to be a method
+// to stop two of them writing at the same time.
+// I have changed the code so that it is not possible to have more than one
+// instance so I guess these aren't needed but I will leave them. 
 
 void Logger::lock()
 {
-   pthread_mutex_lock(&m_Mutex);
+   // pthread_mutex_lock(&m_Mutex);
 }
 
 void Logger::unlock()
 {
-   pthread_mutex_unlock(&m_Mutex);
+   // pthread_mutex_unlock(&m_Mutex);
 }
 
-// void Logger::setMonitor(std::vector<monitor::Monitor*> vmonitor)
-// {
-//    m_vmonitor = vmonitor;
-// }
+void Logger::setMonitor(std::vector<monitor::Monitor*> vmonitor)
+{
+   m_vmonitor = vmonitor;
+   if (m_vmonitor.size() > MAX_BATTERIES)
+   {
+      error("MAX_BATTERIES exceeded in data logging, that's all, the program will likely crash but at least you've been warned.", __FILENAME__, __LINE__);
+      // that's all, the program will likely crash but at least you've been warned.
+   }
+}
 
-// void Logger::updateDataLog()
-// {
+void Logger::updateDataLog()
+{
+   // called once per minute (DATALOG_CALLBACK_PERIOD)
+   // every  minute take a reading, keep the average, min, max
+   // every 10 minutes write the values to text file
 
-// }
+   std:stringstream strstm;
+   std::string str,strt;
+   struct stat file_info;
+   unsigned long fsize;
+   char msgbuf[1024];
+
+   std::time_t t = std::time(0);
+   std::tm* now = std::localtime(&t);
+
+   // change the callback to 60 sec interval when it is the first 5 sec of the minute
+   if (resetCallback) {
+         // info("reset", __FILENAME__, __LINE__);
+      if (now->tm_sec < 6)
+      {
+         resetCallback = false;
+         m_timer.deregisterCallback(&m_datalog_callback);
+         m_timer.registerPeriodicCallback(&m_datalog_callback, DATALOG_CALLBACK_PERIOD);
+         info("Data logging callback reset to 1 minute", __FILENAME__, __LINE__);
+      }
+      return;
+   }
+   
+   // take a data reading
+   // i is the battery
+   for (unsigned i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == monitor::Monitor::Pack_Status::NORMAL_OPERATION )
+      {
+         m_bat_data[0][i].dataPoint(m_vmonitor[i]->getVoltage());
+         m_bat_data[1][i].dataPoint(m_vmonitor[i]->getCurrent());
+         m_bat_data[2][i].dataPoint(m_vmonitor[i]->getSocPercent());
+         m_bat_data[3][i].dataPoint(m_vmonitor[i]->getChargeCurrentLimit());
+         m_bat_data[4][i].dataPoint(m_vmonitor[i]->getDischargeCurrentLimit());
+         m_bat_data[5][i].dataPoint(m_vmonitor[i]->getEnergyRemainingKwh());
+         m_bat_data[6][i].dataPoint(m_vmonitor[i]->getTemperature());
+         
+         // generate fake data
+         // j is the data type (V, I, SOC, etc)
+         // for (unsigned j=0; j<DATA_COUNT; j++)
+         // {
+         //    m_bat_data[j][i].dataPoint((i*10 + now->tm_min + j ));
+         // }
+      }
+      else
+      {
+         // insert -1.0 as invalid data (status != normal)
+         // j is the data type (V, I, SOC, etc)
+         for (unsigned j=0; j<DATA_COUNT; j++)
+         {
+            m_bat_data[j][i].dataPoint(-1.0);
+         }
+      }
+   }
+
+   // log data every 5 minutes
+   unsigned this_minute = now->tm_min;
+   if (m_prev_minute != this_minute) 
+   {
+      m_prev_minute = this_minute;
+      // on every minute evenly divisible by 5
+      if (this_minute %5 == 0)  
+      {
+         // write the date and time in quotes            
+         strstm << std::put_time(now, "\"%Y-%m-%d %H:%M:%S\",");
+         // write the data in quotes
+         for (unsigned i=0; i<m_vmonitor.size(); i++)
+         {
+            // datetime
+            str += strstm.str();
+            // battery number
+            str += "\"" + to_string(i) + "\",";
+            for (unsigned j=0; j<DATA_COUNT; j++)
+            {
+               str += + "\"" + floatToString(m_bat_data[j][i].getAverage()) + "\",";
+               str += + "\"" + floatToString(m_bat_data[j][i].getMin()) + "\",";
+               // no comma on the very last data point, but must have a newline character
+               if (j==(DATA_COUNT-1)) {
+                  str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\"\n";
+               }
+               else {
+                  str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\",";
+               }
+               
+               // reset the stats
+               m_bat_data[j][i].reset();
+            }
+         }
+
+         // write the pertanent data to a file
+         std::ofstream file;
+         file.open(dataFileName.c_str(), ios::out|ios::app);
+         file << str;
+         file.close();
+
+         // see if filesize is same as str size, in which case
+         // we don't need to read the file
+         if(stat(dataFileName.c_str(), &file_info)) {
+            sprintf(msgbuf, "Couldn't open '%s': %s", dataFileName.c_str(), strerror(errno));
+            error(msgbuf, __FILENAME__, __LINE__);
+            return;
+         }
+         fsize = (unsigned long)file_info.st_size;
+
+         if (fsize != str.length())
+         {
+            sprintf(msgbuf, "Reading datalog file from disk.  file size: %lu != string size: %lu", fsize, str.length());
+            info(msgbuf, __FILENAME__, __LINE__);
+            // read the file into str
+            str.clear();
+            std::stringstream buffer;
+            // Open the file for reading
+            std::ifstream file(dataFileName);
+            // Read the file contents into the stringstream
+            buffer << file.rdbuf();
+            str = buffer.str();
+         }
+
+         // transfer the file to web host in a separate thread
+         // because internet access can block and take some time to complete
+         try {
+            httpPostThread =  std::thread(&Logger::httpPOSTstr, this, str);
+            httpPostThread.detach();
+         }
+         catch (const std::system_error& e)
+         {
+            std::ostringstream ss;
+            ss << "std::thread failed, failed to transfer battery log data to web host. error:" << e.what();
+            error(ss, __FILENAME__, __LINE__);
+         }
+      }
+   }
+}
+
+void Logger::httpPOSTstr(std::string str)
+{
+   // TODO ***********************CHANGE LOGGER CONTRUCTION BACK  SO THAT THE MUTEX WORKS ON RPI
+   // info("httpPOSTstr now running.", __FILENAME__, __LINE__);
+
+   CURL *curl;
+   CURLcode res;
+   unsigned long fsize;
+   char msgbuf[1024];
+
+   fsize = str.length();
+   // sprintf(msgbuf, "Passed string size: %lu bytes.", fsize);
+   // info(msgbuf, __FILENAME__, __LINE__);
+
+   /* get a curl handle */
+   curl = curl_easy_init();
+   if(curl) {
+      /* enable http post */
+      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, str.c_str());
+
+      /* specify target */
+      curl_easy_setopt(curl, CURLOPT_URL, httpPostURL.c_str());
+
+      /* Now run off and do what you have been told! */
+      res = curl_easy_perform(curl);
+
+      /* always cleanup */
+      curl_easy_cleanup(curl);
+   }
+   curl_global_cleanup();
+
+   /* Check for errors */
+   if(res != CURLE_OK)
+   {
+      sprintf(msgbuf, "curl_easy_perform() failed: %s.  Most likey due to loss of internet connection.", curl_easy_strerror(res));
+      error(msgbuf, __FILENAME__, __LINE__);
+      return;
+   }
+
+   // delete data file
+   int result = remove(dataFileName.c_str());
+   if (result != 0) {
+      sprintf(msgbuf, "Error deleting datalog file.");
+      error(msgbuf, __FILENAME__, __LINE__);
+   }
+   // else {
+   //    sprintf(msgbuf, "File deleted successfully.");
+   //    info(msgbuf, __FILENAME__, __LINE__);
+   // }
+
+   // info("httpPOSTstr finished.", __FILENAME__, __LINE__);
+}
 
 void Logger::logIntoFile(std::string& data)
 {
@@ -136,6 +327,20 @@ string Logger::getCurrentTime()
    string currentTime = currTime.substr(0, currTime.size()-1);
    return currentTime;
 }
+
+string Logger::getCurrentTimeForDataLog()
+{
+   string currTime;
+   //Current date/time based on current time
+   time_t now = time(0);
+   // Convert current time to string
+   currTime.assign(ctime(&now));
+
+   // Last charactor of currentTime is "\n", so remove it
+   string currentTime = currTime.substr(0, currTime.size()-1);
+   return currentTime;
+}
+
 
 // Interface for Error Log
 void Logger::error(const char* text) throw()
@@ -438,6 +643,23 @@ void Logger::enableFileLogging()
 {
    m_LogType = FILE_LOG ;
 }
+
+std::string Logger::floatToString(float f)
+{
+  char buf[50];
+  std::snprintf(buf, sizeof(buf), "%.2f", f);
+  std::string result = std::string(buf);
+  // remove trailing zeros
+  size_t pos = result.find_last_not_of('0');
+  if (pos != std::string::npos && result[pos] == '.') {
+    pos++;  // keep one trailing zero after the decimal point
+  }
+  if (pos != std::string::npos) {
+    result.erase(pos + 1);
+  }
+  return result;
+}
+
 
 // THIS CODE NEEDS A LOT OF WORK...
 

@@ -23,7 +23,7 @@ public:
                   core::Timer& timer,
                   core::OutputPin& positive_relay,
                   core::OutputPin& negative_relay,
-                  core::OutputPin& indicator,
+                  core::OutputPin& pre_charge_relay,
                   logging::Logger *log);
 
    ~LeafMultiPack();
@@ -90,7 +90,7 @@ private:
 
    uint m_startup_callback_count;
    const uint CALLBACK_PERIOD_ms = 1000;
-   const uint MAX_STARTUP_COUNT = 10;  // number of callback periods 
+   const uint MAX_STARTUP_COUNT = 60;  // number of callback periods 
 
 };
 

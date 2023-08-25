@@ -33,28 +33,27 @@
 #include <fstream>
 #include <sstream>
 #include <string.h>
+#include <sys/stat.h>
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
 
 #include <vector>
+#include <thread>
+#include <curl/curl.h>
+
 #include "core/Timer.hpp"
 #include "monitor/Monitor.hpp"
+#include "AvgMinMax.hpp"
 
 // POSIX Socket Header File(s)
-#include <errno.h>
-#include <pthread.h>
+// #include <errno.h>
+// #include <pthread.h>
 
 #define __FILENAME__ (strrchr(__FILE__,47)+1)
 
 namespace logging
 {
-   // Direct Interface for logging into log file or console using MACRO(s)
-   // #define LOG_ERROR(x)    Logger::getInstance()->error(x)
-   // #define LOG_ALARM(x)    Logger::getInstance()->alarm(x)
-   // #define LOG_ALWAYS(x)   Logger::getInstance()->always(x)
-   // #define LOG_INFO(x)     Logger::getInstance()->info(x)
-   // #define LOG_BUFFER(x)   Logger::getInstance()->buffer(x)
-   // #define LOG_TRACE(x)    Logger::getInstance()->trace(x)
-   // #define LOG_DEBUG(x)    Logger::getInstance()->debug(x)
-
    // Default value for maximum number of log files 
    #define MAX_LOG_FILES 10
    
@@ -83,13 +82,10 @@ namespace logging
    class Logger
    {
       public:
-         Logger(LOG_LEVEL loglevel);
-         // Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor);
+         Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor);
          ~Logger();
-         static Logger* getInstance(LOG_LEVEL loglevel) throw ();
 
-         // void setMonitor(std::vector<monitor::Monitor*> vmonitor);
-         // void updateDataLog();
+         void setMonitor(std::vector<monitor::Monitor*> vmonitor);
 
          // Interface for Error Log
          void error(const char* text) throw();
@@ -159,6 +155,7 @@ namespace logging
          void unlock();
 
          std::string getCurrentTime();
+         std::string getCurrentTimeForDataLog();
 
       private:
          void logIntoFile(std::string& data);
@@ -166,8 +163,12 @@ namespace logging
          // void rollLogFiles();
 
       private:
-         static Logger*          m_Instance;
+         std::thread httpPostThread;
+         void updateDataLog();
+         void httpPOSTstr(std::string str);
+
          std::ofstream           m_File;
+         std::string floatToString(float f);
 
          pthread_mutexattr_t     m_Attr;
          pthread_mutex_t         m_Mutex;
@@ -175,10 +176,16 @@ namespace logging
          LogLevel                m_LogLevel;
          LogType                 m_LogType;
 
-         // core::Timer&                     m_timer;
-         // std::vector<monitor::Monitor*>   m_vmonitor;
-         // core::Callback<Logger> m_datalog_callback;
+         core::Timer&                     m_timer;
+         std::vector<monitor::Monitor*>   m_vmonitor;
+         core::Callback<Logger> m_datalog_callback;
 
+         #define DATALOG_CALLBACK_PERIOD 60 * 1000 // 60 seconds
+         bool resetCallback;
+         unsigned m_prev_minute;
+         #define MAX_BATTERIES 6
+         #define DATA_COUNT 7
+         AvgMinMax m_bat_data[DATA_COUNT][MAX_BATTERIES];
 
          // unsigned int		 logSize; // Size of a log file in bytes
          // unsigned int		 maxLogFiles; // Maximum number of log files

@@ -48,7 +48,7 @@ void LeafPack::heartbeatCallback()
 
       case monitor::Monitor::STARTUP:
          m_startup_counter++;
-         if (m_startup_counter >= MAX_STARTUP_COUNT)
+         if (m_startup_counter >= MAX_PACK_STARTUP_COUNT)
          {
             m_safety_shunt.setSafeToOperate(false);
             m_monitor.setPackStatus(monitor::Monitor::SHUNT_ACTIVIATED);
