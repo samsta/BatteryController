@@ -10,7 +10,7 @@ namespace contactor {
 namespace Nissan {
 namespace {
 const unsigned DELAY_CLOSE_MS = 3000;
-const unsigned DELAY_OPEN_MS = 2000;
+const unsigned DELAY_OPEN_MS = 5000;
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -115,21 +115,20 @@ void LeafContactor::closeNegativeRelay()
       ss << "LeafContactor: closing... (neg and precharge CLOSED)";
       m_log->info(ss);
    }
+   m_negative_relay.set(OutputPin::LOW);
+   // also close the precharge relay
+   m_pre_charge_relay.set(OutputPin::LOW);
 
    // the next line delays by DELAY_CLOSE_MS then calls m_delayed_close(callback), m_delayed_close is 
    // intialized in the class constructor to call closePositiveRelay... clear as mud.
    // same system for opening the pre-charge relay after DELAY_OPEN_MS
    m_timer.schedule(&m_delayed_close, DELAY_CLOSE_MS);
-   m_negative_relay.set(OutputPin::LOW);
-   // also close the precharge relay
-   m_pre_charge_relay.set(OutputPin::LOW);
+   m_timer.schedule(&m_delayed_open, DELAY_OPEN_MS);
 }
 
 void LeafContactor::closePositiveRelay()
 {
    m_positive_relay.set(OutputPin::LOW);
-   m_timer.schedule(&m_delayed_open, DELAY_OPEN_MS);
-   // openPreChargeRelay();
 
    if (m_log)
    {
@@ -151,7 +150,6 @@ void LeafContactor::openPreChargeRelay()
       m_log->info(ss);
    }
 }
-
 
 //---------------------------------------------------------------------------------------------------
 TeensyShuntCtrl::TeensyShuntCtrl(char *packname, can::FrameSink& sender, uint32_t canid, logging::Logger* log):
