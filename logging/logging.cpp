@@ -47,6 +47,7 @@ Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Moni
    m_LogLevel  = loglevel;
    m_LogType   = FILE_LOG;
 
+   // *** mutex not needed, see lock/unlock below ***
    // int ret=0;
    // ret = pthread_mutexattr_settype(&m_Attr, PTHREAD_MUTEX_ERRORCHECK_NP);
    // if(ret != 0)
@@ -136,32 +137,41 @@ void Logger::updateDataLog()
    // i is the battery
    for (unsigned i=0; i<m_vmonitor.size(); i++)
    {
-      // if (m_vmonitor[i]->getPackStatus() == monitor::Monitor::Pack_Status::NORMAL_OPERATION )
+      if (m_vmonitor[i]->getPackStatus() == monitor::Monitor::Pack_Status::NORMAL_OPERATION )
       {
-         // m_bat_data[0][i].dataPoint(m_vmonitor[i]->getVoltage());
-         // m_bat_data[1][i].dataPoint(m_vmonitor[i]->getCurrent());
-         // m_bat_data[2][i].dataPoint(m_vmonitor[i]->getSocPercent());
-         // m_bat_data[3][i].dataPoint(m_vmonitor[i]->getChargeCurrentLimit());
-         // m_bat_data[4][i].dataPoint(m_vmonitor[i]->getDischargeCurrentLimit());
-         // m_bat_data[5][i].dataPoint(m_vmonitor[i]->getEnergyRemainingKwh());
-         // m_bat_data[6][i].dataPoint(m_vmonitor[i]->getTemperature());
+         m_bat_data[0][i].dataPoint(m_vmonitor[i]->getVoltage());
+         m_bat_data[1][i].dataPoint(m_vmonitor[i]->getCurrent());
+         m_bat_data[2][i].dataPoint(m_vmonitor[i]->getSocPercent());
+         m_bat_data[3][i].dataPoint(m_vmonitor[i]->getChargeCurrentLimit());
+         m_bat_data[4][i].dataPoint(m_vmonitor[i]->getDischargeCurrentLimit());
+         m_bat_data[5][i].dataPoint(m_vmonitor[i]->getEnergyRemainingKwh());
+         m_bat_data[6][i].dataPoint(m_vmonitor[i]->getTemperature());
          
-           // j is the data type (V, I, SOC, etc)
+         // generate fake data
+         // j is the data type (V, I, SOC, etc)
+         // for (unsigned j=0; j<DATA_COUNT; j++)
+         // {
+         //    m_bat_data[j][i].dataPoint((i*10 + now->tm_min + j ));
+         // }
+      }
+      else
+      {
+         // insert -1.0 as invalid data (status != normal)
+         // j is the data type (V, I, SOC, etc)
          for (unsigned j=0; j<DATA_COUNT; j++)
          {
-            m_bat_data[j][i].dataPoint((i*10 + now->tm_min + j ));
+            m_bat_data[j][i].dataPoint(-1.0);
          }
-
       }
    }
 
-   // log data every 10 minutes
+   // log data every 5 minutes
    unsigned this_minute = now->tm_min;
    if (m_prev_minute != this_minute) 
    {
       m_prev_minute = this_minute;
-      // on every minute evenly divisible by 10
-      if (this_minute %10 == 0)  
+      // on every minute evenly divisible by 5
+      if (this_minute %5 == 0)  
       {
          // write the date and time in quotes            
          strstm << std::put_time(now, "\"%Y-%m-%d %H:%M:%S\",");

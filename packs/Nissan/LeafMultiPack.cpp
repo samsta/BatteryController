@@ -11,7 +11,7 @@ LeafMultiPack::LeafMultiPack(
             core::Timer& timer,
             core::OutputPin& positive_relay,
             core::OutputPin& negative_relay,
-            core::OutputPin& indicator,
+            core::OutputPin& pre_charge_relay,
             logging::Logger *log):
 
       m_vmonitor(vmonitor),
@@ -21,7 +21,7 @@ LeafMultiPack::LeafMultiPack(
          timer,
          positive_relay,
          negative_relay,
-         indicator,
+         pre_charge_relay,
          log),
       m_log(log),
       m_periodic_callback(*this, &LeafMultiPack::periodicCallback),

@@ -101,9 +101,9 @@ int main(int argc, const char** argv)
 
    core::CanPort inverter_port(argv[2], epollfd);
 
+   OutputPin pre_charge_relay_1(0, 4, "relay_prechg_1");
    OutputPin positive_relay_1(0, 5, "relay_pos_1");
    OutputPin negative_relay_1(0, 6, "relay_neg_1");
-   OutputPin indicator_led_1(0, 4, "led_1");
 
    #ifdef CONSOLE
    core::ConsolePresenter console(timer, vbatterymon);
@@ -143,19 +143,19 @@ int main(int argc, const char** argv)
    //      timer,
    //      log);
 
-   char BP6[] = "BP6";
+   char BP6[] = "BP1";
    packs::Nissan::LeafPack battery_pack_6( BP6,
         usb_port2.getSinkOutbound(0),
         timer,
         &logger);
    vbatterymon.push_back( &battery_pack_6.getMonitor());
 
-   char BP5[] = "BP5";
-   packs::Nissan::LeafPack battery_pack_5( BP5,
-        usb_port2.getSinkOutbound(1),
-        timer,
-        &logger);
-   vbatterymon.push_back( &battery_pack_5.getMonitor());
+   // char BP5[] = "BP5";
+   // packs::Nissan::LeafPack battery_pack_5( BP5,
+   //      usb_port2.getSinkOutbound(1),
+   //      timer,
+   //      &logger);
+   // vbatterymon.push_back( &battery_pack_5.getMonitor());
 
    // std::vector<monitor::Monitor*> vbatterymon = {
    //          // &battery_pack_1.getMonitor(),
@@ -169,7 +169,7 @@ int main(int argc, const char** argv)
             // &battery_pack_2.getContactor(),
             // &battery_pack_3.getContactor(),
             // &battery_pack_4.getContactor(),
-            &battery_pack_5.getContactor(),
+            // &battery_pack_5.getContactor(),
             &battery_pack_6.getContactor()};
 
    // usb_port1.setu&logger(*log, "<USB1 OUT>", color::cyan);
@@ -183,7 +183,7 @@ int main(int argc, const char** argv)
    // usb_port2.setSinkInbound(1, battery_pack_5);
    // usb_port2.setSinkInbound(2, battery_pack_6);
    usb_port2.setSinkInbound(0, battery_pack_6);
-   usb_port2.setSinkInbound(1, battery_pack_5);
+   // usb_port2.setSinkInbound(1, battery_pack_5);
 
    packs::Nissan::LeafMultiPack multi_battery(
                      vbatterymon,
@@ -191,7 +191,7 @@ int main(int argc, const char** argv)
                      timer,
                      positive_relay_1,
                      negative_relay_1,
-                     indicator_led_1,
+                     pre_charge_relay_1,
                      &logger);
 
    inverter::TSUN::TSOL_H50K inverter(

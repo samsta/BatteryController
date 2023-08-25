@@ -46,11 +46,12 @@ private:
    void updateRelays();
    void closeNegativeRelay();
    void closePositiveRelay();
+   void openPreChargeRelay();
 
    core::Timer&      m_timer;
    core::OutputPin&  m_positive_relay;
    core::OutputPin&  m_negative_relay;
-   core::OutputPin&  m_indicator;
+   core::OutputPin&  m_pre_charge_relay;
    logging::Logger* m_log;
 
    bool  m_safe_to_operate;
@@ -58,6 +59,7 @@ private:
    State m_state;
 
    core::Callback<LeafContactor> m_delayed_close;
+   core::Callback<LeafContactor> m_delayed_open;
 };
 
 //---------------------------------------------------------------------------------------------------
