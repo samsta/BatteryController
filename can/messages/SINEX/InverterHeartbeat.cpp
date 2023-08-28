@@ -12,7 +12,7 @@ InverterHeartbeat::InverterHeartbeat(const DataFrame& frame):
 	if (frame.id() != id()) return;
 	if (frame.size() != 8) return;
 
-	m_heartbeat_value = frame.getUnsignedShort(0);
+	m_heartbeat_value = frame.getUnsignedShort(0,can::DataFrame::ByteOrder::LSB_FIRST);
 	setValid();
 }
 

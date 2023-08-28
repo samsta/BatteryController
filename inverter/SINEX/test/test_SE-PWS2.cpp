@@ -78,30 +78,30 @@ public:
 
 TEST_F(SE_PWS2AtStartupTest, getHbCount1)
 {
-  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0001000000000000")));
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0110000000000000")));
 
-  EXPECT_EQ(sbs.getHeartbeatValue(), 1);
+  EXPECT_EQ(sbs.getHeartbeatValue(), 0x1001);
 }
 
 TEST_F(SE_PWS2AtStartupTest, getHbCountFFFF)
 {
-  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#FFFF000000000000")));
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#FEFF000000000000")));
 
-  EXPECT_EQ(sbs.getHeartbeatValue(), 0xFFFF);
+  EXPECT_EQ(sbs.getHeartbeatValue(), 0xFFFE);
 }
 
 TEST_F(SE_PWS2AtStartupTest, testHbNonConsec)
 {
-  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0001000000000000")));
-  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0002000000000000")));
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0100000000000000")));
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0200000000000000")));
   EXPECT_FALSE(sbs.getHbNonConsec());
-  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0004000000000000")));
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#0400000000000000")));
   EXPECT_TRUE(sbs.getHbNonConsec());
 }
 
 TEST_F(SE_PWS2AtStartupTest, testHbConsecNearRollover)
 {
-  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#FFFE000000000000")));
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#FEFF000000000000")));
   sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#FFFF000000000000")));
   EXPECT_FALSE(sbs.getHbNonConsec());
 }
