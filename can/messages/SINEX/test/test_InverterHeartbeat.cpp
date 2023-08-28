@@ -24,14 +24,14 @@ TEST(SinexInverterHeartbeat, inValidSize)
 
 TEST(SinexInverterHeartbeat, decodeValue1)
 {
-   InverterHeartbeat inverterhb(can::StandardDataFrame("98160127#FFFF000000000000"));
+   InverterHeartbeat inverterhb(can::StandardDataFrame("98160127#FEFF000000000000"));
    EXPECT_TRUE(inverterhb.valid());
-   EXPECT_EQ(inverterhb.getHeartbeatValue(),0xFFFF);
+   EXPECT_EQ(inverterhb.getHeartbeatValue(),0xFFFE);
 }
 
 TEST(SinexInverterHeartbeat, decodeValue2)
 {
-   InverterHeartbeat inverterhb(can::StandardDataFrame("98160127#0001000000000000"));
+   InverterHeartbeat inverterhb(can::StandardDataFrame("98160127#0100000000000000"));
    EXPECT_TRUE(inverterhb.valid());
    EXPECT_EQ(inverterhb.getHeartbeatValue(), 1);
 }

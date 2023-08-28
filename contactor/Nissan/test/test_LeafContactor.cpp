@@ -108,11 +108,12 @@ TEST_F(NissanLeafContactorTest, setNegativeRelayAndIndicatorOnCloseIfSafe)
    contactor.close();
 }
 
-TEST_F(NissanLeafContactorTest, scheduleTimerToClosePositiveRelayOnCloseIfSafe)
+TEST_F(NissanLeafContactorTest, scheduleTimerToClosePositiveRelayAndPrechargeRelayOnCloseIfSafe)
 {
    contactor.setSafeToOperate(true);
 
    EXPECT_CALL(timer, schedule(_, 3000));
+   EXPECT_CALL(timer, schedule(_, 5000));
 
    contactor.close();
 }
@@ -128,16 +129,19 @@ TEST_F(NissanLeafContactorTest, stillOpenIfCloseInitiatedButTimerNotElapsed)
 TEST_F(NissanLeafContactorTest, closePositiveRelayWhenTimerElapsesAndScheduledActionInvoked)
 {
    contactor.setSafeToOperate(true);
-   core::Invokable* scheduled_action;
-   EXPECT_CALL(timer, schedule(_, 3000)).WillOnce(SaveArg<0>(&scheduled_action));
+   core::Invokable* scheduled_action1;
+   EXPECT_CALL(timer, schedule(_, 3000)).WillOnce(SaveArg<0>(&scheduled_action1));
+   core::Invokable* scheduled_action2;
+   EXPECT_CALL(timer, schedule(_, 5000)).WillOnce(SaveArg<0>(&scheduled_action2));
    contactor.close();
 
    EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::LOW));
+   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
    EXPECT_CALL(negative_relay, set(_)).Times(0);
    // EXPECT_CALL(pre_charge_relay, set(_)).Times(0);
-   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
 
-   scheduled_action->invoke();
+   scheduled_action1->invoke();
+   scheduled_action2->invoke();
 }
 
 class NissanLeafContactorClosedTest: public NissanLeafContactorTest
@@ -146,10 +150,13 @@ public:
    NissanLeafContactorClosedTest()
    {
       contactor.setSafeToOperate(true);
-      core::Invokable* scheduled_action;
-      EXPECT_CALL(timer, schedule(_, 3000)).WillOnce(SaveArg<0>(&scheduled_action));
+      core::Invokable* scheduled_action1;
+      EXPECT_CALL(timer, schedule(_, 3000)).WillOnce(SaveArg<0>(&scheduled_action1));
+      core::Invokable* scheduled_action2;
+      EXPECT_CALL(timer, schedule(_, 5000)).WillOnce(SaveArg<0>(&scheduled_action2));
       contactor.close();
-      scheduled_action->invoke();
+      scheduled_action1->invoke();
+      scheduled_action2->invoke();
    }
 };
 
