@@ -180,7 +180,7 @@ namespace logging
          std::vector<monitor::Monitor*>   m_vmonitor;
          core::Callback<Logger> m_datalog_callback;
 
-         #define DATALOG_CALLBACK_PERIOD 60 * 1000 // 60 seconds
+         #define DATALOG_CALLBACK_PERIOD 10 * 1000 // 60 seconds // set this to 10 seconds during testing
          bool resetCallback;
          unsigned m_prev_minute;
          #define MAX_BATTERIES 6

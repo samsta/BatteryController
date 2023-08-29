@@ -107,8 +107,8 @@ void Logger::setMonitor(std::vector<monitor::Monitor*> vmonitor)
 
 void Logger::updateDataLog()
 {
-   // called once per minute (DATALOG_CALLBACK_PERIOD)
-   // every  minute take a reading, keep the average, min, max
+   // called once per DATALOG_CALLBACK_PERIOD
+   // take a reading, keep the average, min, max
    // every 10 minutes write the values to text file
 
    std:stringstream strstm;
@@ -120,7 +120,7 @@ void Logger::updateDataLog()
    std::time_t t = std::time(0);
    std::tm* now = std::localtime(&t);
 
-   // change the callback to 60 sec interval when it is the first 5 sec of the minute
+   // change the callback to DATALOG_CALLBACK_PERIOD interval when it is the first 5 sec of the minute
    if (resetCallback) {
          // info("reset", __FILENAME__, __LINE__);
       if (now->tm_sec < 6)
@@ -165,13 +165,14 @@ void Logger::updateDataLog()
       }
    }
 
-   // log data every 5 minutes
+   // log data when appropriate
    unsigned this_minute = now->tm_min;
    if (m_prev_minute != this_minute) 
    {
       m_prev_minute = this_minute;
+      // LOG IT EVERY MINUTE during testing
       // on every minute evenly divisible by 5
-      if (this_minute %5 == 0)  
+      // if (this_minute %5 == 0)  
       {
          // write the date and time in quotes            
          strstm << std::put_time(now, "\"%Y-%m-%d %H:%M:%S\",");

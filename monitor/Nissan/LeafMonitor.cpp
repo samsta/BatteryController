@@ -233,6 +233,14 @@ void LeafMonitor::process(const BatteryPowerLimits& battery_power)
    }
 }
 
+// need to ignore alarms generated for perhaps 10 seconds after the battery is rebooted.
+//
+// any time battery CAN traffic goes silent.  Ignore the next X seconds of CAN 
+// messages after it starts again.
+
+
+
+
 void LeafMonitor::updateOperationalSafety()
 {
    if (!m_safety_shunt.isSafeToOperate() && m_pack_status == Monitor::STARTUP)
