@@ -14,9 +14,6 @@ namespace inverter {
 namespace SINEX {
 namespace {
 
-const unsigned int PERIODIC_CALLBACK_ms = 500;
-const unsigned int INVERTER_SILENT_TIMEOUT_PERIODS = 30 * 1000 / PERIODIC_CALLBACK_ms;
-
 BatteryStatus localBatteryStatus(BatteryStatus::BatteryStatusFlag::BSF_CLEAR);
 }
 
@@ -32,7 +29,7 @@ SE_PWS2::SE_PWS2(can::FrameSink& sender,
       m_log(log),
       m_periodic_callback(*this, &SE_PWS2::periodicCallback),
       m_heartbeat_count(0),
-      m_first_heartbeat(true),
+      m_heartbeat_received(false),
       m_inverter_silent_counter(0),
       m_hb_non_consec(false)
 {
@@ -52,18 +49,23 @@ void SE_PWS2::periodicCallback()
 
    if (m_inverter_silent_counter >= INVERTER_SILENT_TIMEOUT_PERIODS)
    {
-      // if the inverter has gone silent, open the contactor
+      // the inverter has gone silent, open the contactor
       if (m_inverter_silent_counter == INVERTER_SILENT_TIMEOUT_PERIODS)
       {
-         if (m_log) m_log->alarm("Inverter CAN bus has gone silent", __FILENAME__, __LINE__);
+         if (m_log) m_log->alarm("SE_PWS2 Inverter CAN bus has gone silent", __FILENAME__, __LINE__);
          m_inverter_silent_counter++;
       }
       m_contactor.open();
+      // reset heartbeat status
+      m_heartbeat_received = false;
    }
    else 
    {
       // contactor won't close unless sufficent info has been received from the battery
-      m_contactor.close();
+      // don't attempt to close contactor unless heartbeat message has been received
+      if (m_heartbeat_received) {
+         m_contactor.close();
+      }
 
       // do not send battery info unless the contractor is closed
       if (m_contactor.isClosed())
@@ -139,7 +141,7 @@ void SE_PWS2::process(const InverterHeartbeat& command)
 {
    m_hb_non_consec = false;
 
-   if (!m_first_heartbeat)
+   if (m_heartbeat_received)
    {
       if (command.getHeartbeatValue() != uint16_t(m_heartbeat_count + 1))
       {
@@ -152,11 +154,20 @@ void SE_PWS2::process(const InverterHeartbeat& command)
    }
    else
    {
-      m_first_heartbeat = false;
+      m_heartbeat_received = true;
       m_heartbeat_count = command.getHeartbeatValue();
+      std::ostringstream ss;
+      ss << "SE_PWS2 Inverter first Heartbeat received.";
+      if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
    }
 
-   // TODO add message when inverter starts sending again after being silent
+   // message when inverter starts sending again after being silent
+   if (m_inverter_silent_counter >= INVERTER_SILENT_TIMEOUT_PERIODS)
+   {
+      std::ostringstream ss;
+      ss << "SE_PWS2 Inverter CAN bus message received after being silent";
+      if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
+   }
    m_inverter_silent_counter = 0;
 }
 

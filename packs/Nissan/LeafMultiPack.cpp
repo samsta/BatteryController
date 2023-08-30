@@ -97,7 +97,7 @@ void LeafMultiPack::periodicCallback()
             // check that there are normal packs (that is, not all packs have failed to startup)
             if (pack_startup_fail < m_vmonitor.size())
             {
-               // there are normal packs, close the main contactors
+               // there are normal packs, give the 'ok' to close the main contactors (doesn't close the contractors)
                m_multipack_status = Monitor::NORMAL_OPERATION;
                m_main_contactor.setSafeToOperate(true);
                if (m_log) m_log->info("LeafMultiPack: status set to NORMAL_OPERATION");

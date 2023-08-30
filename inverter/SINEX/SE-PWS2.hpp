@@ -44,10 +44,12 @@ private:
    logging::Logger       *m_log;
    core::Callback<SE_PWS2> m_periodic_callback;
    uint16_t              m_heartbeat_count;
-   bool                  m_first_heartbeat;
+   bool                  m_heartbeat_received;
    unsigned              m_inverter_silent_counter;
    bool                  m_hb_non_consec;
 
+   const unsigned int PERIODIC_CALLBACK_ms = 500;
+   const unsigned int INVERTER_SILENT_TIMEOUT_PERIODS = 30 * 1000 / PERIODIC_CALLBACK_ms;
 };
 
 }
