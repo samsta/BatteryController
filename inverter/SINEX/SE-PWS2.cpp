@@ -15,7 +15,7 @@ namespace SINEX {
 namespace {
 
 const unsigned int PERIODIC_CALLBACK_ms = 500;
-const unsigned int INVERTER_SILENT_TIMEOUT_PERIODS = 30 * 1000 / PERIODIC_CALLBACK_ms;
+const unsigned int INVERTER_SILENT_TIMEOUT_PERIODS = 120 * 1000 / PERIODIC_CALLBACK_ms;
 
 BatteryStatus localBatteryStatus(BatteryStatus::BatteryStatusFlag::BSF_CLEAR);
 }
