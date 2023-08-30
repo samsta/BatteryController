@@ -128,7 +128,7 @@ void LeafPack::heartbeatCallback()
       if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
       m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
    }
-   else if (m_reboot_in_process)
+   else if (m_reboot_in_process && (m_reboot_wait_count > REBOOT_POWERDOWN_PERIODS))
    {
       m_reboot_in_process = false;
       std::ostringstream ss;

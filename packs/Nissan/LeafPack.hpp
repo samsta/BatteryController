@@ -52,7 +52,8 @@ private:
    void heartbeatCallback();
    const uint PACK_CALLBACK_PERIOD_ms = 1000;
    const uint PACK_SILENT_TIMEOUT_PERIODS = 60 * 1000 / PACK_CALLBACK_PERIOD_ms;
-   const uint REBOOT_WAIT_PERIODS = 60 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms; 
+   const uint REBOOT_WAIT_PERIODS = 5 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms; 
+   const uint REBOOT_POWERDOWN_PERIODS = 5 * 1000 / PACK_CALLBACK_PERIOD_ms; 
    const float MAX_SHUNT_OPEN_CURRENT = 0.5;
    const uint MAX_PACK_STARTUP_COUNT = 60 * 1000 / PACK_CALLBACK_PERIOD_ms;
 };

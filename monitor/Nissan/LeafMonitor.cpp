@@ -238,7 +238,7 @@ void LeafMonitor::process(const BatteryPowerLimits& battery_power)
 // any time battery CAN traffic goes silent.  Ignore the next X seconds of CAN 
 // messages after it starts again.
 
-
+// need immediate detection of can traffic having stopped
 
 
 void LeafMonitor::updateOperationalSafety()
