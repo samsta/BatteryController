@@ -116,6 +116,7 @@ void LeafPack::heartbeatCallback()
 
    // check failsafe status, see if battery needs to be power cycled (aka reboot!)
    // reboot is the only way to reset failsafe status
+   // possible future issue https://github.com/samsta/BatteryController/issues/17
    m_reboot_wait_count++;
    if ((m_monitor.getFailsafeStatus() & 0b100)
          && m_reboot_wait_count > REBOOT_WAIT_PERIODS
@@ -128,7 +129,7 @@ void LeafPack::heartbeatCallback()
       if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
       m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
    }
-   else if (m_reboot_in_process)
+   else if (m_reboot_in_process && (m_reboot_wait_count > REBOOT_POWERDOWN_PERIODS))
    {
       m_reboot_in_process = false;
       std::ostringstream ss;
