@@ -116,6 +116,7 @@ void LeafPack::heartbeatCallback()
 
    // check failsafe status, see if battery needs to be power cycled (aka reboot!)
    // reboot is the only way to reset failsafe status
+   // possible future issue https://github.com/samsta/BatteryController/issues/17
    m_reboot_wait_count++;
    if ((m_monitor.getFailsafeStatus() & 0b100)
          && m_reboot_wait_count > REBOOT_WAIT_PERIODS
