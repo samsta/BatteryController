@@ -62,6 +62,7 @@
         var dataV = new google.visualization.DataTable();
         dataV.addColumn('datetime', 'TimeStamp');
         dataV.addColumn('number', 'Voltage1');
+        dataV.addColumn('number', 'Voltage2');
 
         dataV.addRows([
                 <?php
@@ -72,7 +73,7 @@
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Voltage1"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Voltage1"].", ".$row["Voltage2"]."]";
                   while($row = mysqli_fetch_assoc($resultV)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -80,7 +81,7 @@
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Voltage1"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Voltage1"].", ".$row["Voltage2"]."]";
                     }
                 ?>
                ])
@@ -96,6 +97,7 @@
          var dataC = new google.visualization.DataTable();
         dataC.addColumn('datetime', 'TimeStamp');
         dataC.addColumn('number', 'Current1');
+        dataC.addColumn('number', 'Current2');
 
         dataC.addRows([
                 <?php
@@ -106,7 +108,7 @@
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["Current2"]."]";
                   while($row = mysqli_fetch_assoc($resultC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -114,7 +116,7 @@
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["Current2"]."]";
                     }
                 ?>
                ])
