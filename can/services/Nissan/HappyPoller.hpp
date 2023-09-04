@@ -28,6 +28,7 @@ private:
    FrameSink&   m_sender;
    core::Timer& m_timer;
 
+   #define HAPPY_POLLER_CALLBACKms 5000
    core::Callback<HappyPoller> m_heartbeat_poll_callback;
 
    uint8_t m_heartbeat_counter;

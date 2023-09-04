@@ -21,7 +21,7 @@ HappyPoller::HappyPoller(FrameSink& sender, core::Timer& timer):
    // was 10ms as on a real Leaf but that's unnecessary for our application
    // testing has shown the battery doesn't care at all about this message
    // m_timer.registerPeriodicCallback(&m_heartbeat_poll_callback, 10 * 60 * 1000); // set to 10 minutes
-   m_timer.registerPeriodicCallback(&m_heartbeat_poll_callback, 500); // way way back this was 10ms
+   m_timer.registerPeriodicCallback(&m_heartbeat_poll_callback, HAPPY_POLLER_CALLBACKms); // way way back this was 10ms
 }
 
 HappyPoller::~HappyPoller()
