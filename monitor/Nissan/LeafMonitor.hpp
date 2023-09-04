@@ -101,6 +101,7 @@ private:
    float m_charge_power_limit;
    float m_discharge_current_limit;
    float m_charge_current_limit;
+   const float MAX_ALLOWABLE_CURRENT = 25.0;
 
    uint32_t m_volt_temp_status;
    uint32_t m_failsafe_status;
