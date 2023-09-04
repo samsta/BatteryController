@@ -30,6 +30,24 @@
     {
         // echo ("Connect Successfully\n");
     }
+    $query =" SELECT TimeStamp, Current as Current1, " . 
+    " DischargeLimit as DischargeLimit1, " .
+    " ChargeLimit as ChargeLimit1 " .
+    " FROM BatteryOne" .
+    " WHERE BatNum = 0" .
+    " AND TimeStamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
+
+    //  echo ($query);
+    $resultAllC = $con->query($query);
+    //--------------------------------------------------------------------------------------------------------------
+    $con = new mysqli($servername, $username, $password, $dbname);
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
+    else
+    {
+        // echo ("Connect Successfully\n");
+    }
     $query =" SELECT TimeStamp, Current as Current1, CurrentMin as CurrentMin1, CurrentMax as CurrentMax1" .
     " FROM BatteryOne" .
     " WHERE BatNum = 0" .
@@ -62,7 +80,9 @@
     {
         // echo ("Connect Successfully\n");
     }
-    $query =" SELECT TimeStamp, DischargeLimit as DischargeLimit1, DischargeLimitMin as DischargeLimitMin1, DischargeLimitMax as DischargeLimitMax1" .
+    $query =" SELECT TimeStamp, Current as Current1, CurrentMin as CurrentMin1, CurrentMax as CurrentMax1," . 
+    " DischargeLimit as DischargeLimit1, DischargeLimitMin as DischargeLimitMin1, DischargeLimitMax as DischargeLimitMax1," .
+    " ChargeLimit as ChargeLimit1, ChargeLimitMin as ChargeLimitMin1, ChargeLimitMax as ChargeLimitMax1" .
     " FROM BatteryOne" .
     " WHERE BatNum = 0" .
     " AND TimeStamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
@@ -96,6 +116,42 @@
       google.charts.setOnLoadCallback(drawChart);
 
       function drawChart() {
+         //--------------------------------------------------------------------------------------------------------------
+         var dataAllC = new google.visualization.DataTable();
+        dataAllC.addColumn('datetime', 'TimeStamp');
+        dataAllC.addColumn('number', 'Current1');
+        dataAllC.addColumn('number', 'ChargeLimit1');
+        dataAllC.addColumn('number', 'DischargeLimit1');
+
+        dataAllC.addRows([
+                <?php
+                  $row = mysqli_fetch_assoc($resultAllC);
+                  $dt = $row["TimeStamp"];
+                  $yr = substr($dt,0,4);
+                  $mo = substr($dt,5,2);
+                  $day = substr($dt,8,2);
+                  $hr = substr($dt,11,2);
+                  $min = substr($dt,14,2);
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["ChargeLimit1"].", ".$row["DischargeLimit1"]."]";
+                  while($row = mysqli_fetch_assoc($resultAllC)){
+                        $dt = $row["TimeStamp"];
+                        $yr = substr($dt,0,4);
+                        $mo = substr($dt,5,2);
+                        $day = substr($dt,8,2);
+                        $hr = substr($dt,11,2);
+                        $min = substr($dt,14,2);
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["ChargeLimit1"].", ".$row["DischargeLimit1"]."]";
+                    }
+                ?>
+               ])
+        var optionsAllC = {
+          title: 'Current Values Summary (Amps)',
+          legend: { position: 'bottom' }//,
+          //vAxis: { viewWindow: { min: 20, max: 60} }
+          // vAxis: { ticks: [15,20,25,30,35,40,45,50,55,60,65] }
+        };
+        var chartAllC = new google.visualization.LineChart(document.getElementById('curve_chartAllC'));
+        chartAllC.draw(dataAllC, optionsAllC);
          //--------------------------------------------------------------------------------------------------------------
         var dataV = new google.visualization.DataTable();
         dataV.addColumn('datetime', 'TimeStamp');
@@ -274,11 +330,12 @@
     </script>
   </head>
   <body>
-    <div id="curve_chartSE" style="width: 1800px; height: 900px"></div>
-    <div id="curve_chartV" style="width: 1800px; height: 900px"></div>
-    <div id="curve_chartC" style="width: 1800px; height: 900px"></div>
-    <div id="curve_chartCL" style="width: 1800px; height: 900px"></div>
-    <div id="curve_chartDCL" style="width: 1800px; height: 900px"></div>
+    <div id="curve_chartAllC" style="width: 1100px; height: 500px"></div>
+    <div id="curve_chartSE" style="width: 1100px; height: 500px"></div>
+    <div id="curve_chartV" style="width: 1100px; height: 500px"></div>
+    <div id="curve_chartC" style="width: 1100px; height: 500px"></div>
+    <div id="curve_chartCL" style="width: 1100px; height: 500px"></div>
+    <div id="curve_chartDCL" style="width: 1100px; height: 500px"></div>
   </body>
 </html>
 
