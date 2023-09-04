@@ -17,7 +17,7 @@
     $query = " SELECT TimeStamp, Voltage as Voltage1, VoltageMin as VoltageMin1, VoltageMax as VoltageMax1" .
     " FROM BatteryOne" .
     " WHERE BatNum = 0" .
-    " AND TimeStamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)"; 
+    " AND TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)"; 
 
     //  echo ($query);
     $resultV = $con->query($query);
@@ -33,7 +33,7 @@
     $query =" SELECT TimeStamp, Current as Current1, CurrentMin as CurrentMin1, CurrentMax as CurrentMax1" .
     " FROM BatteryOne" .
     " WHERE BatNum = 0" .
-    " AND TimeStamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
+    " AND TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
 
     //  echo ($query);
     $resultC = $con->query($query);
@@ -49,7 +49,7 @@
     $query =" SELECT TimeStamp, ChargeLimit as ChargeLimit1, ChargeLimitMin as ChargeLimitMin1, ChargeLimitMax as ChargeLimitMax1" .
     " FROM BatteryOne" .
     " WHERE BatNum = 0" .
-    " AND TimeStamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
+    " AND TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
 
     //  echo ($query);
     $resultCL = $con->query($query);
@@ -65,7 +65,7 @@
     $query =" SELECT TimeStamp, DischargeLimit as DischargeLimit1, DischargeLimitMin as DischargeLimitMin1, DischargeLimitMax as DischargeLimitMax1" .
     " FROM BatteryOne" .
     " WHERE BatNum = 0" .
-    " AND TimeStamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
+    " AND TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
 
     //  echo ($query);
     $resultDCL = $con->query($query);
@@ -81,7 +81,7 @@
     $query =" SELECT TimeStamp, StoredEnergy, SOCPercent, Temperature" .
     " FROM BatteryOne" .
     " WHERE BatNum = 0" .
-    " AND TimeStamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
+    " AND TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
 
     //  echo ($query);
     $resultSE = $con->query($query);
