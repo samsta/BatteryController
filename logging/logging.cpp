@@ -137,32 +137,20 @@ void Logger::updateDataLog()
    // i is the battery
    for (unsigned i=0; i<m_vmonitor.size(); i++)
    {
-      if (m_vmonitor[i]->getPackStatus() == monitor::Monitor::Pack_Status::NORMAL_OPERATION )
-      {
-         m_bat_data[0][i].dataPoint(m_vmonitor[i]->getVoltage());
-         m_bat_data[1][i].dataPoint(m_vmonitor[i]->getCurrent());
-         m_bat_data[2][i].dataPoint(m_vmonitor[i]->getSocPercent());
-         m_bat_data[3][i].dataPoint(m_vmonitor[i]->getChargeCurrentLimit());
-         m_bat_data[4][i].dataPoint(m_vmonitor[i]->getDischargeCurrentLimit());
-         m_bat_data[5][i].dataPoint(m_vmonitor[i]->getEnergyRemainingKwh());
-         m_bat_data[6][i].dataPoint(m_vmonitor[i]->getTemperature());
-         
-         // generate fake data
-         // j is the data type (V, I, SOC, etc)
-         // for (unsigned j=0; j<DATA_COUNT; j++)
-         // {
-         //    m_bat_data[j][i].dataPoint((i*10 + now->tm_min + j ));
-         // }
-      }
-      else
-      {
-         // insert -1.0 as invalid data (status != normal)
-         // j is the data type (V, I, SOC, etc)
-         for (unsigned j=0; j<DATA_COUNT; j++)
-         {
-            m_bat_data[j][i].dataPoint(-1.0);
-         }
-      }
+      m_bat_data[0][i].dataPoint(m_vmonitor[i]->getVoltage());
+      m_bat_data[1][i].dataPoint(m_vmonitor[i]->getCurrent());
+      m_bat_data[2][i].dataPoint(m_vmonitor[i]->getSocPercent());
+      m_bat_data[3][i].dataPoint(m_vmonitor[i]->getChargeCurrentLimit());
+      m_bat_data[4][i].dataPoint(m_vmonitor[i]->getDischargeCurrentLimit());
+      m_bat_data[5][i].dataPoint(m_vmonitor[i]->getEnergyRemainingKwh());
+      m_bat_data[6][i].dataPoint(m_vmonitor[i]->getTemperature());
+      
+      // generate fake data
+      // j is the data type (V, I, SOC, etc)
+      // for (unsigned j=0; j<DATA_COUNT; j++)
+      // {
+      //    m_bat_data[j][i].dataPoint((i*10 + now->tm_min + j ));
+      // }
    }
 
    // log data when appropriate

@@ -192,7 +192,7 @@ void TeensyShuntCtrl::close()
       m_sender.sink(can::StandardDataFrame(m_canid, m_shunt_normal_msg));
       m_state = NORMAL;
       std::ostringstream ss;
-      ss << "ShuntCtrl: " << m_pack_name << ": shunt de-energized";
+      ss << "ShuntCtrl: " << m_pack_name << ": shunt trip relay de-energized";
       if (m_log) m_log->info(ss, __FILENAME__,__LINE__);
 }
 
@@ -201,7 +201,7 @@ void TeensyShuntCtrl::open()
       m_sender.sink(can::StandardDataFrame(m_canid, m_shunt_triggered_msg));
       m_state = TRIGGERED;
       std::ostringstream ss;
-      ss << "ShuntCtrl: " << m_pack_name << ": SHUNT TRIGGERED";
+      ss << "ShuntCtrl: " << m_pack_name << ": SHUNT TRIGGERED (shunt trip relay energized)";
       if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);
 }
 
