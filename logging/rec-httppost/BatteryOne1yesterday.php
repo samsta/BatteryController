@@ -46,7 +46,7 @@
     {
         // echo ("Connect Successfully\n");
     }
-    $query =" SELECT TimeStamp, ChargeLimit as ChargeLimit1, ChargeLimitMin as ChargeLimitMin1, ChargeLimitMax as ChargeLimitMax1" .
+    $query =" SELECT TimeStamp, ChargeCurrentLimit as ChargeCurrentLimit1, ChargeCurrentLimitMin as ChargeCurrentLimitMin1, ChargeCurrentLimitMax as ChargeCurrentLimitMax1" .
     " FROM BatteryOne" .
     " WHERE BatNum = 0" .
     " AND TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
@@ -62,7 +62,7 @@
     {
         // echo ("Connect Successfully\n");
     }
-    $query =" SELECT TimeStamp, DischargeLimit as DischargeLimit1, DischargeLimitMin as DischargeLimitMin1, DischargeLimitMax as DischargeLimitMax1" .
+    $query =" SELECT TimeStamp, DischargeCurrentLimit as DischargeCurrentLimit1, DischargeCurrentLimitMin as DischargeCurrentLimitMin1, DischargeCurrentLimitMax as DischargeCurrentLimitMax1" .
     " FROM BatteryOne" .
     " WHERE BatNum = 0" .
     " AND TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
@@ -169,9 +169,9 @@
          //--------------------------------------------------------------------------------------------------------------
          var dataCL = new google.visualization.DataTable();
         dataCL.addColumn('datetime', 'TimeStamp');
-        dataCL.addColumn('number', 'ChargeLimit1');
-        dataCL.addColumn('number', 'ChargeLimitMin1');
-        dataCL.addColumn('number', 'ChargeLimitMax1');
+        dataCL.addColumn('number', 'ChargeCurrentLimit1');
+        dataCL.addColumn('number', 'ChargeCurrentLimitMin1');
+        dataCL.addColumn('number', 'ChargeCurrentLimitMax1');
 
         dataCL.addRows([
                 <?php
@@ -182,7 +182,7 @@
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["ChargeLimit1"].", ".$row["ChargeLimitMin1"].", ".$row["ChargeLimitMax1"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["ChargeCurrentLimit1"].", ".$row["ChargeCurrentLimitMin1"].", ".$row["ChargeCurrentLimitMax1"]."]";
                   while($row = mysqli_fetch_assoc($resultCL)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -190,7 +190,7 @@
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["ChargeLimit1"].", ".$row["ChargeLimitMin1"].", ".$row["ChargeLimitMax1"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["ChargeCurrentLimit1"].", ".$row["ChargeCurrentLimitMin1"].", ".$row["ChargeCurrentLimitMax1"]."]";
                     }
                 ?>
                ])
@@ -203,9 +203,9 @@
          //--------------------------------------------------------------------------------------------------------------
          var dataDCL = new google.visualization.DataTable();
         dataDCL.addColumn('datetime', 'TimeStamp');
-        dataDCL.addColumn('number', 'DischargeLimit1');
-        dataDCL.addColumn('number', 'DischargeLimitMin1');
-        dataDCL.addColumn('number', 'DischargeLimitMax1');
+        dataDCL.addColumn('number', 'DischargeCurrentLimit1');
+        dataDCL.addColumn('number', 'DischargeCurrentLimitMin1');
+        dataDCL.addColumn('number', 'DischargeCurrentLimitMax1');
 
         dataDCL.addRows([
                 <?php
@@ -216,7 +216,7 @@
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["DischargeLimit1"].", ".$row["DischargeLimitMin1"].", ".$row["DischargeLimitMax1"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["DischargeCurrentLimit1"].", ".$row["DischargeCurrentLimitMin1"].", ".$row["DischargeCurrentLimitMax1"]."]";
                   while($row = mysqli_fetch_assoc($resultDCL)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -224,7 +224,7 @@
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["DischargeLimit1"].", ".$row["DischargeLimitMin1"].", ".$row["DischargeLimitMax1"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["DischargeCurrentLimit1"].", ".$row["DischargeCurrentLimitMin1"].", ".$row["DischargeCurrentLimitMax1"]."]";
                     }
                 ?>
                ])

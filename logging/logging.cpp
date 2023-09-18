@@ -174,12 +174,17 @@ void Logger::updateDataLog()
             for (unsigned j=0; j<DATA_COUNT; j++)
             {
                str += + "\"" + floatToString(m_bat_data[j][i].getAverage()) + "\",";
+               // no min max on these indexes
+               if (j != 2 and j != 5) 
+               {
                str += + "\"" + floatToString(m_bat_data[j][i].getMin()) + "\",";
+               }
                // no comma on the very last data point, but must have a newline character
                if (j==(DATA_COUNT-1)) {
                   str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\"\n";
                }
-               else {
+               // no min max on these indexes
+               else if (j !=2 and j != 5) {
                   str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\",";
                }
                
