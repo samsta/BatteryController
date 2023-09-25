@@ -106,9 +106,84 @@
     //  echo ($query);
     $resultSE = $con->query($query);
     //--------------------------------------------------------------------------------------------------------------
+    $con = new mysqli($servername, $username, $password, $dbname);
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
+    else
+    {
+        // echo ("Connect Successfully\n");
+    }
+    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
+    " FROM BatteryOne" .
+    " WHERE BatNum = 0" .
+    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -10 MINUTE) ORDER BY TimeStamp DESC LIMIT 1";
+
+    $resultTBL = $con->query($query);
+    $rows = mysqli_fetch_assoc($resultTBL);
+    $SOC = $rows["SOCPercent"];
+    $StoredEnergy = $rows["StoredEnergy"];
+    $Current = $rows["Current"];
+    $DischargeCurrentLimit = $rows["DischargeCurrentLimit"];
+    $ChargeCurrentLimit = $rows["ChargeCurrentLimit"];
+    $Voltage = $rows["Voltage"];
+    $Temperature = $rows["Temperature"];
+    $DTm = $rows["TimeStamp"];
+    //--------------------------------------------------------------------------------------------------------------
+  	date_default_timezone_set("Pacific/Auckland");
+	  // $thetimeis = "<h4>The time is " . date("H:i:s") . "</h4>"
+	  $thetimeis = "Newest Data: " . $DTm;
 
 ?>
 <html>
+<h4><p><?=$thetimeis?></p></h4>
+
+<head>
+<style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+<meta charset="UTF-8">
+    <title>Battery One</title>
+    <style>
+        table,
+        td,
+        th {
+            border: 1px solid;
+            padding: 20px;
+        }
+ 
+        table {
+            text-align: center;
+        }
+    </style>
+</style>
+</head>
+
+<body>
+<table style="width: 70%;">
+  <!-- <tbody style="font-size: 12px";> -->
+  <tr>
+    <th>SOC</th>
+    <th>Energy</th>
+    <th>Current</th>
+    <th>Chg.Cur.Lmt</th>
+    <th>DChg.Cur.Lmt</th>
+    <th>Voltage</th>
+    <th>Temperature</th>
+  </tr>
+  <tr>
+    <td><p><?=$SOC?> %</p></td>
+    <td><p><?=$StoredEnergy?> kWh</p></td>
+    <td><p><?=$Current?> A</p></td>
+    <td><p><?=$ChargeCurrentLimit?> A</p></td>
+    <td><p><?=$DischargeCurrentLimit?> A</p></td>
+    <td><p><?=$Voltage?></p></td>
+    <td><p><?=$Temperature?> C</p></td>
+  </tr>
+</table>
+</body>
   <head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
@@ -149,6 +224,15 @@
           legend: { position: 'bottom' }//,
           //vAxis: { viewWindow: { min: 20, max: 60} }
           // vAxis: { ticks: [15,20,25,30,35,40,45,50,55,60,65] }
+//           backgroundColor: '#000',
+//           legendTextStyle: { color: '#FFF' },
+//           titleTextStyle: { color: '#FFF' },
+//           hAxis: {
+// 			textStyle:{color: '#FFF'}
+// 		  },
+// 	      vAxis: {
+// 			textStyle:{color: '#FFF'}
+// 		  }
         };
         var chartAllC = new google.visualization.LineChart(document.getElementById('curve_chartAllC'));
         chartAllC.draw(dataAllC, optionsAllC);
@@ -321,6 +405,16 @@
         var optionsSE = {
           title: 'Stored Energy (kWh)  SOC (%)  Temperature (degC)',
           legend: { position: 'bottom' }//,
+//           backgroundColor: '#000',
+//           legendTextStyle: { color: '#FFF' },
+//           titleTextStyle: { color: '#FFF' },
+//           hAxis: {
+// 			textStyle:{color: '#FFF'}
+// 		  },
+// 	      vAxis: {
+// 			textStyle:{color: '#FFF'}
+// 		  }
+
         };
         var chartSE = new google.visualization.LineChart(document.getElementById('curve_chartSE'));
         chartSE.draw(dataSE, optionsSE);
@@ -330,12 +424,12 @@
     </script>
   </head>
   <body>
-    <div id="curve_chartAllC" style="width: 1100px; height: 500px"></div>
-    <div id="curve_chartSE" style="width: 1100px; height: 500px"></div>
-    <div id="curve_chartV" style="width: 1100px; height: 500px"></div>
-    <div id="curve_chartC" style="width: 1100px; height: 500px"></div>
-    <div id="curve_chartCL" style="width: 1100px; height: 500px"></div>
-    <div id="curve_chartDCL" style="width: 1100px; height: 500px"></div>
+    <div id="curve_chartAllC" style="width: 1500px; height: 500px"></div>
+    <div id="curve_chartSE" style="width: 1500px; height: 500px"></div>
+    <div id="curve_chartV" style="width: 1500px; height: 500px"></div>
+    <div id="curve_chartC" style="width: 1500px; height: 500px"></div>
+    <div id="curve_chartCL" style="width: 1500px; height: 500px"></div>
+    <div id="curve_chartDCL" style="width: 1500px; height: 500px"></div>
   </body>
 </html>
 
