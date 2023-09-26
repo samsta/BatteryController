@@ -168,19 +168,21 @@ table, th, td {
     <th>SOC</th>
     <th>Energy</th>
     <th>Current</th>
+    <th>Power</th>
     <th>Chg.Cur.Lmt</th>
     <th>DChg.Cur.Lmt</th>
     <th>Voltage</th>
     <th>Temperature</th>
   </tr>
   <tr>
-    <td><p><?=$SOC?> %</p></td>
-    <td><p><?=$StoredEnergy?> kWh</p></td>
-    <td><p><?=$Current?> A</p></td>
-    <td><p><?=$ChargeCurrentLimit?> A</p></td>
-    <td><p><?=$DischargeCurrentLimit?> A</p></td>
-    <td><p><?=$Voltage?></p></td>
-    <td><p><?=$Temperature?> C</p></td>
+    <td><p><?=round($SOC,1)?> %</p></td>
+    <td><p><?=round($StoredEnergy,1)?> kWh</p></td>
+    <td><p><?=round($Current,1)?> A</p></td>
+    <td><p><?=round($Voltage*$Current/1000,1)?> kW</p></td>
+    <td><p><?=round($ChargeCurrentLimit,1)?> A</p></td>
+    <td><p><?=round($DischargeCurrentLimit,1)?> A</p></td>
+    <td><p><?=round($Voltage,1)?> V</p></td>
+    <td><p><?=round($Temperature,1)?> C</p></td>
   </tr>
 </table>
 </body>
