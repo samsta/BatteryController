@@ -378,12 +378,18 @@ float LeafMonitor::getMinDischargeVoltage() const
 
 float LeafMonitor::getChargeCurrentLimit() const
 {
-   return m_charge_current_limit;
+   float charge_current_lmt = m_charge_current_limit;
+   // limit charge current if battery is full
+   if (m_soc_percent > MAX_SOC_ALLOWED) charge_current_lmt = 0;
+   return charge_current_lmt;
 }
 
 float LeafMonitor::getDischargeCurrentLimit() const
 {
-   return m_discharge_current_limit;
+   float discharge_current_lmt = m_discharge_current_limit;
+   // limit discharge current if battery is empty
+   if (m_soc_percent < MIN_SOC_ALLOWED) discharge_current_lmt = 0;
+   return discharge_current_lmt;
 }
 
 uint32_t LeafMonitor::getVoltTempStatus() const
