@@ -31,6 +31,7 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, Current as Current1, " . 
+    " (Current * Voltage * 0.001) as Power1, " .
     " DischargeCurrentLimit as DischargeCurrentLimit1, " .
     " ChargeCurrentLimit as ChargeCurrentLimit1 " .
     " FROM BatteryOne" .
@@ -198,6 +199,7 @@ table, th, td {
         dataAllC.addColumn('datetime', 'TimeStamp');
         dataAllC.addColumn('number', 'Current1');
         dataAllC.addColumn('number', 'ChargeCurrentLimit1');
+        dataAllC.addColumn('number', 'Power1');
         dataAllC.addColumn('number', 'DischargeCurrentLimit1');
 
         dataAllC.addRows([
@@ -209,7 +211,7 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["ChargeCurrentLimit1"].", ".$row["DischargeCurrentLimit1"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["ChargeCurrentLimit1"].", ".$row["Power1"].", ".$row["DischargeCurrentLimit1"]."]";
                   while($row = mysqli_fetch_assoc($resultAllC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -217,7 +219,7 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["ChargeCurrentLimit1"].", ".$row["DischargeCurrentLimit1"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["ChargeCurrentLimit1"].", ".$row["Power1"].", ".$row["DischargeCurrentLimit1"]."]";
                     }
                 ?>
                ])
@@ -426,12 +428,12 @@ table, th, td {
     </script>
   </head>
   <body>
-    <div id="curve_chartAllC" style="width: 1500px; height: 500px"></div>
-    <div id="curve_chartSE" style="width: 1500px; height: 500px"></div>
-    <div id="curve_chartV" style="width: 1500px; height: 500px"></div>
-    <div id="curve_chartC" style="width: 1500px; height: 500px"></div>
-    <div id="curve_chartCL" style="width: 1500px; height: 500px"></div>
-    <div id="curve_chartDCL" style="width: 1500px; height: 500px"></div>
+    <div id="curve_chartAllC" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartSE" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartV" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartC" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartCL" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartDCL" style="width: 1000px; height: 500px"></div>
   </body>
 </html>
 
