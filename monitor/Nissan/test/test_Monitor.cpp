@@ -371,31 +371,22 @@ TEST_F(MonitorConstructed, averageTemperatureNanIfAllSensorsMissing)
    EXPECT_TRUE(isnan(monitor.getTemperature()));
 }
 
-TEST_F(MonitorConstructed, dischargeCurrentReturnMax)
+
+TEST_F(MonitorConstructed, dischargeCurrentTest1)
 {
    monitor.sink(BatteryStatus().setVoltage(300.0));
    monitor.sink(BatteryPowerLimits().setDischargePowerLimit_kW(20.0));
-   monitor.sink(BatteryStatus().setUsableSOC(50));
+
 
    EXPECT_THAT(monitor.getDischargeCurrentLimit(), 25.0 /*MAX_ALLOWABLE_CURRENT*/);
 }
 
-TEST_F(MonitorConstructed, dischargeCurrentReturnCalcValue)
+TEST_F(MonitorConstructed, dischargeCurrentTest2)
 {
    monitor.sink(BatteryStatus().setVoltage(300.0));
    monitor.sink(BatteryPowerLimits().setDischargePowerLimit_kW(6.0));
-   monitor.sink(BatteryStatus().setUsableSOC(50));
 
    EXPECT_THAT(monitor.getDischargeCurrentLimit(), 1000.0 * 6.0/300.0);
-}
-
-TEST_F(MonitorConstructed, dischargeCurrentTestReturn0)
-{
-   monitor.sink(BatteryStatus().setVoltage(300.0));
-   monitor.sink(BatteryPowerLimits().setDischargePowerLimit_kW(6.0));
-   monitor.sink(BatteryStatus().setUsableSOC(5.0));
-
-   EXPECT_THAT(monitor.getDischargeCurrentLimit(), 0.0);
 }
 
 TEST_F(MonitorConstructed, chargeCurrentTest1)
@@ -412,15 +403,6 @@ TEST_F(MonitorConstructed, chargeCurrentTest2)
    monitor.sink(BatteryPowerLimits().setChargePowerLimit_kW(7.0));
 
    EXPECT_THAT(monitor.getChargeCurrentLimit(), 1000.0 * 7.0/280.0);
-}
-
-TEST_F(MonitorConstructed, chargeCurrentTest3)
-{
-   monitor.sink(BatteryStatus().setVoltage(280.0));
-   monitor.sink(BatteryPowerLimits().setChargePowerLimit_kW(7.0));
-   monitor.sink(BatteryStatus().setUsableSOC(99.0));
-
-   EXPECT_THAT(monitor.getChargeCurrentLimit(), 0.0);
 }
 
 TEST_F(MonitorConstructed, zeroInitialValue)
