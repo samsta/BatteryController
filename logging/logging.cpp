@@ -170,7 +170,17 @@ void Logger::updateDataLog()
             // datetime
             str += strstm.str();
             // battery number
-            str += "\"" + to_string(i) + "\",";
+            // add one to packes numbered < size-1
+            // size-1 is the multipack which will be assigned index 0
+            if (i == (m_vmonitor.size()-1))
+            {
+               str += "\"" + to_string(0) + "\",";
+            }
+            else
+            {
+               str += "\"" + to_string(i+1) + "\",";
+            }
+            // loop over each data value for a pack
             for (unsigned j=0; j<DATA_COUNT; j++)
             {
                str += + "\"" + floatToString(m_bat_data[j][i].getAverage()) + "\",";

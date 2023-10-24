@@ -115,64 +115,27 @@ int main(int argc, const char** argv)
    }
    #endif
 
-   // packs::Nissan::LeafPack battery_pack_1(
-   //       usb_port1.getSinkOutbound(0),
-   //       timer,
-   //       log);
-
-   // packs::Nissan::LeafPack battery_pack_2(
-   //      usb_port1.getSinkOutbound(1),
-   //      timer,
-   //      log);
-
-   // packs::Nissan::LeafPack battery_pack_3(
-   //      usb_port1.getSinkOutbound(2),
-   //      timer,
-   //      log);
-
-   // packs::Nissan::LeafPack battery_pack_4(
-   //      usb_port2.getSinkOutbound(0),
-   //      timer,
-   //      log);
-
-   // packs::Nissan::LeafPack battery_pack_5(
-   //      usb_port2.getSinkOutbound(1),
-   //      timer,
-   //      log);
-
-   // packs::Nissan::LeafPack battery_pack_6(
-   //      usb_port2.getSinkOutbound(2),
-   //      timer,
-   //      log);
-
-   char BP6[] = "BP1";
-   packs::Nissan::LeafPack battery_pack_6( BP6,
+   char BP1[] = "BP1";
+   packs::Nissan::LeafPack battery_pack_1( BP1,
         usb_port2.getSinkOutbound(0),
         timer,
         &logger);
-   vbatterymon.push_back( &battery_pack_6.getMonitor());
+   vbatterymon.push_back( &battery_pack_1.getMonitor());
 
-   // char BP5[] = "BP5";
-   // packs::Nissan::LeafPack battery_pack_5( BP5,
-   //      usb_port2.getSinkOutbound(1),
-   //      timer,
-   //      &logger);
-   // vbatterymon.push_back( &battery_pack_5.getMonitor());
-
-   // std::vector<monitor::Monitor*> vbatterymon = {
-   //          // &battery_pack_1.getMonitor(),
-   //          // &battery_pack_2.getMonitor(),
-   //          // &battery_pack_3.getMonitor(),
-   //          // &battery_pack_4.getMonitor(),
-   //          // &battery_pack_5.getMonitor(),
-   //          &battery_pack_6.getMonitor()};
+   char BP2[] = "BP2";
+   packs::Nissan::LeafPack battery_pack_2( BP2,
+        usb_port2.getSinkOutbound(1),
+        timer,
+        &logger);
+   vbatterymon.push_back( &battery_pack_2.getMonitor());
+   
    std::vector<contactor::Contactor*> vbatterycon = {
             // &battery_pack_1.getContactor(),
             // &battery_pack_2.getContactor(),
             // &battery_pack_3.getContactor(),
             // &battery_pack_4.getContactor(),
-            // &battery_pack_5.getContactor(),
-            &battery_pack_6.getContactor()};
+            &battery_pack_1.getContactor(),
+            &battery_pack_2.getContactor()};
 
    // usb_port1.setu&logger(*log, "<USB1 OUT>", color::cyan);
    usb_port2.setupLogger("<USB2 OUT>", color::cyan);
@@ -184,10 +147,10 @@ int main(int argc, const char** argv)
    // usb_port2.setSinkInbound(0, battery_pack_4);
    // usb_port2.setSinkInbound(1, battery_pack_5);
    // usb_port2.setSinkInbound(2, battery_pack_6);
-   usb_port2.setSinkInbound(0, battery_pack_6);
-   // usb_port2.setSinkInbound(1, battery_pack_5);
+   usb_port2.setSinkInbound(0, battery_pack_1);
+   usb_port2.setSinkInbound(1, battery_pack_2);
 
-   packs::Nissan::LeafMultiPack multi_battery(
+   packs::Nissan::LeafMultiPack multi_pack(
                      vbatterymon,
                      vbatterycon,
                      timer,
@@ -195,13 +158,17 @@ int main(int argc, const char** argv)
                      negative_relay_1,
                      pre_charge_relay_1,
                      &logger);
+   // add the multipack to the battery list
+   // multi_pack (above) will not see this addition
+   // logger and console (below) will see it
+   vbatterymon.push_back( &multi_pack);
 
    // inverter::TSUN::TSOL_H50K inverter(
    inverter::SINEX::SE_PWS2 inverter(
          inverter_port,
          timer,
-         multi_battery,
-         multi_battery.getMainContactor(),
+         multi_pack,
+         multi_pack.getMainContactor(),
          &logger);
    // can::services::TSUN::MessageFactory inverter_message_factory(inverter, &logger);
    can::services::SINEX::MessageFactory inverter_message_factory(inverter, &logger);
@@ -214,7 +181,7 @@ int main(int argc, const char** argv)
    if (console.isOperational())
    {
       console.setMonitor(vbatterymon);
-      console.setContactor(multi_battery.getMainContactor());
+      console.setContactor(multi_pack.getMainContactor());
    }
    #endif
 

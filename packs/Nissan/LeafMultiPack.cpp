@@ -43,9 +43,11 @@ LeafMultiPack::LeafMultiPack(
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms);
    if (m_log) m_log->info("LeafMultiPack: status set to STARTUP");
-   std::ostringstream ss;
+   std::ostringstream ss,sss;
    ss << "LeafMultiPack: pack startup wait time = " << CALLBACK_PERIOD_ms * MAX_STARTUP_COUNT / 1000 << " seconds";
    if (m_log) m_log->info(ss);
+   sss << "LeafMultiPack: number of packs: " << (int(m_vmonitor.size()));
+   if (m_log) m_log->info(sss);
 }
 
 LeafMultiPack::~LeafMultiPack()
@@ -55,7 +57,6 @@ LeafMultiPack::~LeafMultiPack()
 
 void LeafMultiPack::periodicCallback()
 {
-   // data logging!
    // user interface data? (via sockets?)
 
    // start up proceedure... find healty batteries.
@@ -70,8 +71,6 @@ void LeafMultiPack::periodicCallback()
    //    operate shunt if neecessary (resend shunt trigger)
    //    open main contactor if necessary (extreme case, like loss fo USB comms)
 
-
-   // printf("PERIODIC CALLBACK\n\r");
    switch (m_multipack_status) {
 
       case Monitor::STARTUP:
