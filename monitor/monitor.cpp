@@ -18,7 +18,13 @@ logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*
 
    os << "Battery Number:       ";
    for (i=0; i<vm.size(); i++) {
-      os << "\t" << i+1;}
+      if (i == (vm.size()-1)) {
+         os << "\tall";
+      }
+      else {
+         os << "\t" << i+1;
+      }
+   }
    os << std::endl;
    
    os << "Pack Status           ";
