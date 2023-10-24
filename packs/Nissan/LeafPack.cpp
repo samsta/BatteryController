@@ -48,7 +48,7 @@ void LeafPack::heartbeatCallback()
 
       case monitor::Monitor::STARTUP:
          m_startup_counter++;
-         if (m_startup_counter >= MAX_STARTUP_COUNT)
+         if (m_startup_counter >= MAX_PACK_STARTUP_COUNT)
          {
             m_safety_shunt.setSafeToOperate(false);
             m_monitor.setPackStatus(monitor::Monitor::SHUNT_ACTIVIATED);
@@ -101,21 +101,31 @@ void LeafPack::heartbeatCallback()
    }
    else if (!m_safety_shunt.isSafeToOperate())
    {
-      // check the current is zero when the shut is triggered (actually, check that it is a small value as
-      // the current measurement is not accurate)
+      // check the current is zero when the shunt is tripped
+      // actually, check that it is a small value as the current measurement is not accurate
       if (m_monitor.getCurrent() > MAX_SHUNT_OPEN_CURRENT)
       {
          m_monitor.setPackStatus(monitor::Monitor::SHUNT_ACT_FAILED);
          std::ostringstream ss;
-         ss << "LeafPack: " << m_pack_name << ": SHUNT ALREADY TRIGGERED BUT CURRENT NOT ZERO.  CHECK SHUNT OPERATION.";
+         ss << "LeafPack: " << m_pack_name << ": SHUNT ALREADY TRIPPED BUT CURRENT NOT ZERO.  CHECK SHUNT OPERATION.";
          if (m_log) m_log->error(ss, __FILENAME__, __LINE__);
          m_safety_shunt.setSafeToOperate(false);
+         m_monitor.updateOperationalSafety();
+      }
+      // if the current has gone to near zero, release the shunt trip relay
+      else // (m_monitor.getCurrent() < MAX_SHUNT_OPEN_CURRENT)
+      {
+         std::ostringstream ss;
+         ss << "LeafPack: " << m_pack_name << ": shunt trip relay de-energized";
+         if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
+         m_safety_shunt.setSafeToOperate(true);
          m_monitor.updateOperationalSafety();
       }
    }
 
    // check failsafe status, see if battery needs to be power cycled (aka reboot!)
    // reboot is the only way to reset failsafe status
+   // possible future issue https://github.com/samsta/BatteryController/issues/17
    m_reboot_wait_count++;
    if ((m_monitor.getFailsafeStatus() & 0b100)
          && m_reboot_wait_count > REBOOT_WAIT_PERIODS
@@ -128,7 +138,7 @@ void LeafPack::heartbeatCallback()
       if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
       m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
    }
-   else if (m_reboot_in_process)
+   else if (m_reboot_in_process && (m_reboot_wait_count > REBOOT_POWERDOWN_PERIODS))
    {
       m_reboot_in_process = false;
       std::ostringstream ss;

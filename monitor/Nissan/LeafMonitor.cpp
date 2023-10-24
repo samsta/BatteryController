@@ -231,6 +231,10 @@ void LeafMonitor::process(const BatteryPowerLimits& battery_power)
       m_discharge_current_limit = m_discharge_power_limit * 1000.0 / m_voltage;
       m_charge_current_limit = m_charge_power_limit * 1000.0 / m_voltage;
    }
+
+   // impose max value on the current limits
+   if (m_discharge_current_limit > MAX_ALLOWABLE_CURRENT) m_discharge_current_limit = MAX_ALLOWABLE_CURRENT;
+   if (m_charge_current_limit > MAX_ALLOWABLE_CURRENT) m_charge_current_limit = MAX_ALLOWABLE_CURRENT;
 }
 
 void LeafMonitor::updateOperationalSafety()

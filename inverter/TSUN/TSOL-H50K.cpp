@@ -149,11 +149,5 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
    // TODO else some kind of error reporting?
 }
 
-
-// unsigned TSOL_H50K::getInverterSilentCounter()
-// {
-//    return m_inverter_silent_counter;
-// }
-
 }
 }

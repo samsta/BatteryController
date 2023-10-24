@@ -32,7 +32,7 @@ public:
    virtual void sink(const can::messages::Message&);
 
 private:
-   void process(const can::messages::TSUN::InverterInfoRequest&);
+   void process(const can::messages::TSUN::InverterInfoRequest& command);
    void periodicCallback();
 
    can::FrameSink&       m_sender;
@@ -42,8 +42,6 @@ private:
    logging::Logger       *m_log;
    core::Callback<TSOL_H50K> m_periodic_callback;
    unsigned              m_inverter_silent_counter;
-
-   // unsigned getInverterSilentCounter();
 };
 
 }

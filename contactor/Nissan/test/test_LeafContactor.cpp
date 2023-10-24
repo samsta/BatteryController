@@ -20,22 +20,22 @@ TEST(NissanLeafContactor, setsOutputPinsToDefault)
    mocks::core::Timer timer;
    mocks::core::OutputPin positive_relay;
    mocks::core::OutputPin negative_relay;
-   mocks::core::OutputPin indicator_led;
+   mocks::core::OutputPin pre_charge_relay;
 
    EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
    EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
-   EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
+   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
    
    LeafContactor contactor(timer,
                            positive_relay,
                            negative_relay,
-                           indicator_led,
+                           pre_charge_relay,
                            nullptr);
 
    // expect contactor to open upon destruction
    EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
    EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
-   EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
+   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
 }
 
 class NissanLeafContactorTest: public Test
@@ -46,11 +46,11 @@ public:
       timer(),
       positive_relay(),
       negative_relay(),
-      indicator_led(),
+      pre_charge_relay(),
       contactor(timer,
                 positive_relay,
                 negative_relay,
-                indicator_led,
+                pre_charge_relay,
                 nullptr)
    {
    }
@@ -60,13 +60,13 @@ public:
       // expect contactor to open upon destruction
       EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
       EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
-      EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
+      EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
    }
 
    NiceMock<mocks::core::Timer> timer;
    NiceMock<mocks::core::OutputPin> positive_relay;
    NiceMock<mocks::core::OutputPin> negative_relay;
-   NiceMock<mocks::core::OutputPin> indicator_led;
+   NiceMock<mocks::core::OutputPin> pre_charge_relay;
    LeafContactor contactor;
 };
 
@@ -81,7 +81,7 @@ TEST_F(NissanLeafContactorTest, dontCloseIfUnsafe)
 
    EXPECT_CALL(positive_relay, set(_)).Times(0);
    EXPECT_CALL(negative_relay, set(_)).Times(0);
-   EXPECT_CALL(indicator_led, set(_)).Times(0);
+   EXPECT_CALL(pre_charge_relay, set(_)).Times(0);
 
    contactor.close();
 
@@ -102,17 +102,18 @@ TEST_F(NissanLeafContactorTest, setNegativeRelayAndIndicatorOnCloseIfSafe)
    contactor.setSafeToOperate(true);
 
    EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::LOW));
-   EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::HIGH));
+   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::LOW));
    EXPECT_CALL(positive_relay, set(_)).Times(0);
 
    contactor.close();
 }
 
-TEST_F(NissanLeafContactorTest, scheduleTimerToClosePositiveRelayOnCloseIfSafe)
+TEST_F(NissanLeafContactorTest, scheduleTimerToClosePositiveRelayAndPrechargeRelayOnCloseIfSafe)
 {
    contactor.setSafeToOperate(true);
 
    EXPECT_CALL(timer, schedule(_, 3000));
+   EXPECT_CALL(timer, schedule(_, 5000));
 
    contactor.close();
 }
@@ -128,15 +129,19 @@ TEST_F(NissanLeafContactorTest, stillOpenIfCloseInitiatedButTimerNotElapsed)
 TEST_F(NissanLeafContactorTest, closePositiveRelayWhenTimerElapsesAndScheduledActionInvoked)
 {
    contactor.setSafeToOperate(true);
-   core::Invokable* scheduled_action;
-   EXPECT_CALL(timer, schedule(_, 3000)).WillOnce(SaveArg<0>(&scheduled_action));
+   core::Invokable* scheduled_action1;
+   EXPECT_CALL(timer, schedule(_, 3000)).WillOnce(SaveArg<0>(&scheduled_action1));
+   core::Invokable* scheduled_action2;
+   EXPECT_CALL(timer, schedule(_, 5000)).WillOnce(SaveArg<0>(&scheduled_action2));
    contactor.close();
 
    EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::LOW));
+   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
    EXPECT_CALL(negative_relay, set(_)).Times(0);
-   EXPECT_CALL(indicator_led, set(_)).Times(0);
+   // EXPECT_CALL(pre_charge_relay, set(_)).Times(0);
 
-   scheduled_action->invoke();
+   scheduled_action1->invoke();
+   scheduled_action2->invoke();
 }
 
 class NissanLeafContactorClosedTest: public NissanLeafContactorTest
@@ -145,10 +150,13 @@ public:
    NissanLeafContactorClosedTest()
    {
       contactor.setSafeToOperate(true);
-      core::Invokable* scheduled_action;
-      EXPECT_CALL(timer, schedule(_, 3000)).WillOnce(SaveArg<0>(&scheduled_action));
+      core::Invokable* scheduled_action1;
+      EXPECT_CALL(timer, schedule(_, 3000)).WillOnce(SaveArg<0>(&scheduled_action1));
+      core::Invokable* scheduled_action2;
+      EXPECT_CALL(timer, schedule(_, 5000)).WillOnce(SaveArg<0>(&scheduled_action2));
       contactor.close();
-      scheduled_action->invoke();
+      scheduled_action1->invoke();
+      scheduled_action2->invoke();
    }
 };
 
@@ -161,7 +169,7 @@ TEST_F(NissanLeafContactorClosedTest, noActionIfClosedAgain)
 {
    EXPECT_CALL(positive_relay, set(_)).Times(0);
    EXPECT_CALL(negative_relay, set(_)).Times(0);
-   EXPECT_CALL(indicator_led, set(_)).Times(0);
+   EXPECT_CALL(pre_charge_relay, set(_)).Times(0);
 
    contactor.close();
 
@@ -172,7 +180,7 @@ TEST_F(NissanLeafContactorClosedTest, opensIfOpened)
 {
    EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
    EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
-   EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
+   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
 
    contactor.open();
 
@@ -183,7 +191,7 @@ TEST_F(NissanLeafContactorClosedTest, opensIfUnsafe)
 {
    EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
    EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
-   EXPECT_CALL(indicator_led, set(mocks::core::OutputPin::LOW));
+   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
 
    contactor.setSafeToOperate(false);
 

@@ -13,10 +13,12 @@
 
 #include "packs/Nissan/LeafPack.hpp"
 #include "packs/Nissan/LeafMultiPack.hpp"
-#include "can/services/SMA/MessageFactory.hpp"
-#include "can/services/TSUN/MessageFactory.hpp"
-#include "inverter/SMA/SunnyBoyStorage.hpp"
-#include "inverter/TSUN/TSOL-H50K.hpp"
+// #include "can/services/SMA/MessageFactory.hpp"
+// #include "can/services/TSUN/MessageFactory.hpp"
+// #include "inverter/SMA/SunnyBoyStorage.hpp"
+// #include "inverter/TSUN/TSOL-H50K.hpp"
+#include "can/services/SINEX/MessageFactory.hpp"
+#include "inverter/SINEX/SE-PWS2.hpp"
 
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "core/LibGpiod/OutputPin.hpp"
@@ -49,6 +51,16 @@ int main(int argc, const char** argv)
    std::ofstream logfile;
    std::ostringstream ss;
 
+   // // *****
+   // // FOR FUTURE CONSIDERATION
+   // // Set up CAN0
+   // std::system("sudo /sbin/ip link set can0 up type can bitrate 250000");
+   // std::system("sudo ip link set can0 txqueuelen 1000");
+   // // Set up CAN1
+   // std::system("sudo /sbin/ip link set can1 up type can bitrate 250000");
+   // std::system("sudo ip link set can1 txqueuelen 1000");
+   // // *****
+
    // this code required to catch ctrl-c and cleanly exit the program (open contactors)
    struct sigaction action;
    memset(&action, 0, sizeof(struct sigaction));
@@ -64,16 +76,6 @@ int main(int argc, const char** argv)
       return 1;
    }
 
-   // create the logging object
-   std::vector<monitor::Monitor*> vbatterymon;
-   logging::Logger logger((logging::LOG_LEVEL) atoi(argv[1]));
-
-   logger.info("------------------- BatteryController Started ------------------- ",__FILENAME__, __LINE__);
-   std::string smsg;
-   smsg.append("LOGGER_LEVEL: ");
-   smsg.append(argv[1]);
-   logger.info(smsg);
-
    const unsigned MAX_EVENTS = 10;
    struct epoll_event events[MAX_EVENTS];
    int nfds;
@@ -84,17 +86,26 @@ int main(int argc, const char** argv)
       perror("epoll_create1");
       exit(EXIT_FAILURE);
    }
+   core::EpollTimer timer(epollfd);
+   std::vector<monitor::Monitor*> vbatterymon;
+
+   // create the logging object
+   logging::Logger logger((logging::LOG_LEVEL) atoi(argv[1]), timer, vbatterymon );
+   logger.info("------------------- BatteryController Started ------------------- ",__FILENAME__, __LINE__);
+   std::string smsg;
+   smsg.append("LOGGER_LEVEL: ");
+   smsg.append(argv[1]);
+   logger.info(smsg);
 
    // core::USBPort usb_port1(argv[2], epollfd);
    // core::USBPort usb_port2(argv[3], epollfd);
    core::USBPort usb_port2(argv[3], epollfd, &logger);
 
    core::CanPort inverter_port(argv[2], epollfd);
-   core::EpollTimer timer(epollfd);
 
-   OutputPin positive_relay_1(0, 5, "relay_pos_1");
-   OutputPin negative_relay_1(0, 6, "relay_neg_1");
-   OutputPin indicator_led_1(0, 4, "led_1");
+   OutputPin pre_charge_relay_1(0, 4, "relay_prechg_1",core::OutputPin::HIGH);
+   OutputPin positive_relay_1(0, 5, "relay_pos_1",core::OutputPin::HIGH);
+   OutputPin negative_relay_1(0, 6, "relay_neg_1",core::OutputPin::HIGH);
 
    #ifdef CONSOLE
    core::ConsolePresenter console(timer, vbatterymon);
@@ -134,19 +145,19 @@ int main(int argc, const char** argv)
    //      timer,
    //      log);
 
-   char BP6[] = "BP6";
+   char BP6[] = "BP1";
    packs::Nissan::LeafPack battery_pack_6( BP6,
         usb_port2.getSinkOutbound(0),
         timer,
         &logger);
    vbatterymon.push_back( &battery_pack_6.getMonitor());
 
-   char BP5[] = "BP5";
-   packs::Nissan::LeafPack battery_pack_5( BP5,
-        usb_port2.getSinkOutbound(1),
-        timer,
-        &logger);
-   vbatterymon.push_back( &battery_pack_5.getMonitor());
+   // char BP5[] = "BP5";
+   // packs::Nissan::LeafPack battery_pack_5( BP5,
+   //      usb_port2.getSinkOutbound(1),
+   //      timer,
+   //      &logger);
+   // vbatterymon.push_back( &battery_pack_5.getMonitor());
 
    // std::vector<monitor::Monitor*> vbatterymon = {
    //          // &battery_pack_1.getMonitor(),
@@ -160,7 +171,7 @@ int main(int argc, const char** argv)
             // &battery_pack_2.getContactor(),
             // &battery_pack_3.getContactor(),
             // &battery_pack_4.getContactor(),
-            &battery_pack_5.getContactor(),
+            // &battery_pack_5.getContactor(),
             &battery_pack_6.getContactor()};
 
    // usb_port1.setu&logger(*log, "<USB1 OUT>", color::cyan);
@@ -174,7 +185,7 @@ int main(int argc, const char** argv)
    // usb_port2.setSinkInbound(1, battery_pack_5);
    // usb_port2.setSinkInbound(2, battery_pack_6);
    usb_port2.setSinkInbound(0, battery_pack_6);
-   usb_port2.setSinkInbound(1, battery_pack_5);
+   // usb_port2.setSinkInbound(1, battery_pack_5);
 
    packs::Nissan::LeafMultiPack multi_battery(
                      vbatterymon,
@@ -182,19 +193,22 @@ int main(int argc, const char** argv)
                      timer,
                      positive_relay_1,
                      negative_relay_1,
-                     indicator_led_1,
+                     pre_charge_relay_1,
                      &logger);
 
-   inverter::TSUN::TSOL_H50K inverter(
+   // inverter::TSUN::TSOL_H50K inverter(
+   inverter::SINEX::SE_PWS2 inverter(
          inverter_port,
          timer,
          multi_battery,
          multi_battery.getMainContactor(),
          &logger);
-   can::services::TSUN::MessageFactory inverter_message_factory(inverter, &logger);
-
+   // can::services::TSUN::MessageFactory inverter_message_factory(inverter, &logger);
+   can::services::SINEX::MessageFactory inverter_message_factory(inverter, &logger);
    inverter_port.setupLogger(*&logger, "<INV OUT>", color::green);
    inverter_port.setSink(inverter_message_factory);
+
+   logger.setMonitor(vbatterymon);
 
    #ifdef CONSOLE
    if (console.isOperational())

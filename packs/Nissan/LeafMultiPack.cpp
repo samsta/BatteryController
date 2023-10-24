@@ -11,7 +11,7 @@ LeafMultiPack::LeafMultiPack(
             core::Timer& timer,
             core::OutputPin& positive_relay,
             core::OutputPin& negative_relay,
-            core::OutputPin& indicator,
+            core::OutputPin& pre_charge_relay,
             logging::Logger *log):
 
       m_vmonitor(vmonitor),
@@ -21,7 +21,7 @@ LeafMultiPack::LeafMultiPack(
          timer,
          positive_relay,
          negative_relay,
-         indicator,
+         pre_charge_relay,
          log),
       m_log(log),
       m_periodic_callback(*this, &LeafMultiPack::periodicCallback),
@@ -97,7 +97,7 @@ void LeafMultiPack::periodicCallback()
             // check that there are normal packs (that is, not all packs have failed to startup)
             if (pack_startup_fail < m_vmonitor.size())
             {
-               // there are normal packs, close the main contactors
+               // there are normal packs, give the 'ok' to close the main contactors (doesn't close the contractors)
                m_multipack_status = Monitor::NORMAL_OPERATION;
                m_main_contactor.setSafeToOperate(true);
                if (m_log) m_log->info("LeafMultiPack: status set to NORMAL_OPERATION");
@@ -224,20 +224,15 @@ float LeafMultiPack::getDischargeCurrentLimit() const
 
 float LeafMultiPack::getTemperature() const
 {
-   // calculate the average temperature for the packs
-   float avg = 0;
-   uint count = 0;
+   // calculate the max temperature for the packs
+   float max = 0;
    for (uint i=0; i<m_vmonitor.size(); i++)
    {
       if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
-         count++;
-         avg += m_vmonitor[i]->getTemperature();
+         if (m_vmonitor[i]->getTemperature() > max) max = (m_vmonitor[i]->getTemperature() > max);
       }
    }
-   if (count > 0) {
-      return (avg / count);
-   }
-   else return NAN;
+   return max;
 }
 
 float LeafMultiPack::getSocPercent() const

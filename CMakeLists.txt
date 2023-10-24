@@ -13,6 +13,8 @@ set(MEMORYCHECK_SUPPRESSIONS_FILE "${CMAKE_SOURCE_DIR}/valgrind.supp")
 find_package(SocketCan)
 find_package(LibGpiod)
 find_package(Curses)
+find_package(CURL REQUIRED)
+
 
 set(CMAKE_CXX_FLAGS  "-Wall -Werror -Wextra -g -std=c++0x")
 set( CMAKE_CXX_FLAGS " -pthread " )
@@ -53,7 +55,7 @@ add_subdirectory(packs)
 if(SocketCan_FOUND AND LibGpiod_FOUND AND Curses_FOUND)
    # horrible prototype
    add_executable(testcan testcan.cpp)
-   target_link_libraries(testcan core logging monitor inverter can contactor packs ${LibGpiod_LIBRARY})
+   target_link_libraries(testcan core logging monitor inverter can contactor packs ${LibGpiod_LIBRARY} CURL::libcurl)
    
    # horrible battery emulator hack
    add_executable(emulator emulator.cpp)

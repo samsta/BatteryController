@@ -10,6 +10,7 @@ namespace contactor {
 namespace Nissan {
 namespace {
 const unsigned DELAY_CLOSE_MS = 3000;
+const unsigned DELAY_OPEN_MS = 5000;
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -17,17 +18,18 @@ LeafContactor::LeafContactor(
    Timer& timer,
    OutputPin& positive_relay,
    OutputPin& negative_relay,
-   OutputPin& indicator,
+   OutputPin& pre_charge_relay,
    logging::Logger* log):
          m_timer(timer),
          m_positive_relay(positive_relay),
          m_negative_relay(negative_relay),
-         m_indicator(indicator),
+         m_pre_charge_relay(pre_charge_relay),
          m_log(log),
          m_safe_to_operate(false),
          m_requested_state(OPEN),
          m_state(OPEN),
-         m_delayed_close(*this, &LeafContactor::closePositiveRelay)
+         m_delayed_close(*this, &LeafContactor::closePositiveRelay),
+         m_delayed_open(*this, &LeafContactor::openPreChargeRelay)
 {
    openBothRelays();
 }
@@ -81,7 +83,7 @@ void LeafContactor::openBothRelays()
 {
    m_negative_relay.set(OutputPin::HIGH);
    m_positive_relay.set(OutputPin::HIGH);
-   m_indicator.set(OutputPin::LOW);
+   m_pre_charge_relay.set(OutputPin::HIGH);
 
    if (m_log)
    {
@@ -110,15 +112,18 @@ void LeafContactor::closeNegativeRelay()
    if (m_log)
    {
       std::ostringstream ss;
-      ss << "LeafContactor: closing...";
+      ss << "LeafContactor: closing... (neg and precharge CLOSED)";
       m_log->info(ss);
    }
+   m_negative_relay.set(OutputPin::LOW);
+   // also close the precharge relay
+   m_pre_charge_relay.set(OutputPin::LOW);
 
    // the next line delays by DELAY_CLOSE_MS then calls m_delayed_close(callback), m_delayed_close is 
    // intialized in the class constructor to call closePositiveRelay... clear as mud.
+   // same system for opening the pre-charge relay after DELAY_OPEN_MS
    m_timer.schedule(&m_delayed_close, DELAY_CLOSE_MS);
-   m_negative_relay.set(OutputPin::LOW);
-   m_indicator.set(OutputPin::HIGH);
+   m_timer.schedule(&m_delayed_open, DELAY_OPEN_MS);
 }
 
 void LeafContactor::closePositiveRelay()
@@ -128,10 +133,22 @@ void LeafContactor::closePositiveRelay()
    if (m_log)
    {
       std::ostringstream ss;
-      ss << "LeafContactor: contactor closed";
+      ss << "LeafContactor: contactor CLOSED";
       m_log->info(ss);
    }
    m_state = CLOSED;
+}
+
+void LeafContactor::openPreChargeRelay()
+{
+   m_pre_charge_relay.set(OutputPin::HIGH);
+
+   if (m_log)
+   {
+      std::ostringstream ss;
+      ss << "LeafContactor: pre-charge OPEN";
+      m_log->info(ss);
+   }
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -175,7 +192,7 @@ void TeensyShuntCtrl::close()
       m_sender.sink(can::StandardDataFrame(m_canid, m_shunt_normal_msg));
       m_state = NORMAL;
       std::ostringstream ss;
-      ss << "ShuntCtrl: " << m_pack_name << ": shunt de-energized";
+      ss << "ShuntCtrl: " << m_pack_name << ": shunt trip relay de-energized";
       if (m_log) m_log->info(ss, __FILENAME__,__LINE__);
 }
 
@@ -184,7 +201,7 @@ void TeensyShuntCtrl::open()
       m_sender.sink(can::StandardDataFrame(m_canid, m_shunt_triggered_msg));
       m_state = TRIGGERED;
       std::ostringstream ss;
-      ss << "ShuntCtrl: " << m_pack_name << ": SHUNT TRIGGERED";
+      ss << "ShuntCtrl: " << m_pack_name << ": SHUNT TRIGGERED (shunt trip relay energized)";
       if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);
 }
 
