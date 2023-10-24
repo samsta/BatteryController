@@ -224,20 +224,15 @@ float LeafMultiPack::getDischargeCurrentLimit() const
 
 float LeafMultiPack::getTemperature() const
 {
-   // calculate the average temperature for the packs
-   float avg = 0;
-   uint count = 0;
+   // calculate the max temperature for the packs
+   float max = 0;
    for (uint i=0; i<m_vmonitor.size(); i++)
    {
       if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
-         count++;
-         avg += m_vmonitor[i]->getTemperature();
+         if (m_vmonitor[i]->getTemperature() > max) max = (m_vmonitor[i]->getTemperature() > max);
       }
    }
-   if (count > 0) {
-      return (avg / count);
-   }
-   else return NAN;
+   return max;
 }
 
 float LeafMultiPack::getSocPercent() const
