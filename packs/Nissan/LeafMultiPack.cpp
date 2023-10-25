@@ -228,7 +228,7 @@ float LeafMultiPack::getTemperature() const
    for (uint i=0; i<m_vmonitor.size(); i++)
    {
       if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
-         if (m_vmonitor[i]->getTemperature() > max) max = (m_vmonitor[i]->getTemperature() > max);
+         if (m_vmonitor[i]->getTemperature() > max) max = (m_vmonitor[i]->getTemperature());
       }
    }
    return max;
