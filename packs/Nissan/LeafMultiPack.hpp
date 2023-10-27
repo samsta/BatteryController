@@ -60,6 +60,7 @@ public:
 
 private:
    void periodicCallback();
+   void updateFullyChargedDischargedStatus();
 
    std::vector<monitor::Monitor*>      m_vmonitor;
    std::vector<contactor::Contactor*>  m_vsafety_shunt;
@@ -85,6 +86,9 @@ private:
    float m_charge_power_limit;
    float m_discharge_current_limit;
    float m_charge_current_limit;
+
+   bool m_fully_discharged;
+   bool m_fully_charged;
 
    Pack_Status m_multipack_status;
 

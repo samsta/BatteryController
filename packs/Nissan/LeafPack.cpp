@@ -119,14 +119,14 @@ void LeafPack::heartbeatCallback()
          m_monitor.updateOperationalSafety();
       }
       // if the current has gone to near zero, release the shunt trip relay
-      else // (m_monitor.getCurrent() < MAX_SHUNT_OPEN_CURRENT)
-      {
-         std::ostringstream ss;
-         ss << "LeafPack: " << m_pack_name << ": shunt trip relay de-energized";
-         if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
-         // m_safety_shunt.setSafeToOperate(true);
-         // m_monitor.updateOperationalSafety();
-      }
+      // else // (m_monitor.getCurrent() < MAX_SHUNT_OPEN_CURRENT)
+      // {
+      //    std::ostringstream ss;
+      //    ss << "LeafPack: " << m_pack_name << ": shunt trip relay de-energized";
+      //    if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
+      //    // m_safety_shunt.setSafeToOperate(true);
+      //    // m_monitor.updateOperationalSafety();
+      // }
    }
 
    // check failsafe status, see if battery needs to be power cycled (aka reboot!)

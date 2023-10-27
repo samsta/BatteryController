@@ -39,7 +39,9 @@ LeafMultiPack::LeafMultiPack(
       m_discharge_current_limit(0),
       m_charge_current_limit(0),
       m_multipack_status(monitor::Monitor::STARTUP),
-      m_startup_callback_count(0)
+      m_startup_callback_count(0),
+      m_fully_charged(true),
+      m_fully_discharged(true)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms);
    if (m_log) m_log->info("LeafMultiPack: status set to STARTUP");
@@ -116,6 +118,9 @@ void LeafMultiPack::periodicCallback()
       case Monitor::NORMAL_OPERATION:
          // WHAT HAPPENS DURING NORMAL OPERATION?!?!?!?
          // the inverter is driving the operation by polling for data...
+
+         updateFullyChargedDischargedStatus();
+
          for (uint i=0; i<m_vmonitor.size(); i++)
          {
             if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION)
@@ -130,6 +135,21 @@ void LeafMultiPack::periodicCallback()
       case Monitor::SHUTDOWN:
       default:
          break;
+   }
+}
+
+void LeafMultiPack::updateFullyChargedDischargedStatus()
+{
+   // check/set fully charged/discharged status with hysteresis
+   if (getSocPercent() > 25.0 && getSocPercent() < 75.0) {
+      m_fully_charged = false;
+      m_fully_charged = false;
+   }
+   else if (!m_fully_discharged && getSocPercent() < 20.0) {
+      m_fully_discharged = true;
+   }
+   else if (!m_fully_charged && getSocPercent() > 80.0) {
+      m_fully_charged = true;
    }
 }
 
@@ -197,6 +217,9 @@ float LeafMultiPack::getMinDischargeVoltage() const
 
 float LeafMultiPack::getChargeCurrentLimit() const
 {
+   // if full, no charging allowed
+   if (m_fully_charged) return 0.0;
+
    // calculate the total for the packs
    float total = 0;
    for (uint i=0; i<m_vmonitor.size(); i++)
@@ -210,6 +233,9 @@ float LeafMultiPack::getChargeCurrentLimit() const
 
 float LeafMultiPack::getDischargeCurrentLimit() const
 {
+   // if empty, no discharging allowed
+   if (m_fully_discharged) return 0.0;
+
    // calculate the total for the packs
    float total = 0;
    for (uint i=0; i<m_vmonitor.size(); i++)
