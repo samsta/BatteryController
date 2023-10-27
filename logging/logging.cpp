@@ -109,7 +109,7 @@ void Logger::updateDataLog()
 {
    // called once per DATALOG_CALLBACK_PERIOD
    // take a reading, keep the average, min, max
-   // every 10 minutes write the values to text file
+   // every 1 minute write the values to text file
 
    std:stringstream strstm;
    std::string str,strt;

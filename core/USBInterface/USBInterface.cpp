@@ -152,7 +152,7 @@ void USBPort::handle()
             port = HextoDec( &m_inBufferUnprocessed[findhash - 7], 1);
             canid = HextoDec( &m_inBufferUnprocessed[findhash - 3], 3);
 
-            if (port > 0 && port <= 2 && canid > 0  && canid <= 0x7FF)
+            if (port > 0 && port <= 3 && canid > 0  && canid <= 0x7FF)
             {
                // construct CAN message from received data
                frame.can_id = canid;
@@ -178,7 +178,7 @@ void USBPort::handle()
             else
             {
                // error, discard data
-               if (!(port > 0 && port <= 2))
+               if (!(port > 0 && port <= 3))
                {
                   // todo port error
                }
