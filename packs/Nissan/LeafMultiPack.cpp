@@ -143,7 +143,7 @@ void LeafMultiPack::updateFullyChargedDischargedStatus()
    // check/set fully charged/discharged status with hysteresis
    if (getSocPercent() > 25.0 && getSocPercent() < 75.0) {
       m_fully_charged = false;
-      m_fully_charged = false;
+      m_fully_discharged = false;
    }
    else if (!m_fully_discharged && getSocPercent() < 20.0) {
       m_fully_discharged = true;
