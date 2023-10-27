@@ -1,5 +1,7 @@
 -Title
 Battery One Battery Graphs
+All
+https://jimster.ca/BatteryOne/BatteryOneAll-2hrs.php
 Big Battery Last 2 Hours
 https://jimster.ca/BatteryOne/BatteryOne-2hrs.php
 Battery 1 Last 2 Hours
