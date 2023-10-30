@@ -5,6 +5,11 @@
     $password = "userML";  //your database password
     $dbname = "battery_data";  //your database name
 
+    $timestart = "DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00')";
+    $timeinterval = ", INTERVAL -2 HOUR)";
+    $batnum = 1;
+    $wherebatnum = " WHERE BatNum = " . $batnum;
+
     //--------------------------------------------------------------------------------------------------------------
     $con = new mysqli($servername, $username, $password, $dbname);
     if ($con->connect_error) {
@@ -14,10 +19,10 @@
     {
         // echo ("Connect Successfully");
     }
-    $query = " SELECT TimeStamp, Voltage as Voltage1, VoltageMin as VoltageMin1, VoltageMax as VoltageMax1" .
+    $query = " SELECT TimeStamp, Voltage as Voltage1, VoltageMin as Voltage".$batnum.", VoltageMax as VoltageMax1" .
     " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)"; 
+    $wherebatnum .
+    " AND Timestamp > " . $timestart . $timeinterval; 
 
     //  echo ($query);
     $resultV = $con->query($query);
@@ -35,8 +40,8 @@
     " DischargeCurrentLimit as DischargeCurrentLimit1, " .
     " ChargeCurrentLimit as ChargeCurrentLimit1 " .
     " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
+    $wherebatnum .
+    " AND Timestamp > " . $timestart . $timeinterval;
 
     //  echo ($query);
     $resultAllC = $con->query($query);
@@ -49,24 +54,10 @@
     {
         // echo ("Connect Successfully\n");
     }
-    // $query =" SELECT TimeStamp, Current as Current1, CurrentMin as CurrentMin1, CurrentMax as CurrentMax1" .
-    // " FROM BatteryOne" .
-    // " WHERE BatNum = 0" .
-    // " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
-    $query = "SELECT t0.TimeStamp, t0.Current as Current0, t0.CurrentMin as CurrentMin0, t0.CurrentMax as CurrentMax0," .
-    " t1.TimeStamp, t1.Current as Current1," .
-    " t2.TimeStamp, t2.Current as Current2," .
-    " t3.TimeStamp, t3.Current as Current3" .
-    " FROM BatteryOne as t0" .
-    " join BatteryOne as t1 ON t0.TimeStamp = t1.TimeStamp" .
-    " join BatteryOne as t2 ON t0.TimeStamp = t2.TimeStamp" .
-    " join BatteryOne as t3 ON t0.TimeStamp = t3.TimeStamp" .
-    " WHERE" .
-    " t0.BatNum = 0 AND" .
-    " t1.BatNum = 1 AND" .
-    " t2.BatNum = 2 AND" .
-    " t3.BatNum = 3 AND" .
-    " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
+    $query =" SELECT TimeStamp, Current as Current1, CurrentMin as Current".$batnum.", CurrentMax as CurrentMax1" .
+    " FROM BatteryOne" .
+    $wherebatnum .
+    " AND Timestamp > " . $timestart . $timeinterval;
 
     //  echo ($query);
     $resultC = $con->query($query);
@@ -79,10 +70,10 @@
     {
         // echo ("Connect Successfully\n");
     }
-    $query =" SELECT TimeStamp, ChargeCurrentLimit as ChargeCurrentLimit1, ChargeCurrentLimitMin as ChargeCurrentLimitMin1, ChargeCurrentLimitMax as ChargeCurrentLimitMax1" .
+    $query =" SELECT TimeStamp, ChargeCurrentLimit as ChargeCurrentLimit1, ChargeCurrentLimitMin as ChargeCurrentLimit".$batnum.", ChargeCurrentLimitMax as ChargeCurrentLimitMax1" .
     " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
+    $wherebatnum .
+    " AND Timestamp > " . $timestart . $timeinterval;
 
     //  echo ($query);
     $resultCL = $con->query($query);
@@ -95,12 +86,12 @@
     {
         // echo ("Connect Successfully\n");
     }
-    $query =" SELECT TimeStamp, Current as Current1, CurrentMin as CurrentMin1, CurrentMax as CurrentMax1," . 
-    " DischargeCurrentLimit as DischargeCurrentLimit1, DischargeCurrentLimitMin as DischargeCurrentLimitMin1, DischargeCurrentLimitMax as DischargeCurrentLimitMax1," .
-    " ChargeCurrentLimit as ChargeCurrentLimit1, ChargeCurrentLimitMin as ChargeCurrentLimitMin1, ChargeCurrentLimitMax as ChargeCurrentLimitMax1" .
+    $query =" SELECT TimeStamp, Current as Current1, CurrentMin as Current".$batnum.", CurrentMax as CurrentMax1," . 
+    " DischargeCurrentLimit as DischargeCurrentLimit1, DischargeCurrentLimitMin as DischargeCurrentLimit".$batnum.", DischargeCurrentLimitMax as DischargeCurrentLimitMax1," .
+    " ChargeCurrentLimit as ChargeCurrentLimit1, ChargeCurrentLimitMin as ChargeCurrentLimit".$batnum.", ChargeCurrentLimitMax as ChargeCurrentLimitMax1" .
     " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
+    $wherebatnum .
+    " AND Timestamp > " . $timestart . $timeinterval;
 
     //  echo ($query);
     $resultDCL = $con->query($query);
@@ -115,8 +106,8 @@
     }
     $query =" SELECT TimeStamp, StoredEnergy, SOCPercent, Temperature" .
     " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
+    $wherebatnum .
+    " AND Timestamp > " . $timestart . $timeinterval;
 
     //  echo ($query);
     $resultSE = $con->query($query);
@@ -129,42 +120,10 @@
     {
         // echo ("Connect Successfully\n");
     }
-    $query =" SELECT TimeStamp, Current as Current0, CurrentMin as CurrentMin0, CurrentMax as CurrentMax0" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
-
-    //  echo ($query);
-    $resultCC = $con->query($query);
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
-    $query =" SELECT TimeStamp, CellVoltageMin, CellVoltageMax" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
-
-    //  echo ($query);
-    $resultCV = $con->query($query);
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
     $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
     " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -10 MINUTE) ORDER BY TimeStamp DESC LIMIT 1";
+    $wherebatnum .
+    " AND Timestamp > ". $timestart . ", INTERVAL -10 MINUTE) ORDER BY TimeStamp DESC LIMIT 1";
 
     $resultTBL = $con->query($query);
     $rows = mysqli_fetch_assoc($resultTBL);
@@ -176,78 +135,6 @@
     $Voltage = $rows["Voltage"];
     $Temperature = $rows["Temperature"];
     $DTm = $rows["TimeStamp"];
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
-    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 3" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -10 MINUTE) ORDER BY TimeStamp DESC LIMIT 1";
-
-    $resultTBL = $con->query($query);
-    $rows = mysqli_fetch_assoc($resultTBL);
-    $SOC3 = $rows["SOCPercent"];
-    $StoredEnergy3 = $rows["StoredEnergy"];
-    $Current3 = $rows["Current"];
-    $DischargeCurrentLimit3 = $rows["DischargeCurrentLimit"];
-    $ChargeCurrentLimit3 = $rows["ChargeCurrentLimit"];
-    $Voltage3 = $rows["Voltage"];
-    $Temperature3 = $rows["Temperature"];
-    $DTm3 = $rows["TimeStamp"];
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
-    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 2" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -10 MINUTE) ORDER BY TimeStamp DESC LIMIT 1";
-
-    $resultTBL = $con->query($query);
-    $rows = mysqli_fetch_assoc($resultTBL);
-    $SOC2 = $rows["SOCPercent"];
-    $StoredEnergy2 = $rows["StoredEnergy"];
-    $Current2 = $rows["Current"];
-    $DischargeCurrentLimit2 = $rows["DischargeCurrentLimit"];
-    $ChargeCurrentLimit2 = $rows["ChargeCurrentLimit"];
-    $Voltage2 = $rows["Voltage"];
-    $Temperature2 = $rows["Temperature"];
-    $DTm2 = $rows["TimeStamp"];
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
-    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 1" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -10 MINUTE) ORDER BY TimeStamp DESC LIMIT 1";
-
-    $resultTBL = $con->query($query);
-    $rows = mysqli_fetch_assoc($resultTBL);
-    $SOC1 = $rows["SOCPercent"];
-    $StoredEnergy1 = $rows["StoredEnergy"];
-    $Current1 = $rows["Current"];
-    $DischargeCurrentLimit1 = $rows["DischargeCurrentLimit"];
-    $ChargeCurrentLimit1 = $rows["ChargeCurrentLimit"];
-    $Voltage1 = $rows["Voltage"];
-    $Temperature1 = $rows["Temperature"];
-    $DTm1 = $rows["TimeStamp"];
     //--------------------------------------------------------------------------------------------------------------
   	date_default_timezone_set("Pacific/Auckland");
 	  // $thetimeis = "<h4>The time is " . date("H:i:s") . "</h4>"
@@ -284,7 +171,6 @@ table, th, td {
 <table style="width: 70%;">
   <!-- <tbody style="font-size: 12px";> -->
   <tr>
-    <th>Bat</th>
     <th>SOC</th>
     <th>Energy</th>
     <th>Current</th>
@@ -295,7 +181,6 @@ table, th, td {
     <th>Temperature</th>
   </tr>
   <tr>
-    <td>Big</p></td>
     <td><p><?=round($SOC,1)?> %</p></td>
     <td><p><?=round($StoredEnergy,1)?> kWh</p></td>
     <td><p><?=round($Current,1)?> A</p></td>
@@ -304,39 +189,6 @@ table, th, td {
     <td><p><?=round($DischargeCurrentLimit,1)?> A</p></td>
     <td><p><?=round($Voltage,1)?> V</p></td>
     <td><p><?=round($Temperature,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>1</p></td>
-    <td><p><?=round($SOC1,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy1,1)?> kWh</p></td>
-    <td><p><?=round($Current1,1)?> A</p></td>
-    <td><p><?=round($Voltage1*$Current1/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit1,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit1,1)?> A</p></td>
-    <td><p><?=round($Voltage1,1)?> V</p></td>
-    <td><p><?=round($Temperature1,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>2</p></td>
-    <td><p><?=round($SOC2,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy2,1)?> kWh</p></td>
-    <td><p><?=round($Current2,1)?> A</p></td>
-    <td><p><?=round($Voltage2*$Current2/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit2,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit2,1)?> A</p></td>
-    <td><p><?=round($Voltage2,1)?> V</p></td>
-    <td><p><?=round($Temperature2,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>3</p></td>
-    <td><p><?=round($SOC3,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy3,1)?> kWh</p></td>
-    <td><p><?=round($Current3,1)?> A</p></td>
-    <td><p><?=round($Voltage3*$Current3/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit3,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit3,1)?> A</p></td>
-    <td><p><?=round($Voltage3,1)?> V</p></td>
-    <td><p><?=round($Temperature3,1)?> C</p></td>
   </tr>
 </table>
 </body>
@@ -397,8 +249,8 @@ table, th, td {
         var dataV = new google.visualization.DataTable();
         dataV.addColumn('datetime', 'TimeStamp');
         dataV.addColumn('number', 'Voltage1');
-        dataV.addColumn('number', 'VoltageMin1');
-        dataV.addColumn('number', 'VoltageMax1');
+        dataV.addColumn('number', 'VoltageMin'.$batnum);
+        dataV.addColumn('number', 'VoltageMax'.$batnum);
 
         dataV.addRows([
                 <?php
@@ -432,13 +284,10 @@ table, th, td {
          //--------------------------------------------------------------------------------------------------------------
          var dataC = new google.visualization.DataTable();
         dataC.addColumn('datetime', 'TimeStamp');
-        dataC.addColumn('number', 'Current0');
         dataC.addColumn('number', 'Current1');
-        dataC.addColumn('number', 'Current2');
-        dataC.addColumn('number', 'Current3');
-        // dataC.addColumn('number', 'CurrentMin0');
-        // dataC.addColumn('number', 'CurrentMax0');
-        
+        dataC.addColumn('number', 'CurrentMin'.$batnum);
+        dataC.addColumn('number', 'CurrentMax'.$batnum);
+
         dataC.addRows([
                 <?php
                   $row = mysqli_fetch_assoc($resultC);
@@ -448,8 +297,7 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current0"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"]."]";
-                  // echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current0"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"].", ".$row["CurrentMin0"].", ".$row["CurrentMax0"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["CurrentMin1"].", ".$row["CurrentMax1"]."]";
                   while($row = mysqli_fetch_assoc($resultC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -457,8 +305,7 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current0"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"]."]";
-                        // echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current0"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"].", ".$row["CurrentMin0"].", ".$row["CurrentMax0"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["CurrentMin1"].", ".$row["CurrentMax1"]."]";
                     }
                 ?>
                ])
@@ -472,8 +319,8 @@ table, th, td {
          var dataCL = new google.visualization.DataTable();
         dataCL.addColumn('datetime', 'TimeStamp');
         dataCL.addColumn('number', 'ChargeCurrentLimit1');
-        dataCL.addColumn('number', 'ChargeCurrentLimitMin1');
-        dataCL.addColumn('number', 'ChargeCurrentLimitMax1');
+        dataCL.addColumn('number', 'ChargeCurrentLimitMin'.$batnum);
+        dataCL.addColumn('number', 'ChargeCurrentLimitMax'.$batnum);
 
         dataCL.addRows([
                 <?php
@@ -503,45 +350,11 @@ table, th, td {
         var chartCL = new google.visualization.LineChart(document.getElementById('curve_chartCL'));
         chartCL.draw(dataCL, optionsCL);
          //--------------------------------------------------------------------------------------------------------------
-         var dataCC = new google.visualization.DataTable();
-        dataCC.addColumn('datetime', 'TimeStamp');
-        dataCC.addColumn('number', 'Current0');
-        dataCC.addColumn('number', 'CurrentMin0');
-        dataCC.addColumn('number', 'CurrentMax0');
-
-        dataCC.addRows([
-                <?php
-                  $row = mysqli_fetch_assoc($resultCC);
-                  $dt = $row["TimeStamp"];
-                  $yr = substr($dt,0,4);
-                  $mo = substr($dt,5,2);
-                  $day = substr($dt,8,2);
-                  $hr = substr($dt,11,2);
-                  $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current0"].", ".$row["CurrentMin0"].", ".$row["CurrentMax0"]."]";
-                  while($row = mysqli_fetch_assoc($resultCC)){
-                        $dt = $row["TimeStamp"];
-                        $yr = substr($dt,0,4);
-                        $mo = substr($dt,5,2);
-                        $day = substr($dt,8,2);
-                        $hr = substr($dt,11,2);
-                        $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current0"].", ".$row["CurrentMin0"].", ".$row["CurrentMax0"]."]";
-                    }
-                ?>
-               ])
-        var optionsCC = {
-          title: 'Current (A)',
-          legend: { position: 'bottom' }//,
-        };
-        var chartCC = new google.visualization.LineChart(document.getElementById('curve_chartCC'));
-        chartCC.draw(dataCC, optionsCC);
-         //--------------------------------------------------------------------------------------------------------------
          var dataDCL = new google.visualization.DataTable();
         dataDCL.addColumn('datetime', 'TimeStamp');
         dataDCL.addColumn('number', 'DischargeCurrentLimit1');
-        dataDCL.addColumn('number', 'DischargeCurrentLimitMin1');
-        dataDCL.addColumn('number', 'DischargeCurrentLimitMax1');
+        dataDCL.addColumn('number', 'DischargeCurrentLimitMin'.$batnum);
+        dataDCL.addColumn('number', 'DischargeCurrentLimitMax'.$batnum);
 
         dataDCL.addRows([
                 <?php
@@ -615,39 +428,6 @@ table, th, td {
         var chartSE = new google.visualization.LineChart(document.getElementById('curve_chartSE'));
         chartSE.draw(dataSE, optionsSE);
          //--------------------------------------------------------------------------------------------------------------
-         var dataCV = new google.visualization.DataTable();
-        dataCV.addColumn('datetime', 'TimeStamp');
-        dataCV.addColumn('number', 'CellVoltageMin');
-        dataCV.addColumn('number', 'CellVoltageMax');
-
-        dataCV.addRows([
-                <?php
-                  $row = mysqli_fetch_assoc($resultCV);
-                  $dt = $row["TimeStamp"];
-                  $yr = substr($dt,0,4);
-                  $mo = substr($dt,5,2);
-                  $day = substr($dt,8,2);
-                  $hr = substr($dt,11,2);
-                  $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["CellVoltageMin"].", ".$row["CellVoltageMax"]."]";
-                  while($row = mysqli_fetch_assoc($resultCV)){
-                        $dt = $row["TimeStamp"];
-                        $yr = substr($dt,0,4);
-                        $mo = substr($dt,5,2);
-                        $day = substr($dt,8,2);
-                        $hr = substr($dt,11,2);
-                        $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["CellVoltageMin"].", ".$row["CellVoltageMax"]."]";
-                    }
-                ?>
-               ])
-        var optionsCV = {
-          title: 'Cell Voltages Min/Max (V)',
-          legend: { position: 'bottom' }//,
-        };
-        var chartCV = new google.visualization.LineChart(document.getElementById('curve_chartCV'));
-        chartCV.draw(dataCV, optionsCV);
-         //--------------------------------------------------------------------------------------------------------------
   
       }
     </script>
@@ -657,8 +437,6 @@ table, th, td {
     <div id="curve_chartSE" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartV" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartC" style="width: 1000px; height: 500px"></div>
-    <div id="curve_chartCC" style="width: 1000px; height: 500px"></div>
-    <div id="curve_chartCV" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCL" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartDCL" style="width: 1000px; height: 500px"></div>
   </body>
