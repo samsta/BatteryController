@@ -192,7 +192,7 @@ void Logger::updateDataLog()
                }
                else if (j == 1) {
                   // max cell voltage
-                  str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\"\n";
+                  str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\",";
                }
                else {
                   str += + "\"" + floatToString(m_bat_data[j][i].getAverage()) + "\",";
