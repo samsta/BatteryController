@@ -137,13 +137,15 @@ void Logger::updateDataLog()
    // i is the battery
    for (unsigned i=0; i<m_vmonitor.size(); i++)
    {
-      m_bat_data[0][i].dataPoint(m_vmonitor[i]->getVoltage());
-      m_bat_data[1][i].dataPoint(m_vmonitor[i]->getCurrent());
-      m_bat_data[2][i].dataPoint(m_vmonitor[i]->getSocPercent());
-      m_bat_data[3][i].dataPoint(m_vmonitor[i]->getChargeCurrentLimit());
-      m_bat_data[4][i].dataPoint(m_vmonitor[i]->getDischargeCurrentLimit());
-      m_bat_data[5][i].dataPoint(m_vmonitor[i]->getEnergyRemainingKwh());
-      m_bat_data[6][i].dataPoint(m_vmonitor[i]->getTemperature());
+      m_bat_data[0][i].dataPoint(m_vmonitor[i]->getMinCellVolts());
+      m_bat_data[1][i].dataPoint(m_vmonitor[i]->getMaxCellVolts());
+      m_bat_data[2][i].dataPoint(m_vmonitor[i]->getVoltage());
+      m_bat_data[3][i].dataPoint(m_vmonitor[i]->getCurrent());
+      m_bat_data[4][i].dataPoint(m_vmonitor[i]->getSocPercent());
+      m_bat_data[5][i].dataPoint(m_vmonitor[i]->getChargeCurrentLimit());
+      m_bat_data[6][i].dataPoint(m_vmonitor[i]->getDischargeCurrentLimit());
+      m_bat_data[7][i].dataPoint(m_vmonitor[i]->getEnergyRemainingKwh());
+      m_bat_data[8][i].dataPoint(m_vmonitor[i]->getTemperature());
       
       // generate fake data
       // j is the data type (V, I, SOC, etc)
@@ -183,18 +185,29 @@ void Logger::updateDataLog()
             // loop over each data value for a pack
             for (unsigned j=0; j<DATA_COUNT; j++)
             {
-               str += + "\"" + floatToString(m_bat_data[j][i].getAverage()) + "\",";
-               // no min max on these indexes
-               if (j != 2 and j != 5) 
-               {
-               str += + "\"" + floatToString(m_bat_data[j][i].getMin()) + "\",";
+               // special cases for cell voltages
+               if (j == 0) {
+                  // min cell voltage
+                  str += + "\"" + floatToString(m_bat_data[j][i].getMin()) + "\",";
+               }
+               else if (j == 1) {
+                  // max cell voltage
+                  str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\"\n";
+               }
+               else {
+                  str += + "\"" + floatToString(m_bat_data[j][i].getAverage()) + "\",";
+               }
+               
+               // no min on these indexes
+               if (j!=0 and j!=1 and j!=2 and j!=5) {
+                  str += + "\"" + floatToString(m_bat_data[j][i].getMin()) + "\",";
                }
                // no comma on the very last data point, but must have a newline character
                if (j==(DATA_COUNT-1)) {
                   str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\"\n";
                }
-               // no min max on these indexes
-               else if (j !=2 and j != 5) {
+               // no max on these indexes
+               else if (j!=0 and j!=1 and j !=2 and j != 5) {
                   str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\",";
                }
                

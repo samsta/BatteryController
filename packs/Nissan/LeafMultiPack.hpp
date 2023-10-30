@@ -42,6 +42,8 @@ public:
    virtual float getMinDischargeVoltage() const;
    virtual float getChargeCurrentLimit() const;
    virtual float getDischargeCurrentLimit() const;
+   virtual float getMinCellVolts() const;
+   virtual float getMaxCellVolts() const;
 
    virtual uint32_t getSystemVersion() const;
    virtual uint32_t getSerialNumber() const;

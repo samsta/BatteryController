@@ -203,6 +203,32 @@ float LeafMultiPack::getCurrent() const
    return total;
 }
 
+float LeafMultiPack::getMinCellVolts() const
+{
+   // calculate the min for the packs
+   float min = 99.0;
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         if (m_vmonitor[i]->getMinCellVolts() < min) min = (m_vmonitor[i]->getMinCellVolts());
+      }
+   }
+   return min;
+}
+
+float LeafMultiPack::getMaxCellVolts() const
+{
+   // calculate the max for the packs
+   float max = 0.0;
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         if (m_vmonitor[i]->getMaxCellVolts() > max) max = (m_vmonitor[i]->getMaxCellVolts());
+      }
+   }
+   return max;
+}
+
 float LeafMultiPack::getMaxChargeVoltage() const
 {
    // this is a constant

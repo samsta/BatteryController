@@ -15,6 +15,8 @@ public:
    MOCK_METHOD(float, getVoltage, (), (const));
    MOCK_METHOD(float, getCurrent, (), (const));
    MOCK_METHOD(float, getTemperature, (), (const));
+   MOCK_METHOD(float, getMinCellVolts, (), (const));
+   MOCK_METHOD(float, getMaxCellVolts, (), (const));
 
    MOCK_METHOD(float, getSocPercent, (), (const));
    MOCK_METHOD(float, getSohPercent, (), (const));

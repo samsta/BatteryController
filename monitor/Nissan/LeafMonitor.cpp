@@ -75,6 +75,8 @@ LeafMonitor::LeafMonitor(
       m_capacity_kwh(NAN),
       m_current(NAN),
       m_voltage(NAN),
+      m_min_cell_volts(NAN),
+      m_max_cell_volts(NAN),
       m_average_temperature(NAN),
       m_discharge_cur_fac_by_voltage(0),
       m_discharge_power_limit(NAN),
@@ -124,9 +126,11 @@ void LeafMonitor::sink(const can::messages::Nissan::Message& message)
 
 void LeafMonitor::process(const CellVoltageRange& voltage_range)
 {
-   if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE &&
-       voltage_range.getMin() > CRITICALLY_LOW_VOLTAGE    &&
-       (voltage_range.getMax() - voltage_range.getMin()) < CRITICALLY_HIGH_VOLTAGE_SPREAD)
+   m_min_cell_volts = voltage_range.getMin();
+   m_max_cell_volts = voltage_range.getMax();
+   if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE &&
+       m_min_cell_volts > CRITICALLY_LOW_VOLTAGE    &&
+       (m_max_cell_volts - m_min_cell_volts) < CRITICALLY_HIGH_VOLTAGE_SPREAD)
    {
       m_voltages_ok = true;
    }
@@ -135,13 +139,14 @@ void LeafMonitor::process(const CellVoltageRange& voltage_range)
       m_voltages_ok = false;
    }
 
-   if (voltage_range.getMax() < CRITICALLY_HIGH_VOLTAGE) m_volt_temp_status &= ~CRIT_HIGH_VOLT;
+
+   if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE) m_volt_temp_status &= ~CRIT_HIGH_VOLT;
    else m_volt_temp_status |= CRIT_HIGH_VOLT;
 
-   if (voltage_range.getMin() > CRITICALLY_LOW_VOLTAGE ) m_volt_temp_status &= ~CRIT_LOW_VOLT;
+   if (m_min_cell_volts > CRITICALLY_LOW_VOLTAGE ) m_volt_temp_status &= ~CRIT_LOW_VOLT;
    else m_volt_temp_status |= CRIT_LOW_VOLT;
 
-   if ((voltage_range.getMax() - voltage_range.getMin()) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_volt_temp_status &= ~CRIT_SPREAD_VOLT;
+   if ((m_max_cell_volts - m_min_cell_volts) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_volt_temp_status &= ~CRIT_SPREAD_VOLT;
    else m_volt_temp_status |= CRIT_SPREAD_VOLT;
 
    updateOperationalSafety();
@@ -299,6 +304,16 @@ void LeafMonitor::setPackStatus(Monitor::Pack_Status p)
 float LeafMonitor::getVoltage() const
 {
    return m_voltage;
+}
+
+float LeafMonitor::getMinCellVolts() const
+{
+   return m_min_cell_volts;
+}
+
+float LeafMonitor::getMaxCellVolts() const
+{
+   return m_max_cell_volts;
 }
 
 float LeafMonitor::getCurrent() const

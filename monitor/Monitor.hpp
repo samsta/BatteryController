@@ -32,7 +32,9 @@ public:
    virtual float getSohPercent() const = 0;
    virtual float getEnergyRemainingKwh() const = 0;
    virtual float getCapacityKwh() const = 0;
-   
+   virtual float getMinCellVolts() const = 0;
+   virtual float getMaxCellVolts() const = 0;
+
    virtual uint32_t getSystemVersion() const = 0;
    virtual uint32_t getSerialNumber() const = 0;
    virtual float getNominalCapacityKwh() const = 0;

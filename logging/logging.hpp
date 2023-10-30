@@ -184,7 +184,7 @@ namespace logging
          bool resetCallback;
          unsigned m_prev_minute;
          #define MAX_BATTERIES 6
-         #define DATA_COUNT 7
+         #define DATA_COUNT 9
          AvgMinMax m_bat_data[DATA_COUNT][MAX_BATTERIES];
 
          // unsigned int		 logSize; // Size of a log file in bytes
