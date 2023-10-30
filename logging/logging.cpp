@@ -199,7 +199,7 @@ void Logger::updateDataLog()
                }
                
                // no min on these indexes
-               if (j!=0 and j!=1 and j!=2 and j!=5) {
+               if (j!=0 and j!=1 and j!=4 and j!=7) {
                   str += + "\"" + floatToString(m_bat_data[j][i].getMin()) + "\",";
                }
                // no comma on the very last data point, but must have a newline character
@@ -207,7 +207,7 @@ void Logger::updateDataLog()
                   str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\"\n";
                }
                // no max on these indexes
-               else if (j!=0 and j!=1 and j !=2 and j != 5) {
+               else if (j!=0 and j!=1 and j !=4 and j != 7) {
                   str += + "\"" + floatToString(m_bat_data[j][i].getMax()) + "\",";
                }
                
