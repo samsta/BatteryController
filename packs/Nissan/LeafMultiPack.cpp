@@ -141,14 +141,16 @@ void LeafMultiPack::periodicCallback()
 void LeafMultiPack::updateFullyChargedDischargedStatus()
 {
    // check/set fully charged/discharged status with hysteresis
-   if (getSocPercent() > 25.0 && getSocPercent() < 75.0) {
-      m_fully_charged = false;
+   if (getSocPercent() > 25.0) {
       m_fully_discharged = false;
    }
-   else if (!m_fully_discharged && getSocPercent() < 20.0) {
+   else if (getSocPercent() < 20.0) {
       m_fully_discharged = true;
    }
-   else if (!m_fully_charged && getSocPercent() > 80.0) {
+   if (getSocPercent() < 75.0) {
+      m_fully_charged = false;
+   }
+   else if (getSocPercent() > 80.0) {
       m_fully_charged = true;
    }
 }
