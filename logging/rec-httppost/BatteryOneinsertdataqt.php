@@ -5,7 +5,7 @@
  $hostname="jstulen.netfirmsmysql.com";
 mysql_connect($hostname,$user,$password);
 @mysql_select_db($database) or die( "Unable to select database");
-$insert = "INSERT INTO `BatteryOne`(`TimeStamp`,`BatNum`,`Voltage`,`VoltageMin`,`VoltageMax`,`Current`,`CurrentMin`,`CurrentMax`," .
+$insert = "INSERT INTO `BatteryOne`(`TimeStamp`,`BatNum`,`CellVoltageMin`,`CellVoltageMax`,`Voltage`,`VoltageMin`,`VoltageMax`,`Current`,`CurrentMin`,`CurrentMax`," .
           "`SOCPercent`,`ChargeCurrentLimit`,`ChargeCurrentLimitMin`,`ChargeCurrentLimitMax`,`DischargeCurrentLimit`,`DischargeCurrentLimitMin`,`DischargeCurrentLimitMax`," .
           "`StoredEnergy`,`Temperature`,`TemperatureMin`,`TemperatureMax`) VALUES ";
 
