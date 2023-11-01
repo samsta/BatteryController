@@ -84,7 +84,10 @@ LeafMonitor::LeafMonitor(
       m_discharge_current_limit(0),
       m_charge_current_limit(0),
 	   m_volt_temp_status(pow(2,6)-1),
-      m_failsafe_status(7)
+      m_failsafe_status(7),
+      m_bat_state_recv(false),
+      m_bat_status_recv(false),
+      m_bat_limits_recv(false)
 {
 }
 
@@ -211,6 +214,7 @@ void LeafMonitor::process(const PackTemperatures& temperatures)
 
 void LeafMonitor::process(const BatteryState& battery_state)
 {
+   m_bat_state_recv = true;
    //m_soc_percent = battery_state.getSocPercent(); replaced with useable_soc
    m_soh_percent = battery_state.getHealthPercent();
    m_capacity_kwh = (NOMINAL_CAPACITY_KWH/100) * m_soh_percent;
@@ -219,6 +223,7 @@ void LeafMonitor::process(const BatteryState& battery_state)
 
 void LeafMonitor::process(const BatteryStatus& battery_status)
 {
+   m_bat_status_recv = true;
    m_current = battery_status.getCurrent();
    m_voltage = battery_status.getVoltage();
    m_soc_percent = (float)battery_status.getUsableSOC();
@@ -228,6 +233,7 @@ void LeafMonitor::process(const BatteryStatus& battery_status)
 
 void LeafMonitor::process(const BatteryPowerLimits& battery_power)
 {
+   m_bat_limits_recv = true;
    m_discharge_power_limit = battery_power.getDischargePowerLimit_kW();
    m_charge_power_limit = battery_power.getChargePowerLimit_kW();
 
@@ -274,7 +280,7 @@ void LeafMonitor::updateOperationalSafety()
       s2.append(": SHUNT ACTIVIATED during NORMAL operation");
       if (m_log) m_log->alarm(s2, __FILENAME__,__LINE__);
    }
-   else if (everything_ok && m_pack_status == Monitor::STARTUP)
+   else if (m_bat_state_recv && m_bat_status_recv && m_bat_limits_recv && everything_ok && m_pack_status == Monitor::STARTUP)
    {
       // battery has come right on startup
       setPackStatus(Monitor::NORMAL_OPERATION);
