@@ -97,9 +97,8 @@ int main(int argc, const char** argv)
    smsg.append(argv[1]);
    logger.info(smsg);
 
-   // core::USBPort usb_port1(argv[2], epollfd);
-   // core::USBPort usb_port2(argv[3], epollfd);
-   core::USBPort usb_port2(argv[3], epollfd, &logger);
+   core::USBPort usb_port1(argv[3], epollfd, &logger);
+   core::USBPort usb_port2(argv[4], epollfd, &logger);
 
    core::CanPort inverter_port(argv[2], epollfd);
 
@@ -117,21 +116,21 @@ int main(int argc, const char** argv)
 
    char BP1[] = "BP1";
    packs::Nissan::LeafPack battery_pack_1( BP1,
-        usb_port2.getSinkOutbound(0),
+        usb_port1.getSinkOutbound(0),
         timer,
         &logger);
    vbatterymon.push_back( &battery_pack_1.getMonitor());
 
    char BP2[] = "BP2";
    packs::Nissan::LeafPack battery_pack_2( BP2,
-        usb_port2.getSinkOutbound(1),
+        usb_port1.getSinkOutbound(1),
         timer,
         &logger);
    vbatterymon.push_back( &battery_pack_2.getMonitor());
 
    char BP3[] = "BP3";
    packs::Nissan::LeafPack battery_pack_3( BP3,
-        usb_port2.getSinkOutbound(2),
+        usb_port2.getSinkOutbound(0),
         timer,
         &logger);
    vbatterymon.push_back( &battery_pack_3.getMonitor());
@@ -144,19 +143,12 @@ int main(int argc, const char** argv)
             &battery_pack_2.getContactor(),
             &battery_pack_3.getContactor()};
 
-   // usb_port1.setu&logger(*log, "<USB1 OUT>", color::cyan);
+   usb_port1.setupLogger("<USB1 OUT>", color::cyan);
    usb_port2.setupLogger("<USB2 OUT>", color::cyan);
 
-   // usb_port1.setSinkInbound(0, battery_pack_1);
-   // usb_port1.setSinkInbound(1, battery_pack_2);
-   // usb_port1.setSinkInbound(2, battery_pack_3);
-
-   // usb_port2.setSinkInbound(0, battery_pack_4);
-   // usb_port2.setSinkInbound(1, battery_pack_5);
-   // usb_port2.setSinkInbound(2, battery_pack_6);
-   usb_port2.setSinkInbound(0, battery_pack_1);
-   usb_port2.setSinkInbound(1, battery_pack_2);
-   usb_port2.setSinkInbound(2, battery_pack_3);
+   usb_port1.setSinkInbound(0, battery_pack_1);
+   usb_port1.setSinkInbound(1, battery_pack_2);
+   usb_port2.setSinkInbound(0, battery_pack_3);
 
    packs::Nissan::LeafMultiPack multi_pack(
                      vbatterymon,
