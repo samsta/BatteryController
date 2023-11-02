@@ -1,16 +1,32 @@
 -Title
 Big Battery (summation of all Batteries)
 2 hours
-https://jimster.ca/BatteryOne/BatteryOneAll-2hrs.php
+https://jimster.ca/BatteryOne/BatteryOneAll.php
 Today
-https://jimster.ca/BatteryOne/BatteryOneAll-2hrs.php?time=td
+https://jimster.ca/BatteryOne/BatteryOneAll.php?time=td
 Yesterday
-https://jimster.ca/BatteryOne/BatteryOneAll-2hrs.php?time=yd
+https://jimster.ca/BatteryOne/BatteryOneAll.php?time=yd
 -Title
-Individual Batteries
+Last 2 hours - Individual Batteries
 Battery 1 Last 2 Hours
-https://jimster.ca/BatteryOne/BatteryOne1-2hrs.php
+https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=1
 Battery 2 Last 2 Hours
-https://jimster.ca/BatteryOne/BatteryOne2-2hrs.php
+https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=2
 Battery 3 Last 2 Hours
-https://jimster.ca/BatteryOne/BatteryOne3-2hrs.php
+https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=3
+-Title
+Today - Individual Batteries
+Battery 1 Today
+https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=1&time=td
+Battery 2 Today
+https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=2&time=td
+Battery 3 Today
+https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=3&time=td
+-Title
+Yesterday - Individual Batteries
+Battery 1 Yesterday
+https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=1&time=yd
+Battery 2 Yesterday
+https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=2&time=yd
+Battery 3 Yesterday
+https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=3&time=yd
