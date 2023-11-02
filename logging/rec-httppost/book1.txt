@@ -1,17 +1,16 @@
 -Title
-Battery One Battery Graphs
-All
+Big Battery (summation of all Batteries)
+2 hours
 https://jimster.ca/BatteryOne/BatteryOneAll-2hrs.php
-Big Battery Last 2 Hours
-https://jimster.ca/BatteryOne/BatteryOne-2hrs.php
+Today
+https://jimster.ca/BatteryOne/BatteryOneAll-2hrs.php?time=td
+Yesterday
+https://jimster.ca/BatteryOne/BatteryOneAll-2hrs.php?time=yd
+-Title
+Individual Batteries
 Battery 1 Last 2 Hours
 https://jimster.ca/BatteryOne/BatteryOne1-2hrs.php
 Battery 2 Last 2 Hours
 https://jimster.ca/BatteryOne/BatteryOne2-2hrs.php
 Battery 3 Last 2 Hours
 https://jimster.ca/BatteryOne/BatteryOne3-2hrs.php
-Graph Today
-https://jimster.ca/BatteryOne/BatteryOne-today.php
-Graph Yesterday
-https://jimster.ca/BatteryOne/BatteryOne-yesterday.php
-
