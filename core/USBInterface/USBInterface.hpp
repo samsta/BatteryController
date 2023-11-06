@@ -39,27 +39,17 @@ private:
    int             m_epoll_fd;
    int             m_fd;
    std::string     m_name;
+   std::string     m_usb_id;
    can::FrameSink* m_sinkInbound[NUM_PACKS];
 
    class Pack: public can::FrameSink
    {
    public:
-      Pack(int fd,
-         unsigned index,
-         logging::Logger* m_log
-         // ,
-         // std::string m_log_prefix,
-         // std::string m_log_color,
-         // std::string m_log_color_reset
-         );
+      Pack(int fd, unsigned index, logging::Logger* m_log);
    private:
       int m_fd;
       unsigned m_index;
       logging::Logger* m_log;
-      // std::string       m_log_prefix;
-      // std::string       m_log_color;
-      // std::string       m_log_color_reset;
-
       virtual void sink(const can::DataFrame& f);
    };
 
@@ -70,7 +60,6 @@ private:
 
    uint32_t HextoDec(unsigned const char *hex, size_t hexlen);
 
-   //logging::ostream* m_log;
    std::string       m_log_prefix;
    std::string       m_log_color;
    std::string       m_log_color_reset;

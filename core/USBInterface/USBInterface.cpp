@@ -28,11 +28,12 @@ USBPort::USBPort(const char* name, int epoll_fd, logging::Logger *log):
     m_epoll_fd(epoll_fd),
     m_fd(open_serial_port(name, 9600)),
     m_name(name),
+    m_usb_id("USBPort:" + m_name +": "),
     m_sinkInbound{nullptr, nullptr, nullptr},
     m_packs{
-        {m_fd, 0, log},// m_log_prefix, m_log_color, m_log_color_reset},
-        {m_fd, 1, log},// m_log_prefix, m_log_color, m_log_color_reset},
-        {m_fd, 2, log}//, m_log_prefix, m_log_color, m_log_color_reset}
+        {m_fd, 0, log},
+        {m_fd, 1, log},
+        {m_fd, 2, log}
     },
     m_log_prefix(),
     m_log_color(),
@@ -47,15 +48,17 @@ USBPort::USBPort(const char* name, int epoll_fd, logging::Logger *log):
    if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_fd, &ev) == -1) {
       std::cerr << "ERROR in epoll_ctl(): Failed adding CanPort " << name << " to epoll: " << strerror(errno) << std::endl;
       std::string smsg;
-      smsg.append("USBPort: ERROR in epoll_ctl(): Failed adding CanPort ");
-      smsg.append(name);
+      smsg.append(m_usb_id);
+      smsg.append("ERROR in epoll_ctl(): Failed adding CanPort ");
+      smsg.append(m_name);
       smsg.append(" to epoll: ");
       smsg.append(strerror(errno));
       if (m_log) m_log->error(smsg, __FILENAME__,__LINE__);
       exit(EXIT_FAILURE);
    }
    std::string ss;
-   ss.append("USBPort Initialized: ");
+   ss.append(m_usb_id);
+   ss.append("Initialized: ");
    ss.append(m_name);
    if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
 }
@@ -118,11 +121,11 @@ void USBPort::handle()
          if (findhash != std::string::npos and findhash < sizeof(m_inBufferUnprocessed)) {
             if (findhash < (sizeof(cbuf)-100))
             {
-               sprintf(cbuf, "TEENSY:  %.*s", (int)findhash-1, m_inBufferUnprocessed);
+               sprintf(cbuf, "%sTEENSY:  %.*s", m_usb_id.c_str(), (int)findhash-1, m_inBufferUnprocessed);
             }
             else
             {
-               sprintf(cbuf,"TEENSY:  MESSAGE OVERSIZE, CAN'T BE DISPLAYED");
+               sprintf(cbuf,"%sTEENSY:  MESSAGE OVERSIZE, CAN'T BE DISPLAYED",m_usb_id.c_str());
             }
             newhead = findhash + 1;
             m_unprocessedSize = m_unprocessedSize - newhead;
@@ -171,7 +174,7 @@ void USBPort::handle()
                   m_sinkInbound[port-1]->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
                }
                else {
-                  sprintf(cbuf, "USBPORT: Unexpected CAN msg received on Teensy port %d", port);
+                  sprintf(cbuf, "%sUnexpected CAN msg received on Teensy port %d", m_usb_id.c_str(), port);
                   if (m_log) m_log->error(cbuf,__FILENAME__,__LINE__);
                }
             }
@@ -196,11 +199,11 @@ void USBPort::handle()
             // display bad msg 
             if (findhash < (sizeof(cbuf)-100))
             {
-               sprintf(cbuf, "USBPort: Receive ERROR: bad msg format: fh= %d  br= %d  %.*s", (int)findhash, m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
+               sprintf(cbuf, "%sReceive ERROR: bad msg format: fh= %d  br= %d  %.*s", m_usb_id.c_str(), (int)findhash, m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
             }
             else
             {
-               sprintf(cbuf,"USBPort: Receive ERROR: bad msg format: MESSAGE OVERSIZE, CAN'T BE DISPLAYED");
+               sprintf(cbuf,"%sReceive ERROR: bad msg format: MESSAGE OVERSIZE, CAN'T BE DISPLAYED", m_usb_id.c_str());
             }
 
             if (m_log) m_log->error(cbuf, __FILENAME__,__LINE__);
@@ -225,21 +228,10 @@ can::FrameSink& USBPort::getSinkOutbound(unsigned index)
    return m_packs[index];
 }
 
-USBPort::Pack::Pack(int fd,
-      unsigned index,
-      logging::Logger* log
-      // ,
-      // std::string log_prefix,
-      // std::string log_color,
-      // std::string log_color_reset
-      ):
+USBPort::Pack::Pack(int fd, unsigned index, logging::Logger* log):
    m_fd(fd), 
    m_index(index),
    m_log(log)
-   // ,
-   // m_log_prefix(log_prefix),
-   // m_log_color(log_color),
-   // m_log_color_reset(log_color_reset)
 {}
 
 void USBPort::Pack::sink(const can::DataFrame& f)
