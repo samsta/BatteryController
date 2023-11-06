@@ -316,7 +316,6 @@ void Logger::httpPOSTstr(std::string str)
    // kludge city!
    // write the SOC to a file for OEMS to read
    int soc = 0.5 + m_vmonitor[m_vmonitor.size()-1]->getSocPercent();
-   soc = 51;
    std::ofstream outFile("/home/pi/openems/SOC.txt");
    if (outFile.is_open()) {
       outFile << soc; // Write the integer as text
