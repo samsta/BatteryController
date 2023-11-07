@@ -31,9 +31,9 @@ USBPort::USBPort(const char* name, int epoll_fd, logging::Logger *log):
     m_usb_id("USBPort:" + m_name +": "),
     m_sinkInbound{nullptr, nullptr, nullptr},
     m_packs{
-        {m_fd, 0, log},
-        {m_fd, 1, log},
-        {m_fd, 2, log}
+        {m_fd, m_name, 0, log},
+        {m_fd, m_name, 1, log},
+        {m_fd, m_name, 2, log}
     },
     m_log_prefix(),
     m_log_color(),
@@ -228,8 +228,9 @@ can::FrameSink& USBPort::getSinkOutbound(unsigned index)
    return m_packs[index];
 }
 
-USBPort::Pack::Pack(int fd, unsigned index, logging::Logger* log):
+USBPort::Pack::Pack(int fd, std::string name, unsigned index, logging::Logger* log):
    m_fd(fd), 
+   m_name(name),
    m_index(index),
    m_log(log)
 {}
@@ -239,7 +240,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
   if (m_log)
   {
       std::ostringstream ss;
-      ss << "<USB OUT port " << m_index << ">" << f;
+      ss << "<USB OUT:" << m_name << " CAN port: " << m_index << ">" << f;
       if (m_log) m_log->debug(ss);
   }
    char msg[100];
@@ -269,10 +270,8 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    if (x<0)
    {
       std::ostringstream ss;
-      ss << "WRITE TO USB PORT FAILED: Port " << m_index;
+      ss << "WRITE TO USB PORT FAILED:" << m_name << "  (CAN port:" << m_index << ")";
       if (m_log) m_log->error(ss, __FILENAME__,__LINE__);
-      // std::cerr << "WRITE TO USB PORT FAILED" << std::endl;
-      // fflush(stdout);
    }
 }
 

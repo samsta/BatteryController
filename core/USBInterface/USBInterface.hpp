@@ -45,9 +45,10 @@ private:
    class Pack: public can::FrameSink
    {
    public:
-      Pack(int fd, unsigned index, logging::Logger* m_log);
+      Pack(int fd, std::string name, unsigned index, logging::Logger* m_log);
    private:
       int m_fd;
+      std::string m_name;
       unsigned m_index;
       logging::Logger* m_log;
       virtual void sink(const can::DataFrame& f);
