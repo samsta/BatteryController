@@ -29,6 +29,7 @@ public:
 
    monitor::Monitor& getMonitor();
    contactor::Contactor& getContactor();
+   char* getPackName();
 
 private:
 

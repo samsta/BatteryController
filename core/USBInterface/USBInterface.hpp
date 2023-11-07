@@ -18,7 +18,7 @@ public:
    USBPort(const char* name, int epoll_fd, logging::Logger* log);
    ~USBPort();
 
-   void setSinkInbound(unsigned index, can::FrameSink& sink);
+   void setSinkInbound(unsigned index, char* pack_name, can::FrameSink& sink);
 
    can::FrameSink& getSinkOutbound(unsigned index);
 
@@ -38,17 +38,17 @@ private:
 
    int             m_epoll_fd;
    int             m_fd;
-   std::string     m_name;
-   std::string     m_usb_id;
+   std::string     m_port_name;
    can::FrameSink* m_sinkInbound[NUM_PACKS];
 
    class Pack: public can::FrameSink
    {
    public:
-      Pack(int fd, std::string name, unsigned index, logging::Logger* m_log);
+      Pack(int fd, unsigned index, logging::Logger* m_log);
+      void setPackName(char* pack_name);
    private:
       int m_fd;
-      std::string m_name;
+      char* m_pack_name;
       unsigned m_index;
       logging::Logger* m_log;
       virtual void sink(const can::DataFrame& f);

@@ -166,6 +166,11 @@ contactor::Contactor& LeafPack::getContactor()
    return m_safety_shunt;
 }
 
+char* LeafPack::getPackName()
+{
+   return m_pack_name;
+}
+
 void LeafPack::sink(const can::DataFrame& f)
 {
    m_pack_silent_counter = 0;
