@@ -148,9 +148,6 @@ int main(int argc, const char** argv)
             &battery_pack_3.getContactor()
             };
 
-   usb_port1.setupLogger("<USB1 OUT>", color::cyan);
-   // usb_port2.setupLogger("<USB2 OUT>", color::cyan);
-
    usb_port1.setSinkInbound(0, battery_pack_1.getPackName(), battery_pack_1);
    usb_port1.setSinkInbound(1, battery_pack_2.getPackName(), battery_pack_2);
    // usb_port2.setSinkInbound(0,battery_pack_2.getPackName(), battery_pack_2);

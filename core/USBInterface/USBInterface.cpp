@@ -36,13 +36,10 @@ USBPort::USBPort(const char* port_name, int epoll_fd, logging::Logger *log):
     m_port_name(port_name),
     m_sinkInbound{nullptr, nullptr, nullptr},
     m_packs{
-        {m_fd, 0, log},
-        {m_fd, 1, log},
-        {m_fd, 2, log}
+        {m_fd, 0, port_name, log},
+        {m_fd, 1, port_name, log},
+        {m_fd, 2, port_name, log}
     },
-    m_log_prefix(),
-    m_log_color(),
-    m_log_color_reset(),
     m_log(log),
     m_class_name(__func__)
 {
@@ -80,16 +77,6 @@ void USBPort::setSinkInbound(unsigned index, char* pack_name, can::FrameSink& si
    if (index >= NUM_PACKS) index = NUM_PACKS - 1;
    m_sinkInbound[index] = &sink;
    m_packs[index].setPackName(pack_name);
-}
-
-void USBPort::setupLogger( const char* logger_prefix, const char* logger_color)
-{
-   m_log_prefix = logger_prefix;
-   if (logger_color)
-   {
-      m_log_color  = logger_color;
-      m_log_color_reset = color::reset;
-   }
 }
 
 void USBPort::handle()
@@ -233,13 +220,15 @@ can::FrameSink& USBPort::getSinkOutbound(unsigned index)
    return m_packs[index];
 }
 
-USBPort::Pack::Pack(int fd, unsigned index, logging::Logger* log):
+USBPort::Pack::Pack(int fd, unsigned index, const char* usbport_name, logging::Logger* log):
    m_fd(fd), 
    m_index(index),
+   m_usbport_name(usbport_name),
+   m_pack_name(usbport_name),
    m_log(log)
 {}
 
-void USBPort::Pack::setPackName(char* pack_name)
+void USBPort::Pack::setPackName(const char* pack_name)
 {
    m_pack_name = pack_name;
 }
@@ -248,7 +237,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
   if (m_log)
   {
       std::ostringstream ss;
-      ss << "<USB OUT:" << m_pack_name<< " CAN port: " << m_index << ">" << f;
+      ss << "<USB OUT:" << m_usbport_name << " " << m_pack_name << " CAN port: " << m_index << ">" << f;
       if (m_log) m_log->debug(ss);
   }
    char msg[100];
@@ -278,7 +267,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    if (x<0)
    {
       std::ostringstream ss;
-      ss << "WRITE TO USB PORT FAILED:" << m_pack_name << "  (CAN port:" << m_index << ")";
+      ss << "WRITE TO USB PORT FAILED:" << m_usbport_name << " (" << m_pack_name << " CAN port:" << m_index << ")";
       if (m_log) m_log->error(ss, __FILENAME__,__LINE__);
    }
 }

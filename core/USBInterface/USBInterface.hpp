@@ -19,13 +19,7 @@ public:
    ~USBPort();
 
    void setSinkInbound(unsigned index, char* pack_name, can::FrameSink& sink);
-
    can::FrameSink& getSinkOutbound(unsigned index);
-
-   void setupLogger(
-         // logging::ostream& log,
-         const char* logger_prefix = "",
-         const char* logger_color = nullptr);
 
    static const unsigned NUM_PACKS = 3;
    
@@ -44,11 +38,12 @@ private:
    class Pack: public can::FrameSink
    {
    public:
-      Pack(int fd, unsigned index, logging::Logger* m_log);
-      void setPackName(char* pack_name);
+      Pack(int fd, unsigned index, const char* usbport_name, logging::Logger* m_log);
+      void setPackName(const char* pack_name);
    private:
       int m_fd;
-      char* m_pack_name;
+      const char* m_pack_name;
+      const char* m_usbport_name;
       unsigned m_index;
       logging::Logger* m_log;
       virtual void sink(const can::DataFrame& f);
@@ -60,10 +55,6 @@ private:
    size_t read_port(int fd, uint8_t * buffer, size_t size);
 
    uint32_t HextoDec(unsigned const char *hex, size_t hexlen);
-
-   std::string       m_log_prefix;
-   std::string       m_log_color;
-   std::string       m_log_color_reset;
 
    logging::Logger* m_log;
 
