@@ -15,7 +15,7 @@ LeafPack::LeafPack(
    m_power_relay(packname, sender, ID_TNSY_LBC_PWR_RLY, log),
    m_monitor(packname, m_safety_shunt, log),
    m_timer(timer),
-   m_message_factory(m_monitor, log),
+   m_message_factory(m_monitor, log, m_pack_name),
    m_aggregator(m_message_factory),
    m_poller(sender, timer),
    m_happy_poller(sender, timer),

@@ -14,12 +14,13 @@ namespace Nissan {
 class MessageFactory: public can::FrameSink
 {
 public:
-   MessageFactory(messages::Nissan::MessageSink& sink, logging::Logger* log);
+   MessageFactory(messages::Nissan::MessageSink& sink, logging::Logger* log, std::string name);
 
    virtual void sink(const DataFrame& frame);
 
 private:
    messages::Nissan::MessageSink& m_sink;
+   std::string m_name;
    logging::Logger* m_log;
    uint8_t m_message_memory[1024];
 };

@@ -51,9 +51,10 @@ const Message* decode(const can::DataFrame& f, void* mem)
 }
 
 
-MessageFactory::MessageFactory(messages::Nissan::MessageSink& sink, logging::Logger* log):
+MessageFactory::MessageFactory(messages::Nissan::MessageSink& sink, logging::Logger* log, std::string name):
    m_sink(sink),
-   m_log(log)
+   m_log(log),
+   m_name(name)
 {
 }
 
@@ -66,8 +67,7 @@ void MessageFactory::sink(const can::DataFrame& f)
 
    if (m_log)
    {
-      // ss << color::bright_blue << "<BAT IN> " << *msg << color::reset;
-      ss << "<BAT IN> " << *msg;
+      ss << "<BAT IN: " << m_name << "> " << *msg;
       m_log->debug(ss);
    }
    m_sink.sink(*msg);
