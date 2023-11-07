@@ -48,6 +48,7 @@ public:
    // monitor::Monitor
    virtual Monitor::Pack_Status getPackStatus() const;
    virtual void setPackStatus(Pack_Status packstat);
+   virtual void logStartupStatus() const;
    virtual float getVoltage() const;
    virtual float getCurrent() const;
    virtual float getTemperature() const;

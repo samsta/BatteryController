@@ -294,6 +294,21 @@ void LeafMonitor::updateOperationalSafety()
 
 Monitor::Pack_Status LeafMonitor::getPackStatus() const
 {
+   return m_pack_status;
+}
+
+void LeafMonitor::setPackStatus(Monitor::Pack_Status p)
+{
+   m_pack_status = p;
+
+   std::ostringstream ss;
+   char text[64];
+   ss << "LeafMonitor: " << m_pack_name << ": pack status set to " << getPackStatusTEXT(p,text);
+   if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
+}
+
+void LeafMonitor::logStartupStatus() const
+{
    if (m_pack_status == LeafMonitor::STARTUP)
    {  
       std::string s1;
@@ -319,17 +334,6 @@ Monitor::Pack_Status LeafMonitor::getPackStatus() const
          if (m_log) m_log->debug(s2);
       }
    }
-   return m_pack_status;
-}
-
-void LeafMonitor::setPackStatus(Monitor::Pack_Status p)
-{
-   m_pack_status = p;
-
-   std::ostringstream ss;
-   char text[64];
-   ss << "LeafMonitor: " << m_pack_name << ": pack status set to " << getPackStatusTEXT(p,text);
-   if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
 }
 
 float LeafMonitor::getVoltage() const

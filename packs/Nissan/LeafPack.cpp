@@ -48,6 +48,7 @@ void LeafPack::heartbeatCallback()
    switch (m_monitor.getPackStatus()) {
 
       case monitor::Monitor::STARTUP:
+         m_monitor.logStartupStatus();
          m_startup_counter++;
          if (m_startup_counter >= MAX_PACK_STARTUP_COUNT)
          {

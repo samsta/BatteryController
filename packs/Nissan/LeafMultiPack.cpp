@@ -390,6 +390,10 @@ contactor::Contactor& LeafMultiPack::getMainContactor()
    return m_main_contactor;
 }
 
+void LeafMultiPack::logStartupStatus() const
+{
+}
+
 }
 }
 
