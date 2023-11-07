@@ -43,7 +43,8 @@ LeafPack::~LeafPack()
 void LeafPack::heartbeatCallback()
 {
    // startup: battery must 'come right' in a set period of time
-   // 'come right' = receive good voltage and temp readings
+   // 'come right' = receive good voltage and temp readings and
+   //                received on of each CAN (id) message from the battery
    switch (m_monitor.getPackStatus()) {
 
       case monitor::Monitor::STARTUP:
@@ -62,7 +63,7 @@ void LeafPack::heartbeatCallback()
                std::string s3;
                s3.append("LeafPack: ");
                s3.append(m_pack_name);
-               s3.append(": No CAN messages received from Pack during startup.");
+               s3.append(": Did not receive a complete set of CAN messages during startup.");
                if (m_log) m_log->alarm(s3, __FILENAME__,__LINE__);
             }
             else
