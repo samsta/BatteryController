@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 #include "CellVoltageRange.hpp"
+#include "logging/Hex.hpp"
 #include "Ids.hpp"
 #include "can/DataFrame.hpp"
 #include <stdint.h>
@@ -64,7 +65,7 @@ CellVoltageRange& CellVoltageRange::setMax(float voltage)
 
 void CellVoltageRange::toStream(logging::ostream& os) const
 {
-   os << "CellVoltageRange: ";
+   os << "CellVoltageRange: " << logging::Hex(ID_LBC_DATA_REPLY) << " ";
    if (valid())
    {
       os << "min=" << getMin() << "V ";

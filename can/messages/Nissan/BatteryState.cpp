@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 #include "BatteryState.hpp"
+#include "logging/Hex.hpp"
 #include "Ids.hpp"
 #include "can/DataFrame.hpp"
 #include <stdint.h>
@@ -74,7 +75,7 @@ BatteryState& BatteryState::setSocPercent(float soc)
 
 void BatteryState::toStream(logging::ostream& os) const
 {
-   os << "BatteryState: ";
+   os << "BatteryState: " << logging::Hex(ID_LBC_DATA_REPLY) << " ";
 
    if (not valid())
    {

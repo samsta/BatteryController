@@ -1,4 +1,5 @@
 #include "InverterHeartbeat.hpp"
+#include "logging/Hex.hpp"
 #include "Ids.hpp"
 
 namespace can {
@@ -29,7 +30,7 @@ uint16_t InverterHeartbeat::getHeartbeatValue() const
 
 void InverterHeartbeat::toStream(logging::ostream& os) const
 {
-   os << "InverterHeartbeat: ";
+   os << "InverterHeartbeat: " << logging::Hex(ID_INVERTER_HEARTBEAT) << " ";
    if (not valid())
    {
       os << "invalid";

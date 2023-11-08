@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
-
 #include "CellVoltages.hpp"
+#include "logging/Hex.hpp"
 #include "Ids.hpp"
 #include "can/DataFrame.hpp"
 #include <stdint.h>
@@ -50,7 +50,7 @@ CellVoltages& CellVoltages::setVoltage(unsigned cell_index, float voltage)
 
 void CellVoltages::toStream(logging::ostream& os) const
 {
-   os << "CellVoltages: ";
+   os << "CellVoltages: " << logging::Hex(ID_LBC_DATA_REPLY) << " ";
 
    if (not valid())
    {
@@ -58,14 +58,15 @@ void CellVoltages::toStream(logging::ostream& os) const
       return;
    }
 
-   for (unsigned k = 0; k < CellVoltages::NUM_CELLS; k++)
-   {
-      if (k != 0)
-      {
-         os << ", ";
-      }
-      os << getVoltage(k) << 'V';
-   }
+   os << "JFS removed";
+   // for (unsigned k = 0; k < CellVoltages::NUM_CELLS; k++)
+   // {
+   //    if (k != 0)
+   //    {
+   //       os << ", ";
+   //    }
+   //    os << getVoltage(k) << 'V';
+   // }
 }
 
 }

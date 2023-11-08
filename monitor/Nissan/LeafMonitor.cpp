@@ -315,23 +315,23 @@ void LeafMonitor::logStartupStatus() const
       s1.append("LeafMonitor:").append(m_pack_name).append(": ");
       if (!m_voltages_ok) {
          std::string s2 = s1 + "Voltages (in spec) not yet received";
-         if (m_log) m_log->debug(s2);
+         if (m_log) m_log->info(s2);
       }
       if (!m_temperatures_ok) {
          std::string s2 = s1 + "Temperatures (in spec) not yet received";
-         if (m_log) m_log->debug(s2);
+         if (m_log) m_log->info(s2);
       }
       if (!m_bat_state_recv) {
          std::string s2 = s1 + "Battery State not yet received";
-         if (m_log) m_log->debug(s2);
+         if (m_log) m_log->info(s2);
       }
       if (!m_bat_status_recv) {
          std::string s2 = s1 + "Battery Status not yet received";
-         if (m_log) m_log->debug(s2);
+         if (m_log) m_log->info(s2);
       }
       if (m_bat_limits_recv) {
          std::string s2 = s1 + "Battery Limits not yet received";
-         if (m_log) m_log->debug(s2);
+         if (m_log) m_log->info(s2);
       }
    }
 }

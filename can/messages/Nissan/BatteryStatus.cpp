@@ -101,7 +101,7 @@ uint8_t BatteryStatus::getFailsafeStatus() const
 
 void BatteryStatus::toStream(logging::ostream& os) const
 {
-   os << "BatteryStatus: ";
+   os << "BatteryStatus: " << logging::Hex(ID_BATTERY_STATUS) << " ";
    if (valid())
    {
       os << "Current=" << getCurrent() << "A "

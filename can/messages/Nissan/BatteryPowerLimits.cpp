@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 #include "BatteryPowerLimits.hpp"
+#include "logging/Hex.hpp"
 #include "Ids.hpp"
 #include "can/DataFrame.hpp"
 #include <stdint.h>
@@ -70,7 +71,7 @@ BatteryPowerLimits& BatteryPowerLimits::setChargePowerLimit_kW(float power)
 
 void BatteryPowerLimits::toStream(logging::ostream& os) const
 {
-   os << "BatteryPowerLimits: ";
+   os << "BatteryPowerLimits: " << logging::Hex(ID_LBC_POWER_LIMITS) << " ";
 
    if (not valid())
    {
