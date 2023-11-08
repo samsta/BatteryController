@@ -48,10 +48,16 @@ public:
       if(read(m_fd, &num_expirations, sizeof(num_expirations)) != sizeof(num_expirations))
       {
          std::cerr << "WARNING: unable to determine how many times I missed timer: " << strerror(errno) << std::endl;
+         std::ostringstream s;
+         s << "WARNING: unable to determine how many times I missed timer: " << strerror(errno);
+         // if (m_log) m_log->alarm(s,__FILENAME__,__LINE__); 
       }
       if (num_expirations > 1)
       {
          std::cerr << "WARNING: timer missed " << (num_expirations - 1) << " times" << std::endl;
+         std::ostringstream s;
+         s << "WARNING: timer missed " << (num_expirations - 1) << " times";
+         // if (m_log) m_log->alarm(s,__FILENAME__,__LINE__); 
       }
       m_invokable->invoke();
    }
@@ -76,7 +82,8 @@ public:
 };
 
 EpollTimer::EpollTimer(int epoll_fd):
-   m_epoll_fd(epoll_fd)
+   m_epoll_fd(epoll_fd),
+   m_log(nullptr)
 {
 }
 
@@ -105,5 +112,11 @@ void EpollTimer::schedule(core::Invokable* invokable, unsigned delay_ms)
    }
    m_timers[invokable]->setTimer(delay_ms, TimerEpollEntry::ONE_SHOT);
 }
+
+void EpollTimer::setLogger(logging::Logger* log)
+{
+   m_log = log;
+}
+
 
 }

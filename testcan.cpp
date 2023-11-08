@@ -91,6 +91,7 @@ int main(int argc, const char** argv)
 
    // create the logging object
    logging::Logger logger((logging::LOG_LEVEL) atoi(argv[1]), timer, vbatterymon );
+   timer.setLogger(&logger);
    logger.info("------------------- BatteryController Started ------------------- ",__FILENAME__, __LINE__);
    std::string smsg;
    smsg.append("LOGGER_LEVEL: ");

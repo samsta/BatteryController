@@ -10,6 +10,7 @@ ADD LOGGING OF VOLTS TEMPS AT SOME REASONABLE INTERVAL (5 MIN?  15 MIN?)
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
 #include "contactor/Contactor.hpp"
+#include "logging/Hex.hpp"
 #include <math.h>
 #include <monitor/Nissan/LeafMonitor.hpp>
 
@@ -312,25 +313,32 @@ void LeafMonitor::logStartupStatus() const
    if (m_pack_status == LeafMonitor::STARTUP)
    {  
       std::string s1;
+      // std::ostringstream s1;
+      // s1 << "LeafMonitor:" << m_pack_name << ": ";
       s1.append("LeafMonitor:").append(m_pack_name).append(": ");
       if (!m_voltages_ok) {
-         std::string s2 = s1 + "Voltages (in spec) not yet received";
+         std::ostringstream s2;
+         s2 << s1 << logging::Hex(ID_LBC_DATA_REPLY) << " Voltages (in spec) not yet received";
          if (m_log) m_log->info(s2);
       }
       if (!m_temperatures_ok) {
-         std::string s2 = s1 + "Temperatures (in spec) not yet received";
+         std::ostringstream s2;
+         s2 << s1 << logging::Hex(ID_LBC_DATA_REPLY) << " Temperatures (in spec) not yet received";
          if (m_log) m_log->info(s2);
       }
       if (!m_bat_state_recv) {
-         std::string s2 = s1 + "Battery State not yet received";
+         std::ostringstream s2;
+         s2 << s1 << logging::Hex(ID_LBC_DATA_REPLY) << " Battery State not yet received";
          if (m_log) m_log->info(s2);
       }
       if (!m_bat_status_recv) {
-         std::string s2 = s1 + "Battery Status not yet received";
+         std::ostringstream s2;
+         s2 << s1 << logging::Hex(ID_BATTERY_STATUS) << " Battery Status not yet received";
          if (m_log) m_log->info(s2);
       }
-      if (m_bat_limits_recv) {
-         std::string s2 = s1 + "Battery Limits not yet received";
+      if (!m_bat_limits_recv) {
+         std::ostringstream s2;
+         s2 << s1 << logging::Hex(ID_LBC_POWER_LIMITS) << " Battery Limits not yet received";
          if (m_log) m_log->info(s2);
       }
    }
