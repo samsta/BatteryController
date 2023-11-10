@@ -15,10 +15,10 @@ public:
    EpollTimer(int epoll_fd );
    ~EpollTimer();
 
-   virtual void registerPeriodicCallback(core::Invokable* invokable, unsigned period_ms);
-   virtual void schedule(core::Invokable* invokable, unsigned delay_ms);
+   virtual void registerPeriodicCallback(core::Invokable* invokable, unsigned period_ms, const char* timer_name);
+   virtual void schedule(core::Invokable* invokable, unsigned delay_ms, const char* timer_name);
    virtual void deregisterCallback(core::Invokable*){}
-   void setLogger(logging::Logger* log);
+   virtual void setLogger(logging::Logger* log);
 
 private:
 
@@ -26,6 +26,7 @@ private:
    std::map<core::Invokable*, TimerEpollEntry*> m_timers;
 
    int m_epoll_fd;
+   const char* m_timer_name;
    logging::Logger* m_log;
 };
 
