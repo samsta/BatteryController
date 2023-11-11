@@ -43,7 +43,7 @@ LeafMultiPack::LeafMultiPack(
       m_fully_charged(true),
       m_fully_discharged(true)
 {
-   m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms);
+   m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms, "LeafMultiPackPeriodic");
    if (m_log) m_log->info("LeafMultiPack: status set to STARTUP");
    std::ostringstream ss,sss;
    ss << "LeafMultiPack: pack startup wait time = " << CALLBACK_PERIOD_ms * MAX_STARTUP_COUNT / 1000 << " seconds";

@@ -16,7 +16,8 @@ public:
    ~EpollTimer();
 
    virtual void registerPeriodicCallback(core::Invokable* invokable, unsigned period_ms, const char* timer_name);
-   virtual void schedule(core::Invokable* invokable, unsigned delay_ms, const char* timer_name);
+   virtual void schedule(core::Invokable* invokable, unsigned delay_ms);
+   // virtual void schedule(core::Invokable* invokable, unsigned delay_ms, const char* timer_name);
    virtual void deregisterCallback(core::Invokable*){}
    virtual void setLogger(logging::Logger* log);
 

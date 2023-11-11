@@ -41,7 +41,7 @@ TSOL_H50K::TSOL_H50K(can::FrameSink& sender,
       m_periodic_callback(*this, &TSOL_H50K::periodicCallback),
       m_inverter_silent_counter(0)
 {
-   m_timer.registerPeriodicCallback(&m_periodic_callback, 5000);
+   m_timer.registerPeriodicCallback(&m_periodic_callback, 5000,"TSUNPeriodic");
 }
 
 TSOL_H50K::~TSOL_H50K()

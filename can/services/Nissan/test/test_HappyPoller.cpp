@@ -24,7 +24,7 @@ TEST(HappyPoller, registersAndDeregistersPollingCallbackForillisecondPeriod)
 
    {
       core::Invokable* invokable;
-      EXPECT_CALL(timer, registerPeriodicCallback(_, HAPPY_POLLER_CALLBACKms)).WillOnce(SaveArg<0>(&invokable));
+      EXPECT_CALL(timer, registerPeriodicCallback(_, HAPPY_POLLER_CALLBACKms,nullptr)).WillOnce(SaveArg<0>(&invokable));
       HappyPoller poller(sender, timer);
       EXPECT_CALL(timer, deregisterCallback(invokable));
    }
@@ -52,7 +52,7 @@ public:
       public:
          ConstructorExpectation(mocks::core::Timer& timer, core::Invokable** invokable)
          {
-            EXPECT_CALL(timer, registerPeriodicCallback(_, _)).WillOnce(SaveArg<0>(invokable));
+            EXPECT_CALL(timer, registerPeriodicCallback(_, _,nullptr)).WillOnce(SaveArg<0>(invokable));
          }
    } constructor_expectation;
 
