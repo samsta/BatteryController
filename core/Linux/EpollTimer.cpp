@@ -52,14 +52,14 @@ public:
          std::cerr << "WARNING: unable to determine how many times I missed timer: " << strerror(errno) << std::endl;
          std::ostringstream s;
          s << "WARNING: unable to determine how many times I missed timer: " << m_timer_name << " err:" << strerror(errno);
-         if (m_log) m_log->alarm(s,__FILENAME__,__LINE__); 
+         if (m_log) m_log->alarm(s); 
       }
       if (num_expirations > 1)
       {
          std::cerr << "WARNING: timer missed " << (num_expirations - 1) << " times" << std::endl;
          std::ostringstream s;
          s << "WARNING: timer: " << m_timer_name << " missed " << (num_expirations - 1) << " times";
-         if (m_log) m_log->alarm(s,__FILENAME__,__LINE__); 
+         if (m_log) m_log->alarm(s); 
       }
       m_invokable->invoke();
    }
