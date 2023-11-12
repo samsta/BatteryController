@@ -31,6 +31,7 @@ LeafPack::LeafPack(
    char msg[1024];
    sprintf(msg, "LeafPack Initialized: %s", m_pack_name);
    if (m_log) m_log->info(msg, __FILENAME__, __LINE__);
+   m_monitor.logStartupStatus();
 }
 
 LeafPack::~LeafPack()
