@@ -51,7 +51,7 @@ private:
 
    Pack m_packs[NUM_PACKS];
 
-   int open_serial_port(const char * device, uint32_t baud_rate);
+   int open_serial_port(const char * device, logging::Logger* log);
    size_t read_port(int fd, uint8_t * buffer, size_t size);
 
    uint32_t HextoDec(unsigned const char *hex, size_t hexlen);
