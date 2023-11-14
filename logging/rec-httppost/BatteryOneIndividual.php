@@ -4,12 +4,25 @@
     $username = "timluser";
     $password = "userML";  //your database password
     $dbname = "battery_data";  //your database name
+    //--------------------------------------------------------------------------------------------------------------
 
-    $timestart = "DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00')";
-    $timeinterval = ", INTERVAL -2 HOUR)";
-    $batnum = 1;
-    $wherebatnum = " WHERE BatNum = " . $batnum;
-
+    // 2 hours
+    $timerange = " Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
+    $t0timerange = " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
+    $time = $_GET['time'];
+    // today
+    if ($time == "td") {
+      $timerange = " Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
+      $t0timerange = "t0.Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
+    } 
+    // yesterday
+    else if ($time == "yd") {
+      $timerange = " TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
+      $t0timerange = "t0.TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE), INTERVAL -1 DAY) AND t0.TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
+    }
+    
+    $batnum = $_GET['batnum'];
+    $wherebatnum = "  WHERE BatNum = " . $batnum;
     //--------------------------------------------------------------------------------------------------------------
     $con = new mysqli($servername, $username, $password, $dbname);
     if ($con->connect_error) {
@@ -19,10 +32,8 @@
     {
         // echo ("Connect Successfully");
     }
-    $query = " SELECT TimeStamp, Voltage as Voltage1, VoltageMin as VoltageMin1, VoltageMax as VoltageMax1" .
-    " FROM BatteryOne" .
-    $wherebatnum .
-    " AND Timestamp > " . $timestart . $timeinterval; 
+    $query = " SELECT TimeStamp, Voltage, VoltageMin, VoltageMax " .
+    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange; 
 
     //  echo ($query);
     $resultV = $con->query($query);
@@ -35,13 +46,11 @@
     {
         // echo ("Connect Successfully\n");
     }
-    $query =" SELECT TimeStamp, Current as Current1, " . 
-    " (Current * Voltage * 0.001) as Power1, " .
-    " DischargeCurrentLimit as DischargeCurrentLimit1, " .
-    " ChargeCurrentLimit as ChargeCurrentLimit1 " .
-    " FROM BatteryOne" .
-    $wherebatnum .
-    " AND Timestamp > " . $timestart . $timeinterval;
+    $query =" SELECT TimeStamp, Current, " . 
+    " (Current * Voltage * 0.001) as Power, " .
+    " DischargeCurrentLimit, " .
+    " ChargeCurrentLimit " .
+    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultAllC = $con->query($query);
@@ -54,26 +63,8 @@
     {
         // echo ("Connect Successfully\n");
     }
-    $query =" SELECT TimeStamp, Current as Current1, CurrentMin as CurrentMin1, CurrentMax as CurrentMax1" .
-    " FROM BatteryOne" .
-    $wherebatnum .
-    " AND Timestamp > " . $timestart . $timeinterval;
-
-    //  echo ($query);
-    $resultC = $con->query($query);
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
-    $query =" SELECT TimeStamp, ChargeCurrentLimit as ChargeCurrentLimit1, ChargeCurrentLimitMin as ChargeCurrentLimitMin1, ChargeCurrentLimitMax as ChargeCurrentLimitMax1" .
-    " FROM BatteryOne" .
-    $wherebatnum .
-    " AND Timestamp > " . $timestart . $timeinterval;
+    $query =" SELECT TimeStamp, ChargeCurrentLimit, ChargeCurrentLimitMin, ChargeCurrentLimitMax" .
+    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultCL = $con->query($query);
@@ -86,12 +77,8 @@
     {
         // echo ("Connect Successfully\n");
     }
-    $query =" SELECT TimeStamp, Current as Current1, CurrentMin as CurrentMin1, CurrentMax as CurrentMax1," . 
-    " DischargeCurrentLimit as DischargeCurrentLimit1, DischargeCurrentLimitMin as DischargeCurrentLimitMin1, DischargeCurrentLimitMax as DischargeCurrentLimitMax1," .
-    " ChargeCurrentLimit as ChargeCurrentLimit1, ChargeCurrentLimitMin as ChargeCurrentLimitMin1, ChargeCurrentLimitMax as ChargeCurrentLimitMax1" .
-    " FROM BatteryOne" .
-    $wherebatnum .
-    " AND Timestamp > " . $timestart . $timeinterval;
+    $query =" SELECT TimeStamp,DischargeCurrentLimit, DischargeCurrentLimitMin, DischargeCurrentLimitMax" .
+    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultDCL = $con->query($query);
@@ -105,9 +92,7 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, StoredEnergy, SOCPercent, Temperature" .
-    " FROM BatteryOne" .
-    $wherebatnum .
-    " AND Timestamp > " . $timestart . $timeinterval;
+    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultSE = $con->query($query);
@@ -120,10 +105,37 @@
     {
         // echo ("Connect Successfully\n");
     }
+    $query =" SELECT TimeStamp, Current, CurrentMin, CurrentMax" .
+    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
+
+    //  echo ($query);
+    $resultCC = $con->query($query);
+    //--------------------------------------------------------------------------------------------------------------
+    $con = new mysqli($servername, $username, $password, $dbname);
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
+    else
+    {
+        // echo ("Connect Successfully\n");
+    }
+    $query =" SELECT TimeStamp, CellVoltageMin, CellVoltageMax" .
+    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
+
+    //  echo ($query);
+    $resultCV = $con->query($query);
+    //--------------------------------------------------------------------------------------------------------------
+    $con = new mysqli($servername, $username, $password, $dbname);
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
+    else
+    {
+        // echo ("Connect Successfully\n");
+    }
     $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
-    " FROM BatteryOne" .
-    $wherebatnum .
-    " AND Timestamp > ". $timestart . ", INTERVAL -10 MINUTE) ORDER BY TimeStamp DESC LIMIT 1";
+    " FROM BatteryOne" . $wherebatnum .
+    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
 
     $resultTBL = $con->query($query);
     $rows = mysqli_fetch_assoc($resultTBL);
@@ -169,8 +181,8 @@ table, th, td {
 
 <body>
 <table style="width: 70%;">
-  <!-- <tbody style="font-size: 12px";> -->
   <tr>
+    <th>Bat</th>
     <th>SOC</th>
     <th>Energy</th>
     <th>Current</th>
@@ -181,6 +193,7 @@ table, th, td {
     <th>Temperature</th>
   </tr>
   <tr>
+    <td><p><?=$batnum?></p></td>
     <td><p><?=round($SOC,1)?> %</p></td>
     <td><p><?=round($StoredEnergy,1)?> kWh</p></td>
     <td><p><?=round($Current,1)?> A</p></td>
@@ -192,7 +205,8 @@ table, th, td {
   </tr>
 </table>
 </body>
-  <head>
+<!-------------------------------------------------------------------------------------------------------------------------->
+<head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
       google.charts.load('current', {'packages':['corechart']});
@@ -202,10 +216,10 @@ table, th, td {
          //--------------------------------------------------------------------------------------------------------------
          var dataAllC = new google.visualization.DataTable();
         dataAllC.addColumn('datetime', 'TimeStamp');
-        dataAllC.addColumn('number', 'Current1');
-        dataAllC.addColumn('number', 'ChargeCurrentLimit1');
-        dataAllC.addColumn('number', 'Power1');
-        dataAllC.addColumn('number', 'DischargeCurrentLimit1');
+        dataAllC.addColumn('number', 'Current');
+        dataAllC.addColumn('number', 'ChargeCurrentLimit');
+        dataAllC.addColumn('number', 'Power');
+        dataAllC.addColumn('number', 'DischargeCurrentLimit');
 
         dataAllC.addRows([
                 <?php
@@ -216,7 +230,7 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["ChargeCurrentLimit1"].", ".$row["Power1"].", ".$row["DischargeCurrentLimit1"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["ChargeCurrentLimit"].", ".$row["Power"].", ".$row["DischargeCurrentLimit"]."]";
                   while($row = mysqli_fetch_assoc($resultAllC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -224,12 +238,12 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["ChargeCurrentLimit1"].", ".$row["Power1"].", ".$row["DischargeCurrentLimit1"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["ChargeCurrentLimit"].", ".$row["Power"].", ".$row["DischargeCurrentLimit"]."]";
                     }
                 ?>
                ])
         var optionsAllC = {
-          title: 'Current Values Summary (Amps)',
+          title: 'Current(A), Power(kW) and Current Limits(A)',
           legend: { position: 'bottom' }//,
           //vAxis: { viewWindow: { min: 20, max: 60} }
           // vAxis: { ticks: [15,20,25,30,35,40,45,50,55,60,65] }
@@ -248,9 +262,9 @@ table, th, td {
          //--------------------------------------------------------------------------------------------------------------
         var dataV = new google.visualization.DataTable();
         dataV.addColumn('datetime', 'TimeStamp');
-        dataV.addColumn('number', 'Voltage1');
-        dataV.addColumn('number', 'VoltageMin1');
-        dataV.addColumn('number', 'VoltageMax1');
+        dataV.addColumn('number', 'Voltage');
+        dataV.addColumn('number', 'VoltageMin');
+        dataV.addColumn('number', 'VoltageMax');
 
         dataV.addRows([
                 <?php
@@ -261,7 +275,7 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Voltage1"].", ".$row["VoltageMin1"].", ".$row["VoltageMax1"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Voltage"].", ".$row["VoltageMin"].", ".$row["VoltageMax"]."]";
                   while($row = mysqli_fetch_assoc($resultV)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -269,7 +283,7 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Voltage1"].", ".$row["VoltageMin1"].", ".$row["VoltageMax1"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Voltage"].", ".$row["VoltageMin"].", ".$row["VoltageMax"]."]";
                     }
                 ?>
                ])
@@ -282,45 +296,11 @@ table, th, td {
         var chartV = new google.visualization.LineChart(document.getElementById('curve_chartV'));
         chartV.draw(dataV, optionsV);
          //--------------------------------------------------------------------------------------------------------------
-         var dataC = new google.visualization.DataTable();
-        dataC.addColumn('datetime', 'TimeStamp');
-        dataC.addColumn('number', 'Current1');
-        dataC.addColumn('number', 'CurrentMin1');
-        dataC.addColumn('number', 'CurrentMax1');
-
-        dataC.addRows([
-                <?php
-                  $row = mysqli_fetch_assoc($resultC);
-                  $dt = $row["TimeStamp"];
-                  $yr = substr($dt,0,4);
-                  $mo = substr($dt,5,2);
-                  $day = substr($dt,8,2);
-                  $hr = substr($dt,11,2);
-                  $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["CurrentMin1"].", ".$row["CurrentMax1"]."]";
-                  while($row = mysqli_fetch_assoc($resultC)){
-                        $dt = $row["TimeStamp"];
-                        $yr = substr($dt,0,4);
-                        $mo = substr($dt,5,2);
-                        $day = substr($dt,8,2);
-                        $hr = substr($dt,11,2);
-                        $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current1"].", ".$row["CurrentMin1"].", ".$row["CurrentMax1"]."]";
-                    }
-                ?>
-               ])
-        var optionsC = {
-          title: 'Current (A)',
-          legend: { position: 'bottom' }//,
-        };
-        var chartC = new google.visualization.LineChart(document.getElementById('curve_chartC'));
-        chartC.draw(dataC, optionsC);
-         //--------------------------------------------------------------------------------------------------------------
          var dataCL = new google.visualization.DataTable();
         dataCL.addColumn('datetime', 'TimeStamp');
-        dataCL.addColumn('number', 'ChargeCurrentLimit1');
-        dataCL.addColumn('number', 'ChargeCurrentLimitMin1');
-        dataCL.addColumn('number', 'ChargeCurrentLimitMax1');
+        dataCL.addColumn('number', 'ChargeCurrentLimit');
+        dataCL.addColumn('number', 'ChargeCurrentLimitMin');
+        dataCL.addColumn('number', 'ChargeCurrentLimitMax');
 
         dataCL.addRows([
                 <?php
@@ -331,7 +311,7 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["ChargeCurrentLimit1"].", ".$row["ChargeCurrentLimitMin1"].", ".$row["ChargeCurrentLimitMax1"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["ChargeCurrentLimit"].", ".$row["ChargeCurrentLimitMin"].", ".$row["ChargeCurrentLimitMax"]."]";
                   while($row = mysqli_fetch_assoc($resultCL)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -339,7 +319,7 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["ChargeCurrentLimit1"].", ".$row["ChargeCurrentLimitMin1"].", ".$row["ChargeCurrentLimitMax1"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["ChargeCurrentLimit"].", ".$row["ChargeCurrentLimitMin"].", ".$row["ChargeCurrentLimitMax"]."]";
                     }
                 ?>
                ])
@@ -350,11 +330,45 @@ table, th, td {
         var chartCL = new google.visualization.LineChart(document.getElementById('curve_chartCL'));
         chartCL.draw(dataCL, optionsCL);
          //--------------------------------------------------------------------------------------------------------------
+         var dataCC = new google.visualization.DataTable();
+        dataCC.addColumn('datetime', 'TimeStamp');
+        dataCC.addColumn('number', 'Current');
+        dataCC.addColumn('number', 'CurrentMin');
+        dataCC.addColumn('number', 'CurrentMax');
+
+        dataCC.addRows([
+                <?php
+                  $row = mysqli_fetch_assoc($resultCC);
+                  $dt = $row["TimeStamp"];
+                  $yr = substr($dt,0,4);
+                  $mo = substr($dt,5,2);
+                  $day = substr($dt,8,2);
+                  $hr = substr($dt,11,2);
+                  $min = substr($dt,14,2);
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["CurrentMin"].", ".$row["CurrentMax"]."]";
+                  while($row = mysqli_fetch_assoc($resultCC)){
+                        $dt = $row["TimeStamp"];
+                        $yr = substr($dt,0,4);
+                        $mo = substr($dt,5,2);
+                        $day = substr($dt,8,2);
+                        $hr = substr($dt,11,2);
+                        $min = substr($dt,14,2);
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["CurrentMin"].", ".$row["CurrentMax"]."]";
+                    }
+                ?>
+               ])
+        var optionsCC = {
+          title: 'Current (A) with Min and Max',
+          legend: { position: 'bottom' }//,
+        };
+        var chartCC = new google.visualization.LineChart(document.getElementById('curve_chartCC'));
+        chartCC.draw(dataCC, optionsCC);
+         //--------------------------------------------------------------------------------------------------------------
          var dataDCL = new google.visualization.DataTable();
         dataDCL.addColumn('datetime', 'TimeStamp');
-        dataDCL.addColumn('number', 'DischargeCurrentLimit1');
-        dataDCL.addColumn('number', 'DischargeCurrentLimitMin1');
-        dataDCL.addColumn('number', 'DischargeCurrentLimitMax1');
+        dataDCL.addColumn('number', 'DischargeCurrentLimit');
+        dataDCL.addColumn('number', 'DischargeCurrentLimitMin');
+        dataDCL.addColumn('number', 'DischargeCurrentLimitMax');
 
         dataDCL.addRows([
                 <?php
@@ -365,7 +379,7 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["DischargeCurrentLimit1"].", ".$row["DischargeCurrentLimitMin1"].", ".$row["DischargeCurrentLimitMax1"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["DischargeCurrentLimit"].", ".$row["DischargeCurrentLimitMin"].", ".$row["DischargeCurrentLimitMax"]."]";
                   while($row = mysqli_fetch_assoc($resultDCL)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -373,7 +387,7 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["DischargeCurrentLimit1"].", ".$row["DischargeCurrentLimitMin1"].", ".$row["DischargeCurrentLimitMax1"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["DischargeCurrentLimit"].", ".$row["DischargeCurrentLimitMin"].", ".$row["DischargeCurrentLimitMax"]."]";
                     }
                 ?>
                ])
@@ -428,6 +442,39 @@ table, th, td {
         var chartSE = new google.visualization.LineChart(document.getElementById('curve_chartSE'));
         chartSE.draw(dataSE, optionsSE);
          //--------------------------------------------------------------------------------------------------------------
+         var dataCV = new google.visualization.DataTable();
+        dataCV.addColumn('datetime', 'TimeStamp');
+        dataCV.addColumn('number', 'CellVoltageMin');
+        dataCV.addColumn('number', 'CellVoltageMax');
+
+        dataCV.addRows([
+                <?php
+                  $row = mysqli_fetch_assoc($resultCV);
+                  $dt = $row["TimeStamp"];
+                  $yr = substr($dt,0,4);
+                  $mo = substr($dt,5,2);
+                  $day = substr($dt,8,2);
+                  $hr = substr($dt,11,2);
+                  $min = substr($dt,14,2);
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["CellVoltageMin"].", ".$row["CellVoltageMax"]."]";
+                  while($row = mysqli_fetch_assoc($resultCV)){
+                        $dt = $row["TimeStamp"];
+                        $yr = substr($dt,0,4);
+                        $mo = substr($dt,5,2);
+                        $day = substr($dt,8,2);
+                        $hr = substr($dt,11,2);
+                        $min = substr($dt,14,2);
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["CellVoltageMin"].", ".$row["CellVoltageMax"]."]";
+                    }
+                ?>
+               ])
+        var optionsCV = {
+          title: 'Cell Voltages Min/Max (V)',
+          legend: { position: 'bottom' }//,
+        };
+        var chartCV = new google.visualization.LineChart(document.getElementById('curve_chartCV'));
+        chartCV.draw(dataCV, optionsCV);
+         //--------------------------------------------------------------------------------------------------------------
   
       }
     </script>
@@ -436,7 +483,8 @@ table, th, td {
     <div id="curve_chartAllC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartSE" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartV" style="width: 1000px; height: 500px"></div>
-    <div id="curve_chartC" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartCC" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartCV" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCL" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartDCL" style="width: 1000px; height: 500px"></div>
   </body>
