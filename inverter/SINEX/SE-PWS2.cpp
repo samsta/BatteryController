@@ -34,7 +34,7 @@ SE_PWS2::SE_PWS2(can::FrameSink& sender,
       m_hb_non_consec(false)
 {
    // send inverter messages at 500ms intervals
-   m_timer.registerPeriodicCallback(&m_periodic_callback, PERIODIC_CALLBACK_ms);
+   m_timer.registerPeriodicCallback(&m_periodic_callback, PERIODIC_CALLBACK_ms,"SEPWS2InverterHeartbeat");
 }
 
 SE_PWS2::~SE_PWS2()

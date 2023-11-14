@@ -26,10 +26,12 @@ LeafPack::LeafPack(
    m_reboot_wait_count(0),
    m_log(log)
 {
-   m_timer.registerPeriodicCallback(&m_heartbeat_callback, PACK_CALLBACK_PERIOD_ms);
+   std::string pcname; pcname.append(m_pack_name).append("_LeafPackPeriodic");
+   m_timer.registerPeriodicCallback(&m_heartbeat_callback, PACK_CALLBACK_PERIOD_ms,pcname.c_str());
    char msg[1024];
    sprintf(msg, "LeafPack Initialized: %s", m_pack_name);
    if (m_log) m_log->info(msg, __FILENAME__, __LINE__);
+   m_monitor.logStartupStatus();
 }
 
 LeafPack::~LeafPack()

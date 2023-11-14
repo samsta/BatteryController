@@ -15,7 +15,7 @@ ConsolePresenter::ConsolePresenter(core::Timer& timer, std::vector<monitor::Moni
 {
    if (initscr() == stdscr) // init ncurses
    {
-      m_timer.registerPeriodicCallback(&m_refresh_callback, 1000);
+      m_timer.registerPeriodicCallback(&m_refresh_callback, 1000,"ConsolePresenter");
       m_have_curses = true;
    }
    else

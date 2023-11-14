@@ -32,7 +32,7 @@ namespace core {
 USBPort::USBPort(const char* port_name, int epoll_fd, logging::Logger *log):
     m_unprocessedSize(0),
     m_epoll_fd(epoll_fd),
-    m_fd(open_serial_port(port_name, 9600)),
+    m_fd(open_serial_port(port_name, log)),
     m_port_name(port_name),
     m_sinkInbound{nullptr, nullptr, nullptr},
     m_packs{
@@ -90,6 +90,11 @@ void USBPort::handle()
 
    // add the new data to the leftover data from the last read
    bytesread = read_port(m_fd, &m_inBufferUnprocessed[m_unprocessedSize], sizeof(m_inBufferUnprocessed)- m_unprocessedSize - 1);
+   // check for error
+   if (bytesread < 0) 
+   {
+      m_log->error("Error reading from serial port.",__FILENAME__,__LINE__);
+   }
    m_unprocessedSize += bytesread;
 
    uint32_t newhead = 0;
@@ -275,13 +280,16 @@ void USBPort::Pack::sink(const can::DataFrame& f)
 // Opens the specified serial port, sets it up for binary communication,
 // configures its read timeouts, and sets its baud rate.
 // Returns a non-negative file descriptor on success, or -1 on failure.
-int USBPort::open_serial_port(const char * device, uint32_t baud_rate)
+int USBPort::open_serial_port(const char * device, logging::Logger* log)
 {
   int fd = open(device, O_RDWR | O_NOCTTY);
   if (fd == -1)
   {
-     std::cerr << "usb port: failed to open port: " << device << std::endl;
-    return -1;
+      std::cerr << "usb port: failed to open port: " << device << std::endl;
+      std::ostringstream ss;
+      ss << "usb port: failed to open port: " << device << " error: " << strerror(errno);
+      if (log) log->error(ss,__FILENAME__,__LINE__);
+      return -1;
   }
 
   // Flush away any bytes previously read or written.
@@ -289,6 +297,7 @@ int USBPort::open_serial_port(const char * device, uint32_t baud_rate)
   if (result)
   {
      std::cerr << "usb port: warning tcflush failed" << std::endl;  // just a warning, not a fatal error
+      if (log) log->alarm("usb port: warning tcflush failed",__FILENAME__,__LINE__);
   }
 
   // Get the current configuration of the serial port.
@@ -296,9 +305,10 @@ int USBPort::open_serial_port(const char * device, uint32_t baud_rate)
   result = tcgetattr(fd, &options);
   if (result)
   {
-     std::cerr << "us port: tcgetattr failed" << std::endl;
-    close(fd);
-    return -1;
+      std::cerr << "usb port: tcgetattr failed" << std::endl;
+      if (log) m_log->error("usb port: tcgetattr failed",__FILENAME__,__LINE__);
+      close(fd);
+      return -1;
   }
 
   // Turn off any options that might interfere with our ability to send and
@@ -309,31 +319,27 @@ int USBPort::open_serial_port(const char * device, uint32_t baud_rate)
 
   // Set up timeouts: Calls to read() will return as soon as there is
   // at least one byte available or when 100 ms has passed.
+  // THE ABOVE IS ONLY TRUE, if buffer size is 1 byte,
+  // when bytes start to flow into the buffer, the read doesn't return
+  // until the buffer is full
+  // for a NON-BLOCKING READ....see below  
+  // https://www.i-programmer.info/programming/cc/10027-serial-c-and-the-raspberry-pi.html?start=4
+  // at some point it may be good to change this to a non-block read, good info on this in the above link
   options.c_cc[VTIME] = 1;
   options.c_cc[VMIN] = 0;
 
-  // This code only supports certain standard baud rates. Supporting
-  // non-standard baud rates should be possible but takes more work.
-  switch (baud_rate)
-  {
-  case 4800:   cfsetospeed(&options, B4800);   break;
-  case 9600:   cfsetospeed(&options, B9600);   break;
-  case 19200:  cfsetospeed(&options, B19200);  break;
-  case 38400:  cfsetospeed(&options, B38400);  break;
-  case 115200: cfsetospeed(&options, B115200); break;
-  default:
-      std::cerr << "usb port warning: baud rate " << baud_rate << "is not supported, using 9600." << std::endl;
-    cfsetospeed(&options, B9600);
-    break;
-  }
-  cfsetispeed(&options, cfgetospeed(&options));
+  // when opening USB ports the baud rate setting is ignored,
+  // it gets set to the USB port rate...1 MB.. or whatever it is.
+  // but you need to set it, apparently
+   cfsetospeed(&options, B9600);
 
   result = tcsetattr(fd, TCSANOW, &options);
   if (result)
   {
-    std::cerr << "usb port: tcsetattr failed" << std::endl;
-    close(fd);
-    return -1;
+      std::cerr << "usb port: tcsetattr failed" << std::endl;
+      if (log) log->error("usb port: tcsetattr failed",__FILENAME__,__LINE__);
+      close(fd);
+      return -1;
   }
 
   return fd;

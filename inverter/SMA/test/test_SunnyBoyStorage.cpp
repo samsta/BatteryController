@@ -51,7 +51,7 @@ TEST(SunnyBoyStorage, registersAndDeregistersTimerCallbackFor5000MillisecondPeri
    
    {
       core::Invokable* invokable;
-      EXPECT_CALL(timer, registerPeriodicCallback(_, 5000)).WillOnce(SaveArg<0>(&invokable));
+      EXPECT_CALL(timer, registerPeriodicCallback(_, 5000,nullptr)).WillOnce(SaveArg<0>(&invokable));
       SunnyBoyStorage sbs(sink, timer, monitor, contactor);
       EXPECT_CALL(timer, deregisterCallback(invokable));
    }
@@ -77,7 +77,7 @@ public:
    public:
       ConstructorExpectation(mocks::core::Timer& timer, core::Invokable** invokable)
       {
-         EXPECT_CALL(timer, registerPeriodicCallback(_, _)).WillOnce(SaveArg<0>(invokable));
+         EXPECT_CALL(timer, registerPeriodicCallback(_, _,nullptr)).WillOnce(SaveArg<0>(invokable));
       }
    } constructor_expectation;
    

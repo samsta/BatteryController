@@ -21,10 +21,12 @@ public:
       ONE_SHOT
    };
 
-   TimerEpollEntry(int epoll_fd, core::Invokable* invokable):
+   TimerEpollEntry(int epoll_fd, core::Invokable* invokable, const char* timer_name, logging::Logger* log):
       m_epoll_fd(epoll_fd),
       m_fd(timerfd_create(CLOCK_MONOTONIC, 0)),
-      m_invokable(invokable)
+      m_invokable(invokable),
+      m_timer_name(timer_name),
+      m_log(log)
    {
       struct epoll_event ev;
       ev.events = EPOLLIN;
@@ -49,15 +51,15 @@ public:
       {
          std::cerr << "WARNING: unable to determine how many times I missed timer: " << strerror(errno) << std::endl;
          std::ostringstream s;
-         s << "WARNING: unable to determine how many times I missed timer: " << strerror(errno);
-         // if (m_log) m_log->alarm(s,__FILENAME__,__LINE__); 
+         s << "WARNING: unable to determine how many times I missed timer: " << m_timer_name << " err:" << strerror(errno);
+         if (m_log) m_log->alarm(s); 
       }
       if (num_expirations > 1)
       {
          std::cerr << "WARNING: timer missed " << (num_expirations - 1) << " times" << std::endl;
          std::ostringstream s;
-         s << "WARNING: timer missed " << (num_expirations - 1) << " times";
-         // if (m_log) m_log->alarm(s,__FILENAME__,__LINE__); 
+         s << "WARNING: timer: " << m_timer_name << " missed " << (num_expirations - 1) << " times";
+         if (m_log) m_log->alarm(s); 
       }
       m_invokable->invoke();
    }
@@ -79,6 +81,8 @@ public:
    int m_epoll_fd;
    int m_fd;
    core::Invokable* m_invokable;
+   const char* m_timer_name;
+   logging::Logger* m_log;
 };
 
 EpollTimer::EpollTimer(int epoll_fd):
@@ -95,20 +99,24 @@ EpollTimer::~EpollTimer()
    }
 }
 
-void EpollTimer::registerPeriodicCallback(core::Invokable* invokable, unsigned period_ms)
+void EpollTimer::registerPeriodicCallback(core::Invokable* invokable, unsigned period_ms, const char* timer_name)
 {
    if (m_timers[invokable] == nullptr)
    {
-      m_timers[invokable] = new TimerEpollEntry(m_epoll_fd, invokable);
+      m_timers[invokable] = new TimerEpollEntry(m_epoll_fd, invokable, timer_name, m_log);
    }
    m_timers[invokable]->setTimer(period_ms, TimerEpollEntry::PERIODIC);
+   std::ostringstream ss;
+   ss << "Periodic Timer created: " << timer_name;
+   if (m_log) m_log->info(ss);
 }
 
+// void EpollTimer::schedule(core::Invokable* invokable, unsigned delay_ms, const char* timer_name)
 void EpollTimer::schedule(core::Invokable* invokable, unsigned delay_ms)
 {
    if (m_timers[invokable] == nullptr)
    {
-      m_timers[invokable] = new TimerEpollEntry(m_epoll_fd, invokable);
+      m_timers[invokable] = new TimerEpollEntry(m_epoll_fd, invokable, "Scheduled", m_log);
    }
    m_timers[invokable]->setTimer(delay_ms, TimerEpollEntry::ONE_SHOT);
 }
@@ -117,6 +125,5 @@ void EpollTimer::setLogger(logging::Logger* log)
 {
    m_log = log;
 }
-
 
 }

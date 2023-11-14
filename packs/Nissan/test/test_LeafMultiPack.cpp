@@ -26,7 +26,7 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
   EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
   core::Invokable* invokable;
-  EXPECT_CALL(timer, registerPeriodicCallback(_, 1000)).WillOnce(SaveArg<0>(&invokable));
+  EXPECT_CALL(timer, registerPeriodicCallback(_, 1000,nullptr)).WillOnce(SaveArg<0>(&invokable));
 
   LeafMultiPack LMP(      m_vmonitor,
                           m_vcontactor,

@@ -18,8 +18,8 @@ HappyPoller::HappyPoller(FrameSink& sender, core::Timer& timer):
     m_heartbeat_counter(3),
     m_hcm_clock_50c_counter(0)
 {
-   // was 10ms as on a real Leaf but that's unnecessary for our application
-   m_timer.registerPeriodicCallback(&m_heartbeat_poll_callback, HAPPY_POLLER_CALLBACKms); // way way back this was 10ms
+   // this is  10ms in a real Leaf but that's unnecessary for our application
+   m_timer.registerPeriodicCallback(&m_heartbeat_poll_callback, HAPPY_POLLER_CALLBACKms, "HappyPoller");
 }
 
 HappyPoller::~HappyPoller()
