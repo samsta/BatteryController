@@ -116,7 +116,7 @@ int main(int argc, const char** argv)
    #endif
 
    // **********
-   // 2 teensys 2 batteries 1+1
+   // 2 teensys 3 batteries 2+1
    // **********
    char BP1[] = "BP1";
    packs::Nissan::LeafPack battery_pack_1( BP1,
@@ -125,12 +125,12 @@ int main(int argc, const char** argv)
         &logger);
    vbatterymon.push_back( &battery_pack_1.getMonitor());
 
-   // char BP2[] = "BP2";
-   // packs::Nissan::LeafPack battery_pack_2( BP2,
-   //      usb_port1.getSinkOutbound(1),
-   //      timer,
-   //      &logger);
-   // vbatterymon.push_back( &battery_pack_2.getMonitor());
+   char BP2[] = "BP2";
+   packs::Nissan::LeafPack battery_pack_2( BP2,
+        usb_port1.getSinkOutbound(1),
+        timer,
+        &logger);
+   vbatterymon.push_back( &battery_pack_2.getMonitor());
 
    char BP3[] = "BP3";
    packs::Nissan::LeafPack battery_pack_3( BP3,
@@ -144,14 +144,14 @@ int main(int argc, const char** argv)
             // &battery_pack_2.getContactor(),
             // &battery_pack_3.getContactor(),
             &battery_pack_1.getContactor()
-            // ,
-            // &battery_pack_2.getContactor()
+            ,
+            &battery_pack_2.getContactor()
             ,
             &battery_pack_3.getContactor()
             };
 
    usb_port1.setSinkInbound(0, battery_pack_1.getPackName(), battery_pack_1);
-   // usb_port1.setSinkInbound(1, battery_pack_2.getPackName(), battery_pack_2);
+   usb_port1.setSinkInbound(1, battery_pack_2.getPackName(), battery_pack_2);
    // usb_port2.setSinkInbound(0,battery_pack_2.getPackName(), battery_pack_2);
    usb_port2.setSinkInbound(0, battery_pack_3.getPackName(), battery_pack_3);
 
