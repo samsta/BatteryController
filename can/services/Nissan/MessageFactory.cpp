@@ -68,7 +68,7 @@ void MessageFactory::sink(const can::DataFrame& f)
    if (m_log)
    {
       ss << "<BAT IN: " << m_name << "> " << *msg;
-      m_log->debug(ss);
+      if (m_log) m_log->debug(ss);
    }
    m_sink.sink(*msg);
 }
