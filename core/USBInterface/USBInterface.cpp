@@ -152,7 +152,7 @@ void USBPort::handle()
             port = HextoDec( &m_inBufferUnprocessed[findhash - 7], 1);
             canid = HextoDec( &m_inBufferUnprocessed[findhash - 3], 3);
 
-            if (port > 0 && port <= 3 && canid > 0  && canid <= 0x7FF)
+            if (port > 0 && port <= NUM_PACKS && canid > 0  && canid <= 0x7FF)
             {
                // construct CAN message from received data
                frame.can_id = canid;
@@ -182,7 +182,7 @@ void USBPort::handle()
             else
             {
                // error, discard data
-               if (!(port > 0 && port <= 3))
+               if (!(port > 0 && port <= NUM_PACKS))
                {
                   // todo port error
                }
@@ -246,7 +246,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
   if (m_log)
   {
       std::ostringstream ss;
-      ss << "<USB OUT:" << m_usbport_name << " " << m_pack_name << " CAN port:" << m_index << "> " << f;
+      ss << "<USB OUT:" << m_usbport_name << " " << m_pack_name << " CAN port:" << (m_index+1) << "> " << f;
       if (m_log) m_log->debug(ss);
   }
    char msg[100];
@@ -271,12 +271,11 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    // put a CR at the end of the message
    uint8msg[25] = 0xd;
 
-   // printf("Sending to port = %d\n",m_index+1);//JFS
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));
    if (x<0)
    {
       std::ostringstream ss;
-      ss << "WRITE TO USB PORT FAILED:" << m_usbport_name << " (" << m_pack_name << " CAN port:" << m_index << ")";
+      ss << "WRITE TO USB PORT FAILED:" << m_usbport_name << " (" << m_pack_name << ")";
       if (m_log) m_log->error(ss, __FILENAME__,__LINE__);
    }
 }

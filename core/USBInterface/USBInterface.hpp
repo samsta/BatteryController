@@ -21,7 +21,7 @@ public:
    void setSinkInbound(unsigned index, char* pack_name, can::FrameSink& sink);
    can::FrameSink& getSinkOutbound(unsigned index);
 
-   static const unsigned NUM_PACKS = 3;
+   static const unsigned NUM_PACKS = 3; // this is also the number of CAN ports
    
 private:
    virtual void handle();
