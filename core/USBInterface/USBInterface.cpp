@@ -48,10 +48,10 @@ USBPort::USBPort(const char* port_name, int epoll_fd, logging::Logger *log):
    ev.events = EPOLLIN;
    ev.data.ptr = this;
    if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_fd, &ev) == -1) {
-      std::cerr << "ERROR in epoll_ctl(): Failed adding CanPort " << port_name << " to epoll: " << strerror(errno) << std::endl;
+      std::cerr << "ERROR in epoll_ctl(): Failed adding USBPort " << port_name << " to epoll: " << strerror(errno) << std::endl;
       std::string smsg;
       smsg.append("USBPort:" + m_port_name +": ");
-      smsg.append("ERROR in epoll_ctl(): Failed adding CanPort ");
+      smsg.append("ERROR in epoll_ctl(): Failed adding USBPort ");
       smsg.append(m_port_name);
       smsg.append(" to epoll: ");
       smsg.append(strerror(errno));
@@ -59,7 +59,7 @@ USBPort::USBPort(const char* port_name, int epoll_fd, logging::Logger *log):
       exit(EXIT_FAILURE);
    }
    std::string ss;
-   ss.append("USBPort:" + m_port_name +": ");
+   ss.append("USBPort: " + m_port_name +": ");
    ss.append("Initialized.");
    if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
 }

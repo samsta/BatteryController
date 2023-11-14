@@ -15,8 +15,6 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-namespace color = logging::color::ansi;
-
 namespace core {
 namespace {
 
@@ -46,15 +44,12 @@ int openSocket(const char* name)
 }
 
 
-CanPort::CanPort(const char* name, int epoll_fd):
+CanPort::CanPort(const char* name, int epoll_fd, logging::Logger *log):
     m_epoll_fd(epoll_fd),
     m_fd(openSocket(name)),
     m_name(name),
     m_sink(nullptr),
-    m_log(nullptr),
-    m_log_prefix(),
-    m_log_color(),
-    m_log_color_reset()
+    m_log(log)
 {
    struct epoll_event ev;
 
@@ -62,8 +57,19 @@ CanPort::CanPort(const char* name, int epoll_fd):
    ev.data.ptr = this;
    if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_fd, &ev) == -1) {
       std::cerr << "ERROR in epoll_ctl(): Failed adding CanPort " << name << " to epoll: " << strerror(errno) << std::endl;
+      std::string smsg;
+      smsg.append("CANPort:" + m_name +": ");
+      smsg.append("ERROR in epoll_ctl(): Failed adding CanPort ");
+      smsg.append(m_name);
+      smsg.append(" to epoll: ");
+      smsg.append(strerror(errno));
+      if (m_log) m_log->error(smsg, __FILENAME__,__LINE__);
       exit(EXIT_FAILURE);
    }
+   std::string ss;
+   ss.append("CANPort: " + m_name +": ");
+   ss.append("Initialized.");
+   if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
 }
 
 CanPort::~CanPort()
@@ -76,20 +82,6 @@ void CanPort::setSink(can::FrameSink& sink)
    m_sink = &sink;
 }
 
-void CanPort::setupLogger(
-      logging::Logger& log,
-      const char* logger_prefix,
-      const char* logger_color)
-{
-   m_log = &log;
-   m_log_prefix = logger_prefix;
-   if (logger_color)
-   {
-      m_log_color  = logger_color;
-      m_log_color_reset = color::reset;
-   }
-}
-
 void CanPort::handle()
 {
    struct can_frame frame;
@@ -97,17 +89,26 @@ void CanPort::handle()
 
    if (nbytes < 0) {
       std::cerr << "Error on reading socket " << m_name << ": " << strerror(errno) << std::endl;
+      std::ostringstream ss;
+      ss << "Error on reading socket " << m_name << ": " << strerror(errno);
+      if (m_log) m_log->error(ss,__FILENAME__,__LINE__);
       return;
    }
 
    if (nbytes < int(sizeof(struct can_frame))) {
       std::cerr << "Read incomplete CAN frame on socket " << m_name << ": " << strerror(errno) << std::endl;
+      std::ostringstream ss;
+      ss << "Read incomplete CAN frame on socket " << m_name << ": " << strerror(errno);
+      if (m_log) m_log->error(ss,__FILENAME__,__LINE__);
       return;
    }
 
    if (m_sink == nullptr)
    {
-      std::cerr << "Don't have a sink for socket " << m_name << " so can't receive CAN frames";
+      std::cerr << "Don't have a sink for socket " << m_name << " so can't receive CAN frames" << std::endl;
+      std::ostringstream ss;
+      ss << "Don't have a sink for socket " << m_name << " so can't receive CAN frames";
+      if (m_log) m_log->error(ss,__FILENAME__,__LINE__);
       return;
    }
 
@@ -120,7 +121,7 @@ void CanPort::sink(const can::DataFrame& f)
    std::ostringstream ss;
    if (m_log)
    {
-      ss << m_log_prefix << f;
+      ss << f;
       m_log->debug(ss);
    }
 
@@ -132,8 +133,9 @@ void CanPort::sink(const can::DataFrame& f)
    if (write(m_fd, &frame, sizeof(frame)) != sizeof(frame))
    {
       std::cerr << "Error on writing socket " << m_name << ": " << strerror(errno) << std::endl;
+      std::ostringstream ss;
+      ss << "Error on writing socket " << m_name << ": " << strerror(errno);
+      if (m_log) m_log->error(ss,__FILENAME__,__LINE__);
    }
 }
-
-
 }

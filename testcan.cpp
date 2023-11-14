@@ -99,9 +99,9 @@ int main(int argc, const char** argv)
    logger.info(smsg);
 
    core::USBPort usb_port1(argv[3], epollfd, &logger);
-   core::USBPort usb_port2(argv[4], epollfd, &logger);
+   // core::USBPort usb_port2(argv[4], epollfd, &logger);
 
-   core::CanPort inverter_port(argv[2], epollfd);
+   core::CanPort inverter_port(argv[2], epollfd, &logger);
 
    OutputPin pre_charge_relay_1(0, 4, "relay_prechg_1",core::OutputPin::HIGH);
    OutputPin positive_relay_1(0, 5, "relay_pos_1",core::OutputPin::HIGH);
@@ -116,7 +116,7 @@ int main(int argc, const char** argv)
    #endif
 
    // **********
-   // 2 teensys 3 batteries 2+1
+   // 1 teensys 3 batteries
    // **********
    char BP1[] = "BP1";
    packs::Nissan::LeafPack battery_pack_1( BP1,
@@ -134,7 +134,7 @@ int main(int argc, const char** argv)
 
    char BP3[] = "BP3";
    packs::Nissan::LeafPack battery_pack_3( BP3,
-        usb_port2.getSinkOutbound(0),
+        usb_port1.getSinkOutbound(2),
         timer,
         &logger);
    vbatterymon.push_back( &battery_pack_3.getMonitor());
@@ -153,7 +153,7 @@ int main(int argc, const char** argv)
    usb_port1.setSinkInbound(0, battery_pack_1.getPackName(), battery_pack_1);
    usb_port1.setSinkInbound(1, battery_pack_2.getPackName(), battery_pack_2);
    // usb_port2.setSinkInbound(0,battery_pack_2.getPackName(), battery_pack_2);
-   usb_port2.setSinkInbound(0, battery_pack_3.getPackName(), battery_pack_3);
+   usb_port1.setSinkInbound(2, battery_pack_3.getPackName(), battery_pack_3);
 
    packs::Nissan::LeafMultiPack multi_pack(
                      vbatterymon,
@@ -177,7 +177,6 @@ int main(int argc, const char** argv)
          &logger);
    // can::services::TSUN::MessageFactory inverter_message_factory(inverter, &logger);
    can::services::SINEX::MessageFactory inverter_message_factory(inverter, &logger);
-   inverter_port.setupLogger(*&logger, "<INV OUT>", color::green);
    inverter_port.setSink(inverter_message_factory);
 
    logger.setMonitor(vbatterymon);

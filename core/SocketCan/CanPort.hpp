@@ -14,17 +14,12 @@ namespace core
 class CanPort: private core::EpollHandler, public can::FrameSink
 {
 public:
-   CanPort(const char* name, int epoll_fd);
+   CanPort(const char* name, int epoll_fd, logging::Logger *log);
    ~CanPort();
 
    void setSink(can::FrameSink& sink);
-
-   void setupLogger(
-         logging::Logger& log,
-         const char* logger_prefix = "",
-         const char* logger_color = nullptr);
-
    virtual void sink(const can::DataFrame& f);
+
 private:
    virtual void handle();
 
@@ -34,9 +29,6 @@ private:
    can::FrameSink* m_sink;
 
    logging::Logger* m_log;
-   std::string       m_log_prefix;
-   std::string       m_log_color;
-   std::string       m_log_color_reset;
 };
 
 }
