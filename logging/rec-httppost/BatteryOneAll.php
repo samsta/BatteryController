@@ -65,10 +65,6 @@
     {
         // echo ("Connect Successfully\n");
     }
-    // $query =" SELECT TimeStamp, Current as Current1, CurrentMin as CurrentMin1, CurrentMax as CurrentMax1" .
-    // " FROM BatteryOne" .
-    // " WHERE BatNum = 0" .
-    // " AND " . $timerange;
     $query = "SELECT t0.TimeStamp, t0.Current as CurrentTotal," .
     " t1.TimeStamp, t1.Current as Current1," .
     " t2.TimeStamp, t2.Current as Current2," .
@@ -85,6 +81,31 @@
 
     //  echo ($query);
     $resultC = $con->query($query);
+    //--------------------------------------------------------------------------------------------------------------
+    $con = new mysqli($servername, $username, $password, $dbname);
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
+    else
+    {
+        // echo ("Connect Successfully\n");
+    }
+    $query = "SELECT t0.TimeStamp, t0.SOCPercent as SOCPercentBigBat," .
+    " t1.TimeStamp, t1.SOCPercent as SOCPercent1," .
+    " t2.TimeStamp, t2.SOCPercent as SOCPercent2," .
+    " t3.TimeStamp, t3.SOCPercent as SOCPercent3" .
+    " FROM BatteryOne as t0" .
+    " join BatteryOne as t1 ON t0.TimeStamp = t1.TimeStamp" .
+    " join BatteryOne as t2 ON t0.TimeStamp = t2.TimeStamp" .
+    " join BatteryOne as t3 ON t0.TimeStamp = t3.TimeStamp" .
+    " WHERE" .
+    " t0.BatNum = 0 AND" .
+    " t1.BatNum = 1 AND" .
+    " t2.BatNum = 2 AND" .
+    " t3.BatNum = 3 AND " .$t0timerange;
+
+    //  echo ($query);
+    $resultSOC = $con->query($query);
     //--------------------------------------------------------------------------------------------------------------
     $con = new mysqli($servername, $username, $password, $dbname);
     if ($con->connect_error) {
@@ -449,8 +470,6 @@ table, th, td {
         dataC.addColumn('number', 'Current1');
         dataC.addColumn('number', 'Current2');
         dataC.addColumn('number', 'Current3');
-        // dataC.addColumn('number', 'CurrentMin0');
-        // dataC.addColumn('number', 'CurrentMax0');
         
         dataC.addRows([
                 <?php
@@ -462,7 +481,6 @@ table, th, td {
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
                   echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["CurrentTotal"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"]."]";
-                  // echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current0"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"].", ".$row["CurrentMin0"].", ".$row["CurrentMax0"]."]";
                   while($row = mysqli_fetch_assoc($resultC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -471,7 +489,6 @@ table, th, td {
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
                         echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["CurrentTotal"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"]."]";
-                        // echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current0"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"].", ".$row["CurrentMin0"].", ".$row["CurrentMax0"]."]";
                     }
                 ?>
                ])
@@ -481,6 +498,41 @@ table, th, td {
         };
         var chartC = new google.visualization.LineChart(document.getElementById('curve_chartC'));
         chartC.draw(dataC, optionsC);
+         //--------------------------------------------------------------------------------------------------------------
+         var dataSOC = new google.visualization.DataTable();
+        dataSOC.addColumn('datetime', 'TimeStamp');
+        dataSOC.addColumn('number', 'SOCPercentBigBat');
+        dataSOC.addColumn('number', 'SOCPercent1');
+        dataSOC.addColumn('number', 'SOCPercent2');
+        dataSOC.addColumn('number', 'SOCPercent3');
+        
+        dataSOC.addRows([
+                <?php
+                  $row = mysqli_fetch_assoc($resultSOC);
+                  $dt = $row["TimeStamp"];
+                  $yr = substr($dt,0,4);
+                  $mo = substr($dt,5,2);
+                  $day = substr($dt,8,2);
+                  $hr = substr($dt,11,2);
+                  $min = substr($dt,14,2);
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercentBigBat"].", ".$row["SOCPercent1"].", ".$row["SOCPercent2"].", ".$row["SOCPercent3"]."]";
+                  while($row = mysqli_fetch_assoc($resultSOC)){
+                        $dt = $row["TimeStamp"];
+                        $yr = substr($dt,0,4);
+                        $mo = substr($dt,5,2);
+                        $day = substr($dt,8,2);
+                        $hr = substr($dt,11,2);
+                        $min = substr($dt,14,2);
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercentBigBat"].", ".$row["SOCPercent1"].", ".$row["SOCPercent2"].", ".$row["SOCPercent3"]."]";
+                    }
+                ?>
+               ])
+        var optionsSOC = {
+          title: 'SOC (%) for each Battery and the Big Battery',
+          legend: { position: 'bottom' }//,
+        };
+        var chartSOC = new google.visualization.LineChart(document.getElementById('curve_chartSOC'));
+        chartSOC.draw(dataSOC, optionsSOC);
          //--------------------------------------------------------------------------------------------------------------
          var dataCL = new google.visualization.DataTable();
         dataCL.addColumn('datetime', 'TimeStamp');
@@ -669,6 +721,7 @@ table, th, td {
     <div id="curve_chartAllC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartSE" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartV" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartSOC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCV" style="width: 1000px; height: 500px"></div>
