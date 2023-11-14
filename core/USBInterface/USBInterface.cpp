@@ -165,10 +165,14 @@ void USBPort::handle()
                   frame.data[i] = HextoDec( &m_inBufferUnprocessed[i*2 + 9], 2);
                }
 
-               // printf("Received from port = %d\n", port);//JFS
+               can::StandardDataFrame canframe(frame.can_id, frame.data, frame.can_dlc);
+               std::ostringstream ss;
+               ss << "<USB IN:" << m_port_name << " CAN port:" << port << "> " << canframe;
+               if (m_log) m_log->debug(ss);
+
                // use the port number to know where to send it
                if (m_sinkInbound[port-1] != nullptr) {
-                  m_sinkInbound[port-1]->sink(can::StandardDataFrame(frame.can_id, frame.data, frame.can_dlc));
+                  m_sinkInbound[port-1]->sink(can::StandardDataFrame(canframe));
                }
                else {
                   sprintf(cbuf, "%s: Unexpected CAN msg received on Teensy port %d", m_port_name.c_str(), port);
