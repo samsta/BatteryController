@@ -139,7 +139,7 @@ TEST(PackTemperatures, toString)
 
    PackTemperatures temperatures(frame);
    string << temperatures;
-   EXPECT_EQ(string.str(), "PackTemperatures: -1degC, ---, -3degC, 4degC");
+   EXPECT_EQ(string.str(), "PackTemperatures: 7BB -1degC, ---, -3degC, 4degC");
 }
 
 
@@ -148,6 +148,6 @@ TEST(PackTemperatures, invalidToString)
    std::ostringstream string;
    PackTemperatures temperatures(DataFrame7bbGroup2(0));
    string << temperatures;
-   EXPECT_EQ(string.str(), "PackTemperatures: invalid");
+   EXPECT_EQ(string.str(), "PackTemperatures: 7BB invalid");
 }
 

@@ -43,7 +43,7 @@ TEST(SE_PWS2, registersAndDeregistersTimerCallbackFor500MillisecondPeriod)
 
   {
      core::Invokable* invokable;
-     EXPECT_CALL(timer, registerPeriodicCallback(_, 500),nullptr).WillOnce(SaveArg<0>(&invokable));
+     EXPECT_CALL(timer, registerPeriodicCallback(_, 500,nullptr)).WillOnce(SaveArg<0>(&invokable));
      SE_PWS2 sbs(sink, timer, monitor, contactor, nullptr);
      EXPECT_CALL(timer, deregisterCallback(invokable));
   }
@@ -69,7 +69,7 @@ public:
   public:
      ConstructorExpectation(mocks::core::Timer& timer, core::Invokable** invokable)
      {
-        EXPECT_CALL(timer, registerPeriodicCallback(_, _),nullptr).WillOnce(SaveArg<0>(invokable));
+        EXPECT_CALL(timer, registerPeriodicCallback(_, _, nullptr)).WillOnce(SaveArg<0>(invokable));
      }
   } constructor_expectation;
 

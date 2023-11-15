@@ -24,7 +24,7 @@ TEST(GroupPoller, registersAndDeregistersPollingCallbackFor1000MillisecondPeriod
 
    {
       core::Invokable* invokable;
-      EXPECT_CALL(timer, registerPeriodicCallback(_, 1000,nullptr)).WillOnce(SaveArg<0>(&invokable));
+      EXPECT_CALL(timer, registerPeriodicCallback(_, 1000,"GroupPoller")).WillOnce(SaveArg<0>(&invokable));
       GroupPoller poller(sender, timer);
       EXPECT_CALL(timer, deregisterCallback(invokable));
    }
@@ -52,7 +52,7 @@ public:
       public:
          ConstructorExpectation(mocks::core::Timer& timer, core::Invokable** invokable)
          {
-            EXPECT_CALL(timer, registerPeriodicCallback(_, _,nullptr)).WillOnce(SaveArg<0>(invokable));
+            EXPECT_CALL(timer, registerPeriodicCallback(_, _,"GroupPoller")).WillOnce(SaveArg<0>(invokable));
          }
    } constructor_expectation;
 

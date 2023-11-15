@@ -143,11 +143,11 @@ TEST(CellVoltages, toString)
    CellVoltages voltages(frame);
    string << voltages;
 
-   EXPECT_THAT(string.str(), StartsWith("CellVoltages: 3.84V"));
+   EXPECT_THAT(string.str(), StartsWith("CellVoltages: 7BB 3.84V"));
    EXPECT_THAT(string.str(), EndsWith(" 2.561V"));
    // Expect 95 voltages directly followed by a comma and space each, and another voltage without comma.
    // The voltages may contain a decimal point followed by decimal places
-   EXPECT_THAT(string.str(), MatchesRegex("CellVoltages: ([0-9]+(.[0-9]+)?V, ){95}[0-9]+(.[0-9]+)?V"));
+   EXPECT_THAT(string.str(), MatchesRegex("CellVoltages: 7BB ([0-9]+(.[0-9]+)?V, ){95}[0-9]+(.[0-9]+)?V"));
 }
 
 TEST(CellVoltages, invalidToString)
@@ -155,6 +155,6 @@ TEST(CellVoltages, invalidToString)
    std::ostringstream string;
    CellVoltages voltages(DataFrame7bbGroup2(0));
    string << voltages;
-   EXPECT_EQ(string.str(), "CellVoltages: invalid");
+   EXPECT_EQ(string.str(), "CellVoltages: 7BB invalid");
 }
 

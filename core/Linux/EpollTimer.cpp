@@ -111,7 +111,6 @@ void EpollTimer::registerPeriodicCallback(core::Invokable* invokable, unsigned p
    if (m_log) m_log->debug(ss);
 }
 
-// void EpollTimer::schedule(core::Invokable* invokable, unsigned delay_ms, const char* timer_name)
 void EpollTimer::schedule(core::Invokable* invokable, unsigned delay_ms)
 {
    if (m_timers[invokable] == nullptr)

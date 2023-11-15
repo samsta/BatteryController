@@ -172,7 +172,7 @@ TEST(BatteryState, toString)
    BatteryState state(frame);
    string << state;
 
-   EXPECT_EQ(string.str(), "BatteryState: Voltage=128.16V Health=46.6% SOC=7.4565% Capacity=119.305Ah");
+   EXPECT_EQ(string.str(), "BatteryState: 7BB Voltage=128.16V Health=46.6% SOC=7.4565% Capacity=119.305Ah");
 }
 
 TEST(BatteryState, invalidToString)
@@ -180,7 +180,7 @@ TEST(BatteryState, invalidToString)
    std::ostringstream string;
    BatteryState state(DataFrame7bbGroup2(0));
    string << state;
-   EXPECT_EQ(string.str(), "BatteryState: invalid");
+   EXPECT_EQ(string.str(), "BatteryState: 7BB invalid");
 }
 
 

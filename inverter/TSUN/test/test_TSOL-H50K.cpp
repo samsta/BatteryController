@@ -51,7 +51,7 @@ TEST(TSOL_H50K, registersAndDeregistersTimerCallbackFor5000MillisecondPeriod)
 
    {
       core::Invokable* invokable;
-      EXPECT_CALL(timer, registerPeriodicCallback(_, 5000)).WillOnce(SaveArg<0>(&invokable));
+      EXPECT_CALL(timer, registerPeriodicCallback(_, 5000, nullptr)).WillOnce(SaveArg<0>(&invokable));
       TSOL_H50K sbs(sink, timer, monitor, contactor, nullptr);
       EXPECT_CALL(timer, deregisterCallback(invokable));
    }
@@ -77,7 +77,7 @@ public:
    public:
       ConstructorExpectation(mocks::core::Timer& timer, core::Invokable** invokable)
       {
-         EXPECT_CALL(timer, registerPeriodicCallback(_, _)).WillOnce(SaveArg<0>(invokable));
+         EXPECT_CALL(timer, registerPeriodicCallback(_, _, nullptr)).WillOnce(SaveArg<0>(invokable));
       }
    } constructor_expectation;
 

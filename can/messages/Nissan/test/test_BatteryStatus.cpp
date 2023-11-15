@@ -37,7 +37,7 @@ TEST(NissanBatteryStatus, invalidToString)
    BatteryStatus status(can::StandardDataFrame("1dc#0000000000000000"));
    std::ostringstream string;
    string << status;
-   EXPECT_EQ(string.str(), "BatteryStatus: invalid");
+   EXPECT_EQ(string.str(), "BatteryStatus: 1DB invalid");
 }
 
 TEST(NissanBatteryStatus, validToString)
@@ -45,7 +45,7 @@ TEST(NissanBatteryStatus, validToString)
    BatteryStatus status(can::StandardDataFrame("1db#0024bee2380003e0"));
    std::ostringstream string;
    string << status;
-   EXPECT_EQ(string.str(), "BatteryStatus: Current=0.5A Voltage=381.5V Usable SOC=56% SecurityByte=0xE0 MultiplexByte=0x03");
+   EXPECT_EQ(string.str(), "BatteryStatus: 1DB Current=0.5A Voltage=381.5V Usable SOC=56% SecurityByte=0xE0 MultiplexByte=0x03");
 }
 
 TEST(NissanBatteryStatus, getNegativeCurrent)
