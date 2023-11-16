@@ -122,7 +122,7 @@ TEST(CellVoltageRange, toString)
    CellVoltageRange state(frame);
    string << state;
 
-   EXPECT_EQ(string.str(), "CellVoltageRange: min=3.583V max=4.097V");
+   EXPECT_EQ(string.str(), "CellVoltageRange: 7BB min=3.583V max=4.097V");
 }
 
 TEST(CellVoltageRange, invalidToString)
@@ -130,7 +130,7 @@ TEST(CellVoltageRange, invalidToString)
    std::ostringstream string;
    CellVoltageRange state(DataFrame7bbGroup2(0));
    string << state;
-   EXPECT_EQ(string.str(), "CellVoltageRange: invalid");
+   EXPECT_EQ(string.str(), "CellVoltageRange: 7BB invalid");
 }
 
 

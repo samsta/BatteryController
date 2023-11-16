@@ -57,16 +57,14 @@ void CellVoltages::toStream(logging::ostream& os) const
       os << "invalid";
       return;
    }
-
-   os << "JFS removed";
-   // for (unsigned k = 0; k < CellVoltages::NUM_CELLS; k++)
-   // {
-   //    if (k != 0)
-   //    {
-   //       os << ", ";
-   //    }
-   //    os << getVoltage(k) << 'V';
-   // }
+   for (unsigned k = 0; k < CellVoltages::NUM_CELLS; k++)
+   {
+      if (k != 0)
+      {
+         os << ", ";
+      }
+      os << getVoltage(k) << 'V';
+   }
 }
 
 }

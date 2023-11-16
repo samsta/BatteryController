@@ -99,7 +99,7 @@ int main(int argc, const char** argv)
    logger.info(smsg);
 
    core::USBPort usb_port1(argv[3], epollfd, &logger);
-   // core::USBPort usb_port2(argv[4], epollfd, &logger);
+   core::USBPort usb_port2(argv[4], epollfd, &logger);
 
    core::CanPort inverter_port(argv[2], epollfd, &logger);
 
@@ -116,7 +116,7 @@ int main(int argc, const char** argv)
    #endif
 
    // **********
-   // 1 teensys 3 batteries
+   2 teensy 3 batteries 2+1
    // **********
    char BP1[] = "BP1";
    packs::Nissan::LeafPack battery_pack_1( BP1,
@@ -134,15 +134,12 @@ int main(int argc, const char** argv)
 
    char BP3[] = "BP3";
    packs::Nissan::LeafPack battery_pack_3( BP3,
-        usb_port1.getSinkOutbound(2),
+        usb_port2.getSinkOutbound(0),
         timer,
         &logger);
    vbatterymon.push_back( &battery_pack_3.getMonitor());
 
    std::vector<contactor::Contactor*> vbatterycon = {
-            // &battery_pack_1.getContactor(),
-            // &battery_pack_2.getContactor(),
-            // &battery_pack_3.getContactor(),
             &battery_pack_1.getContactor()
             ,
             &battery_pack_2.getContactor()
@@ -152,8 +149,7 @@ int main(int argc, const char** argv)
 
    usb_port1.setSinkInbound(0, battery_pack_1.getPackName(), battery_pack_1);
    usb_port1.setSinkInbound(1, battery_pack_2.getPackName(), battery_pack_2);
-   // usb_port2.setSinkInbound(0,battery_pack_2.getPackName(), battery_pack_2);
-   usb_port1.setSinkInbound(2, battery_pack_3.getPackName(), battery_pack_3);
+   usb_port2.setSinkInbound(0, battery_pack_3.getPackName(), battery_pack_3);
 
    packs::Nissan::LeafMultiPack multi_pack(
                      vbatterymon,

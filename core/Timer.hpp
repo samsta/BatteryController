@@ -17,7 +17,6 @@ public:
    virtual ~Timer(){}
    virtual void registerPeriodicCallback(Invokable* invokable, unsigned period_ms, const char* timer_name) = 0;
    virtual void schedule(Invokable* invokable, unsigned delay_ms) = 0;
-   // virtual void schedule(Invokable* invokable, unsigned delay_ms, const char* timer_name) = 0;
    virtual void deregisterCallback(Invokable* invokable) = 0;
    virtual void setLogger(logging::Logger* log) = 0;
 };
