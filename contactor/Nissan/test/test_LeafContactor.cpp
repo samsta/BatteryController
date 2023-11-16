@@ -92,7 +92,7 @@ TEST_F(NissanLeafContactorTest, dontScheduleTimerIfUnsafe)
 {
    contactor.setSafeToOperate(false);
 
-   EXPECT_CALL(timer, schedule(_, _)).Times(0);
+   EXPECT_CALL(timer, schedule(_, _,_)).Times(0);
 
    contactor.close();
 }
@@ -112,8 +112,8 @@ TEST_F(NissanLeafContactorTest, scheduleTimerToClosePositiveRelayAndPrechargeRel
 {
    contactor.setSafeToOperate(true);
 
-   EXPECT_CALL(timer, schedule(_, 3000));
-   EXPECT_CALL(timer, schedule(_, 5000));
+   EXPECT_CALL(timer, schedule(_, 3000,_));
+   EXPECT_CALL(timer, schedule(_, 5000,_));
 
    contactor.close();
 }
@@ -130,9 +130,9 @@ TEST_F(NissanLeafContactorTest, closePositiveRelayWhenTimerElapsesAndScheduledAc
 {
    contactor.setSafeToOperate(true);
    core::Invokable* scheduled_action1;
-   EXPECT_CALL(timer, schedule(_, 3000)).WillOnce(SaveArg<0>(&scheduled_action1));
+   EXPECT_CALL(timer, schedule(_, 3000,_)).WillOnce(SaveArg<0>(&scheduled_action1));
    core::Invokable* scheduled_action2;
-   EXPECT_CALL(timer, schedule(_, 5000)).WillOnce(SaveArg<0>(&scheduled_action2));
+   EXPECT_CALL(timer, schedule(_, 5000,_)).WillOnce(SaveArg<0>(&scheduled_action2));
    contactor.close();
 
    EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::LOW));
@@ -151,9 +151,9 @@ public:
    {
       contactor.setSafeToOperate(true);
       core::Invokable* scheduled_action1;
-      EXPECT_CALL(timer, schedule(_, 3000)).WillOnce(SaveArg<0>(&scheduled_action1));
+      EXPECT_CALL(timer, schedule(_, 3000,_)).WillOnce(SaveArg<0>(&scheduled_action1));
       core::Invokable* scheduled_action2;
-      EXPECT_CALL(timer, schedule(_, 5000)).WillOnce(SaveArg<0>(&scheduled_action2));
+      EXPECT_CALL(timer, schedule(_, 5000,_)).WillOnce(SaveArg<0>(&scheduled_action2));
       contactor.close();
       scheduled_action1->invoke();
       scheduled_action2->invoke();

@@ -122,8 +122,8 @@ void LeafContactor::closeNegativeRelay()
    // the next line delays by DELAY_CLOSE_MS then calls m_delayed_close(callback), m_delayed_close is 
    // intialized in the class constructor to call closePositiveRelay... clear as mud.
    // same system for opening the pre-charge relay after DELAY_OPEN_MS
-   m_timer.schedule(&m_delayed_close, DELAY_CLOSE_MS);
-   m_timer.schedule(&m_delayed_open, DELAY_OPEN_MS);
+   m_timer.schedule(&m_delayed_close, DELAY_CLOSE_MS, "PosDelayClose");
+   m_timer.schedule(&m_delayed_open, DELAY_OPEN_MS, "PreDelayOpen");
 }
 
 void LeafContactor::closePositiveRelay()

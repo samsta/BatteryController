@@ -111,15 +111,15 @@ void EpollTimer::registerPeriodicCallback(core::Invokable* invokable, unsigned p
    if (m_log) m_log->debug(ss);
 }
 
-void EpollTimer::schedule(core::Invokable* invokable, unsigned delay_ms)
+void EpollTimer::schedule(core::Invokable* invokable, unsigned delay_ms, const char* timer_name)
 {
    if (m_timers[invokable] == nullptr)
    {
-      m_timers[invokable] = new TimerEpollEntry(m_epoll_fd, invokable, "Scheduled", m_log);
+      m_timers[invokable] = new TimerEpollEntry(m_epoll_fd, invokable, timer_name, m_log);
    }
    m_timers[invokable]->setTimer(delay_ms, TimerEpollEntry::ONE_SHOT);
    std::ostringstream ss;
-   ss << "Scheduled Timer created: " << delay_ms << "ms";
+   ss << "Scheduled Timer created: " << timer_name << " " << delay_ms << "ms";
    if (m_log) m_log->debug(ss);
 }
 
