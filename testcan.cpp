@@ -116,7 +116,7 @@ int main(int argc, const char** argv)
    #endif
 
    // **********
-   2 teensy 3 batteries 2+1
+   // 2 teensy 3 batteries 2+1
    // **********
    char BP1[] = "BP1";
    packs::Nissan::LeafPack battery_pack_1( BP1,
