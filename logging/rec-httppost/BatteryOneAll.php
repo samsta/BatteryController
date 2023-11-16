@@ -47,9 +47,9 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, Current, " . 
-    " (Current * Voltage * 0.001) as Power, " .
-    " DischargeCurrentLimit, " .
-    " ChargeCurrentLimit " .
+    " (Current * Voltage * 0.001) as Power " .
+    // " DischargeCurrentLimit, " .
+    // " ChargeCurrentLimit " .
     " FROM BatteryOne" .
     " WHERE BatNum = 0" .
     " AND " . $timerange;
@@ -385,9 +385,9 @@ table, th, td {
          var dataAllC = new google.visualization.DataTable();
         dataAllC.addColumn('datetime', 'TimeStamp');
         dataAllC.addColumn('number', 'Current');
-        dataAllC.addColumn('number', 'ChargeCurrentLimit');
+        // dataAllC.addColumn('number', 'ChargeCurrentLimit');
         dataAllC.addColumn('number', 'Power');
-        dataAllC.addColumn('number', 'DischargeCurrentLimit');
+        // dataAllC.addColumn('number', 'DischargeCurrentLimit');
 
         dataAllC.addRows([
                 <?php
@@ -398,7 +398,7 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["ChargeCurrentLimit"].", ".$row["Power"].", ".$row["DischargeCurrentLimit"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["Power"]."]";
                   while($row = mysqli_fetch_assoc($resultAllC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -406,8 +406,8 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["ChargeCurrentLimit"].", ".$row["Power"].", ".$row["DischargeCurrentLimit"]."]";
-                    }
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["Power"]."]";
+                      }
                 ?>
                ])
         var optionsAllC = {
@@ -720,13 +720,13 @@ table, th, td {
   <body>
     <div id="curve_chartAllC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartSE" style="width: 1000px; height: 500px"></div>
-    <div id="curve_chartV" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartCL" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartDCL" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartSOC" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartV" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCV" style="width: 1000px; height: 500px"></div>
-    <div id="curve_chartCL" style="width: 1000px; height: 500px"></div>
-    <div id="curve_chartDCL" style="width: 1000px; height: 500px"></div>
   </body>
 </html>
 

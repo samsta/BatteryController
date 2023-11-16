@@ -47,9 +47,7 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, Current, " . 
-    " (Current * Voltage * 0.001) as Power, " .
-    " DischargeCurrentLimit, " .
-    " ChargeCurrentLimit " .
+    " (Current * Voltage * 0.001) as Power " .
     " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
@@ -217,9 +215,7 @@ table, th, td {
          var dataAllC = new google.visualization.DataTable();
         dataAllC.addColumn('datetime', 'TimeStamp');
         dataAllC.addColumn('number', 'Current');
-        dataAllC.addColumn('number', 'ChargeCurrentLimit');
         dataAllC.addColumn('number', 'Power');
-        dataAllC.addColumn('number', 'DischargeCurrentLimit');
 
         dataAllC.addRows([
                 <?php
@@ -230,7 +226,7 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["ChargeCurrentLimit"].", ".$row["Power"].", ".$row["DischargeCurrentLimit"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["Power"]."]";
                   while($row = mysqli_fetch_assoc($resultAllC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -238,24 +234,13 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["ChargeCurrentLimit"].", ".$row["Power"].", ".$row["DischargeCurrentLimit"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["Power"]."]";
                     }
                 ?>
                ])
         var optionsAllC = {
-          title: 'Current(A), Power(kW) and Current Limits(A)',
+          title: 'Current(A), Power(kW)',
           legend: { position: 'bottom' }//,
-          //vAxis: { viewWindow: { min: 20, max: 60} }
-          // vAxis: { ticks: [15,20,25,30,35,40,45,50,55,60,65] }
-//           backgroundColor: '#000',
-//           legendTextStyle: { color: '#FFF' },
-//           titleTextStyle: { color: '#FFF' },
-//           hAxis: {
-// 			textStyle:{color: '#FFF'}
-// 		  },
-// 	      vAxis: {
-// 			textStyle:{color: '#FFF'}
-// 		  }
         };
         var chartAllC = new google.visualization.LineChart(document.getElementById('curve_chartAllC'));
         chartAllC.draw(dataAllC, optionsAllC);
@@ -428,16 +413,6 @@ table, th, td {
         var optionsSE = {
           title: 'Stored Energy (kWh)  SOC (%)  Temperature (degC)',
           legend: { position: 'bottom' }//,
-//           backgroundColor: '#000',
-//           legendTextStyle: { color: '#FFF' },
-//           titleTextStyle: { color: '#FFF' },
-//           hAxis: {
-// 			textStyle:{color: '#FFF'}
-// 		  },
-// 	      vAxis: {
-// 			textStyle:{color: '#FFF'}
-// 		  }
-
         };
         var chartSE = new google.visualization.LineChart(document.getElementById('curve_chartSE'));
         chartSE.draw(dataSE, optionsSE);
@@ -482,11 +457,11 @@ table, th, td {
   <body>
     <div id="curve_chartAllC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartSE" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartCL" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartDCL" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartV" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCV" style="width: 1000px; height: 500px"></div>
-    <div id="curve_chartCL" style="width: 1000px; height: 500px"></div>
-    <div id="curve_chartDCL" style="width: 1000px; height: 500px"></div>
   </body>
 </html>
 
