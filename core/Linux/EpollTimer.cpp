@@ -25,9 +25,9 @@ public:
       m_epoll_fd(epoll_fd),
       m_fd(timerfd_create(CLOCK_MONOTONIC, 0)),
       m_invokable(invokable),
-      m_timer_name(timer_name),
       m_log(log)
    {
+      sprintf(m_timer_name,"%.255s",timer_name);
       struct epoll_event ev;
       ev.events = EPOLLIN;
       ev.data.ptr = this;
@@ -81,8 +81,8 @@ public:
    int m_epoll_fd;
    int m_fd;
    core::Invokable* m_invokable;
-   const char* m_timer_name;
    logging::Logger* m_log;
+   char m_timer_name[256];
 };
 
 EpollTimer::EpollTimer(int epoll_fd):
