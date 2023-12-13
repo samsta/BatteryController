@@ -7,7 +7,6 @@ namespace Nissan {
 
 LeafMultiPack::LeafMultiPack(
             std::vector<monitor::Monitor*> vmonitor,
-            std::vector<contactor::Contactor*> vsafetyshunt,
             core::Timer& timer,
             core::OutputPin& positive_relay,
             core::OutputPin& negative_relay,
@@ -15,7 +14,6 @@ LeafMultiPack::LeafMultiPack(
             logging::Logger *log):
 
       m_vmonitor(vmonitor),
-      m_vsafety_shunt(vsafetyshunt),
       m_timer(timer),
       m_main_contactor(
          timer,

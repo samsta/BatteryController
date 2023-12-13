@@ -143,18 +143,6 @@ int main(int argc, const char** argv)
         &logger);
    vbatterymon.push_back( &battery_pack_5.getMonitor());
 
-   std::vector<contactor::Contactor*> vbatterycon = {
-            &battery_pack_1.getContactor()
-            ,
-            &battery_pack_2.getContactor()
-            ,
-            &battery_pack_3.getContactor()
-            ,
-            &battery_pack_4.getContactor()
-            ,
-            &battery_pack_5.getContactor()
-            };
-
    usb_port1.setSinkInbound(0, battery_pack_1.getPackName(), battery_pack_1);
    usb_port1.setSinkInbound(1, battery_pack_2.getPackName(), battery_pack_2);
    usb_port1.setSinkInbound(2, battery_pack_3.getPackName(), battery_pack_3);
@@ -163,7 +151,6 @@ int main(int argc, const char** argv)
 
    packs::Nissan::LeafMultiPack multi_pack(
                      vbatterymon,
-                     vbatterycon,
                      timer,
                      positive_relay_1,
                      negative_relay_1,
