@@ -51,16 +51,6 @@ int main(int argc, const char** argv)
    std::ofstream logfile;
    std::ostringstream ss;
 
-   // // *****
-   // // FOR FUTURE CONSIDERATION
-   // // Set up CAN0
-   // std::system("sudo /sbin/ip link set can0 up type can bitrate 250000");
-   // std::system("sudo ip link set can0 txqueuelen 1000");
-   // // Set up CAN1
-   // std::system("sudo /sbin/ip link set can1 up type can bitrate 250000");
-   // std::system("sudo ip link set can1 txqueuelen 1000");
-   // // *****
-
    // this code required to catch ctrl-c and cleanly exit the program (open contactors)
    struct sigaction action;
    memset(&action, 0, sizeof(struct sigaction));
@@ -116,7 +106,7 @@ int main(int argc, const char** argv)
    #endif
 
    // **********
-   // 2 teensy 3 batteries 2+1
+   // 2 teensy 5 batteries 3+2
    // **********
    char BP1[] = "BP1";
    packs::Nissan::LeafPack battery_pack_1( BP1,
@@ -134,10 +124,24 @@ int main(int argc, const char** argv)
 
    char BP3[] = "BP3";
    packs::Nissan::LeafPack battery_pack_3( BP3,
-        usb_port2.getSinkOutbound(0),
+        usb_port1.getSinkOutbound(2),
         timer,
         &logger);
    vbatterymon.push_back( &battery_pack_3.getMonitor());
+
+   char BP4[] = "BP4";
+   packs::Nissan::LeafPack battery_pack_4( BP4,
+        usb_port2.getSinkOutbound(0),
+        timer,
+        &logger);
+   vbatterymon.push_back( &battery_pack_4.getMonitor());
+
+   char BP5[] = "BP5";
+   packs::Nissan::LeafPack battery_pack_5( BP5,
+        usb_port2.getSinkOutbound(1),
+        timer,
+        &logger);
+   vbatterymon.push_back( &battery_pack_5.getMonitor());
 
    std::vector<contactor::Contactor*> vbatterycon = {
             &battery_pack_1.getContactor()
@@ -145,11 +149,17 @@ int main(int argc, const char** argv)
             &battery_pack_2.getContactor()
             ,
             &battery_pack_3.getContactor()
+            ,
+            &battery_pack_4.getContactor()
+            ,
+            &battery_pack_5.getContactor()
             };
 
    usb_port1.setSinkInbound(0, battery_pack_1.getPackName(), battery_pack_1);
    usb_port1.setSinkInbound(1, battery_pack_2.getPackName(), battery_pack_2);
-   usb_port2.setSinkInbound(0, battery_pack_3.getPackName(), battery_pack_3);
+   usb_port1.setSinkInbound(2, battery_pack_3.getPackName(), battery_pack_3);
+   usb_port2.setSinkInbound(0, battery_pack_4.getPackName(), battery_pack_4);
+   usb_port2.setSinkInbound(1, battery_pack_5.getPackName(), battery_pack_5);
 
    packs::Nissan::LeafMultiPack multi_pack(
                      vbatterymon,
