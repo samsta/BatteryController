@@ -21,6 +21,8 @@ public:
    void setSinkInbound(unsigned index, char* pack_name, can::FrameSink& sink);
    can::FrameSink& getSinkOutbound(unsigned index);
 
+   bool getUSBErrorStatus();
+
    static const unsigned NUM_PACKS = 3; // this is also the number of CAN ports
    
 private:
@@ -37,16 +39,18 @@ private:
 
    class Pack: public can::FrameSink
    {
-   public:
-      Pack(int fd, unsigned index, const char* usbport_name, logging::Logger* m_log);
-      void setPackName(const char* pack_name);
-   private:
-      int m_fd;
-      const char* m_pack_name;
-      const char* m_usbport_name;
-      unsigned m_index;
-      logging::Logger* m_log;
-      virtual void sink(const can::DataFrame& f);
+      public:
+         Pack(int fd, unsigned index, const char* usbport_name, logging::Logger* m_log);
+         void setPackName(const char* pack_name);
+         bool getErrorStatus();
+      private:
+         int m_fd;
+         const char* m_pack_name;
+         const char* m_usbport_name;
+         unsigned m_index;
+         bool m_error_sending;
+         logging::Logger* m_log;
+         virtual void sink(const can::DataFrame& f);
    };
 
    Pack m_packs[NUM_PACKS];
@@ -54,11 +58,10 @@ private:
    int open_serial_port(const char * device, logging::Logger* log);
    size_t read_port(int fd, uint8_t * buffer, size_t size);
 
+   bool m_usb_error;
    uint32_t HextoDec(unsigned const char *hex, size_t hexlen);
 
    logging::Logger* m_log;
-
-   std::string m_class_name;
 };
 
 }

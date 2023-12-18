@@ -23,12 +23,6 @@ namespace color = logging::color::ansi;
 
 namespace core {
 
-
-// CLEAN UP USAGE OF M_NAME AND M_USB_ID
-
-// FIGURE OUT HOW TO ASSIGN A PACK NAME TO M_PACKS
-
-
 USBPort::USBPort(const char* port_name, int epoll_fd, logging::Logger *log):
     m_unprocessedSize(0),
     m_epoll_fd(epoll_fd),
@@ -40,8 +34,8 @@ USBPort::USBPort(const char* port_name, int epoll_fd, logging::Logger *log):
         {m_fd, 1, port_name, log},
         {m_fd, 2, port_name, log}
     },
-    m_log(log),
-    m_class_name(__func__)
+    m_usb_error(false),
+    m_log(log)
 {
    struct epoll_event ev;
 
@@ -229,17 +223,28 @@ can::FrameSink& USBPort::getSinkOutbound(unsigned index)
    return m_packs[index];
 }
 
+bool USBPort::getUSBErrorStatus()
+{
+   return m_packs[0].getErrorStatus();
+}
+
 USBPort::Pack::Pack(int fd, unsigned index, const char* usbport_name, logging::Logger* log):
    m_fd(fd), 
    m_index(index),
    m_usbport_name(usbport_name),
    m_pack_name(usbport_name),
+   m_error_sending(false),
    m_log(log)
 {}
 
 void USBPort::Pack::setPackName(const char* pack_name)
 {
    m_pack_name = pack_name;
+}
+
+bool USBPort::Pack::getErrorStatus()
+{
+   return m_error_sending;
 }
 void USBPort::Pack::sink(const can::DataFrame& f)
 {
@@ -274,6 +279,8 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));
    if (x<0)
    {
+      // at this time there seems to be no recovery from this error
+      m_error_sending = true;
       std::ostringstream ss;
       ss << "WRITE TO USB PORT FAILED:" << m_usbport_name << " (" << m_pack_name << ")";
       if (m_log) m_log->error(ss, __FILENAME__,__LINE__);

@@ -29,7 +29,6 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
   EXPECT_CALL(timer, registerPeriodicCallback(_, 1000,_)).WillOnce(SaveArg<0>(&invokable));
 
   LeafMultiPack LMP(      m_vmonitor,
-                          m_vcontactor,
                           timer,
                           positive_relay,
                           negative_relay,
@@ -48,7 +47,6 @@ class TestLeafMultipack1: public Test {
 public:
    TestLeafMultipack1():
       m_multipack(m_vmonitor,
-                  m_vcontactor,
                   timer,
                   positive_relay,
                   negative_relay,

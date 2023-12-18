@@ -10,6 +10,7 @@
 #include "contactor/Contactor.hpp"
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "monitor/Nissan/LeafMonitor.hpp"
+#include "core/USBInterface/USBInterface.hpp"
 
 namespace packs {
 namespace Nissan {
@@ -19,6 +20,7 @@ class LeafMultiPack: public monitor::Monitor
 public:
 
    LeafMultiPack( std::vector<monitor::Monitor*> vmonitor,
+                  std::vector<core::USBPort*> vusbport,
                   core::Timer& timer,
                   core::OutputPin& positive_relay,
                   core::OutputPin& negative_relay,
@@ -65,6 +67,7 @@ private:
    void updateFullyChargedDischargedStatus();
 
    std::vector<monitor::Monitor*>      m_vmonitor;
+   std::vector<core::USBPort*>         m_vusbport;
    core::Timer&                        m_timer;
    contactor::Nissan::LeafContactor    m_main_contactor;
 
