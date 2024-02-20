@@ -121,6 +121,9 @@ char* getPackStatusText(Monitor::Pack_Status p, char *text)
    case Monitor::Pack_Status::STARTUP:
       sprintf(text,"startup");
       break;
+   case Monitor::Pack_Status::STARTUP_FAILED:
+      sprintf(text,"strt_fl");
+      break;
    case Monitor::Pack_Status::NORMAL_OPERATION:
       sprintf(text,"normal");
       break;
@@ -145,6 +148,9 @@ char* getPackStatusTEXT(Monitor::Pack_Status p, char *text)
    switch (p) {
    case Monitor::Pack_Status::STARTUP:
       sprintf(text,"STARTUP");
+      break;
+   case Monitor::Pack_Status::STARTUP_FAILED:
+      sprintf(text,"STARTUP_FAILED");
       break;
    case Monitor::Pack_Status::NORMAL_OPERATION:
       sprintf(text,"NORMAL_OPERATION");
