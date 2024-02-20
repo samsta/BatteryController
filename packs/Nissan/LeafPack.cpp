@@ -46,7 +46,7 @@ void LeafPack::heartbeatCallback()
 {
    // startup: battery must 'come right' in a set period of time
    // 'come right' = receive good voltage and temp readings and
-   //                received on of each CAN (id) message from the battery
+   //                received one of each CAN (id) message from the battery
    switch (m_monitor.getPackStatus()) {
 
       case monitor::Monitor::STARTUP:
@@ -89,12 +89,6 @@ void LeafPack::heartbeatCallback()
       default:
          break;
    }
-
-   // THIS CODE NEEDS REVISITING AS THERE SHOULD ONLY BE ONE PLACE WHERE
-   // THE SHUNT IS ACTIVATED AFTER THE STATE CHANGED TO SHUNT_ACTIVATED.
-
-   // THERE SHOULD BE A SEPARTE CASE FOR SHUNT_ACTIVATED AT THE BOTTOM OF THIS
-   // SECTION WHICH DOES THE JOB IMMEDIDATELY AFTER THE STATE IS CHANGED.
    
    // monitor the heartbeat, aka make sure we are receiving CAN messages
    // from the pack, if it goes dead, trigger the safety shunt
