@@ -1,11 +1,13 @@
 -Title
-Big Battery (summation of all Batteries)
+All Batteries (summation of all Batteries)
 2 hours
 https://jimster.ca/BatteryOne/BatteryOneAll.php
 Today
 https://jimster.ca/BatteryOne/BatteryOneAll.php?time=td
 Yesterday
 https://jimster.ca/BatteryOne/BatteryOneAll.php?time=yd
+Enter Time Period
+https://jimster.ca/BatteryOne/BatteryOneAllIndexAT.php
 -Title
 Last 2 hours - Individual Batteries
 Battery 1 Last 2 Hours
