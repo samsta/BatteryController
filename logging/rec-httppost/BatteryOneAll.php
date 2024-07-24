@@ -7,18 +7,18 @@
     //--------------------------------------------------------------------------------------------------------------
 
     // 2 hours
-    $timerange = " Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
-    $t0timerange = " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
+    $timerange = " Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -2 HOUR)";
+    $t0timerange = " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -2 HOUR)";
     $time = $_GET['time'];
     // today
     if ($time == "td") {
-      $timerange = " Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
-      $t0timerange = "t0.Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
+      $timerange = " Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
+      $t0timerange = "t0.Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
     } 
     // yesterday
     else if ($time == "yd") {
-      $timerange = " TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
-      $t0timerange = "t0.TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE), INTERVAL -1 DAY) AND t0.TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00') as DATE)";
+      $timerange = " TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
+      $t0timerange = "t0.TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE), INTERVAL -1 DAY) AND t0.TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -68,16 +68,22 @@
     $query = "SELECT t0.TimeStamp, t0.Current as CurrentTotal," .
     " t1.TimeStamp, t1.Current as Current1," .
     " t2.TimeStamp, t2.Current as Current2," .
-    " t3.TimeStamp, t3.Current as Current3" .
+    " t3.TimeStamp, t3.Current as Current3," .
+    " t4.TimeStamp, t4.Current as Current4," .
+    " t5.TimeStamp, t5.Current as Current5" .
     " FROM BatteryOne as t0" .
     " join BatteryOne as t1 ON t0.TimeStamp = t1.TimeStamp" .
     " join BatteryOne as t2 ON t0.TimeStamp = t2.TimeStamp" .
     " join BatteryOne as t3 ON t0.TimeStamp = t3.TimeStamp" .
+    " join BatteryOne as t4 ON t0.TimeStamp = t4.TimeStamp" .
+    " join BatteryOne as t5 ON t0.TimeStamp = t5.TimeStamp" .
     " WHERE" .
     " t0.BatNum = 0 AND" .
     " t1.BatNum = 1 AND" .
     " t2.BatNum = 2 AND" .
-    " t3.BatNum = 3 AND " .$t0timerange;
+    " t3.BatNum = 3 AND" .
+    " t4.BatNum = 4 AND" .
+    " t5.BatNum = 5 AND " .$t0timerange;
 
     //  echo ($query);
     $resultC = $con->query($query);
@@ -93,15 +99,21 @@
     $query = "SELECT t0.TimeStamp, t0.SOCPercent as SOCPercentBigBat," .
     " t1.TimeStamp, t1.SOCPercent as SOCPercent1," .
     " t2.TimeStamp, t2.SOCPercent as SOCPercent2," .
+    " t4.TimeStamp, t4.SOCPercent as SOCPercent4," .
+    " t5.TimeStamp, t5.SOCPercent as SOCPercent5," .
     " t3.TimeStamp, t3.SOCPercent as SOCPercent3" .
     " FROM BatteryOne as t0" .
     " join BatteryOne as t1 ON t0.TimeStamp = t1.TimeStamp" .
     " join BatteryOne as t2 ON t0.TimeStamp = t2.TimeStamp" .
+    " join BatteryOne as t4 ON t0.TimeStamp = t4.TimeStamp" .
+    " join BatteryOne as t5 ON t0.TimeStamp = t5.TimeStamp" .
     " join BatteryOne as t3 ON t0.TimeStamp = t3.TimeStamp" .
     " WHERE" .
     " t0.BatNum = 0 AND" .
     " t1.BatNum = 1 AND" .
     " t2.BatNum = 2 AND" .
+    " t4.BatNum = 4 AND" .
+    " t5.BatNum = 5 AND" .
     " t3.BatNum = 3 AND " .$t0timerange;
 
     //  echo ($query);
@@ -198,7 +210,7 @@
     $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
     " FROM BatteryOne" .
     " WHERE BatNum = 0" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
+    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
 
     $resultTBL = $con->query($query);
     $rows = mysqli_fetch_assoc($resultTBL);
@@ -222,7 +234,7 @@
     $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
     " FROM BatteryOne" .
     " WHERE BatNum = 3" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
+    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
 
     $resultTBL = $con->query($query);
     $rows = mysqli_fetch_assoc($resultTBL);
@@ -246,7 +258,7 @@
     $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
     " FROM BatteryOne" .
     " WHERE BatNum = 2" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
+    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
 
     $resultTBL = $con->query($query);
     $rows = mysqli_fetch_assoc($resultTBL);
@@ -270,7 +282,7 @@
     $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
     " FROM BatteryOne" .
     " WHERE BatNum = 1" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
+    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
 
     $resultTBL = $con->query($query);
     $rows = mysqli_fetch_assoc($resultTBL);
@@ -282,6 +294,54 @@
     $Voltage1 = $rows["Voltage"];
     $Temperature1 = $rows["Temperature"];
     $DTm1 = $rows["TimeStamp"];
+    //--------------------------------------------------------------------------------------------------------------
+    $con = new mysqli($servername, $username, $password, $dbname);
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
+    else
+    {
+        // echo ("Connect Successfully\n");
+    }
+    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
+    " FROM BatteryOne" .
+    " WHERE BatNum = 4" .
+    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
+
+    $resultTBL = $con->query($query);
+    $rows = mysqli_fetch_assoc($resultTBL);
+    $SOC4 = $rows["SOCPercent"];
+    $StoredEnergy4 = $rows["StoredEnergy"];
+    $Current4 = $rows["Current"];
+    $DischargeCurrentLimit4 = $rows["DischargeCurrentLimit"];
+    $ChargeCurrentLimit4 = $rows["ChargeCurrentLimit"];
+    $Voltage4 = $rows["Voltage"];
+    $Temperature4 = $rows["Temperature"];
+    $DTm4 = $rows["TimeStamp"];
+    //--------------------------------------------------------------------------------------------------------------
+    $con = new mysqli($servername, $username, $password, $dbname);
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
+    else
+    {
+        // echo ("Connect Successfully\n");
+    }
+    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
+    " FROM BatteryOne" .
+    " WHERE BatNum = 5" .
+    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
+
+    $resultTBL = $con->query($query);
+    $rows = mysqli_fetch_assoc($resultTBL);
+    $SOC5 = $rows["SOCPercent"];
+    $StoredEnergy5 = $rows["StoredEnergy"];
+    $Current5 = $rows["Current"];
+    $DischargeCurrentLimit5 = $rows["DischargeCurrentLimit"];
+    $ChargeCurrentLimit5 = $rows["ChargeCurrentLimit"];
+    $Voltage5 = $rows["Voltage"];
+    $Temperature5 = $rows["Temperature"];
+    $DTm5 = $rows["TimeStamp"];
     //--------------------------------------------------------------------------------------------------------------
   	date_default_timezone_set("Pacific/Auckland");
 	  // $thetimeis = "<h4>The time is " . date("H:i:s") . "</h4>"
@@ -328,7 +388,7 @@ table, th, td {
     <th>Temperature</th>
   </tr>
   <tr>
-    <td>Big</p></td>
+    <td>All</p></td>
     <td><p><?=round($SOC,1)?> %</p></td>
     <td><p><?=round($StoredEnergy,1)?> kWh</p></td>
     <td><p><?=round($Current,1)?> A</p></td>
@@ -370,6 +430,28 @@ table, th, td {
     <td><p><?=round($DischargeCurrentLimit3,1)?> A</p></td>
     <td><p><?=round($Voltage3,1)?> V</p></td>
     <td><p><?=round($Temperature3,1)?> C</p></td>
+  </tr>
+  <tr>
+    <td>4</p></td>
+    <td><p><?=round($SOC4,1)?> %</p></td>
+    <td><p><?=round($StoredEnergy4,1)?> kWh</p></td>
+    <td><p><?=round($Current4,1)?> A</p></td>
+    <td><p><?=round($Voltage2*$Current4/1000,1)?> kW</p></td>
+    <td><p><?=round($ChargeCurrentLimit4,1)?> A</p></td>
+    <td><p><?=round($DischargeCurrentLimit4,1)?> A</p></td>
+    <td><p><?=round($Voltage4,1)?> V</p></td>
+    <td><p><?=round($Temperature4,1)?> C</p></td>
+  </tr>
+  <tr>
+    <td>5</p></td>
+    <td><p><?=round($SOC5,1)?> %</p></td>
+    <td><p><?=round($StoredEnergy5,1)?> kWh</p></td>
+    <td><p><?=round($Current5,1)?> A</p></td>
+    <td><p><?=round($Voltage3*$Current5/1000,1)?> kW</p></td>
+    <td><p><?=round($ChargeCurrentLimit5,1)?> A</p></td>
+    <td><p><?=round($DischargeCurrentLimit5,1)?> A</p></td>
+    <td><p><?=round($Voltage5,1)?> V</p></td>
+    <td><p><?=round($Temperature5,1)?> C</p></td>
   </tr>
 </table>
 </body>
@@ -470,6 +552,8 @@ table, th, td {
         dataC.addColumn('number', 'Current1');
         dataC.addColumn('number', 'Current2');
         dataC.addColumn('number', 'Current3');
+        dataC.addColumn('number', 'Current4');
+        dataC.addColumn('number', 'Current5');
         
         dataC.addRows([
                 <?php
@@ -480,7 +564,7 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["CurrentTotal"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["CurrentTotal"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"].", ".$row["Current4"].", ".$row["Current5"]."]";
                   while($row = mysqli_fetch_assoc($resultC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -488,7 +572,7 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["CurrentTotal"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["CurrentTotal"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"].", ".$row["Current4"].", ".$row["Current5"]."]";
                     }
                 ?>
                ])
@@ -505,6 +589,8 @@ table, th, td {
         dataSOC.addColumn('number', 'SOCPercent1');
         dataSOC.addColumn('number', 'SOCPercent2');
         dataSOC.addColumn('number', 'SOCPercent3');
+        dataSOC.addColumn('number', 'SOCPercent4');
+        dataSOC.addColumn('number', 'SOCPercent5');
         
         dataSOC.addRows([
                 <?php
@@ -515,7 +601,7 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercentBigBat"].", ".$row["SOCPercent1"].", ".$row["SOCPercent2"].", ".$row["SOCPercent3"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercentBigBat"].", ".$row["SOCPercent1"].", ".$row["SOCPercent2"].", ".$row["SOCPercent3"].", ".$row["SOCPercent4"].", ".$row["SOCPercent5"]."]";
                   while($row = mysqli_fetch_assoc($resultSOC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -523,7 +609,7 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercentBigBat"].", ".$row["SOCPercent1"].", ".$row["SOCPercent2"].", ".$row["SOCPercent3"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercentBigBat"].", ".$row["SOCPercent1"].", ".$row["SOCPercent2"].", ".$row["SOCPercent3"].", ".$row["SOCPercent4"].", ".$row["SOCPercent5"]."]";
                     }
                 ?>
                ])
