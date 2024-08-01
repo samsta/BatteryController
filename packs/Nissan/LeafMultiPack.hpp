@@ -92,6 +92,7 @@ private:
 
    bool m_fully_discharged;
    bool m_fully_charged;
+   bool m_display_shutdown_status;
 
    Pack_Status m_multipack_status;
 
