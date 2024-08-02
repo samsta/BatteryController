@@ -156,17 +156,42 @@ void LeafMultiPack::periodicCallback()
 
 void LeafMultiPack::updateFullyChargedDischargedStatus()
 {
+   bool use0to100limites =  false;
+   float batcaplow = 20.0;
+   float batcaphigh = 80.0;
+   float hysteresis = 5.0;
+   
    // check/set fully charged/discharged status with hysteresis
-   if (getSocPercent() > 25.0) {
+   if (getSocPercent() > (batcaplow + hysteresis)) {
+      if (m_fully_discharged) {
+         std::ostringstream ss;
+         ss << "LeafMultiPack: SOC = " << getSocPercent() << "%. Discharging is now possible.";
+         if (m_log) m_log->info(ss);
+      }
       m_fully_discharged = false;
    }
-   else if (getSocPercent() < 20.0) {
+   else if (getSocPercent() < batcaplow) {
+      if (!m_fully_discharged) {
+         std::ostringstream ss;
+         ss << "LeafMultiPack: SOC = " << getSocPercent() << "%. Discharge limit reached. Discharging is disabled.";
+         if (m_log) m_log->info(ss);
+      }
       m_fully_discharged = true;
    }
-   if (getSocPercent() < 75.0) {
+   if (getSocPercent() < (batcaphigh - hysteresis)) {
+      if (m_fully_charged) {
+         std::ostringstream ss;
+         ss << "LeafMultiPack: SOC = " << getSocPercent() << "%. Charging is now possible.";
+         if (m_log) m_log->info(ss);
+      }
       m_fully_charged = false;
    }
-   else if (getSocPercent() > 80.0) {
+   else if (getSocPercent() > batcaphigh) {
+      if (!m_fully_charged) {
+         std::ostringstream ss;
+         ss << "LeafMultiPack: SOC = " << getSocPercent() << "%. Charge limit reached. Charging is disabled.";
+         if (m_log) m_log->info(ss);
+      }
       m_fully_charged = true;
    }
 }
