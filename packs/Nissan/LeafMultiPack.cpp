@@ -120,18 +120,12 @@ void LeafMultiPack::periodicCallback()
 
          updateFullyChargedDischargedStatus();
 
-         // if any pack is not NORMAL, discontinue operation
-         for (uint i=0; i<m_vmonitor.size(); i++)
-         {
-            if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
-            {
-               m_fully_discharged = true;
-               m_multipack_status = Monitor::SHUTDOWN;
-               std::ostringstream ss;
-               ss << "LeafMultiPack: pack " << (i+1) << " has ceased NORMAL operation, status set to SHUTDOWN";
-               if (m_log) m_log->error(ss);
-            }
-         }
+         // for (uint i=0; i<m_vmonitor.size(); i++)
+         // {
+         //    if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
+         //    {
+         //    }
+         // }
          break;
 
       case Monitor::SHUNT_ACTIVIATED:
@@ -157,8 +151,8 @@ void LeafMultiPack::periodicCallback()
 void LeafMultiPack::updateFullyChargedDischargedStatus()
 {
    bool use0to100limites =  false;
-   float batcaplow = 20.0;
-   float batcaphigh = 80.0;
+   float batcaplow = 10.0;
+   float batcaphigh = 90.0;
    float hysteresis = 5.0;
    
    // check/set fully charged/discharged status with hysteresis
