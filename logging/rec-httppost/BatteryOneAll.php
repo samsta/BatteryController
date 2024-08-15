@@ -493,7 +493,7 @@ table, th, td {
                 ?>
                ])
         var optionsAllC = {
-          title: 'Current(A), Power(kW) and Current Limits(A)',
+          title: 'Current(A), Power(kW)',
           legend: { position: 'bottom' }//,
           //vAxis: { viewWindow: { min: 20, max: 60} }
           // vAxis: { ticks: [15,20,25,30,35,40,45,50,55,60,65] }
@@ -614,7 +614,7 @@ table, th, td {
                 ?>
                ])
         var optionsSOC = {
-          title: 'SOC (%) for each Battery and the Big Battery',
+          title: 'SOC (%) for each Battery and the Whole Battery',
           legend: { position: 'bottom' }//,
         };
         var chartSOC = new google.visualization.LineChart(document.getElementById('curve_chartSOC'));
@@ -750,7 +750,7 @@ table, th, td {
                 ?>
                ])
         var optionsSE = {
-          title: 'Stored Energy (kWh)  SOC (%)  Temperature (degC)',
+          title: 'Stored Energy (kWh), SOC (%), Temperature (degC)',
           legend: { position: 'bottom' }//,
 //           backgroundColor: '#000',
 //           legendTextStyle: { color: '#FFF' },
