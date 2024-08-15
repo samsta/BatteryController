@@ -4,7 +4,7 @@
 
 cd /
 cd home/pi/openems
-echo 'sleep 40, then start openems edge'
-sleep 40
-/usr/bin/x-terminal-emulator -e "source '$HOME/.sdkman/bin/sdkman-init.sh' && java -version && java -jar openems-edge-release.jar | tee openems-edge-log.txt"
+echo 'sleep 60, then start openems edge'
+sleep 60
+/usr/bin/x-terminal-emulator -e "source '$HOME/.sdkman/bin/sdkman-init.sh' && java -version && java -jar openems-edge-release.jar | tee -a openems-edge-log.txt"
 
