@@ -1,0 +1,12 @@
+[Unit]
+Description=Start Battery Controller
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=sh /home/pi/Documents/Projects/BatteryController/start_battery_controller.sh
+User=pi
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=default.target

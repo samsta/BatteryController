@@ -1,0 +1,13 @@
+examples
+
+service files in
+/etc/systemd/system
+
+sudo systemctl daemon-reload
+sudo systemctl enable start-battery-controller.service
+sudo systemctl disable start-battery-controller.service
+sudo systemctl start start-battery-controller.service
+sudo systemctl stop start-battery-controller.service
+sudo systemctl status start-battery-controller.service
+
+

@@ -54,34 +54,56 @@ void LeafPack::heartbeatCallback()
          m_startup_counter++;
          if (m_startup_counter >= MAX_PACK_STARTUP_COUNT)
          {
-            m_safety_shunt.setSafeToOperate(false);
-            m_monitor.setPackStatus(monitor::Monitor::SHUNT_ACTIVIATED);
+            m_monitor.setPackStatus(monitor::Monitor::STARTUP_FAILED);
             std::string s2;
             s2.append("LeafPack: ");
             s2.append(m_pack_name);
-            s2.append(": Startup time exceeded: SHUNT ACTIVIATED");
+            s2.append(": Startup time exceeded: state changed to STARTUP_FAILED");
             if (m_log) m_log->alarm(s2, __FILENAME__,__LINE__);
-            if (m_startup_counter >= m_pack_silent_counter)
-            {
-               std::string s3;
-               s3.append("LeafPack: ");
-               s3.append(m_pack_name);
-               s3.append(": Did not receive a complete set of CAN messages during startup.");
-               if (m_log) m_log->alarm(s3, __FILENAME__,__LINE__);
-            }
-            else
-            {
-               std::string s1;
-               s1.append("LeafPack: ");
-               s1.append(m_pack_name);
-               s1.append(":  Alarm Condition(s) Present:");
-               s1.append(m_monitor.getAlarmConditionText());
-               if (m_log) m_log->alarm(s1, __FILENAME__,__LINE__);
-            }
          }
          break;
 
       case monitor::Monitor::NORMAL_OPERATION:
+         // monitor the heartbeat, aka make sure we are receiving CAN messages
+         // from the pack, if it goes dead, trigger the safety shunt
+         m_pack_silent_counter++;
+         if (m_pack_silent_counter >= PACK_SILENT_TIMEOUT_PERIODS && m_safety_shunt.isSafeToOperate())
+         {
+            std::ostringstream ss;
+            ss << "LeafPack: " << m_pack_name << ": No CAN messages received for "
+                  << float(PACK_SILENT_TIMEOUT_PERIODS * PACK_CALLBACK_PERIOD_ms) / 1000.0
+                  << " seconds";
+            if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
+            m_safety_shunt.setSafeToOperate(false);
+            m_monitor.updateOperationalSafety();
+         }
+
+         // check failsafe status, see if battery needs to be power cycled (aka reboot!)
+         // reboot is the only way to reset failsafe status
+         // possible future issue https://github.com/samsta/BatteryController/issues/17
+         m_reboot_wait_count++;
+         if ((m_monitor.getFailsafeStatus() & 0b100)
+               && m_reboot_wait_count > REBOOT_WAIT_PERIODS
+               && m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION)
+         {
+            m_reboot_wait_count = 0;
+            m_reboot_in_process = true;
+            std::ostringstream ss;
+            ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
+            if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
+            m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
+         }
+         else if (m_reboot_in_process && (m_reboot_wait_count > REBOOT_POWERDOWN_PERIODS))
+         {
+            m_reboot_in_process = false;
+            std::ostringstream ss;
+            ss << "LeafPack: " << m_pack_name << ": Reboot complete, cannot reboot again for "
+                  << REBOOT_WAIT_PERIODS * PACK_CALLBACK_PERIOD_ms / 1000 << " seconds";
+            if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
+            m_power_relay.setState(contactor::Nissan::TeensyRelay::DE_ENERGIZED);
+         }
+         break;
+
       case monitor::Monitor::STARTUP_FAILED:
       case monitor::Monitor::SHUNT_ACTIVIATED:
       case monitor::Monitor::SHUNT_ACT_FAILED:
@@ -90,20 +112,7 @@ void LeafPack::heartbeatCallback()
          break;
    }
    
-   // monitor the heartbeat, aka make sure we are receiving CAN messages
-   // from the pack, if it goes dead, trigger the safety shunt
-   m_pack_silent_counter++;
-   if (m_pack_silent_counter >= PACK_SILENT_TIMEOUT_PERIODS && m_safety_shunt.isSafeToOperate())
-   {
-      std::ostringstream ss;
-      ss << "LeafPack: " << m_pack_name << ": No CAN messages received for "
-            << float(PACK_SILENT_TIMEOUT_PERIODS * PACK_CALLBACK_PERIOD_ms) / 1000.0
-            << " seconds";
-      if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
-      m_safety_shunt.setSafeToOperate(false);
-      m_monitor.updateOperationalSafety();
-   }
-   else if (!m_safety_shunt.isSafeToOperate())
+   if (!m_safety_shunt.isSafeToOperate())
    {
       // check the current is zero when the shunt is tripped
       // actually, check that it is a small value as the current measurement is not accurate
@@ -125,31 +134,6 @@ void LeafPack::heartbeatCallback()
       //    // m_safety_shunt.setSafeToOperate(true);
       //    // m_monitor.updateOperationalSafety();
       // }
-   }
-
-   // check failsafe status, see if battery needs to be power cycled (aka reboot!)
-   // reboot is the only way to reset failsafe status
-   // possible future issue https://github.com/samsta/BatteryController/issues/17
-   m_reboot_wait_count++;
-   if ((m_monitor.getFailsafeStatus() & 0b100)
-         && m_reboot_wait_count > REBOOT_WAIT_PERIODS
-         && m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION)
-   {
-      m_reboot_wait_count = 0;
-      m_reboot_in_process = true;
-      std::ostringstream ss;
-      ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
-      if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
-      m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
-   }
-   else if (m_reboot_in_process && (m_reboot_wait_count > REBOOT_POWERDOWN_PERIODS))
-   {
-      m_reboot_in_process = false;
-      std::ostringstream ss;
-      ss << "LeafPack: " << m_pack_name << ": Reboot complete, cannot reboot again for "
-            << REBOOT_WAIT_PERIODS * PACK_CALLBACK_PERIOD_ms / 1000 << " seconds";
-      if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
-      m_power_relay.setState(contactor::Nissan::TeensyRelay::DE_ENERGIZED);
    }
 }
 
