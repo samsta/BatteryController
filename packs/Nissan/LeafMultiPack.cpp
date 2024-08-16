@@ -41,7 +41,8 @@ LeafMultiPack::LeafMultiPack(
       m_multipack_status(monitor::Monitor::STARTUP),
       m_startup_callback_count(0),
       m_fully_charged(true),
-      m_fully_discharged(true)
+      m_fully_discharged(true),
+      m_display_shutdown_status(true)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms, "LeafMultiPackPeriodic");
    if (m_log) m_log->info("LeafMultiPack: status set to STARTUP");
@@ -92,7 +93,7 @@ void LeafMultiPack::periodicCallback()
          ss << "LeafMultiPack: Startup Sequence:" << m_startup_callback_count << "  Packs Started:"
                << (int(m_vmonitor.size()-pack_startup_fail));
          if (m_log) m_log->info(ss);
-         if ((pack_startup_fail == 0) ||(m_startup_callback_count > MAX_STARTUP_COUNT))
+         if ((pack_startup_fail == 0) || (m_startup_callback_count > MAX_STARTUP_COUNT))
          {
             // DO WE WANT A REDUCED OPERATION STATUS if pack_startup_fail !=0 ?
             // check that there are normal packs (that is, not all packs have failed to startup)
@@ -106,33 +107,42 @@ void LeafMultiPack::periodicCallback()
             else
             {
                // no packs started, running is pointless
-               m_multipack_status = Monitor::STARTUP_FAILED;
-               m_main_contactor.setSafeToOperate(false);
-               if (m_log) m_log->info("LeafMultiPack: status set to STARTUP_FAILED");
-
+               m_multipack_status = Monitor::SHUTDOWN;
+               if (m_log) m_log->info("LeafMultiPack: no packs have started, status set to SHUTDOWN");
             }
          }
          }
          break;
 
       case Monitor::NORMAL_OPERATION:
-         // WHAT HAPPENS DURING NORMAL OPERATION?!?!?!?
-         // the inverter is driving the operation by polling for data...
+         // DURING NORMAL OPERATION:
+         // the inverter is driving the operation by polling for data
 
          updateFullyChargedDischargedStatus();
 
-         for (uint i=0; i<m_vmonitor.size(); i++)
-         {
-            if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION)
-            {
-
-            }
-         }
+         // for (uint i=0; i<m_vmonitor.size(); i++)
+         // {
+         //    if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
+         //    {
+         //    }
+         // }
          break;
 
       case Monitor::SHUNT_ACTIVIATED:
       case Monitor::SHUNT_ACT_FAILED:
       case Monitor::SHUTDOWN:
+         // open the contractors
+         if (m_main_contactor.isSafeToOperate()) {
+             m_main_contactor.setSafeToOperate(false);
+         }
+         // display the status once
+         if (m_display_shutdown_status) {
+            m_display_shutdown_status = false;
+               std::ostringstream ss; char text[64];
+               ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status, text);
+               if (m_log) m_log->error(ss);
+         }
+
       default:
          break;
    }
@@ -140,17 +150,42 @@ void LeafMultiPack::periodicCallback()
 
 void LeafMultiPack::updateFullyChargedDischargedStatus()
 {
+   bool use0to100limites =  false;
+   float batcaplow = 5.0;
+   float batcaphigh = 85.0;
+   float hysteresis = 10.0;
+   
    // check/set fully charged/discharged status with hysteresis
-   if (getSocPercent() > 25.0) {
+   if (getSocPercent() > (batcaplow + hysteresis)) {
+      if (m_fully_discharged) {
+         std::ostringstream ss;
+         ss << "LeafMultiPack: SOC = " << getSocPercent() << "%. Discharging is now possible.";
+         if (m_log) m_log->info(ss);
+      }
       m_fully_discharged = false;
    }
-   else if (getSocPercent() < 20.0) {
+   else if (getSocPercent() < batcaplow) {
+      if (!m_fully_discharged) {
+         std::ostringstream ss;
+         ss << "LeafMultiPack: SOC = " << getSocPercent() << "%. Discharge limit reached. Discharging is disabled.";
+         if (m_log) m_log->info(ss);
+      }
       m_fully_discharged = true;
    }
-   if (getSocPercent() < 75.0) {
+   if (getSocPercent() < (batcaphigh - hysteresis)) {
+      if (m_fully_charged) {
+         std::ostringstream ss;
+         ss << "LeafMultiPack: SOC = " << getSocPercent() << "%. Charging is now possible.";
+         if (m_log) m_log->info(ss);
+      }
       m_fully_charged = false;
    }
-   else if (getSocPercent() > 80.0) {
+   else if (getSocPercent() > batcaphigh) {
+      if (!m_fully_charged) {
+         std::ostringstream ss;
+         ss << "LeafMultiPack: SOC = " << getSocPercent() << "%. Charge limit reached. Charging is disabled.";
+         if (m_log) m_log->info(ss);
+      }
       m_fully_charged = true;
    }
 }
@@ -248,6 +283,17 @@ float LeafMultiPack::getChargeCurrentLimit() const
    // if full, no charging allowed
    if (m_fully_charged) return 0.0;
 
+   // check if any of the batteries are reporting 0A charge limit
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         if (m_vmonitor[i]->getChargeCurrentLimit() < 0.01) {
+            // return 0 for the limit
+            return 0.0;
+         }
+      }
+   }
+
    // calculate the total for the packs
    float total = 0;
    for (uint i=0; i<m_vmonitor.size(); i++)
@@ -263,6 +309,17 @@ float LeafMultiPack::getDischargeCurrentLimit() const
 {
    // if empty, no discharging allowed
    if (m_fully_discharged) return 0.0;
+
+   // check if any of the batteries are reporting 0A discharge limit
+   for (uint i=0; i<m_vmonitor.size(); i++)
+   {
+      if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
+         if (m_vmonitor[i]->getDischargeCurrentLimit() < 0.01) {
+            // return 0 for the limit
+            return 0.0;
+         }
+      }
+   }
 
    // calculate the total for the packs
    float total = 0;
