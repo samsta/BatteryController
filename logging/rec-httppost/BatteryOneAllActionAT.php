@@ -63,18 +63,6 @@
     // Anytime
     $timerange = " Timestamp >= '" . $starttext . "' AND Timestamp <= '" . $endtext . "'";
     $t0timerange = " t0.Timestamp >= '" . $starttext . "' AND t0.Timestamp <= '" . $endtext . "'";
-    $time = $_GET['time'];
-
-    // today
-    // if ($time == "td") {
-    //   $timerange = " Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
-    //   $t0timerange = "t0.Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
-    // } 
-    // // yesterday
-    // else if ($time == "yd") {
-    //   $timerange = " TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
-    //   $t0timerange = "t0.TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE), INTERVAL -1 DAY) AND t0.TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
-    // }
 
     //--------------------------------------------------------------------------------------------------------------
     $con = new mysqli($servername, $username, $password, $dbname);
@@ -102,7 +90,8 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, Current, " . 
-    " (Current * Voltage * 0.001) as Power " .
+    " (Current * Voltage * 0.001) as Power, " .
+    " SOCPercent " .
     // " DischargeCurrentLimit, " .
     // " ChargeCurrentLimit " .
     " FROM BatteryOne" .
@@ -254,266 +243,10 @@
     //  echo ($query);
     $resultCV = $con->query($query);
     //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
-    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
-
-    $resultTBL = $con->query($query);
-    $rows = mysqli_fetch_assoc($resultTBL);
-    $SOC = $rows["SOCPercent"];
-    $StoredEnergy = $rows["StoredEnergy"];
-    $Current = $rows["Current"];
-    $DischargeCurrentLimit = $rows["DischargeCurrentLimit"];
-    $ChargeCurrentLimit = $rows["ChargeCurrentLimit"];
-    $Voltage = $rows["Voltage"];
-    $Temperature = $rows["Temperature"];
-    $DTm = $rows["TimeStamp"];
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
-    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 3" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
-
-    $resultTBL = $con->query($query);
-    $rows = mysqli_fetch_assoc($resultTBL);
-    $SOC3 = $rows["SOCPercent"];
-    $StoredEnergy3 = $rows["StoredEnergy"];
-    $Current3 = $rows["Current"];
-    $DischargeCurrentLimit3 = $rows["DischargeCurrentLimit"];
-    $ChargeCurrentLimit3 = $rows["ChargeCurrentLimit"];
-    $Voltage3 = $rows["Voltage"];
-    $Temperature3 = $rows["Temperature"];
-    $DTm3 = $rows["TimeStamp"];
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
-    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 2" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
-
-    $resultTBL = $con->query($query);
-    $rows = mysqli_fetch_assoc($resultTBL);
-    $SOC2 = $rows["SOCPercent"];
-    $StoredEnergy2 = $rows["StoredEnergy"];
-    $Current2 = $rows["Current"];
-    $DischargeCurrentLimit2 = $rows["DischargeCurrentLimit"];
-    $ChargeCurrentLimit2 = $rows["ChargeCurrentLimit"];
-    $Voltage2 = $rows["Voltage"];
-    $Temperature2 = $rows["Temperature"];
-    $DTm2 = $rows["TimeStamp"];
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
-    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 1" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
-
-    $resultTBL = $con->query($query);
-    $rows = mysqli_fetch_assoc($resultTBL);
-    $SOC1 = $rows["SOCPercent"];
-    $StoredEnergy1 = $rows["StoredEnergy"];
-    $Current1 = $rows["Current"];
-    $DischargeCurrentLimit1 = $rows["DischargeCurrentLimit"];
-    $ChargeCurrentLimit1 = $rows["ChargeCurrentLimit"];
-    $Voltage1 = $rows["Voltage"];
-    $Temperature1 = $rows["Temperature"];
-    $DTm1 = $rows["TimeStamp"];
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
-    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 4" .
-    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
-
-    $resultTBL = $con->query($query);
-    $rows = mysqli_fetch_assoc($resultTBL);
-    $SOC4 = $rows["SOCPercent"];
-    $StoredEnergy4 = $rows["StoredEnergy"];
-    $Current4 = $rows["Current"];
-    $DischargeCurrentLimit4 = $rows["DischargeCurrentLimit"];
-    $ChargeCurrentLimit4 = $rows["ChargeCurrentLimit"];
-    $Voltage4 = $rows["Voltage"];
-    $Temperature4 = $rows["Temperature"];
-    $DTm4 = $rows["TimeStamp"];
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
-    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 5" .
-    " AND Timestamp > DATE_ADD( '" . $endtext . "', INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
-
-    $resultTBL = $con->query($query);
-    $rows = mysqli_fetch_assoc($resultTBL);
-    $SOC5 = $rows["SOCPercent"];
-    $StoredEnergy5 = $rows["StoredEnergy"];
-    $Current5 = $rows["Current"];
-    $DischargeCurrentLimit5 = $rows["DischargeCurrentLimit"];
-    $ChargeCurrentLimit5 = $rows["ChargeCurrentLimit"];
-    $Voltage5 = $rows["Voltage"];
-    $Temperature5 = $rows["Temperature"];
-    $DTm5 = $rows["TimeStamp"];
-    //--------------------------------------------------------------------------------------------------------------
-  	date_default_timezone_set("Pacific/Auckland");
-	  // $thetimeis = "<h4>The time is " . date("H:i:s") . "</h4>"
-	  $thetimeis = "Newest Data: " . $DTm;
 
 ?>
 <html>
-<h4><p><?=$thetimeis?></p></h4>
-
-<head>
-<style>
-table, th, td {
-  border: 1px solid black;
-  border-collapse: collapse;
-}
-<meta charset="UTF-8">
-    <title>Battery One</title>
-    <style>
-        table,
-        td,
-        th {
-            border: 1px solid;
-            padding: 20px;
-        }
- 
-        table {
-            text-align: center;
-        }
-    </style>
-</style>
-</head>
-
-<body>
-<table style="width: 70%;">
-  <tr>
-    <th>Bat</th>
-    <th>SOC</th>
-    <th>Energy</th>
-    <th>Current</th>
-    <th>Power</th>
-    <th>Chg.Cur.Lmt</th>
-    <th>DChg.Cur.Lmt</th>
-    <th>Voltage</th>
-    <th>Temperature</th>
-  </tr>
-  <tr>
-    <td>All</p></td>
-    <td><p><?=round($SOC,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy,1)?> kWh</p></td>
-    <td><p><?=round($Current,1)?> A</p></td>
-    <td><p><?=round($Voltage*$Current/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit,1)?> A</p></td>
-    <td><p><?=round($Voltage,1)?> V</p></td>
-    <td><p><?=round($Temperature,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>1</p></td>
-    <td><p><?=round($SOC1,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy1,1)?> kWh</p></td>
-    <td><p><?=round($Current1,1)?> A</p></td>
-    <td><p><?=round($Voltage1*$Current1/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit1,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit1,1)?> A</p></td>
-    <td><p><?=round($Voltage1,1)?> V</p></td>
-    <td><p><?=round($Temperature1,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>2</p></td>
-    <td><p><?=round($SOC2,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy2,1)?> kWh</p></td>
-    <td><p><?=round($Current2,1)?> A</p></td>
-    <td><p><?=round($Voltage2*$Current2/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit2,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit2,1)?> A</p></td>
-    <td><p><?=round($Voltage2,1)?> V</p></td>
-    <td><p><?=round($Temperature2,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>3</p></td>
-    <td><p><?=round($SOC3,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy3,1)?> kWh</p></td>
-    <td><p><?=round($Current3,1)?> A</p></td>
-    <td><p><?=round($Voltage3*$Current3/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit3,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit3,1)?> A</p></td>
-    <td><p><?=round($Voltage3,1)?> V</p></td>
-    <td><p><?=round($Temperature3,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>4</p></td>
-    <td><p><?=round($SOC4,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy4,1)?> kWh</p></td>
-    <td><p><?=round($Current4,1)?> A</p></td>
-    <td><p><?=round($Voltage2*$Current4/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit4,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit4,1)?> A</p></td>
-    <td><p><?=round($Voltage4,1)?> V</p></td>
-    <td><p><?=round($Temperature4,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>5</p></td>
-    <td><p><?=round($SOC5,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy5,1)?> kWh</p></td>
-    <td><p><?=round($Current5,1)?> A</p></td>
-    <td><p><?=round($Voltage3*$Current5/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit5,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit5,1)?> A</p></td>
-    <td><p><?=round($Voltage5,1)?> V</p></td>
-    <td><p><?=round($Temperature5,1)?> C</p></td>
-  </tr>
-</table>
-<form action="BatteryOneAllIndexAT.php">
-	    <input type="Submit" value="RETURN">
-    </form>
-</body>
-<!-------------------------------------------------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------------------------------------->
 <head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
@@ -524,10 +257,9 @@ table, th, td {
          //--------------------------------------------------------------------------------------------------------------
          var dataAllC = new google.visualization.DataTable();
         dataAllC.addColumn('datetime', 'TimeStamp');
-        dataAllC.addColumn('number', 'Current');
-        // dataAllC.addColumn('number', 'ChargeCurrentLimit');
+        // dataAllC.addColumn('number', 'Current');
+        dataAllC.addColumn('number', 'SOCPercent');
         dataAllC.addColumn('number', 'Power');
-        // dataAllC.addColumn('number', 'DischargeCurrentLimit');
 
         dataAllC.addRows([
                 <?php
@@ -538,7 +270,8 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["Power"]."]";
+                  // echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["SOCPercent"].", ".$row["Power"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercent"].", ".$row["Power"]."]";
                   while($row = mysqli_fetch_assoc($resultAllC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -546,24 +279,28 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["Power"]."]";
+                        // echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["SOCPercent"].", ".$row["Power"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercent"].", ".$row["Power"]."]";
                       }
                 ?>
                ])
         var optionsAllC = {
-          title: 'Current(A), Power(kW)',
-          legend: { position: 'bottom' }//,
-          //vAxis: { viewWindow: { min: 20, max: 60} }
-          // vAxis: { ticks: [15,20,25,30,35,40,45,50,55,60,65] }
-//           backgroundColor: '#000',
-//           legendTextStyle: { color: '#FFF' },
-//           titleTextStyle: { color: '#FFF' },
-//           hAxis: {
-// 			textStyle:{color: '#FFF'}
-// 		  },
-// 	      vAxis: {
-// 			textStyle:{color: '#FFF'}
-// 		  }
+          title: 'SOC (%), Power (kW)',
+          legend: { position: 'bottom' },
+          vAxes: {
+            0: {viewWindow: { min: 0, max: 100}, ticks: [0,25,50,75,100] },
+            1: {viewWindow: { min: -20, max: 20}, ticks: [-20,-10,0,10,20] }
+          },
+          series: {
+            0:{targetAxisIndex:0},
+            1:{targetAxisIndex:1}
+          }
+
+
+
+          // vAxis: { viewWindow: { min: -30, max: 30} }//,
+          // vAxis: { ticks: [-15,-10,-5,0,5,10,15] }
+
         };
         var chartAllC = new google.visualization.LineChart(document.getElementById('curve_chartAllC'));
         chartAllC.draw(dataAllC, optionsAllC);
@@ -672,7 +409,7 @@ table, th, td {
                 ?>
                ])
         var optionsSOC = {
-          title: 'SOC (%) for each Battery and the Whole Battery',
+          title: 'SOC (%) for each Battery and the Big Battery',
           legend: { position: 'bottom' }//,
         };
         var chartSOC = new google.visualization.LineChart(document.getElementById('curve_chartSOC'));
@@ -783,7 +520,7 @@ table, th, td {
          var dataSE = new google.visualization.DataTable();
         dataSE.addColumn('datetime', 'TimeStamp');
         dataSE.addColumn('number', 'StoredEnergy');
-        dataSE.addColumn('number', 'SOCPercent');
+        // dataSE.addColumn('number', 'SOCPercent');
         dataSE.addColumn('number', 'Temperature');
 
         dataSE.addRows([
@@ -795,7 +532,8 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
+                  // echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["Temperature"]."]";
                   while($row = mysqli_fetch_assoc($resultSE)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -803,12 +541,13 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
+                        // echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["Temperature"]."]";
                     }
                 ?>
                ])
         var optionsSE = {
-          title: 'Stored Energy (kWh), SOC (%), Temperature (degC)',
+          title: 'Stored Energy (kWh)  SOC (%)  Temperature (degC)',
           legend: { position: 'bottom' }//,
 //           backgroundColor: '#000',
 //           legendTextStyle: { color: '#FFF' },
@@ -862,6 +601,11 @@ table, th, td {
     </script>
   </head>
   <body>
+    <form action="BatteryOneAllIndexAT.php">
+    <input type="Submit" value="RETURN">
+    </form>
+    <br><A HREF="https://jimster.ca/BatteryOne/index.php" >Main Menu</A>
+
     <div id="curve_chartAllC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartSE" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCL" style="width: 1000px; height: 500px"></div>
@@ -871,11 +615,7 @@ table, th, td {
     <div id="curve_chartC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCV" style="width: 1000px; height: 500px"></div>
-    <form action="BatteryOneAllIndexAT.php">
-	    <input type="Submit" value="RETURN">
-    </form>
-    <br><A HREF="https://jimster.ca/BatteryOne/index.php" >Main Menu</A>
-</body>
+  </body>
 </html>
 
 
