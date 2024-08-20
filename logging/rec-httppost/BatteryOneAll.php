@@ -51,7 +51,8 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, Current, " . 
-    " (Current * Voltage * 0.001) as Power " .
+    " (Current * Voltage * 0.001) as Power, " .
+    " SOCPercent " .
     // " DischargeCurrentLimit, " .
     // " ChargeCurrentLimit " .
     " FROM BatteryOne" .
@@ -481,10 +482,9 @@ if ($time != "yd" and $time != "td") {
          //--------------------------------------------------------------------------------------------------------------
          var dataAllC = new google.visualization.DataTable();
         dataAllC.addColumn('datetime', 'TimeStamp');
-        dataAllC.addColumn('number', 'Current');
-        // dataAllC.addColumn('number', 'ChargeCurrentLimit');
+        // dataAllC.addColumn('number', 'Current');
+        dataAllC.addColumn('number', 'SOCPercent');
         dataAllC.addColumn('number', 'Power');
-        // dataAllC.addColumn('number', 'DischargeCurrentLimit');
 
         dataAllC.addRows([
                 <?php
@@ -495,7 +495,8 @@ if ($time != "yd" and $time != "td") {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["Power"]."]";
+                  // echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["SOCPercent"].", ".$row["Power"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercent"].", ".$row["Power"]."]";
                   while($row = mysqli_fetch_assoc($resultAllC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -503,24 +504,28 @@ if ($time != "yd" and $time != "td") {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["Power"]."]";
+                        // echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["SOCPercent"].", ".$row["Power"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercent"].", ".$row["Power"]."]";
                       }
                 ?>
                ])
         var optionsAllC = {
-          title: 'Current(A), Power(kW) and Current Limits(A)',
-          legend: { position: 'bottom' }//,
-          //vAxis: { viewWindow: { min: 20, max: 60} }
-          // vAxis: { ticks: [15,20,25,30,35,40,45,50,55,60,65] }
-//           backgroundColor: '#000',
-//           legendTextStyle: { color: '#FFF' },
-//           titleTextStyle: { color: '#FFF' },
-//           hAxis: {
-// 			textStyle:{color: '#FFF'}
-// 		  },
-// 	      vAxis: {
-// 			textStyle:{color: '#FFF'}
-// 		  }
+          title: 'SOC (%), Power (kW)',
+          legend: { position: 'bottom' },
+          vAxes: {
+            0: {viewWindow: { min: 0, max: 100}, ticks: [0,25,50,75,100] },
+            1: {viewWindow: { min: -20, max: 20}, ticks: [-20,-10,0,10,20] }
+          },
+          series: {
+            0:{targetAxisIndex:0},
+            1:{targetAxisIndex:1}
+          }
+
+
+
+          // vAxis: { viewWindow: { min: -30, max: 30} }//,
+          // vAxis: { ticks: [-15,-10,-5,0,5,10,15] }
+
         };
         var chartAllC = new google.visualization.LineChart(document.getElementById('curve_chartAllC'));
         chartAllC.draw(dataAllC, optionsAllC);
@@ -740,7 +745,7 @@ if ($time != "yd" and $time != "td") {
          var dataSE = new google.visualization.DataTable();
         dataSE.addColumn('datetime', 'TimeStamp');
         dataSE.addColumn('number', 'StoredEnergy');
-        dataSE.addColumn('number', 'SOCPercent');
+        // dataSE.addColumn('number', 'SOCPercent');
         dataSE.addColumn('number', 'Temperature');
 
         dataSE.addRows([
@@ -752,7 +757,8 @@ if ($time != "yd" and $time != "td") {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
+                  // echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["Temperature"]."]";
                   while($row = mysqli_fetch_assoc($resultSE)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -760,7 +766,8 @@ if ($time != "yd" and $time != "td") {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
+                        // echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["Temperature"]."]";
                     }
                 ?>
                ])
