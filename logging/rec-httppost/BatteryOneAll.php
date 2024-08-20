@@ -1,4 +1,8 @@
   <?php
+    // ini_set('display_errors', 1);
+    // ini_set('display_startup_errors', 1);
+    // error_reporting(E_ALL);
+
     include "BatteryOneinsertdataqt.php";
     $servername = "jstulen.netfirmsmysql.com";
     $username = "timluser";
@@ -351,111 +355,122 @@
 <html>
 <h4><p><?=$thetimeis?></p></h4>
 
-<head>
-<style>
-table, th, td {
-  border: 1px solid black;
-  border-collapse: collapse;
-}
-<meta charset="UTF-8">
-    <title>Battery One</title>
-    <style>
-        table,
-        td,
-        th {
-            border: 1px solid;
-            padding: 20px;
-        }
- 
-        table {
-            text-align: center;
-        }
-    </style>
-</style>
-</head>
+<?php
+$time = $_GET['time'];
+if ($time != "yd" and $time != "td") {
+  ?>
 
-<body>
-<table style="width: 70%;">
-  <tr>
-    <th>Bat</th>
-    <th>SOC</th>
-    <th>Energy</th>
-    <th>Current</th>
-    <th>Power</th>
-    <th>Chg.Cur.Lmt</th>
-    <th>DChg.Cur.Lmt</th>
-    <th>Voltage</th>
-    <th>Temperature</th>
-  </tr>
-  <tr>
-    <td>All</p></td>
-    <td><p><?=round($SOC,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy,1)?> kWh</p></td>
-    <td><p><?=round($Current,1)?> A</p></td>
-    <td><p><?=round($Voltage*$Current/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit,1)?> A</p></td>
-    <td><p><?=round($Voltage,1)?> V</p></td>
-    <td><p><?=round($Temperature,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>1</p></td>
-    <td><p><?=round($SOC1,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy1,1)?> kWh</p></td>
-    <td><p><?=round($Current1,1)?> A</p></td>
-    <td><p><?=round($Voltage1*$Current1/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit1,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit1,1)?> A</p></td>
-    <td><p><?=round($Voltage1,1)?> V</p></td>
-    <td><p><?=round($Temperature1,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>2</p></td>
-    <td><p><?=round($SOC2,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy2,1)?> kWh</p></td>
-    <td><p><?=round($Current2,1)?> A</p></td>
-    <td><p><?=round($Voltage2*$Current2/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit2,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit2,1)?> A</p></td>
-    <td><p><?=round($Voltage2,1)?> V</p></td>
-    <td><p><?=round($Temperature2,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>3</p></td>
-    <td><p><?=round($SOC3,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy3,1)?> kWh</p></td>
-    <td><p><?=round($Current3,1)?> A</p></td>
-    <td><p><?=round($Voltage3*$Current3/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit3,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit3,1)?> A</p></td>
-    <td><p><?=round($Voltage3,1)?> V</p></td>
-    <td><p><?=round($Temperature3,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>4</p></td>
-    <td><p><?=round($SOC4,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy4,1)?> kWh</p></td>
-    <td><p><?=round($Current4,1)?> A</p></td>
-    <td><p><?=round($Voltage2*$Current4/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit4,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit4,1)?> A</p></td>
-    <td><p><?=round($Voltage4,1)?> V</p></td>
-    <td><p><?=round($Temperature4,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>5</p></td>
-    <td><p><?=round($SOC5,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy5,1)?> kWh</p></td>
-    <td><p><?=round($Current5,1)?> A</p></td>
-    <td><p><?=round($Voltage3*$Current5/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit5,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit5,1)?> A</p></td>
-    <td><p><?=round($Voltage5,1)?> V</p></td>
-    <td><p><?=round($Temperature5,1)?> C</p></td>
-  </tr>
-</table>
-</body>
-<!-------------------------------------------------------------------------------------------------------------------------->
+
+    <head>
+    <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    <meta charset="UTF-8">
+        <title>Battery One</title>
+        <style>
+            table,
+            td,
+            th {
+                border: 1px solid;
+                padding: 20px;
+            }
+    
+            table {
+                text-align: center;
+            }
+        </style>
+    </style>
+    </head>
+
+    <body>
+    <table style="width: 70%;">
+      <tr>
+        <th>Bat</th>
+        <th>SOC</th>
+        <th>Energy</th>
+        <th>Current</th>
+        <th>Power</th>
+        <th>Chg.Cur.Lmt</th>
+        <th>DChg.Cur.Lmt</th>
+        <th>Voltage</th>
+        <th>Temperature</th>
+      </tr>
+      <tr>
+        <td>All</p></td>
+        <td><p><?=round($SOC,1)?> %</p></td>
+        <td><p><?=round($StoredEnergy,1)?> kWh</p></td>
+        <td><p><?=round($Current,1)?> A</p></td>
+        <td><p><?=round($Voltage*$Current/1000,1)?> kW</p></td>
+        <td><p><?=round($ChargeCurrentLimit,1)?> A</p></td>
+        <td><p><?=round($DischargeCurrentLimit,1)?> A</p></td>
+        <td><p><?=round($Voltage,1)?> V</p></td>
+        <td><p><?=round($Temperature,1)?> C</p></td>
+      </tr>
+      <tr>
+        <td>1</p></td>
+        <td><p><?=round($SOC1,1)?> %</p></td>
+        <td><p><?=round($StoredEnergy1,1)?> kWh</p></td>
+        <td><p><?=round($Current1,1)?> A</p></td>
+        <td><p><?=round($Voltage1*$Current1/1000,1)?> kW</p></td>
+        <td><p><?=round($ChargeCurrentLimit1,1)?> A</p></td>
+        <td><p><?=round($DischargeCurrentLimit1,1)?> A</p></td>
+        <td><p><?=round($Voltage1,1)?> V</p></td>
+        <td><p><?=round($Temperature1,1)?> C</p></td>
+      </tr>
+      <tr>
+        <td>2</p></td>
+        <td><p><?=round($SOC2,1)?> %</p></td>
+        <td><p><?=round($StoredEnergy2,1)?> kWh</p></td>
+        <td><p><?=round($Current2,1)?> A</p></td>
+        <td><p><?=round($Voltage2*$Current2/1000,1)?> kW</p></td>
+        <td><p><?=round($ChargeCurrentLimit2,1)?> A</p></td>
+        <td><p><?=round($DischargeCurrentLimit2,1)?> A</p></td>
+        <td><p><?=round($Voltage2,1)?> V</p></td>
+        <td><p><?=round($Temperature2,1)?> C</p></td>
+      </tr>
+      <tr>
+        <td>3</p></td>
+        <td><p><?=round($SOC3,1)?> %</p></td>
+        <td><p><?=round($StoredEnergy3,1)?> kWh</p></td>
+        <td><p><?=round($Current3,1)?> A</p></td>
+        <td><p><?=round($Voltage3*$Current3/1000,1)?> kW</p></td>
+        <td><p><?=round($ChargeCurrentLimit3,1)?> A</p></td>
+        <td><p><?=round($DischargeCurrentLimit3,1)?> A</p></td>
+        <td><p><?=round($Voltage3,1)?> V</p></td>
+        <td><p><?=round($Temperature3,1)?> C</p></td>
+      </tr>
+      <tr>
+        <td>4</p></td>
+        <td><p><?=round($SOC4,1)?> %</p></td>
+        <td><p><?=round($StoredEnergy4,1)?> kWh</p></td>
+        <td><p><?=round($Current4,1)?> A</p></td>
+        <td><p><?=round($Voltage2*$Current4/1000,1)?> kW</p></td>
+        <td><p><?=round($ChargeCurrentLimit4,1)?> A</p></td>
+        <td><p><?=round($DischargeCurrentLimit4,1)?> A</p></td>
+        <td><p><?=round($Voltage4,1)?> V</p></td>
+        <td><p><?=round($Temperature4,1)?> C</p></td>
+      </tr>
+      <tr>
+        <td>5</p></td>
+        <td><p><?=round($SOC5,1)?> %</p></td>
+        <td><p><?=round($StoredEnergy5,1)?> kWh</p></td>
+        <td><p><?=round($Current5,1)?> A</p></td>
+        <td><p><?=round($Voltage3*$Current5/1000,1)?> kW</p></td>
+        <td><p><?=round($ChargeCurrentLimit5,1)?> A</p></td>
+        <td><p><?=round($DischargeCurrentLimit5,1)?> A</p></td>
+        <td><p><?=round($Voltage5,1)?> V</p></td>
+        <td><p><?=round($Temperature5,1)?> C</p></td>
+      </tr>
+    </table>
+    </body>
+
+<?php
+}
+?>
+<html>
+<!-------------------------------------------------------------------------------------------------------------->
 <head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
