@@ -1,4 +1,8 @@
   <?php
+    // ini_set('display_errors', 1);
+    // ini_set('display_startup_errors', 1);
+    // error_reporting(E_ALL);
+
     include "BatteryOneinsertdataqt.php";
     $servername = "jstulen.netfirmsmysql.com";
     $username = "timluser";
@@ -47,7 +51,8 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, Current, " . 
-    " (Current * Voltage * 0.001) as Power " .
+    " (Current * Voltage * 0.001) as Power, " .
+    " SOCPercent " .
     // " DischargeCurrentLimit, " .
     // " ChargeCurrentLimit " .
     " FROM BatteryOne" .
@@ -351,111 +356,122 @@
 <html>
 <h4><p><?=$thetimeis?></p></h4>
 
-<head>
-<style>
-table, th, td {
-  border: 1px solid black;
-  border-collapse: collapse;
-}
-<meta charset="UTF-8">
-    <title>Battery One</title>
-    <style>
-        table,
-        td,
-        th {
-            border: 1px solid;
-            padding: 20px;
-        }
- 
-        table {
-            text-align: center;
-        }
-    </style>
-</style>
-</head>
+<?php
+$time = $_GET['time'];
+if ($time != "yd" and $time != "td") {
+  ?>
 
-<body>
-<table style="width: 70%;">
-  <tr>
-    <th>Bat</th>
-    <th>SOC</th>
-    <th>Energy</th>
-    <th>Current</th>
-    <th>Power</th>
-    <th>Chg.Cur.Lmt</th>
-    <th>DChg.Cur.Lmt</th>
-    <th>Voltage</th>
-    <th>Temperature</th>
-  </tr>
-  <tr>
-    <td>All</p></td>
-    <td><p><?=round($SOC,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy,1)?> kWh</p></td>
-    <td><p><?=round($Current,1)?> A</p></td>
-    <td><p><?=round($Voltage*$Current/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit,1)?> A</p></td>
-    <td><p><?=round($Voltage,1)?> V</p></td>
-    <td><p><?=round($Temperature,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>1</p></td>
-    <td><p><?=round($SOC1,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy1,1)?> kWh</p></td>
-    <td><p><?=round($Current1,1)?> A</p></td>
-    <td><p><?=round($Voltage1*$Current1/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit1,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit1,1)?> A</p></td>
-    <td><p><?=round($Voltage1,1)?> V</p></td>
-    <td><p><?=round($Temperature1,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>2</p></td>
-    <td><p><?=round($SOC2,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy2,1)?> kWh</p></td>
-    <td><p><?=round($Current2,1)?> A</p></td>
-    <td><p><?=round($Voltage2*$Current2/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit2,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit2,1)?> A</p></td>
-    <td><p><?=round($Voltage2,1)?> V</p></td>
-    <td><p><?=round($Temperature2,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>3</p></td>
-    <td><p><?=round($SOC3,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy3,1)?> kWh</p></td>
-    <td><p><?=round($Current3,1)?> A</p></td>
-    <td><p><?=round($Voltage3*$Current3/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit3,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit3,1)?> A</p></td>
-    <td><p><?=round($Voltage3,1)?> V</p></td>
-    <td><p><?=round($Temperature3,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>4</p></td>
-    <td><p><?=round($SOC4,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy4,1)?> kWh</p></td>
-    <td><p><?=round($Current4,1)?> A</p></td>
-    <td><p><?=round($Voltage2*$Current4/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit4,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit4,1)?> A</p></td>
-    <td><p><?=round($Voltage4,1)?> V</p></td>
-    <td><p><?=round($Temperature4,1)?> C</p></td>
-  </tr>
-  <tr>
-    <td>5</p></td>
-    <td><p><?=round($SOC5,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy5,1)?> kWh</p></td>
-    <td><p><?=round($Current5,1)?> A</p></td>
-    <td><p><?=round($Voltage3*$Current5/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit5,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit5,1)?> A</p></td>
-    <td><p><?=round($Voltage5,1)?> V</p></td>
-    <td><p><?=round($Temperature5,1)?> C</p></td>
-  </tr>
-</table>
-</body>
-<!-------------------------------------------------------------------------------------------------------------------------->
+
+    <head>
+    <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    <meta charset="UTF-8">
+        <title>Battery One</title>
+        <style>
+            table,
+            td,
+            th {
+                border: 1px solid;
+                padding: 20px;
+            }
+    
+            table {
+                text-align: center;
+            }
+        </style>
+    </style>
+    </head>
+
+    <body>
+    <table style="width: 70%;">
+      <tr>
+        <th>Bat</th>
+        <th>SOC</th>
+        <th>Energy</th>
+        <th>Current</th>
+        <th>Power</th>
+        <th>Chg.Cur.Lmt</th>
+        <th>DChg.Cur.Lmt</th>
+        <th>Voltage</th>
+        <th>Temperature</th>
+      </tr>
+      <tr>
+        <td>All</p></td>
+        <td><p><?=round($SOC,1)?> %</p></td>
+        <td><p><?=round($StoredEnergy,1)?> kWh</p></td>
+        <td><p><?=round($Current,1)?> A</p></td>
+        <td><p><?=round($Voltage*$Current/1000,1)?> kW</p></td>
+        <td><p><?=round($ChargeCurrentLimit,1)?> A</p></td>
+        <td><p><?=round($DischargeCurrentLimit,1)?> A</p></td>
+        <td><p><?=round($Voltage,1)?> V</p></td>
+        <td><p><?=round($Temperature,1)?> C</p></td>
+      </tr>
+      <tr>
+        <td>1</p></td>
+        <td><p><?=round($SOC1,1)?> %</p></td>
+        <td><p><?=round($StoredEnergy1,1)?> kWh</p></td>
+        <td><p><?=round($Current1,1)?> A</p></td>
+        <td><p><?=round($Voltage1*$Current1/1000,1)?> kW</p></td>
+        <td><p><?=round($ChargeCurrentLimit1,1)?> A</p></td>
+        <td><p><?=round($DischargeCurrentLimit1,1)?> A</p></td>
+        <td><p><?=round($Voltage1,1)?> V</p></td>
+        <td><p><?=round($Temperature1,1)?> C</p></td>
+      </tr>
+      <tr>
+        <td>2</p></td>
+        <td><p><?=round($SOC2,1)?> %</p></td>
+        <td><p><?=round($StoredEnergy2,1)?> kWh</p></td>
+        <td><p><?=round($Current2,1)?> A</p></td>
+        <td><p><?=round($Voltage2*$Current2/1000,1)?> kW</p></td>
+        <td><p><?=round($ChargeCurrentLimit2,1)?> A</p></td>
+        <td><p><?=round($DischargeCurrentLimit2,1)?> A</p></td>
+        <td><p><?=round($Voltage2,1)?> V</p></td>
+        <td><p><?=round($Temperature2,1)?> C</p></td>
+      </tr>
+      <tr>
+        <td>3</p></td>
+        <td><p><?=round($SOC3,1)?> %</p></td>
+        <td><p><?=round($StoredEnergy3,1)?> kWh</p></td>
+        <td><p><?=round($Current3,1)?> A</p></td>
+        <td><p><?=round($Voltage3*$Current3/1000,1)?> kW</p></td>
+        <td><p><?=round($ChargeCurrentLimit3,1)?> A</p></td>
+        <td><p><?=round($DischargeCurrentLimit3,1)?> A</p></td>
+        <td><p><?=round($Voltage3,1)?> V</p></td>
+        <td><p><?=round($Temperature3,1)?> C</p></td>
+      </tr>
+      <tr>
+        <td>4</p></td>
+        <td><p><?=round($SOC4,1)?> %</p></td>
+        <td><p><?=round($StoredEnergy4,1)?> kWh</p></td>
+        <td><p><?=round($Current4,1)?> A</p></td>
+        <td><p><?=round($Voltage2*$Current4/1000,1)?> kW</p></td>
+        <td><p><?=round($ChargeCurrentLimit4,1)?> A</p></td>
+        <td><p><?=round($DischargeCurrentLimit4,1)?> A</p></td>
+        <td><p><?=round($Voltage4,1)?> V</p></td>
+        <td><p><?=round($Temperature4,1)?> C</p></td>
+      </tr>
+      <tr>
+        <td>5</p></td>
+        <td><p><?=round($SOC5,1)?> %</p></td>
+        <td><p><?=round($StoredEnergy5,1)?> kWh</p></td>
+        <td><p><?=round($Current5,1)?> A</p></td>
+        <td><p><?=round($Voltage3*$Current5/1000,1)?> kW</p></td>
+        <td><p><?=round($ChargeCurrentLimit5,1)?> A</p></td>
+        <td><p><?=round($DischargeCurrentLimit5,1)?> A</p></td>
+        <td><p><?=round($Voltage5,1)?> V</p></td>
+        <td><p><?=round($Temperature5,1)?> C</p></td>
+      </tr>
+    </table>
+    </body>
+
+<?php
+}
+?>
+<html>
+<!-------------------------------------------------------------------------------------------------------------->
 <head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
@@ -466,10 +482,9 @@ table, th, td {
          //--------------------------------------------------------------------------------------------------------------
          var dataAllC = new google.visualization.DataTable();
         dataAllC.addColumn('datetime', 'TimeStamp');
-        dataAllC.addColumn('number', 'Current');
-        // dataAllC.addColumn('number', 'ChargeCurrentLimit');
+        // dataAllC.addColumn('number', 'Current');
+        dataAllC.addColumn('number', 'SOCPercent');
         dataAllC.addColumn('number', 'Power');
-        // dataAllC.addColumn('number', 'DischargeCurrentLimit');
 
         dataAllC.addRows([
                 <?php
@@ -480,7 +495,8 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["Power"]."]";
+                  // echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["SOCPercent"].", ".$row["Power"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercent"].", ".$row["Power"]."]";
                   while($row = mysqli_fetch_assoc($resultAllC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -488,24 +504,28 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["Power"]."]";
+                        // echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["SOCPercent"].", ".$row["Power"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercent"].", ".$row["Power"]."]";
                       }
                 ?>
                ])
         var optionsAllC = {
-          title: 'Current(A), Power(kW)',
-          legend: { position: 'bottom' }//,
-          //vAxis: { viewWindow: { min: 20, max: 60} }
-          // vAxis: { ticks: [15,20,25,30,35,40,45,50,55,60,65] }
-//           backgroundColor: '#000',
-//           legendTextStyle: { color: '#FFF' },
-//           titleTextStyle: { color: '#FFF' },
-//           hAxis: {
-// 			textStyle:{color: '#FFF'}
-// 		  },
-// 	      vAxis: {
-// 			textStyle:{color: '#FFF'}
-// 		  }
+          title: 'SOC (%), Power (kW)',
+          legend: { position: 'bottom' },
+          vAxes: {
+            0: {viewWindow: { min: 0, max: 100}, ticks: [0,25,50,75,100] },
+            1: {viewWindow: { min: -20, max: 20}, ticks: [-20,-10,0,10,20] }
+          },
+          series: {
+            0:{targetAxisIndex:0},
+            1:{targetAxisIndex:1}
+          }
+
+
+
+          // vAxis: { viewWindow: { min: -30, max: 30} }//,
+          // vAxis: { ticks: [-15,-10,-5,0,5,10,15] }
+
         };
         var chartAllC = new google.visualization.LineChart(document.getElementById('curve_chartAllC'));
         chartAllC.draw(dataAllC, optionsAllC);
@@ -614,7 +634,7 @@ table, th, td {
                 ?>
                ])
         var optionsSOC = {
-          title: 'SOC (%) for each Battery and the Whole Battery',
+          title: 'SOC (%) for each Battery and the Big Battery',
           legend: { position: 'bottom' }//,
         };
         var chartSOC = new google.visualization.LineChart(document.getElementById('curve_chartSOC'));
@@ -725,7 +745,7 @@ table, th, td {
          var dataSE = new google.visualization.DataTable();
         dataSE.addColumn('datetime', 'TimeStamp');
         dataSE.addColumn('number', 'StoredEnergy');
-        dataSE.addColumn('number', 'SOCPercent');
+        // dataSE.addColumn('number', 'SOCPercent');
         dataSE.addColumn('number', 'Temperature');
 
         dataSE.addRows([
@@ -737,7 +757,8 @@ table, th, td {
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
+                  // echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["Temperature"]."]";
                   while($row = mysqli_fetch_assoc($resultSE)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -745,12 +766,13 @@ table, th, td {
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
+                        // echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["Temperature"]."]";
                     }
                 ?>
                ])
         var optionsSE = {
-          title: 'Stored Energy (kWh), SOC (%), Temperature (degC)',
+          title: 'Stored Energy (kWh)  SOC (%)  Temperature (degC)',
           legend: { position: 'bottom' }//,
 //           backgroundColor: '#000',
 //           legendTextStyle: { color: '#FFF' },
