@@ -777,7 +777,7 @@ elseif ($time == "td") {
                 ?>
                ])
         var optionsSE = {
-          title: 'Stored Energy (kWh)  SOC (%)  Temperature (degC)',
+          title: 'Stored Energy (kWh), Temperature (degC)',
           legend: { position: 'bottom' }//,
 //           backgroundColor: '#000',
 //           legendTextStyle: { color: '#FFF' },
