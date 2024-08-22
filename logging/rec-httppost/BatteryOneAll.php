@@ -354,14 +354,12 @@
 
 ?>
 <html>
-<h4><p><?=$thetimeis?></p></h4>
 
 <?php
 $time = $_GET['time'];
 if ($time != "yd" and $time != "td") {
   ?>
-
-
+    <h4><p><?=$thetimeis?></p></h4>
     <head>
     <style>
     table, th, td {
@@ -468,6 +466,13 @@ if ($time != "yd" and $time != "td") {
     </body>
 
 <?php
+    echo '<h1 style="font-size:2em">Charts for Last 2 Hours</h1>';
+}
+elseif ($time == "yd") {
+    echo '<h1 style="font-size:2em">Charts for Yesterday</h1>';
+}
+elseif ($time == "td") {
+  echo '<h1 style="font-size:2em">Charts for Today</h1>';
 }
 ?>
 <html>
