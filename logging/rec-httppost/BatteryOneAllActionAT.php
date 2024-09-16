@@ -372,7 +372,7 @@
                 ?>
                ])
         var optionsC = {
-          title: 'Current(A) For Each Battery with Total',
+          title: 'Current(A) for each Pack and Combined Total',
           legend: { position: 'bottom' }//,
         };
         var chartC = new google.visualization.LineChart(document.getElementById('curve_chartC'));
@@ -409,7 +409,7 @@
                 ?>
                ])
         var optionsSOC = {
-          title: 'SOC (%) for each Battery and the Big Battery',
+          title: 'SOC (%) for each Pack and Combined Total',
           legend: { position: 'bottom' }//,
         };
         var chartSOC = new google.visualization.LineChart(document.getElementById('curve_chartSOC'));
