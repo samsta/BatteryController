@@ -152,7 +152,7 @@ elseif ($time == "td") {
                 ?>
                ])
         var optionsPAvg = {
-          title: 'Power All Avg (kW)',
+          title: 'Power All Avg (W)',
           legend: { position: 'bottom' },
 
         };
@@ -189,7 +189,7 @@ elseif ($time == "td") {
                 ?>
                ])
         var optionsP1mm = {
-          title: 'Power L1 (kW)',
+          title: 'Power L1 (W)',
           legend: { position: 'bottom' },
 
         };
@@ -226,7 +226,7 @@ elseif ($time == "td") {
                 ?>
                ])
         var optionsP2mm = {
-          title: 'Power L2 (kW)',
+          title: 'Power L2 (W)',
           legend: { position: 'bottom' },
 
         };
@@ -264,7 +264,7 @@ elseif ($time == "td") {
                 ?>
                ])
         var optionsP3mm = {
-          title: 'Power L3(kW)',
+          title: 'Power L3(W)',
           legend: { position: 'bottom' },
 
         };
