@@ -144,8 +144,11 @@ void SE_PWS2::process(const InverterHeartbeat& command)
    if (m_heartbeat_received)
    {
       m_heartbeat_count++;
+      // the inverter skips 65535, goes from 65534 to 0
+      if (m_heartbeat_count == 65535) m_heartbeat_count = 0;
       if (command.getHeartbeatValue() != m_heartbeat_count)
       {
+
          m_hb_non_consec = true;
          std::ostringstream ss;
          ss << "SE_PWS2 Inverter Heartbeat value non-consecutive (" << (m_heartbeat_count) << ")(" << command.getHeartbeatValue() <<")";
