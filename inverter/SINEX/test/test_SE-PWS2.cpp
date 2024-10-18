@@ -101,8 +101,8 @@ TEST_F(SE_PWS2AtStartupTest, testHbNonConsec)
 
 TEST_F(SE_PWS2AtStartupTest, testHbConsecNearRollover)
 {
+  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#FDFF000000000000")));
   sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#FEFF000000000000")));
-  sbs.sink(InverterHeartbeat(can::StandardDataFrame("98160127#FFFF000000000000")));
   EXPECT_FALSE(sbs.getHbNonConsec());
 }
 
