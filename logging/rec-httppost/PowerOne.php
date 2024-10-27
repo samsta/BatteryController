@@ -10,7 +10,7 @@
     $dbname = "battery_data";  //your database name
     //--------------------------------------------------------------------------------------------------------------
 
-    // 2 hours
+    // 3 hours
     $timerange = " Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
     $t0timerange = " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
     $time = $_GET['time'];
@@ -36,11 +36,26 @@
     }
     $query =" SELECT TimeStamp, " . 
     "PowerL1Avg, PowerL2Avg, PowerL3Avg, InvPowerAvg " .
-
     " FROM PowerOne" .
      " WHERE " . $timerange;
     //  echo ($query);
     $resultPAvg = $con->query($query);
+    //--------------------------------------------------------------------------------------------------------------
+    // $con = new mysqli($servername, $username, $password, $dbname);
+    // if ($con->connect_error) {
+    //     die("Connection failed: " . $con->connect_error);
+    // }
+    // else
+    // {
+    //     // echo ("Connect Successfully\n");
+    // }
+    // $query =" SELECT TimeStamp, " . 
+    //  "PowerL1Avg + PowerL2Avg + PowerL3Avg as PowerCons, " .
+    //  "PowerL1Avg + PowerL2Avg + PowerL3Avg - InvPowerAvg as PowerNet, InvPowerAvg " .
+    //  " FROM PowerOne" .
+    //  " WHERE " . $timerange;
+    // // echo ($query);
+    // $resultPC = $con->query($query);
     //--------------------------------------------------------------------------------------------------------------
     $con = new mysqli($servername, $username, $password, $dbname);
     if ($con->connect_error) {
@@ -54,12 +69,7 @@
     "PowerL1Avg, PowerL1Min, PowerL1Max " .
     " FROM PowerOne" .
      " WHERE " . $timerange;
-
-
-    //  "PowerL1Avg + PowerL2Avg + PowerL3Avg as PowerCons, " .
-    //  "PowerL1Avg + PowerL2Avg + PowerL3Avg - InvPowerAvg as PowerNet " .
     // echo ($query);
-
     $resultP1mm = $con->query($query);
     //--------------------------------------------------------------------------------------------------------------
     $con = new mysqli($servername, $username, $password, $dbname);
@@ -74,9 +84,7 @@
     "PowerL2Avg, PowerL2Min, PowerL2Max " .
     " FROM PowerOne" .
      " WHERE " . $timerange;
-
     // echo ($query);
-
     $resultP2mm = $con->query($query);
     //--------------------------------------------------------------------------------------------------------------
     $con = new mysqli($servername, $username, $password, $dbname);
@@ -158,6 +166,43 @@ elseif ($time == "td") {
         };
         var chartPAvg = new google.visualization.LineChart(document.getElementById('curve_chartPAvg'));
         chartPAvg.draw(dataPAvg, optionsPAvg);
+         //--------------------------------------------------------------------------------------------------------------
+        //  var dataPC = new google.visualization.DataTable();
+        // dataPC.addColumn('datetime', 'TimeStamp');
+        // dataPC.addColumn('number', 'PowerCons');
+        // dataPC.addColumn('number', 'PowerNet');
+        // dataPC.addColumn('number', 'InvPowerAvg');
+
+        // dataPC.addRows([
+        //         <?php
+        //           $row = mysqli_fetch_assoc($resultPC);
+        //           $dt = $row["TimeStamp"];
+        //           $yr = substr($dt,0,4);
+        //           $mo = substr($dt,5,2);
+        //           $day = substr($dt,8,2);
+        //           $hr = substr($dt,11,2);
+        //           $min = substr($dt,14,2);
+        //           echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["PowerCons"].", ".$row["PowerNet"].", ".$row["InvPowerAvg"]."]";
+        //             // echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["PowerL1Avg"].", ".$row["PowerL2Avg"].", ".$row["PowerL3Avg"].", ".$row["PowerCons"].", "
+        //             // .$row["PowerNet"].", ".$row["InvPowerAvg"]."]";
+        //           while($row = mysqli_fetch_assoc($resultPC)){
+        //             $dt = $row["TimeStamp"];
+        //             $yr = substr($dt,0,4);
+        //             $mo = substr($dt,5,2);
+        //             $day = substr($dt,8,2);
+        //             $hr = substr($dt,11,2);
+        //             $min = substr($dt,14,2);
+        //           echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["PowerCons"].", ".$row["PowerNet"].", ".$row["InvPowerAvg"]."]";
+        //           }
+        //         ?>
+        //        ])
+        // var optionsPC = {
+        //   title: 'Power All Avg (W)',
+        //   legend: { position: 'bottom' },
+
+        // };
+        // var chartPC = new google.visualization.LineChart(document.getElementById('curve_chartPC'));
+        // chartPC.draw(dataPC, optionsPC);
          //--------------------------------------------------------------------------------------------------------------
          var dataP1mm = new google.visualization.DataTable();
         dataP1mm.addColumn('datetime', 'TimeStamp');
@@ -278,6 +323,7 @@ elseif ($time == "td") {
   </head>
   <body>
     <div id="curve_chartPAvg" style="width: 1000px; height: 500px"></div>
+    <!-- <div id="curve_chartPC" style="width: 1000px; height: 500px"></div> -->
     <div id="curve_chartP1mm" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartP2mm" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartP3mm" style="width: 1000px; height: 500px"></div>

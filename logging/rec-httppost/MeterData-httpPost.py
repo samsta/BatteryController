@@ -35,9 +35,9 @@ def post_file():
         # Ignore the exception and continue
 
 # Function to sleep until 30 seconds after the top of the minute
-def sleep_until_30s_after_the_minute():
+def sleep_until_10s_after_the_minute():
     now = datetime.now()
-    seconds_to_wait = 60 - now.second + 30  # Calculate wait time
+    seconds_to_wait = 60 - now.second + 10  # Calculate wait time
 
     if seconds_to_wait >= 60:
         seconds_to_wait -= 60  # Adjust if it overflows
@@ -51,5 +51,5 @@ def sleep_until_30s_after_the_minute():
 if __name__ == "__main__":
     post_file()
     while True:
-        sleep_until_30s_after_the_minute()
+        sleep_until_10s_after_the_minute()
         post_file()
