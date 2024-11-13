@@ -1,6 +1,6 @@
 -Title
 All Batteries (summation of all Batteries)
-2 hours
+4 hours
 https://jimster.ca/BatteryOne/BatteryOneAll2h.php
 Today
 https://jimster.ca/BatteryOne/BatteryOneAll.php?time=td
@@ -44,3 +44,12 @@ Battery 4 Yesterday
 https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=4&time=yd
 Battery 5 Yesterday
 https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=5&time=yd
+-Title
+Power Meter Data
+3 hours
+https://jimster.ca/BatteryOne/PowerOne.php
+Today
+https://jimster.ca/BatteryOne/PowerOne.php?time=td
+Yesterday
+https://jimster.ca/BatteryOne/PowerOne.php?time=yd
+
