@@ -125,6 +125,8 @@ private:
 
       // Delayed samples for past inputs/outputs
       float x1, x2, y1, y2;
+
+      int xxx;
    };
    ButterworthLowPass m_charge_LP_filter;
    ButterworthLowPass m_discharge_LP_filter;

@@ -244,8 +244,12 @@ void LeafMonitor::process(const BatteryPowerLimits& battery_power)
    }
    // test for near 0 before filtering, if it's near zero, don't modify (filter) the value
    // because if the LBC has ask for 0 current we want to respond immediately
-   if (m_discharge_current_limit > 0.1) m_discharge_current_limit = m_discharge_LP_filter.process(m_discharge_current_limit);
-   if (m_charge_current_limit > 0.1) m_charge_current_limit = m_charge_LP_filter.process(m_charge_current_limit);
+   // if (m_discharge_current_limit > 0.01) m_discharge_current_limit = m_discharge_LP_filter.process(m_discharge_current_limit);
+   // if (m_charge_current_limit > 0.01) m_charge_current_limit = m_charge_LP_filter.process(m_charge_current_limit);
+
+   // don't allow negative values
+   if (m_discharge_current_limit < 0.0) m_discharge_current_limit = 0.0;
+   if (m_charge_current_limit < 0.0) m_charge_current_limit = 0.0;
 
    // impose max value on the current limits
    if (m_discharge_current_limit > MAX_ALLOWABLE_CURRENT) m_discharge_current_limit = MAX_ALLOWABLE_CURRENT;
@@ -516,11 +520,19 @@ LeafMonitor::ButterworthLowPass::ButterworthLowPass(float sampleRate, float cuto
 
    // Initialize previous input and output values
    x1 = x2 = y1 = y2 = initialValue;
+
+   float xxx=0;
 }
 
 // Process a single sample for real-time data
 float LeafMonitor::ButterworthLowPass::process(float input) {
    float output = a0 * input + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2;
+
+   xxx += 1;
+
+   if (xxx==1) return 11.1;
+   if (xxx==2) return 11.2;
+   if (xxx==3) return 11.3;
 
    // Update delayed samples for next input
    x2 = x1;

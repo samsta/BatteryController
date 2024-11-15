@@ -174,10 +174,10 @@ void USBPort::handle()
                if (m_sinkInbound[port-1] != nullptr) {
                   m_sinkInbound[port-1]->sink(can::StandardDataFrame(canframe));
                }
-               else {
-                  sprintf(cbuf, "%s: Unexpected CAN msg received on Teensy port %d", m_port_name.c_str(), port);
-                  if (m_log) m_log->error(cbuf,__FILENAME__,__LINE__);
-               }
+               // else {
+               //    sprintf(cbuf, "%s: Unexpected CAN msg received on Teensy port %d", m_port_name.c_str(), port);
+               //    if (m_log) m_log->error(cbuf,__FILENAME__,__LINE__);
+               // }
             }
             else
             {
