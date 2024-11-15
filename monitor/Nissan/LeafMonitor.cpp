@@ -85,7 +85,9 @@ LeafMonitor::LeafMonitor(
       m_failsafe_status(7),
       m_bat_state_recv(false),
       m_bat_status_recv(false),
-      m_bat_limits_recv(false)
+      m_bat_limits_recv(false),
+      m_charge_LP_filter(1.0,60.0, MAX_ALLOWABLE_CURRENT),
+      m_discharge_LP_filter(1.0,60.0, MAX_ALLOWABLE_CURRENT)
 {
 }
 
@@ -240,6 +242,10 @@ void LeafMonitor::process(const BatteryPowerLimits& battery_power)
       m_discharge_current_limit = m_discharge_power_limit * 1000.0 / m_voltage;
       m_charge_current_limit = m_charge_power_limit * 1000.0 / m_voltage;
    }
+   // test for near 0 before filtering, if it's near zero, don't modify (filter) the value
+   // because if the LBC has ask for 0 current we want to respond immediately
+   if (m_discharge_current_limit > 0.1) m_discharge_current_limit = m_discharge_LP_filter.process(m_discharge_current_limit);
+   if (m_charge_current_limit > 0.1) m_charge_current_limit = m_charge_LP_filter.process(m_charge_current_limit);
 
    // impose max value on the current limits
    if (m_discharge_current_limit > MAX_ALLOWABLE_CURRENT) m_discharge_current_limit = MAX_ALLOWABLE_CURRENT;
@@ -488,6 +494,41 @@ std::string LeafMonitor::getAlarmConditionText() const
       ss.append("CRITICALLY_HIGH_VOLTAGE\n\t\t\t\t\t");
    }
    return ss;
+}
+
+LeafMonitor::ButterworthLowPass::ButterworthLowPass(float sampleRate, float cutoffFreq, float initialValue) {
+   // Precompute filter coefficients
+   float wc = 2 * M_PI * cutoffFreq;
+   float wc2 = wc * wc;
+   float sqrt2 = std::sqrt(2.0);
+
+   // Calculate normalized cutoff frequency
+   float K = wc / tan(M_PI * cutoffFreq / sampleRate);
+   float K2 = K * K;
+
+   // Calculate coefficients
+   float norm = 1.0 / (K2 + sqrt2 * K + wc2);
+   a0 = wc2 * norm;
+   a1 = 2 * a0;
+   a2 = a0;
+   b1 = 2 * (wc2 - K2) * norm;
+   b2 = (K2 - sqrt2 * K + wc2) * norm;
+
+   // Initialize previous input and output values
+   x1 = x2 = y1 = y2 = initialValue;
+}
+
+// Process a single sample for real-time data
+float LeafMonitor::ButterworthLowPass::process(float input) {
+   float output = a0 * input + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2;
+
+   // Update delayed samples for next input
+   x2 = x1;
+   x1 = input;
+   y2 = y1;
+   y1 = output;
+
+   return output;
 }
 
 }

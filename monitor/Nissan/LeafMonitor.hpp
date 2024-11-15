@@ -113,6 +113,21 @@ private:
 
    uint32_t m_volt_temp_status;
    uint32_t m_failsafe_status;
+
+   class ButterworthLowPass {
+   public:
+      ButterworthLowPass(float sampleRate, float cutoffFreq, float initialValue);
+      float process(float input);
+
+   private:
+      // Filter coefficients
+      float a0, a1, a2, b1, b2;
+
+      // Delayed samples for past inputs/outputs
+      float x1, x2, y1, y2;
+   };
+   ButterworthLowPass m_charge_LP_filter;
+   ButterworthLowPass m_discharge_LP_filter;
 };
 
 }
