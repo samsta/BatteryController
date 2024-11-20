@@ -114,22 +114,20 @@ private:
    uint32_t m_volt_temp_status;
    uint32_t m_failsafe_status;
 
-   class ButterworthLowPass {
+   class CurrentLimitSmoothing {
    public:
-      ButterworthLowPass(float sampleRate, float cutoffFreq, float initialValue);
+      CurrentLimitSmoothing(float init_value);
       float process(float input);
 
    private:
-      // Filter coefficients
-      float a0, a1, a2, b1, b2;
+      float m_max_current;
+      uint16_t m_hist_index;
+      static const uint16_t HIST_SIZE = 10;
+      float m_hist_data[HIST_SIZE];
 
-      // Delayed samples for past inputs/outputs
-      float x1, x2, y1, y2;
-
-      int xxx;
    };
-   ButterworthLowPass m_charge_LP_filter;
-   ButterworthLowPass m_discharge_LP_filter;
+   CurrentLimitSmoothing m_charge_cur_smoothing;
+   CurrentLimitSmoothing m_discharge_cur_smoothing;
 };
 
 }
