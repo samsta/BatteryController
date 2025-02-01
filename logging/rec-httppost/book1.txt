@@ -1,6 +1,6 @@
 -Title
 All Batteries (summation of all Batteries)
-4 hours
+3 hours
 https://jimster.ca/BatteryOne/BatteryOneAll2h.php
 Today
 https://jimster.ca/BatteryOne/BatteryOneAll.php?time=td

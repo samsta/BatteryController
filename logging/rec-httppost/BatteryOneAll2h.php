@@ -11,18 +11,18 @@
     //--------------------------------------------------------------------------------------------------------------
 
     // 2 hours
-    $timerange = " Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -2 HOUR)";
-    $t0timerange = " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00'), INTERVAL -2 HOUR)";
+    $timerange = " Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -3 HOUR)";
+    $t0timerange = " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -3 HOUR)";
     $time = $_GET['time'];
     // today
     if ($time == "td") {
-      $timerange = " Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
-      $t0timerange = "t0.Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
+      $timerange = " Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00') as DATE)";
+      $t0timerange = "t0.Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00') as DATE)";
     } 
     // yesterday
     else if ($time == "yd") {
-      $timerange = " TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
-      $t0timerange = "t0.TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE), INTERVAL -1 DAY) AND t0.TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
+      $timerange = " TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00') as DATE), INTERVAL -1 DAY) AND TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
+      $t0timerange = "t0.TimeStamp > DATE_ADD(CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00') as DATE), INTERVAL -1 DAY) AND t0.TimeStamp < CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+11:00') as DATE)";
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -466,7 +466,7 @@ if ($time != "yd" and $time != "td") {
     </body>
 
 <?php
-    echo '<h1 style="font-size:2em">Charts for Last 2 Hours</h1>';
+    echo '<h1 style="font-size:2em">Charts for Last 3 Hours</h1>';
 }
 elseif ($time == "yd") {
     echo '<h1 style="font-size:2em">Charts for Yesterday</h1>';
