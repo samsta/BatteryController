@@ -104,6 +104,23 @@
 
     $resultP3mm = $con->query($query);
     //--------------------------------------------------------------------------------------------------------------
+    $con = new mysqli($servername, $username, $password, $dbname);
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
+    else
+    {
+        // echo ("Connect Successfully\n");
+    }
+    $query =" SELECT TimeStamp, " . 
+    "InvPowerAvg, InvPowerMin, InvPowerMax " .
+    " FROM PowerOne" .
+     " WHERE " . $timerange;
+
+    // echo ($query);
+
+    $resultInvmm = $con->query($query);
+    //--------------------------------------------------------------------------------------------------------------
 $time = $_GET['time'];
 if ($time != "yd" and $time != "td") {
     echo '<h1 style="font-size:2em">Charts for Last 3 Hours</h1>';
@@ -317,13 +334,51 @@ elseif ($time == "td") {
         chartP3mm.draw(dataP3mm, optionsP3mm);
 
         //--------------------------------------------------------------------------------------------------------------
-  
+        var dataInvmm = new google.visualization.DataTable();
+        dataInvmm.addColumn('datetime', 'TimeStamp');
+        dataInvmm.addColumn('number', 'InvPowerAvg');
+        dataInvmm.addColumn('number', 'InvPowerMin');
+        dataInvmm.addColumn('number', 'InvPowerMax');
+
+        dataInvmm.addRows([
+                <?php
+                  $row = mysqli_fetch_assoc($resultInvmm);
+                  $dt = $row["TimeStamp"];
+                  $yr = substr($dt,0,4);
+                  $mo = substr($dt,5,2);
+                  $day = substr($dt,8,2);
+                  $hr = substr($dt,11,2);
+                  $min = substr($dt,14,2);
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["InvPowerAvg"].", ".$row["InvPowerMin"].", ".$row["InvPowerMax"]."]";
+
+                  while($row = mysqli_fetch_assoc($resultInvmm)){
+                    $dt = $row["TimeStamp"];
+                    $yr = substr($dt,0,4);
+                    $mo = substr($dt,5,2);
+                    $day = substr($dt,8,2);
+                    $hr = substr($dt,11,2);
+                    $min = substr($dt,14,2);
+                    echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["InvPowerAvg"].", ".$row["InvPowerMin"].", ".$row["InvPowerMax"]."]";
+
+                  }
+                ?>
+               ])
+        var optionsInvmm = {
+          title: 'Power Inverter(W)',
+          legend: { position: 'bottom' },
+
+        };
+        var chartInvmm = new google.visualization.LineChart(document.getElementById('curve_chartInvmm'));
+        chartInvmm.draw(dataInvmm, optionsInvmm);
+
+        //--------------------------------------------------------------------------------------------------------------
+
       }
     </script>
   </head>
   <body>
     <div id="curve_chartPAvg" style="width: 1000px; height: 500px"></div>
-    <!-- <div id="curve_chartPC" style="width: 1000px; height: 500px"></div> -->
+    <div id="curve_chartInvmm" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartP1mm" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartP2mm" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartP3mm" style="width: 1000px; height: 500px"></div>
