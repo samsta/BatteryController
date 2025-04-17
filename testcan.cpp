@@ -89,7 +89,7 @@ int main(int argc, const char** argv)
    logger.info(smsg);
 
    core::USBPort usb_port1(argv[3], epollfd, &logger);
-   core::USBPort usb_port2(argv[4], epollfd, &logger);
+   // core::USBPort usb_port2(argv[4], epollfd, &logger);
 
    // core::CanPort inverter_port(argv[2], epollfd, &logger);
 
@@ -115,51 +115,51 @@ int main(int argc, const char** argv)
         &logger);
    vbatterymon.push_back( &battery_pack_1.getMonitor());
 
-   char BP2[] = "BP2";
-   packs::Nissan::LeafPack battery_pack_2( BP2,
-        usb_port1.getSinkOutbound(1),
-        timer,
-        &logger);
-   vbatterymon.push_back( &battery_pack_2.getMonitor());
+   // char BP2[] = "BP2";
+   // packs::Nissan::LeafPack battery_pack_2( BP2,
+   //      usb_port1.getSinkOutbound(1),
+   //      timer,
+   //      &logger);
+   // vbatterymon.push_back( &battery_pack_2.getMonitor());
 
-   char BP3[] = "BP3";
-   packs::Nissan::LeafPack battery_pack_3( BP3,
-        usb_port1.getSinkOutbound(2),
-        timer,
-        &logger);
-   vbatterymon.push_back( &battery_pack_3.getMonitor());
+   // char BP3[] = "BP3";
+   // packs::Nissan::LeafPack battery_pack_3( BP3,
+   //      usb_port1.getSinkOutbound(2),
+   //      timer,
+   //      &logger);
+   // vbatterymon.push_back( &battery_pack_3.getMonitor());
 
-   char BP4[] = "BP4";
-   packs::Nissan::LeafPack battery_pack_4( BP4,
-        usb_port2.getSinkOutbound(0),
-        timer,
-        &logger);
-   vbatterymon.push_back( &battery_pack_4.getMonitor());
+   // char BP4[] = "BP4";
+   // packs::Nissan::LeafPack battery_pack_4( BP4,
+   //      usb_port2.getSinkOutbound(0),
+   //      timer,
+   //      &logger);
+   // vbatterymon.push_back( &battery_pack_4.getMonitor());
 
-   char BP5[] = "BP5";
-   packs::Nissan::LeafPack battery_pack_5( BP5,
-        usb_port2.getSinkOutbound(1),
-        timer,
-        &logger);
-   vbatterymon.push_back( &battery_pack_5.getMonitor());
+   // char BP5[] = "BP5";
+   // packs::Nissan::LeafPack battery_pack_5( BP5,
+   //      usb_port2.getSinkOutbound(1),
+   //      timer,
+   //      &logger);
+   // vbatterymon.push_back( &battery_pack_5.getMonitor());
 
    std::vector<contactor::Contactor*> vbatterycon = {
             &battery_pack_1.getContactor()
-            ,
-            &battery_pack_2.getContactor()
-            ,
-            &battery_pack_3.getContactor()
-            ,
-            &battery_pack_4.getContactor()
-            ,
-            &battery_pack_5.getContactor()
+            // ,
+            // &battery_pack_2.getContactor()
+            // ,
+            // &battery_pack_3.getContactor()
+            // ,
+            // &battery_pack_4.getContactor()
+            // ,
+            // &battery_pack_5.getContactor()
             };
 
    usb_port1.setSinkInbound(0, battery_pack_1.getPackName(), battery_pack_1);
-   usb_port1.setSinkInbound(1, battery_pack_2.getPackName(), battery_pack_2);
-   usb_port1.setSinkInbound(2, battery_pack_3.getPackName(), battery_pack_3);
-   usb_port2.setSinkInbound(0, battery_pack_4.getPackName(), battery_pack_4);
-   usb_port2.setSinkInbound(1, battery_pack_5.getPackName(), battery_pack_5);
+   // usb_port1.setSinkInbound(1, battery_pack_2.getPackName(), battery_pack_2);
+   // usb_port1.setSinkInbound(2, battery_pack_3.getPackName(), battery_pack_3);
+   // usb_port2.setSinkInbound(0, battery_pack_4.getPackName(), battery_pack_4);
+   // usb_port2.setSinkInbound(1, battery_pack_5.getPackName(), battery_pack_5);
 
    packs::Nissan::LeafMultiPack multi_pack(
                      vbatterymon,
@@ -177,7 +177,8 @@ int main(int argc, const char** argv)
    // inverter::TSUN::TSOL_H50K inverter(
    inverter::SINEX::SE_PWS2 inverter(
          // inverter_port,
-         usb_port2.getSinkOutbound(2),
+         usb_port1.getSinkOutbound(1),
+         // usb_port2.getSinkOutbound(2),
          timer,
          multi_pack,
          multi_pack.getMainContactor(),
@@ -186,7 +187,8 @@ int main(int argc, const char** argv)
    can::services::SINEX::MessageFactory inverter_message_factory(inverter, &logger);
 
    char inverter_name[] = "Inverter";
-   usb_port2.setSinkInbound(2, inverter_name, inverter_message_factory);
+   usb_port1.setSinkInbound(1, inverter_name, inverter_message_factory);
+   // usb_port2.setSinkInbound(2, inverter_name, inverter_message_factory);
    // inverter_port.setSink(inverter_message_factory);
 
    logger.setMonitor(vbatterymon);
