@@ -143,26 +143,24 @@ void USBPort::handle()
       else
       {
          // this better be a hex encoded CAN message
-         // find #, ID is 8 chars before it
+         // find # (hash)
          findhash = sbuf.find_first_of('#');
-         if (findhash == 8 && m_unprocessedSize >= STD_MSG_SIZE)
+         if (findhash == HASH_OFFSET && m_unprocessedSize >= STD_MSG_SIZE)
          {
             // msg format 0P000xxx P=port xxx=msg id
+            // msg format 0Pxxxxxxxx#yyyyyyyyyyyyyyyy P=port xxxxxxxx=can id (8 bytes) hex y..=can msg hex (8 bytes)
             // get the can port number from the long id
-            port = HextoDec( &m_inBufferUnprocessed[findhash - 7], 1);
-            canid = HextoDec( &m_inBufferUnprocessed[findhash - 3], 3);
+            port = HextoDec( &m_inBufferUnprocessed[PORT_OFFSET], 1);
+            canid = HextoDec( &m_inBufferUnprocessed[CAN_OFFSET], CAN_LEN);
 
-            if (port > 0 && port <= NUM_PACKS && canid > 0  && canid <= 0x7FF)
+            if (port > 0 && port <= NUM_PACKS && canid > 0  && canid <= 0x1FFFFFFF)
             {
                // construct CAN message from received data
                frame.can_id = canid;
-               //canmsg.seq = 1;
-               frame.can_dlc = 8;
-               int z = frame.can_dlc;
-               z++;
-               for (uint8_t i=0 ; i < 8; i++ )
+               frame.can_dlc = DATA_LEN;
+               for (uint8_t i=0 ; i < DATA_LEN; i++ )
                {
-                  frame.data[i] = HextoDec( &m_inBufferUnprocessed[i*2 + 9], 2);
+                  frame.data[i] = HextoDec( &m_inBufferUnprocessed[i*2 + DATA_OFFSET], 2);
                }
 
                can::StandardDataFrame canframe(frame.can_id, frame.data, frame.can_dlc);
@@ -194,7 +192,7 @@ void USBPort::handle()
             newhead = STD_MSG_SIZE;
             m_unprocessedSize = m_unprocessedSize - newhead;
          }
-         else if (findhash != 8)
+         else if (findhash != HASH_OFFSET)
          {
             // error, discard data
             // display bad msg 
@@ -250,26 +248,26 @@ void USBPort::Pack::sink(const can::DataFrame& f)
       if (m_log) m_log->debug(ss);
   }
    char msg[100];
-   uint8_t uint8msg[26];
+   uint8_t uint8msg[STDmsgsize + 1]; // +1 for CR at the end
 
    // destination port
-   sprintf(&msg[0],"%02x00", m_index+1);
+   sprintf(&msg[PORToffset],"%02x", m_index+1);
 
    // canid
-   sprintf(&msg[4],"0%3x#", f.id());
+   sprintf(&msg[CANoffset],"0%8x#", f.id());
 
    // 16 hex bytes for can data (8 bytes)
    for (int i=0; i<(int)f.size(); i++ )
    {
-      sprintf(&msg[9+(i*2)], "%02x", f.data()[i]);
+      sprintf(&msg[DATAoffset+(i*2)], "%02x", f.data()[i]);
    }
-   // there are 25 characters in the message 8+1+16
-   for (int i=0; i<25; i++)
+   // there are 27 characters in the message 2+8+1+16
+   for (int i=0; i<STDmsgsize; i++)
    {
       uint8msg[i] = (uint8_t) msg[i];
    }
    // put a CR at the end of the message
-   uint8msg[25] = 0xd;
+   uint8msg[STDmsgsize] = 0xd;
 
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));
    if (x<0)

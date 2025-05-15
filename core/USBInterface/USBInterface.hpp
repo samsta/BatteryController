@@ -28,7 +28,13 @@ private:
 
    uint8_t m_inBufferUnprocessed[64];
    uint m_unprocessedSize;
-   const uint STD_MSG_SIZE = 25;
+   const uint PORT_OFFSET = 1;
+   const uint CAN_OFFSET = 2;
+   const uint HASH_OFFSET = 10;
+   const uint DATA_OFFSET = 11;
+   const uint CAN_LEN = 8;
+   const uint DATA_LEN = 8;
+   const uint STD_MSG_SIZE = 27;
 
    int             m_epoll_fd;
    int             m_fd;
@@ -41,6 +47,10 @@ private:
       Pack(int fd, unsigned index, const char* usbport_name, logging::Logger* m_log);
       void setPackName(const char* pack_name);
    private:
+      const uint PORToffset = 0;
+      const uint CANoffset = 2;
+      const uint DATAoffset = 11;
+      const uint STDmsgsize = 27;
       int m_fd;
       const char* m_pack_name;
       const char* m_usbport_name;
