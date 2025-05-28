@@ -21,13 +21,19 @@ def post_file():
         data = file.read()
 
     try:
-        response = requests.post(url, data=data)
+        headers = {
+            "Accept": "*/*",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+        response = requests.post(url, data=data, headers=headers)
         if response.status_code == 200:
             print(f"File successfully posted at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             os.remove(file_path)  # Delete the file after successful upload
             print(f"File '{file_path}' successfully deleted.")
         else:
             print(f"Failed to post the file. Status Code: {response.status_code}")
+            print("Headers:", response.headers)
+            print("Text:", response.text)
             # Ignore the failure and continue
 
     except requests.exceptions.RequestException as e:
