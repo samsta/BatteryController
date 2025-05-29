@@ -284,11 +284,19 @@ void Logger::httpPOSTstr(std::string str)
       /* specify target */
       curl_easy_setopt(curl, CURLOPT_URL, httpPostURL.c_str());
 
+      /* set content-type header explicitly to text/plain */
+      struct curl_slist *headers = NULL;
+      headers = curl_slist_append(headers, "Content-Type: text/plain");
+      curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
       /* Now run off and do what you have been told! */
       res = curl_easy_perform(curl);
 
       /* always cleanup */
       curl_easy_cleanup(curl);
+
+      /* free custom headers */
+      curl_slist_free_all(headers);
    }
    curl_global_cleanup();
 
