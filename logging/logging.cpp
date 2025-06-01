@@ -261,6 +261,13 @@ void Logger::updateDataLog()
    }
 }
 
+// Callback to collect the response body for curl call
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
+    size_t totalSize = size * nmemb;
+    output->append((char*)contents, totalSize);
+    return totalSize;
+}
+
 void Logger::httpPOSTstr(std::string str)
 {
    // TODO ***********************CHANGE LOGGER CONTRUCTION BACK  SO THAT THE MUTEX WORKS ON RPI
@@ -277,36 +284,54 @@ void Logger::httpPOSTstr(std::string str)
 
    /* get a curl handle */
    curl = curl_easy_init();
-   if(curl) {
-      /* enable http post */
-      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, str.c_str());
-
-      /* specify target */
-      curl_easy_setopt(curl, CURLOPT_URL, httpPostURL.c_str());
-
-      /* set content-type header explicitly to text/plain */
-      struct curl_slist *headers = NULL;
-      headers = curl_slist_append(headers, "Content-Type: text/plain");
-      curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-      /* Now run off and do what you have been told! */
-      res = curl_easy_perform(curl);
-
-      /* always cleanup */
-      curl_easy_cleanup(curl);
-
-      /* free custom headers */
-      curl_slist_free_all(headers);
-   }
-   curl_global_cleanup();
-
-   /* Check for errors */
-   if(res != CURLE_OK)
-   {
-      sprintf(msgbuf, "curl_easy_perform() failed: %s.  Most likey due to loss of internet connection.", curl_easy_strerror(res));
+   if (!curl) {
+      snprintf(msgbuf, sizeof(msgbuf), "Failed to initialize CURL.");
       error(msgbuf, __FILENAME__, __LINE__);
       return;
    }
+
+   // Set options
+   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, str.c_str());
+   curl_easy_setopt(curl, CURLOPT_URL, httpPostURL.c_str());
+
+   struct curl_slist* headers = nullptr;
+   std::string responseString;
+   headers = curl_slist_append(headers, "Content-Type: text/plain");
+   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+   curl_easy_setopt(curl, CURLOPT_USERAGENT, "MyClient/1.0");
+
+   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseString);
+
+   // Perform the request
+   res = curl_easy_perform(curl);
+   if (res != CURLE_OK) {
+      snprintf(msgbuf, sizeof(msgbuf), "curl_easy_perform() failed: %s. Most likely due to loss of internet connection.", curl_easy_strerror(res));
+      error(msgbuf, __FILENAME__, __LINE__);
+      curl_easy_cleanup(curl);
+      if (headers) curl_slist_free_all(headers);
+      curl_global_cleanup();
+      return;
+   }
+
+   // Check HTTP response code
+   long http_code = 0;
+   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+   if (http_code != 200) {
+      snprintf(msgbuf, sizeof(msgbuf),"HTTP POST failed with status code %ld. Server response: %s", http_code, responseString.c_str());
+      error(msgbuf, __FILENAME__, __LINE__);
+
+      curl_easy_cleanup(curl);
+      if (headers) curl_slist_free_all(headers);
+      curl_global_cleanup();
+      return;
+   }
+
+   // Final cleanup
+   curl_easy_cleanup(curl);
+   if (headers) curl_slist_free_all(headers);
+   curl_global_cleanup();
 
    // delete data file
    int result = remove(dataFileName.c_str());
