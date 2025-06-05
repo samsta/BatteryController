@@ -265,11 +265,14 @@ void USBPort::Pack::sink(const can::DataFrame& f)
 
    if (m_log)
    {
-         std::ostringstream ss,tt;
+         std::ostringstream ss;
          ss << "<USB OUT:" << m_usbport_name << " " << m_pack_name << " CAN port:" << (m_index+1) << "> " << f;
          if (m_log) m_log->debug(ss);
-         tt << uint8msg;
-         if (m_log) m_log->debug(tt);
+         std::ostringstream oss;
+         for (size_t i = 0; i < STDmsgsize + 1; i++) {
+            oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(uint8msg[i]) << " ";
+         }
+         if (m_log) m_log->debug(oss);
    }
 
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));
