@@ -248,7 +248,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    sprintf(&msg[PORToffset],"%02x", m_index+1);
 
    // canid
-   sprintf(&msg[CANoffset],"0%8x#", f.id());
+   sprintf(&msg[CANoffset],"%08x#", f.id());
 
    // 16 hex bytes for can data (8 bytes)
    for (int i=0; i<(int)f.size(); i++ )
@@ -268,11 +268,15 @@ void USBPort::Pack::sink(const can::DataFrame& f)
          std::ostringstream ss;
          ss << "<USB OUT:" << m_usbport_name << " " << m_pack_name << " CAN port:" << (m_index+1) << "> " << f;
          if (m_log) m_log->debug(ss);
+         std::ostringstream xx;
+         xx << "<USB OUT:hex:";
+         for (size_t i = 0; i < sizeof(uint8msg); i++) {
+            xx << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(uint8msg[i]) << " ";
+         }
+         if (m_log) m_log->debug(xx);
          std::ostringstream oss;
-         // for (size_t i = 0; i < STDmsgsize + 1; i++) {
-         //    oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(uint8msg[i]) << " ";
-         // }
-         for (size_t i = 0; i < STDmsgsize; ++i) {
+         oss << "<USB OUT:ascii:";
+         for (size_t i = 0; i < (sizeof(uint8msg)-1); ++i) {
             if (std::isprint(uint8msg[i])) {
                oss << static_cast<char>(uint8msg[i]);
             } else {
