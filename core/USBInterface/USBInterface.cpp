@@ -241,12 +241,6 @@ void USBPort::Pack::setPackName(const char* pack_name)
 }
 void USBPort::Pack::sink(const can::DataFrame& f)
 {
-  if (m_log)
-  {
-      std::ostringstream ss;
-      ss << "<USB OUT:" << m_usbport_name << " " << m_pack_name << " CAN port:" << (m_index+1) << "> " << f;
-      if (m_log) m_log->debug(ss);
-  }
    char msg[100];
    uint8_t uint8msg[STDmsgsize + 1]; // +1 for CR at the end
 
@@ -268,6 +262,15 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    }
    // put a CR at the end of the message
    uint8msg[STDmsgsize] = 0xd;
+
+   if (m_log)
+   {
+         std::ostringstream ss,tt;
+         ss << "<USB OUT:" << m_usbport_name << " " << m_pack_name << " CAN port:" << (m_index+1) << "> " << f;
+         if (m_log) m_log->debug(ss);
+         tt << uint8msg;
+         if (m_log) m_log->debug(tt);
+   }
 
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));
    if (x<0)
