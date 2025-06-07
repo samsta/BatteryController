@@ -164,10 +164,11 @@ void USBPort::handle()
                }
 
                can::StandardDataFrame canframe(frame.can_id, frame.data, frame.can_dlc);
-               std::ostringstream ss;
-               ss << "<USB IN:" << m_port_name << " CAN port:" << port << "> " << canframe;
-               if (m_log) m_log->debug(ss);
-
+               if (m_log && m_log->isdebug()) {
+                  std::ostringstream ss;
+                  ss << "<USB IN:" << m_port_name << " CAN port:" << port << "> " << canframe;
+                  m_log->debug(ss);
+               }
                // use the port number to know where to send it
                if (m_sinkInbound[port-1] != nullptr) {
                   m_sinkInbound[port-1]->sink(can::StandardDataFrame(canframe));
@@ -265,25 +266,25 @@ void USBPort::Pack::sink(const can::DataFrame& f)
 
    if (m_log && m_log->isdebug())
    {
-         std::ostringstream ss;
-         ss << "<USB OUT:" << m_usbport_name << " " << m_pack_name << " CAN port:" << (m_index+1) << "> " << f;
-         m_log->debug(ss);
-         std::ostringstream xx;
-         xx << "<USB OUT:hex:";
-         for (size_t i = 0; i < sizeof(uint8msg); i++) {
-            xx << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(uint8msg[i]) << " ";
+      std::ostringstream ss;
+      ss << "<USB OUT:" << m_usbport_name << " " << m_pack_name << " CAN port:" << (m_index+1) << "> " << f;
+      m_log->debug(ss);
+      std::ostringstream xx;
+      xx << "<USB OUT:hex:";
+      for (size_t i = 0; i < sizeof(uint8msg); i++) {
+         xx << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(uint8msg[i]) << " ";
+      }
+      m_log->debug(xx);
+      std::ostringstream oss;
+      oss << "<USB OUT:ascii:";
+      for (size_t i = 0; i < (sizeof(uint8msg)-1); ++i) {
+         if (std::isprint(uint8msg[i])) {
+            oss << static_cast<char>(uint8msg[i]);
+         } else {
+            oss << '.';  // or skip it, or represent as something else
          }
-         m_log->debug(xx);
-         std::ostringstream oss;
-         oss << "<USB OUT:ascii:";
-         for (size_t i = 0; i < (sizeof(uint8msg)-1); ++i) {
-            if (std::isprint(uint8msg[i])) {
-               oss << static_cast<char>(uint8msg[i]);
-            } else {
-               oss << '.';  // or skip it, or represent as something else
-            }
-         }
-         m_log->debug(oss);
+      }
+      m_log->debug(oss);
    }
 
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));

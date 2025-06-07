@@ -106,9 +106,11 @@ void EpollTimer::registerPeriodicCallback(core::Invokable* invokable, unsigned p
       m_timers[invokable] = new TimerEpollEntry(m_epoll_fd, invokable, timer_name, m_log);
    }
    m_timers[invokable]->setTimer(period_ms, TimerEpollEntry::PERIODIC);
-   std::ostringstream ss;
-   ss << "Periodic Timer created: " << timer_name << " " << period_ms << "ms";
-   if (m_log) m_log->debug(ss);
+   if (m_log && m_log->isdebug()) {
+      std::ostringstream ss;
+      ss << "Periodic Timer created: " << timer_name << " " << period_ms << "ms";
+      m_log->debug(ss);
+   }
 }
 
 void EpollTimer::schedule(core::Invokable* invokable, unsigned delay_ms, const char* timer_name)
@@ -118,9 +120,11 @@ void EpollTimer::schedule(core::Invokable* invokable, unsigned delay_ms, const c
       m_timers[invokable] = new TimerEpollEntry(m_epoll_fd, invokable, timer_name, m_log);
    }
    m_timers[invokable]->setTimer(delay_ms, TimerEpollEntry::ONE_SHOT);
-   std::ostringstream ss;
-   ss << "Scheduled Timer created: " << timer_name << " " << delay_ms << "ms";
-   if (m_log) m_log->debug(ss);
+   if (m_log && m_log->isdebug()) {
+      std::ostringstream ss;
+      ss << "Scheduled Timer created: " << timer_name << " " << delay_ms << "ms";
+      m_log->debug(ss);
+   }
 }
 
 void EpollTimer::setLogger(logging::Logger* log)

@@ -43,8 +43,10 @@ void MessageFactory::sink(const can::DataFrame& f)
 
    if (msg == nullptr) return; // TODO should this be an error?
 
-   ss << "<INV IN>  " << *msg;
-   if (m_log) m_log->debug(ss);
+   if (m_log && m_log->isdebug()) {
+      ss << "<INV IN>  " << *msg;
+      m_log->debug(ss);
+   }
    m_sink.sink(*msg);
 
 }

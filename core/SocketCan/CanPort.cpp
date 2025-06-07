@@ -119,8 +119,7 @@ void CanPort::handle()
 void CanPort::sink(const can::DataFrame& f)
 {
    std::ostringstream ss;
-   if (m_log)
-   {
+   if (m_log && m_log->isdebug()) {
       ss << "<CAN OUT:" << m_name << "> " << f;
       m_log->debug(ss);
    }
