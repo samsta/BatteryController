@@ -642,6 +642,13 @@ void Logger::trace(std::ostringstream& stream) throw()
 }
 
 // Interface for Debug Log
+
+bool Logger::isdebug()
+{
+   if (m_LogLevel == LOG_LEVEL_DEBUG) return true;
+   return false;
+}
+
 void Logger::debug(const char* text) throw()
 {
    string data;

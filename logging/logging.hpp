@@ -127,6 +127,7 @@ namespace logging
          void trace(std::ostringstream& stream) throw();
 
          // Interface for Debug log
+         bool isdebug();
          void debug(const char* text) throw();
          void debug(std::string& text) throw();
          void debug(std::ostringstream& stream) throw();

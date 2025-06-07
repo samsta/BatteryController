@@ -263,17 +263,17 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    // put a CR at the end of the message
    uint8msg[STDmsgsize] = 0xd;
 
-   if (m_log)
+   if (m_log && m_log->isdebug())
    {
          std::ostringstream ss;
          ss << "<USB OUT:" << m_usbport_name << " " << m_pack_name << " CAN port:" << (m_index+1) << "> " << f;
-         if (m_log) m_log->debug(ss);
+         m_log->debug(ss);
          std::ostringstream xx;
          xx << "<USB OUT:hex:";
          for (size_t i = 0; i < sizeof(uint8msg); i++) {
             xx << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(uint8msg[i]) << " ";
          }
-         if (m_log) m_log->debug(xx);
+         m_log->debug(xx);
          std::ostringstream oss;
          oss << "<USB OUT:ascii:";
          for (size_t i = 0; i < (sizeof(uint8msg)-1); ++i) {
@@ -283,7 +283,7 @@ void USBPort::Pack::sink(const can::DataFrame& f)
                oss << '.';  // or skip it, or represent as something else
             }
          }
-         if (m_log) m_log->debug(oss);
+         m_log->debug(oss);
    }
 
    int x =  write(m_fd, uint8msg, sizeof(uint8msg));
