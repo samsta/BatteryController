@@ -270,18 +270,18 @@ void USBPort::Pack::sink(const can::DataFrame& f)
       ss << "<USB OUT:" << m_usbport_name << " " << m_pack_name << " CAN port:" << (m_index+1) << "> " << f;
       m_log->debug(ss);
       std::ostringstream xx;
-      xx << "<USB OUT:hex:";
-      for (size_t i = 0; i < sizeof(uint8msg); i++) {
-         xx << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(uint8msg[i]) << " ";
-      }
-      m_log->debug(xx);
+      // xx << "<USB OUT:hex:";
+      // for (size_t i = 0; i < sizeof(uint8msg); i++) {
+      //    xx << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(uint8msg[i]) << " ";
+      // }
+      // m_log->debug(xx);
       std::ostringstream oss;
       oss << "<USB OUT:ascii:";
       for (size_t i = 0; i < (sizeof(uint8msg)-1); ++i) {
          if (std::isprint(uint8msg[i])) {
             oss << static_cast<char>(uint8msg[i]);
          } else {
-            oss << '.';  // or skip it, or represent as something else
+            oss << '.';  // unprintable character
          }
       }
       m_log->debug(oss);
