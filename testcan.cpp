@@ -91,7 +91,7 @@ int main(int argc, const char** argv)
    core::USBPort usb_port1(argv[3], epollfd, &logger);
    core::USBPort usb_port2(argv[4], epollfd, &logger);
 
-   core::CanPort inverter_port(argv[2], epollfd, &logger);
+   // core::CanPort inverter_port(argv[2], epollfd, &logger);
 
    OutputPin pre_charge_relay_1(0, 4, "relay_prechg_1",core::OutputPin::HIGH);
    OutputPin positive_relay_1(0, 5, "relay_pos_1",core::OutputPin::HIGH);
@@ -176,14 +176,16 @@ int main(int argc, const char** argv)
 
    // inverter::TSUN::TSOL_H50K inverter(
    inverter::SINEX::SE_PWS2 inverter(
-         inverter_port,
+         usb_port2.getSinkOutbound(2),
          timer,
          multi_pack,
          multi_pack.getMainContactor(),
          &logger);
    // can::services::TSUN::MessageFactory inverter_message_factory(inverter, &logger);
    can::services::SINEX::MessageFactory inverter_message_factory(inverter, &logger);
-   inverter_port.setSink(inverter_message_factory);
+   // inverter_port.setSink(inverter_message_factory);
+   char inverter_name[] = "Inverter";
+   usb_port2.setSinkInbound(2, inverter_name, inverter_message_factory);
 
    logger.setMonitor(vbatterymon);
 
