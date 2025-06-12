@@ -166,7 +166,7 @@ void USBPort::handle()
                can::StandardDataFrame canframe(frame.can_id, frame.data, frame.can_dlc);
                if (m_log && m_log->isdebug()) {
                   std::ostringstream ss;
-                  ss << "<USB IN:" << m_port_name << " CAN port:" << port << "> " << canframe;
+                  ss << "<USB IN:" << m_port_name << " CAN port:" << port << " Id:" << canid << "> " << canframe;
                   m_log->debug(ss);
                }
                // use the port number to know where to send it
