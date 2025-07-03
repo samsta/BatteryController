@@ -53,7 +53,7 @@ void MessageFactory::sink(const can::DataFrame& f)
 
    if (msg == nullptr) return;
 
-   if (m_log)
+   if (m_log && m_log->isdebug())
    {
       ss << "<INV IN>  " << *msg;
       m_log->debug(ss);

@@ -147,7 +147,6 @@ void USBPort::handle()
          findhash = sbuf.find_first_of('#');
          if (findhash == HASH_OFFSET && m_unprocessedSize >= STD_MSG_SIZE)
          {
-            // OLD msg format 0P000xxx P=port xxx=msg id
             // msg format 0Pxxxxxxxx#yyyyyyyyyyyyyyyy P=port xxxxxxxx=can id (8 bytes) hex y..=can msg hex (8 bytes)
             // get the can port number from the long id
             port = HextoDec( &m_inBufferUnprocessed[PORT_OFFSET], 1);
