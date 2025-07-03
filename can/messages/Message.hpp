@@ -4,6 +4,7 @@
 #define _CAN_MESSAGES_MESSAGE_HPP
 
 #include "logging/stream.hpp"
+#include <cstdint>
 
 namespace can {
 namespace messages {
