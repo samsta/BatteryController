@@ -20,25 +20,54 @@ def post_file():
     with open(file_path, 'r') as file:
         data = file.read()
 
+    # try:
+    #     headers = {
+    #         "Accept": "*/*",
+    #         "Content-Type": "application/x-www-form-urlencoded"
+    #     }
+    #     response = requests.post(url, data=data, headers=headers)
+    #     if response.status_code == 200:
+    #         print(f"File successfully posted at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    #         os.remove(file_path)  # Delete the file after successful upload
+    #         print(f"File '{file_path}' successfully deleted.")
+    #     else:
+    #         print(f"Failed to post the file. Status Code: {response.status_code}")
+    #         print("Headers:", response.headers)
+    #         print("Text:", response.text)
+    #         # Ignore the failure and continue
+
+    # except requests.exceptions.RequestException as e:
+    #     print(f"Error posting file: {e}")
+    #     # Ignore the exception and continue
+
+
     try:
         headers = {
             "Accept": "*/*",
-            "Content-Type": "application/x-www-form-urlencoded"
+            "Content-Type": "application/x-www-form-urlencoded",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         }
+
         response = requests.post(url, data=data, headers=headers)
+
         if response.status_code == 200:
             print(f"File successfully posted at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-            os.remove(file_path)  # Delete the file after successful upload
+            os.remove(file_path)
             print(f"File '{file_path}' successfully deleted.")
         else:
             print(f"Failed to post the file. Status Code: {response.status_code}")
             print("Headers:", response.headers)
             print("Text:", response.text)
-            # Ignore the failure and continue
 
     except requests.exceptions.RequestException as e:
         print(f"Error posting file: {e}")
         # Ignore the exception and continue
+
+
+
+
+
+
 
 # Function to sleep until 30 seconds after the top of the minute
 def sleep_until_10s_after_the_minute():
