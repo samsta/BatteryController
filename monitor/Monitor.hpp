@@ -20,6 +20,7 @@ public:
       NORMAL_OPERATION,
       SHUNT_ACTIVIATED,
       SHUNT_ACT_FAILED,
+      SHUTTING_DOWN,
       SHUTDOWN
    };
 

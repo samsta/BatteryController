@@ -97,8 +97,10 @@ private:
    Pack_Status m_multipack_status;
 
    uint m_startup_callback_count;
+   uint m_shutdown_callback_count;
    const uint CALLBACK_PERIOD_ms = 1000;
    const uint MAX_STARTUP_COUNT = 5 * 60;  // number of callback periods 
+   const uint SHUTTING_DOWN_COUNT = 10;  // number of callback periods 
 
 };
 
