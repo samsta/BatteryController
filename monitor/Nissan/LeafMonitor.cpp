@@ -334,6 +334,21 @@ void LeafMonitor::logStartupStatus() const
          std::ostringstream s2;
          s2 << s1 << logging::Hex(ID_LBC_DATA_REPLY) << " Voltages (in spec) not yet received";
          if (m_log) m_log->info(s2);
+         if (CRIT_HIGH_VOLT && (m_max_cell_volts != NAN)) {
+            std::ostringstream s3;
+            s3 << "CRIT_HIGH_VOLT condition: voltage = " << m_max_cell_volts;
+            if (m_log) m_log->alarm(s3);
+         }
+         if (CRIT_LOW_VOLT && (m_min_cell_volts != NAN)) {
+            std::ostringstream s4;
+            s4 << "CRIT_LOW_VOLT condition: voltage = " << m_min_cell_volts;
+            if (m_log) m_log->alarm(s4);
+         }
+         if (CRIT_SPREAD_VOLT && (m_max_cell_volts != NAN) && (m_min_cell_volts != NAN)) {
+            std::ostringstream s5;
+            s5 << "CRIT_SPREAD_VOLT condition: voltage = " << m_max_cell_volts << " - " << m_min_cell_volts << " = " << (m_max_cell_volts-m_min_cell_volts);
+            if (m_log) m_log->alarm(s5);
+         }
       }
       if (!m_temperatures_ok) {
          std::ostringstream s2;
