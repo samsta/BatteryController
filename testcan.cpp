@@ -14,7 +14,7 @@
 #include "packs/Nissan/LeafPack.hpp"
 #include "packs/Nissan/LeafMultiPack.hpp"
 // #include "can/services/SMA/MessageFactory.hpp"
-// #include "can/services/TSUN/MessageFactory.hpp"
+#include "can/services/TSUN/MessageFactory.hpp"
 // #include "inverter/SMA/SunnyBoyStorage.hpp"
 // #include "inverter/TSUN/TSOL-H50K.hpp"
 #include "can/services/SINEX/MessageFactory.hpp"
@@ -181,8 +181,8 @@ int main(int argc, const char** argv)
          multi_pack,
          multi_pack.getMainContactor(),
          &logger);
-   // can::services::TSUN::MessageFactory inverter_message_factory(inverter, &logger);
-   can::services::SINEX::MessageFactory inverter_message_factory(inverter, &logger);
+   can::services::TSUN::MessageFactory inverter_message_factory(inverter, &logger);
+   // can::services::SINEX::MessageFactory inverter_message_factory(inverter, &logger);
    // inverter_port.setSink(inverter_message_factory);
    char inverter_name[] = "Inverter";
    usb_port1.setSinkInbound(1, inverter_name, inverter_message_factory);
