@@ -9,12 +9,12 @@ using namespace testing;
 
 TEST(TsunInverterSleepAwakeCmd, valid)
 {
-   EXPECT_TRUE(InverterSleepAwakeCmd(can::StandardDataFrame("80008200#5500000000000000")).valid());
+   EXPECT_TRUE(InverterSleepAwakeCmd(can::StandardDataFrame("00008200#5500000000000000")).valid());
 }
 
 TEST(TsunInverterSleepAwakeCmd, invalidInfoType)
 {
-   EXPECT_FALSE(InverterSleepAwakeCmd(can::StandardDataFrame("80008200#0000000000000000")).valid());
+   EXPECT_FALSE(InverterSleepAwakeCmd(can::StandardDataFrame("00008200#0000000000000000")).valid());
 }
 
 TEST(TsunInverterSleepAwakeCmd, invalidId)
@@ -24,15 +24,15 @@ TEST(TsunInverterSleepAwakeCmd, invalidId)
 
 TEST(TsunInverterSleepAwakeCmd, invalidLength)
 {
-   EXPECT_FALSE(InverterSleepAwakeCmd(can::StandardDataFrame("80008200#55000000000000")).valid());
+   EXPECT_FALSE(InverterSleepAwakeCmd(can::StandardDataFrame("00008200#55000000000000")).valid());
 }
 
 TEST(TsunInverterSleepAwakeCmd, commandEnterSleep)
 {
-   EXPECT_EQ(InverterSleepAwakeCmd::ENTER_SLEEP,InverterSleepAwakeCmd(can::StandardDataFrame("80008200#5500000000000000")).getCommand());
+   EXPECT_EQ(InverterSleepAwakeCmd::ENTER_SLEEP,InverterSleepAwakeCmd(can::StandardDataFrame("00008200#5500000000000000")).getCommand());
 }
 
 TEST(TsunInverterSleepAwakeCmd, commandQuitSleep)
 {
-   EXPECT_EQ(InverterSleepAwakeCmd::QUIT_SLEEP,InverterSleepAwakeCmd(can::StandardDataFrame("80008200#AA00000000000000")).getCommand());
+   EXPECT_EQ(InverterSleepAwakeCmd::QUIT_SLEEP,InverterSleepAwakeCmd(can::StandardDataFrame("00008200#AA00000000000000")).getCommand());
 }
