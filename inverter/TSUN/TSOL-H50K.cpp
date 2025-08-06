@@ -8,6 +8,8 @@
 #include "can/messages/TSUN/BatteryModTempInfo.hpp"
 #include "can/messages/TSUN/BatteryModVoltInfo.hpp"
 #include "can/messages/TSUN/BatteryStatus.hpp"
+#include "can/messages/TSUN/BatteryHWSWVersion.hpp"
+#include "can/messages/TSUN/BatteryModCapacity.hpp"
 #include "can/messages/TSUN/InverterChargeDischargeCmd.hpp"
 #include "can/messages/TSUN/InverterInfoRequest.hpp"
 #include "can/messages/TSUN/InverterSleepAwakeCmd.hpp"
@@ -143,8 +145,8 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
    else if (command.getInfoType() == InverterInfoRequest::SYSTEM_EQUIPMENT)
    {
       // send System Equipment Info
-      // have never seen this data requested by the inverter
-
+      m_sender.sink(BatteryHWSWVersion());
+      m_sender.sink(BatteryModCapacity());
    }
    // TODO else some kind of error reporting?
 }

@@ -8,7 +8,9 @@ target_sources(can PRIVATE InverterInfoRequest.cpp
                            BatteryCellTempInfo.cpp
                            BatteryModVoltInfo.cpp
                            BatteryModTempInfo.cpp
-                           BatteryForbidden.cpp)
+                           BatteryForbidden.cpp
+                           BatteryHWSWVersion.cpp
+                           BatteryModCapacity.cpp)
 
 if(BUILD_TESTING)
   add_subdirectory(test)
