@@ -25,7 +25,7 @@ BatteryModCapacity::BatteryModCapacity(float total_cells,
    setModulesInSeries(mods_in_series);
    setCellsPerModule(cells_per_mod);
    setVoltageLevel(voltage_level);
-   setAHCapacity(ah_capacity);
+   setAhCapacity(ah_capacity);
 }
 
 BatteryModCapacity& BatteryModCapacity::setTotalCellAmount(float total_cells)
@@ -52,7 +52,7 @@ BatteryModCapacity& BatteryModCapacity::setVoltageLevel(float voltage_level )
    return *this;
 }
 
-BatteryModCapacity& BatteryModCapacity::setAHCapacity(float ah_capacity )
+BatteryModCapacity& BatteryModCapacity::setAhCapacity(float ah_capacity )
 {
    setUnsignedShort(6, limitScaledToUnsignedShort(ah_capacity, 1), LSB_FIRST);
    return *this;

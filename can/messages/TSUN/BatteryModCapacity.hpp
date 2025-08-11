@@ -24,7 +24,7 @@ public:
    BatteryModCapacity& setModulesInSeries(float mods_in_series);
    BatteryModCapacity& setCellsPerModule(float cells_per_mod);
    BatteryModCapacity& setVoltageLevel(float voltage_level);
-   BatteryModCapacity& setAHCapacity(float ah_capacity);
+   BatteryModCapacity& setAhCapacity(float ah_capacity);
 };
 
 }

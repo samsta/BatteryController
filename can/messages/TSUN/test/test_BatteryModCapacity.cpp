@@ -18,11 +18,23 @@ TEST(TsunBatteryModCapacity, defaultInitialised)
    EXPECT_THAT(battery_mod_capacity, Each(0x00));
 }
 
-TEST(TsunBatteryModCapacity, exampleMessage)
+TEST(TsunBatteryModCapacity, exampleMessage1)
 {
    BatteryModCapacity battery_mod_capacity(120.0, 4.0, 30.0, 384.0, 37.0);
 
    EXPECT_EQ(StandardDataFrame(ID_BATTERY_MODULE_CAPACITY, "7800041E80012500").str(), battery_mod_capacity.str());
+}
+
+TEST(TsunBatteryModCapacity, exampleMessage2)
+{
+   BatteryModCapacity battery_mod_capacity = BatteryModCapacity()
+               .setTotalCellAmount(120)
+               .setModulesInSeries(4)
+               .setCellsPerModule(30)
+               .setVoltageLevel(390)
+               .setAhCapacity(64);
+
+   EXPECT_EQ(StandardDataFrame(ID_BATTERY_MODULE_CAPACITY, "7800041E86014000").str(), battery_mod_capacity.str());
 }
 
 }

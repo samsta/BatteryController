@@ -144,9 +144,21 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
    }
    else if (command.getInfoType() == InverterInfoRequest::SYSTEM_EQUIPMENT)
    {
-      // send System Equipment Info
-      m_sender.sink(BatteryHWSWVersion());
-      m_sender.sink(BatteryModCapacity(120.0, 4.0, 30.0, 384.0, 37.0));
+      // do not send battery info unless the contractor is closed
+      // contact won't close unless sufficent info has been received from the battery
+      if (m_contactor.isClosed()) {      
+
+         // send System Equipment Info
+         m_sender.sink(BatteryHWSWVersion());
+
+         m_sender.sink(BatteryModCapacity()
+               .setTotalCellAmount(120)
+               .setModulesInSeries(4)
+               .setCellsPerModule(30)
+               .setVoltageLevel(m_monitor.getVoltage())
+               // Ah = Wh / V
+               .setAhCapacity(1000.0 * m_monitor.getCapacityKwh()/m_monitor.getVoltage()));
+      }
    }
    // TODO else some kind of error reporting?
 }
