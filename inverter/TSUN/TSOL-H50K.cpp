@@ -146,7 +146,7 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
    {
       // send System Equipment Info
       m_sender.sink(BatteryHWSWVersion());
-      m_sender.sink(BatteryModCapacity());
+      m_sender.sink(BatteryModCapacity(120.0, 4.0, 30.0, 384.0, 37.0));
    }
    // TODO else some kind of error reporting?
 }

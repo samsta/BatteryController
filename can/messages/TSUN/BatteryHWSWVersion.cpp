@@ -10,10 +10,9 @@ namespace messages {
 namespace TSUN {
 
 BatteryHWSWVersion::BatteryHWSWVersion():
-   StandardDataFrame(ID_BATTERY_HWSW_VERSION, "0010203015501600")
+   // value taken from Dala's Baterry Emulator PYTHON-CAN.cpp
+   StandardDataFrame(ID_BATTERY_HWSW_VERSION, "0100020101020000")
 {
-   // data populated as shown in the TSUN CAN Protocol Spec
-   // TODO look up what Dala (the Great) sends for this
 }
 
 }

@@ -14,6 +14,17 @@ class BatteryModCapacity: public StandardDataFrame
 {
 public:
    BatteryModCapacity();
+   BatteryModCapacity(float total_cells,
+                     float mods_in_series,
+                     float cells_per_mod,
+                     float voltage_level,
+                     float ah_capacity);
+
+   BatteryModCapacity& setTotalCellAmount(float total_cells);
+   BatteryModCapacity& setModulesInSeries(float mods_in_series);
+   BatteryModCapacity& setCellsPerModule(float cells_per_mod);
+   BatteryModCapacity& setVoltageLevel(float voltage_level);
+   BatteryModCapacity& setAHCapacity(float ah_capacity);
 };
 
 }
