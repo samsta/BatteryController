@@ -155,9 +155,9 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
                .setTotalCellAmount(120)
                .setModulesInSeries(4)
                .setCellsPerModule(30)
-               .setVoltageLevel(m_monitor.getVoltage())
+               .setVoltageLevel(384)
                // Ah = Wh / V
-               .setAhCapacity(1000.0 * m_monitor.getCapacityKwh()/m_monitor.getVoltage()));
+               .setAhCapacity(37));
       }
    }
    // TODO else some kind of error reporting?
