@@ -39,4 +39,4 @@ logging::ostream& operator<<(logging::ostream&, const Message&);
 }
 }
 
-#endif // _CAN_MESSAGES_SMA_MESSAGE_HPP
+#endif // CAN_MESSAGES_MESSAGE_HPP

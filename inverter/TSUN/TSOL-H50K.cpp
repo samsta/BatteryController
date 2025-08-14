@@ -75,6 +75,9 @@ void TSOL_H50K::sink(const Message& message)
       process(static_cast<const InverterInfoRequest&>(message));
       break;
    default:
+      char info[500];
+      snprintf(info, sizeof(info), "Unprocessed CAN message from Inverter: %8X", message.id());
+      if (m_log) m_log->info(info,__FILENAME__,__LINE__);
       return;
    }
 
