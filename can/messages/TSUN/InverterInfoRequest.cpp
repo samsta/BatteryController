@@ -62,6 +62,33 @@ void InverterInfoRequest::toStream(logging::ostream& os) const
    }
 }
 
+InverterGeneral::InverterGeneral(const DataFrame& frame):
+		Message(frame.id()),
+		m_CAN_data()
+{
+	//if (frame.id() != id()) return;
+	if (frame.size() != 8) return;
+
+   m_CAN_data = frame.getBitField(0, 64);
+
+	setValid();
+}
+
+// InverterGeneral::InverterGeneral():
+// 		Message(0)),
+// 		m_CAN_data()
+// {
+// }
+
+uint64_t InverterGeneral::getCANData() const
+{
+   return m_CAN_data;
+}
+
+void InverterGeneral::toStream(logging::ostream& os) const
+{
+}
+
 
 }
 }

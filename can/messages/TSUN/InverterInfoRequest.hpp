@@ -29,6 +29,18 @@ private:
    InfoType m_info_type;
 };
 
+class InverterGeneral: public Message
+{
+public:
+   InverterGeneral(const DataFrame&);
+   // InverterGeneral();
+   uint64_t getCANData() const;
+   virtual void toStream(logging::ostream&) const;
+
+private:
+   uint64_t m_CAN_data;
+};
+
 }
 }
 }
