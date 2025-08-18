@@ -40,6 +40,7 @@ LeafMultiPack::LeafMultiPack(
       m_charge_current_limit(0),
       m_multipack_status(monitor::Monitor::STARTUP),
       m_startup_callback_count(0),
+      m_shutdown_callback_count(0),
       m_fully_charged(true),
       m_fully_discharged(true),
       m_display_shutdown_status(true)
@@ -120,14 +121,26 @@ void LeafMultiPack::periodicCallback()
 
          updateFullyChargedDischargedStatus();
 
-         // for (uint i=0; i<m_vmonitor.size(); i++)
-         // {
-         //    if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
-         //    {
-         //    }
-         // }
+         for (uint i=0; i<m_vmonitor.size(); i++)
+         {
+            if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
+            {
+               setPackStatus(Monitor::SHUTTING_DOWN);
+            }
+         }
          break;
 
+      case Monitor::SHUTTING_DOWN:
+         // below the charge and discharge current limits will be returning 0
+         // so the the inverter will go to idle mode for safe
+         // opening of the contractors
+         m_shutdown_callback_count++;
+         if (m_shutdown_callback_count > SHUTTING_DOWN_COUNT)
+         {
+            // this will open the contactors
+            setPackStatus(Monitor::SHUTDOWN);
+         }
+         break;
       case Monitor::SHUNT_ACTIVIATED:
       case Monitor::SHUNT_ACT_FAILED:
       case Monitor::SHUTDOWN:
@@ -142,6 +155,7 @@ void LeafMultiPack::periodicCallback()
                ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status, text);
                if (m_log) m_log->error(ss);
          }
+         break;
 
       default:
          break;
@@ -280,6 +294,9 @@ float LeafMultiPack::getMinDischargeVoltage() const
 
 float LeafMultiPack::getChargeCurrentLimit() const
 {
+   // if shutting down return 0
+   if (getPackStatus() == Monitor::SHUTTING_DOWN) return 0.0;
+
    // if full, no charging allowed
    if (m_fully_charged) return 0.0;
 
@@ -307,6 +324,9 @@ float LeafMultiPack::getChargeCurrentLimit() const
 
 float LeafMultiPack::getDischargeCurrentLimit() const
 {
+   // if shutting down return 0
+   if (getPackStatus() == Monitor::SHUTTING_DOWN) return 0.0;
+
    // if empty, no discharging allowed
    if (m_fully_discharged) return 0.0;
 
