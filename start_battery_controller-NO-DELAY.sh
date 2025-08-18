@@ -6,4 +6,5 @@ cd /
 cd home/pi/Documents/Projects/BatteryController/build/
 #echo 'sleep 30, then start battery controller'
 #sleep 30
+# log level normal 4, log level debug 5
 /usr/bin/x-terminal-emulator -e ./testcan 4 can0 /dev/ttyTSY11576900 /dev/ttyTSY12508710
