@@ -14,11 +14,11 @@
 #include "packs/Nissan/LeafPack.hpp"
 #include "packs/Nissan/LeafMultiPack.hpp"
 // #include "can/services/SMA/MessageFactory.hpp"
-// #include "can/services/TSUN/MessageFactory.hpp"
+#include "can/services/TSUN/MessageFactory.hpp"
 // #include "inverter/SMA/SunnyBoyStorage.hpp"
-// #include "inverter/TSUN/TSOL-H50K.hpp"
-#include "can/services/SINEX/MessageFactory.hpp"
-#include "inverter/SINEX/SE-PWS2.hpp"
+#include "inverter/TSUN/TSOL-H50K.hpp"
+//#include "can/services/SINEX/MessageFactory.hpp"
+//#include "inverter/SINEX/SE-PWS2.hpp"
 
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "core/LibGpiod/OutputPin.hpp"
@@ -174,15 +174,15 @@ int main(int argc, const char** argv)
    // logger and console (below) will see it
    vbatterymon.push_back( &multi_pack);
 
-   // inverter::TSUN::TSOL_H50K inverter(
-   inverter::SINEX::SE_PWS2 inverter(
+   inverter::TSUN::TSOL_H50K inverter(
+   // inverter::SINEX::SE_PWS2 inverter(
          inverter_port,
          timer,
          multi_pack,
          multi_pack.getMainContactor(),
          &logger);
-   // can::services::TSUN::MessageFactory inverter_message_factory(inverter, &logger);
-   can::services::SINEX::MessageFactory inverter_message_factory(inverter, &logger);
+   can::services::TSUN::MessageFactory inverter_message_factory(inverter, &logger);
+   // can::services::SINEX::MessageFactory inverter_message_factory(inverter, &logger);
    inverter_port.setSink(inverter_message_factory);
 
    logger.setMonitor(vbatterymon);
