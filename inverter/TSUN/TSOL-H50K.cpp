@@ -24,7 +24,7 @@ namespace TSUN {
 namespace {
 
 
-const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 6;
+const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 25;
 
 BatteryStatus localBatteryStatus(BatteryStatus::BASIC_STATUS_IDLE);
 
