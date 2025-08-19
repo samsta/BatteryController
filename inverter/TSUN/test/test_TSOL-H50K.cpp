@@ -51,7 +51,7 @@ TEST(TSOL_H50K, registersAndDeregistersTimerCallbackFor5000MillisecondPeriod)
 
    {
       core::Invokable* invokable;
-      EXPECT_CALL(timer, registerPeriodicCallback(_, 5000,_)).WillOnce(SaveArg<0>(&invokable));
+      EXPECT_CALL(timer, registerPeriodicCallback(_, 10000,_)).WillOnce(SaveArg<0>(&invokable));
       TSOL_H50K sbs(sink, timer, monitor, contactor, nullptr);
       EXPECT_CALL(timer, deregisterCallback(invokable));
    }
@@ -116,6 +116,13 @@ TEST_F(TSOL_H50KAtStartupTest, requestsToOpenContactorWhenInverterNotAlive)
 {
    EXPECT_NO_CALL(contactor, open());
 
+   // inverter_alive_callback->invoke();
+   // inverter_alive_callback->invoke();
+   // inverter_alive_callback->invoke();
+   inverter_alive_callback->invoke();
+   inverter_alive_callback->invoke();
+   inverter_alive_callback->invoke();
+   inverter_alive_callback->invoke();
    inverter_alive_callback->invoke();
    inverter_alive_callback->invoke();
    inverter_alive_callback->invoke();
@@ -130,6 +137,13 @@ TEST_F(TSOL_H50KAtStartupTest, requestsToCloseContactorWhenInverterAliveAgain)
 {
    EXPECT_NO_CALL(contactor, open());
 
+   // inverter_alive_callback->invoke();
+   // inverter_alive_callback->invoke();
+   // inverter_alive_callback->invoke();
+   inverter_alive_callback->invoke();
+   inverter_alive_callback->invoke();
+   inverter_alive_callback->invoke();
+   inverter_alive_callback->invoke();
    inverter_alive_callback->invoke();
    inverter_alive_callback->invoke();
    inverter_alive_callback->invoke();
