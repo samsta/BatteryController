@@ -40,13 +40,13 @@ BatteryLimits& BatteryLimits::setDischargeVoltage(float voltage)
 
 BatteryLimits& BatteryLimits::setChargeCurrent(float current)
 {
-   setUnsignedShort(6, limitScaledToUnsignedShort(current + 3000, 10), LSB_FIRST);
+   setUnsignedShort(4, limitScaledToUnsignedShort(current + 3000, 10), LSB_FIRST);
    return *this;
 }
 
 BatteryLimits& BatteryLimits::setDischargeCurrent(float current)
 {
-   setUnsignedShort(4, limitScaledToUnsignedShort(current + 3000, 10), LSB_FIRST);
+   setUnsignedShort(6, limitScaledToUnsignedShort(current + 3000, 10), LSB_FIRST);
    return *this;
 }
 
