@@ -9,35 +9,35 @@ using namespace testing;
 
 TEST(TsunInverterChargeDischargeCmd, valid)
 {
-   EXPECT_TRUE(InverterChargeDischargeCmd(can::StandardDataFrame("00008210#AA00000000000000")).valid());
+   EXPECT_TRUE(InverterChargeDischargeCmd(can::StandardDataFrame("00008211#AA00000000000000")).valid());
 }
 
 TEST(TsunInverterChargeDischargeCmd, invalidId)
 {
-   EXPECT_FALSE(InverterChargeDischargeCmd(can::StandardDataFrame("00008211#AA00000000000000")).valid());
+   EXPECT_FALSE(InverterChargeDischargeCmd(can::StandardDataFrame("00008212#AA00000000000000")).valid());
 }
 
 TEST(TsunInverterChargeDischargeCmd, invalidLength)
 {
-   EXPECT_FALSE(InverterChargeDischargeCmd(can::StandardDataFrame("00008210#AA000000000000")).valid());
+   EXPECT_FALSE(InverterChargeDischargeCmd(can::StandardDataFrame("00008211#AA000000000000")).valid());
 }
 
 TEST(TsunInverterChargeDischargeCmd, commandCharge)
 {
-   EXPECT_EQ(InverterChargeDischargeCmd::CHARGE,InverterChargeDischargeCmd(can::StandardDataFrame("00008210#AA00000000000000")).getCommand());
+   EXPECT_EQ(InverterChargeDischargeCmd::CHARGE,InverterChargeDischargeCmd(can::StandardDataFrame("00008211#AA00000000000000")).getCommand());
 }
 
 TEST(TsunInverterChargeDischargeCmd, commandDischarge)
 {
-   EXPECT_EQ(InverterChargeDischargeCmd::DISCHARGE,InverterChargeDischargeCmd(can::StandardDataFrame("00008210#00AA000000000000")).getCommand());
+   EXPECT_EQ(InverterChargeDischargeCmd::DISCHARGE,InverterChargeDischargeCmd(can::StandardDataFrame("00008211#00AA000000000000")).getCommand());
 }
 
 TEST(TsunInverterChargeDischargeCmd, commandInvalidBoth)
 {
-   EXPECT_EQ(InverterChargeDischargeCmd::INVALID,InverterChargeDischargeCmd(can::StandardDataFrame("00008210#AAAA000000000000")).getCommand());
+   EXPECT_EQ(InverterChargeDischargeCmd::INVALID,InverterChargeDischargeCmd(can::StandardDataFrame("00008211#AAAA000000000000")).getCommand());
 }
 
 TEST(TsunInverterChargeDischargeCmd, commandInvalidNone)
 {
-   EXPECT_EQ(InverterChargeDischargeCmd::INVALID,InverterChargeDischargeCmd(can::StandardDataFrame("00008210#0000000000000000")).getCommand());
+   EXPECT_EQ(InverterChargeDischargeCmd::INVALID,InverterChargeDischargeCmd(can::StandardDataFrame("00008211#0000000000000000")).getCommand());
 }
