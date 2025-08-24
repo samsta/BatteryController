@@ -20,7 +20,7 @@ TEST(TsunBatteryLimits, defaultInitialised)
 
 TEST(TsunBatteryLimits, exampleMessage)
 {
-   BatteryLimits battery_limits(495, 435, 16.2, 39.7);
+   BatteryLimits battery_limits(495, 435, 39.7, 16.2);
 
    EXPECT_EQ(StandardDataFrame(ID_BATTERY_LIMITS, "5613FE10BD76D275").str(), battery_limits.str());
 }
@@ -39,7 +39,7 @@ TEST(TsunBatteryLimits, saturateAtMaximum)
 TEST(TsunBatteryLimits, cannotGoNegative)
 {
    BatteryLimits limit(0, 0, -3000, -3000);
-   BatteryLimits limited(-1, -2, -3003, -3004);
+   BatteryLimits limited(-1, -2, -3004, -3003);
 
    EXPECT_EQ(limit.str(), limited.str());
 }
