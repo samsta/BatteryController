@@ -45,9 +45,11 @@ private:
    core::Callback<LeafPack>               m_heartbeat_callback;
    unsigned                               m_pack_silent_counter;
    unsigned                               m_startup_counter;
+   unsigned                               m_shunt_trip_counter;
    logging::Logger                        *m_log;
 
    bool m_reboot_in_process;
+   bool m_shunt_fail_msg_logged;
    unsigned m_reboot_wait_count;
 
    void heartbeatCallback();
@@ -57,6 +59,7 @@ private:
    const uint REBOOT_POWERDOWN_PERIODS = 10 * 1000 / PACK_CALLBACK_PERIOD_ms; 
    const float MAX_SHUNT_OPEN_CURRENT = 1.01;
    const uint MAX_PACK_STARTUP_COUNT = 5 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms;
+   const unsigned SHUNT_TRIP_COUNT = 5;
 };
 
 }

@@ -161,6 +161,9 @@ char* getPackStatusTEXT(Monitor::Pack_Status p, char *text)
    case Monitor::Pack_Status::SHUNT_ACT_FAILED:
       sprintf(text,"SHUNT_ACT_FAILED");
       break;
+   case Monitor::Pack_Status::SHUTTING_DOWN:
+      sprintf(text,"SHUTTING_DOWN");
+      break;
    case Monitor::Pack_Status::SHUTDOWN:
       sprintf(text,"SHUTDOWN");
       break;
