@@ -22,7 +22,9 @@ LeafPack::LeafPack(
    m_heartbeat_callback(*this, &LeafPack::heartbeatCallback),
    m_pack_silent_counter(0),
    m_startup_counter(0),
+   m_shunt_trip_counter(0),
    m_reboot_in_process(false),
+   m_shunt_fail_msg_logged(false),
    m_reboot_wait_count(0),
    m_log(log)
 {
@@ -114,16 +116,24 @@ void LeafPack::heartbeatCallback()
    
    if (!m_safety_shunt.isSafeToOperate())
    {
-      // check the current is zero when the shunt is tripped
+      m_shunt_trip_counter++;
+      // we only get here if the shunt is tripped
+      // wait a few counts before checking the current
+      if (m_shunt_trip_counter < SHUNT_TRIP_COUNT) return;
+
+      m_shunt_trip_counter = SHUNT_TRIP_COUNT + 1;
+      // check the current is zero when the shunt has tripped
       // actually, check that it is a small value as the current measurement is not accurate
-      if (m_monitor.getCurrent() > MAX_SHUNT_OPEN_CURRENT)
+      if (m_monitor.getCurrent() > MAX_SHUNT_OPEN_CURRENT && !m_shunt_fail_msg_logged)
       {
          m_monitor.setPackStatus(monitor::Monitor::SHUNT_ACT_FAILED);
          std::ostringstream ss;
-         ss << "LeafPack: " << m_pack_name << ": SHUNT ALREADY TRIPPED BUT CURRENT NOT ZERO.  CHECK SHUNT OPERATION.";
+         ss << "LeafPack: " << m_pack_name << ": SHUNT ALREADY TRIPPED BUT CURRENT NOT ZERO ("
+             << std::fixed << std::setprecision(2) << m_monitor.getCurrent() << ")  CHECK SHUNT OPERATION.  THIS LIKELY DUE TO LOSS OF COMMS WITH BATTERY.";
          if (m_log) m_log->error(ss, __FILENAME__, __LINE__);
          m_safety_shunt.setSafeToOperate(false);
          m_monitor.updateOperationalSafety();
+         m_shunt_fail_msg_logged = true;
       }
       // if the current has gone to near zero, release the shunt trip relay
       // else // (m_monitor.getCurrent() < MAX_SHUNT_OPEN_CURRENT)
