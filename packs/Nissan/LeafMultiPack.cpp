@@ -126,6 +126,12 @@ void LeafMultiPack::periodicCallback()
             if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
             {
                setPackStatus(Monitor::SHUTTING_DOWN);
+               std::ostringstream sss;
+               sss << "Mulitpack status changed due to pack " << (i+1) << " having not-NORMAL_OPERATION status";
+               if (m_log) m_log->alarm(sss, __FILENAME__,__LINE__);;
+               std::ostringstream ss; char text[64];
+               ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status, text);
+               if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
             }
          }
          break;
@@ -139,21 +145,24 @@ void LeafMultiPack::periodicCallback()
          {
             // this will open the contactors
             setPackStatus(Monitor::SHUTDOWN);
+            std::ostringstream ss; char text[64];
+            ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status, text);
+            if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
          }
          break;
       case Monitor::SHUNT_ACTIVIATED:
       case Monitor::SHUNT_ACT_FAILED:
       case Monitor::SHUTDOWN:
-         // open the contractors
-         if (m_main_contactor.isSafeToOperate()) {
-             m_main_contactor.setSafeToOperate(false);
-         }
          // display the status once
          if (m_display_shutdown_status) {
             m_display_shutdown_status = false;
                std::ostringstream ss; char text[64];
                ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status, text);
-               if (m_log) m_log->error(ss);
+               if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
+         }
+         // open the contractors
+         if (m_main_contactor.isSafeToOperate()) {
+             m_main_contactor.setSafeToOperate(false);
          }
          break;
 
