@@ -11,8 +11,9 @@
 #include <fstream>
 #include <vector>
 
-#include "packs/Nissan/LeafPack.hpp"
-#include "packs/Nissan/LeafMultiPack.hpp"
+// #include "packs/Nissan/LeafPack.hpp"
+// #include "packs/Nissan/LeafMultiPack.hpp"
+#include "packs/Tesla/TeslaSlavePack.hpp"
 // #include "can/services/SMA/MessageFactory.hpp"
 // #include "can/services/TSUN/MessageFactory.hpp"
 // #include "inverter/SMA/SunnyBoyStorage.hpp"
@@ -105,10 +106,10 @@ int main(int argc, const char** argv)
    #endif
 
    // **********
-   // 2 teensy 5 batteries 3+2
+   // 1 battery
    // **********
    char BP1[] = "BP1";
-   packs::Nissan::LeafPack battery_pack_1( BP1,
+   packs::Tesla::TeslaSlavePack battery_pack_1( BP1,
         usb_port1.getSinkOutbound(0),
         timer,
         &logger);
