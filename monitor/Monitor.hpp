@@ -55,7 +55,7 @@ public:
 };
 
 logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*> vmonitor);
-char* getPackStatusText(Monitor::Pack_Status p, char *text);
+const char* getPackStatusText(Monitor::Pack_Status p);
 const char* getPackStatusTEXT(Monitor::Pack_Status p);
 
 }

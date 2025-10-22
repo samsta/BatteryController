@@ -34,7 +34,7 @@ namespace monitor
       os << "Pack Status           ";
       for (i = 0; i < vm.size(); i++)
       {
-         os << "\t" << monitor::getPackStatusText(vm[i]->getPackStatus(), text);
+         os << "\t" << monitor::getPackStatusText(vm[i]->getPackStatus());
       }
       os << std::endl;
 
@@ -147,33 +147,31 @@ namespace monitor
       return os;
    }
 
-   char *getPackStatusText(Monitor::Pack_Status p, char *text)
+   const char *getPackStatusText(Monitor::Pack_Status p)
    {
       switch (p)
       {
       case Monitor::Pack_Status::STARTUP:
-         snprintf(text, sizeof(text), "startup");
+         return "startup";
          break;
       case Monitor::Pack_Status::STARTUP_FAILED:
-         snprintf(text, sizeof(text), "strt_fl");
+         return "strt_fl";
          break;
       case Monitor::Pack_Status::NORMAL_OPERATION:
-         snprintf(text, sizeof(text), "normal");
+         return "normal";
          break;
       case Monitor::Pack_Status::SHUNT_ACTIVIATED:
-         snprintf(text, sizeof(text), "shnt_tg");
+         return "shnt_tg";
          break;
       case Monitor::Pack_Status::SHUNT_ACT_FAILED:
-         snprintf(text, sizeof(text), "shnt_fl");
+         return "shnt_fl";
          break;
       case Monitor::Pack_Status::SHUTDOWN:
-         snprintf(text, sizeof(text), "shutdwn");
+         return "shutdwn";
          break;
       default:
-         snprintf(text, sizeof(text), "invalid");
+         return "invalid";
       }
-
-      return text;
    }
 
    const char *getPackStatusTEXT(Monitor::Pack_Status p)
