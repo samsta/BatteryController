@@ -318,7 +318,7 @@ void LeafMonitor::setPackStatus(Monitor::Pack_Status p)
 
    std::ostringstream ss;
    char text[64];
-   ss << "LeafMonitor: " << m_pack_name << ": pack status set to " << getPackStatusTEXT(p,text);
+   ss << "LeafMonitor: " << m_pack_name << ": pack status set to " << getPackStatusTEXT(p);
    if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
 }
 

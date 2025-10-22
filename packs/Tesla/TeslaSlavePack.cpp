@@ -31,7 +31,7 @@ TeslaSlavePack::TeslaSlavePack(
    std::string pcname; pcname.append(m_pack_name).append("_TeslaSlavePackPeriodic");
    m_timer.registerPeriodicCallback(&m_heartbeat_callback, PACK_CALLBACK_PERIOD_ms,pcname.c_str());
    char msg[1024];
-   sprintf(msg, "TeslaSlavePack Initialized: %s", m_pack_name);
+   snprintf(msg,sizeof(msg), "TeslaSlavePack Initialized: %s", m_pack_name);
    if (m_log) m_log->info(msg, __FILENAME__, __LINE__);
    m_monitor.logStartupStatus();
 }
@@ -40,7 +40,7 @@ TeslaSlavePack::~TeslaSlavePack()
 {
    m_timer.deregisterCallback(&m_heartbeat_callback);
    char msg[1024];
-   sprintf(msg, "TeslaSlavePack Distructed: %s", m_pack_name);
+   snprintf(msg,sizeof(msg), "TeslaSlavePack Distructed: %s", m_pack_name);
    if (m_log) m_log->info(msg, __FILENAME__, __LINE__);
 }
 
