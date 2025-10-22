@@ -225,7 +225,7 @@ void Logger::updateDataLog()
          // see if filesize is same as str size, in which case
          // we don't need to read the file
          if(stat(dataFileName.c_str(), &file_info)) {
-            sprintf(msgbuf, "Couldn't open '%s': %s", dataFileName.c_str(), strerror(errno));
+            snprintf(msgbuf,sizeof(msgbuf), "Couldn't open '%s': %s", dataFileName.c_str(), strerror(errno));
             error(msgbuf, __FILENAME__, __LINE__);
             return;
          }
@@ -233,7 +233,7 @@ void Logger::updateDataLog()
 
          if (fsize != str.length())
          {
-            sprintf(msgbuf, "Reading datalog file from disk.  file size: %lu != string size: %lu", fsize, str.length());
+            snprintf(msgbuf,sizeof(msgbuf), "Reading datalog file from disk.  file size: %lu != string size: %lu", fsize, str.length());
             info(msgbuf, __FILENAME__, __LINE__);
             // read the file into str
             str.clear();
@@ -279,7 +279,7 @@ void Logger::httpPOSTstr(std::string str)
    char msgbuf[1024];
 
    fsize = str.length();
-   // sprintf(msgbuf, "Passed string size: %lu bytes.", fsize);
+   // snprintf(msgbuf,sizeof(msgbuf), "Passed string size: %lu bytes.", fsize);
    // info(msgbuf, __FILENAME__, __LINE__);
 
    /* get a curl handle */
@@ -336,11 +336,11 @@ void Logger::httpPOSTstr(std::string str)
    // delete data file
    int result = remove(dataFileName.c_str());
    if (result != 0) {
-      sprintf(msgbuf, "Error deleting datalog file.");
+      snprintf(msgbuf,sizeof(msgbuf), "Error deleting datalog file.");
       error(msgbuf, __FILENAME__, __LINE__);
    }
    // else {
-   //    sprintf(msgbuf, "File deleted successfully.");
+   //    snprintf(msgbuf,sizeof(msgbuf), "File deleted successfully.");
    //    info(msgbuf, __FILENAME__, __LINE__);
    // }
 

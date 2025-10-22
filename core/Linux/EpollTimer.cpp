@@ -27,7 +27,7 @@ public:
       m_invokable(invokable),
       m_log(log)
    {
-      sprintf(m_timer_name,"%.255s",timer_name);
+      snprintf(m_timer_name,sizof(m_timer_name),"%.255s",timer_name);
       struct epoll_event ev;
       ev.events = EPOLLIN;
       ev.data.ptr = this;

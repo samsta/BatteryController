@@ -118,11 +118,11 @@ void USBPort::handle()
          if (findhash != std::string::npos and findhash < sizeof(m_inBufferUnprocessed)) {
             if (findhash < (sizeof(cbuf)-100))
             {
-               sprintf(cbuf, "%s: TEENSY:  %.*s", m_port_name.c_str(), (int)findhash-1, m_inBufferUnprocessed);
+               snprintf(cbuf, "%s: TEENSY:  %.*s", m_port_name.c_str(), (int)findhash-1, m_inBufferUnprocessed);
             }
             else
             {
-               sprintf(cbuf,"%s: TEENSY: MESSAGE OVERSIZE, CAN'T BE DISPLAYED",m_port_name.c_str());
+               snprintf(cbuf,sizeof(cbuf),"%s: TEENSY: MESSAGE OVERSIZE, CAN'T BE DISPLAYED",m_port_name.c_str());
             }
             newhead = findhash + 1;
             m_unprocessedSize = m_unprocessedSize - newhead;
@@ -131,7 +131,7 @@ void USBPort::handle()
          {
             // printf("Failed to find 0x0a at end of Diagnostic Msg\n");
             // fflush(stdout);
-            sprintf(cbuf, "TEENSY: Failed to find 0x0a at end of Diagnostic Msg");
+            snprintf(cbuf,sizeof(cbuf), "TEENSY: Failed to find 0x0a at end of Diagnostic Msg");
             // is_info = false;
             m_unprocessedSize = 0;
          }
@@ -175,7 +175,7 @@ void USBPort::handle()
                   m_sinkInbound[port-1]->sink(can::StandardDataFrame(canframe));
                }
                else {
-                  sprintf(cbuf, "%s: Unexpected CAN msg received on Teensy port %d", m_port_name.c_str(), port);
+                  snprintf(cbuf,sizeof(cbuf), "%s: Unexpected CAN msg received on Teensy port %d", m_port_name.c_str(), port);
                   if (m_log) m_log->alarm(cbuf,__FILENAME__,__LINE__);
                }
             }
@@ -200,11 +200,11 @@ void USBPort::handle()
             // display bad msg 
             if (findhash < (sizeof(cbuf)-100))
             {
-               sprintf(cbuf, "%s: Receive ERROR: bad msg format: fh= %d  br= %d  %.*s", m_port_name.c_str(), (int)findhash, m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
+               snprintf(cbuf,sizeof(cbuf), "%s: Receive ERROR: bad msg format: fh= %d  br= %d  %.*s", m_port_name.c_str(), (int)findhash, m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
             }
             else
             {
-               sprintf(cbuf,"%s: Receive ERROR: bad msg format: MESSAGE OVERSIZE, CAN'T BE DISPLAYED", m_port_name.c_str());
+               snprintf(cbuf,sizeof(cbuf),"%s: Receive ERROR: bad msg format: MESSAGE OVERSIZE, CAN'T BE DISPLAYED", m_port_name.c_str());
             }
 
             if (m_log) m_log->error(cbuf, __FILENAME__,__LINE__);
@@ -253,15 +253,15 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    uint8_t uint8msg[26];
 
    // destination port
-   sprintf(&msg[0],"%02x00", m_index+1);
+   snprintf(&msg[0],"%02x00", m_index+1);
 
    // canid
-   sprintf(&msg[4],"0%3x#", f.id());
+   snprintf(&msg[4],sizeof(msg) - 4,"0%3x#", f.id());
 
    // 16 hex bytes for can data (8 bytes)
    for (int i=0; i<(int)f.size(); i++ )
    {
-      sprintf(&msg[9+(i*2)], "%02x", f.data()[i]);
+      snprintf(&msg[9+(i*2)],sizeof(msg)- (9+(i*2)), "%02x", f.data()[i]);
    }
    // there are 25 characters in the message 8+1+16
    for (int i=0; i<25; i++)
