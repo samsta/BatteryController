@@ -118,7 +118,7 @@ void USBPort::handle()
          if (findhash != std::string::npos and findhash < sizeof(m_inBufferUnprocessed)) {
             if (findhash < (sizeof(cbuf)-100))
             {
-               snprintf(cbuf, "%s: TEENSY:  %.*s", m_port_name.c_str(), (int)findhash-1, m_inBufferUnprocessed);
+               snprintf(cbuf,sizeof(cbuf), "%s: TEENSY:  %.*s", m_port_name.c_str(), (int)findhash-1, m_inBufferUnprocessed);
             }
             else
             {
@@ -253,10 +253,10 @@ void USBPort::Pack::sink(const can::DataFrame& f)
    uint8_t uint8msg[26];
 
    // destination port
-   snprintf(&msg[0],"%02x00", m_index+1);
+   snprintf(&msg[0],sizeof(msg),"%02x00", m_index+1);
 
    // canid
-   snprintf(&msg[4],sizeof(msg) - 4,"0%3x#", f.id());
+   snprintf(&msg[4],sizeof(msg)-4,"0%3x#", f.id());
 
    // 16 hex bytes for can data (8 bytes)
    for (int i=0; i<(int)f.size(); i++ )
