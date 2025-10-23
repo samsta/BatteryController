@@ -3,7 +3,7 @@
 #ifndef _PACKS_TESLA_TESLASLAVEPACK_HPP_
 #define _PACKS_TESLA_TESLASLAVEPACK_HPP_
 
-#include "monitor/Nissan/LeafMonitor.hpp"
+#include "monitor/Tesla/TeslaSlaveMonitor.hpp"
 #include "can/services/Nissan/FrameAggregator.hpp"
 #include "can/services/Nissan/GroupPoller.hpp"
 #include "can/services/Nissan/MessageFactory.hpp"
@@ -35,14 +35,13 @@ private:
 
    char                                   *m_pack_name;
    contactor::Nissan::TeensyShuntCtrl     m_safety_shunt;
-   contactor::Nissan::TeensyRelay         m_power_relay;
-   monitor::Nissan::LeafMonitor           m_monitor;
+   monitor::Tesla::TeslaSlaveMonitor      m_monitor;
    core::Timer&                           m_timer;
    can::services::Nissan::MessageFactory  m_message_factory;
    can::services::Nissan::FrameAggregator m_aggregator;
    can::services::Nissan::GroupPoller     m_poller;
    can::services::Nissan::HappyPoller     m_happy_poller;
-   core::Callback<TeslaSlavePack>               m_heartbeat_callback;
+   core::Callback<TeslaSlavePack>         m_heartbeat_callback;
    unsigned                               m_pack_silent_counter;
    unsigned                               m_startup_counter;
    unsigned                               m_shunt_trip_counter;

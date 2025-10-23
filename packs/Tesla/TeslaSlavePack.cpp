@@ -12,7 +12,6 @@ TeslaSlavePack::TeslaSlavePack(
             logging::Logger* log):
    m_pack_name(packname),
    m_safety_shunt(packname, sender, ID_TNSY_DC_SHUNT_CTRL, log),
-   m_power_relay(packname, sender, ID_TNSY_LBC_PWR_RLY, log),
    m_monitor(packname, m_safety_shunt, log),
    m_timer(timer),
    m_message_factory(m_monitor, log, m_pack_name),
@@ -72,39 +71,13 @@ void TeslaSlavePack::heartbeatCallback()
          if (m_pack_silent_counter >= PACK_SILENT_TIMEOUT_PERIODS && m_safety_shunt.isSafeToOperate())
          {
             std::ostringstream ss;
-            ss << "TeslaSlavePack: " << m_pack_name << ": No CAN messages received for "
+            ss << "TeslaSlavePack: " << m_pack_name << ": No messages received for "
                   << float(PACK_SILENT_TIMEOUT_PERIODS * PACK_CALLBACK_PERIOD_ms) / 1000.0
                   << " seconds";
             if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
             m_safety_shunt.setSafeToOperate(false);
             m_monitor.updateOperationalSafety();
          }
-
-         // check failsafe status, see if battery needs to be power cycled (aka reboot!)
-         // reboot is the only way to reset failsafe status
-         // possible future issue https://github.com/samsta/BatteryController/issues/17
-         m_reboot_wait_count++;
-         if ((m_monitor.getFailsafeStatus() & 0b100)
-               && m_reboot_wait_count > REBOOT_WAIT_PERIODS
-               && m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION)
-         {
-            m_reboot_wait_count = 0;
-            m_reboot_in_process = true;
-            std::ostringstream ss;
-            ss << "TeslaSlavePack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
-            if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
-            m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
-         }
-         else if (m_reboot_in_process && (m_reboot_wait_count > REBOOT_POWERDOWN_PERIODS))
-         {
-            m_reboot_in_process = false;
-            std::ostringstream ss;
-            ss << "TeslaSlavePack: " << m_pack_name << ": Reboot complete, cannot reboot again for "
-                  << REBOOT_WAIT_PERIODS * PACK_CALLBACK_PERIOD_ms / 1000 << " seconds";
-            if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
-            m_power_relay.setState(contactor::Nissan::TeensyRelay::DE_ENERGIZED);
-         }
-         break;
 
       case monitor::Monitor::STARTUP_FAILED:
       case monitor::Monitor::SHUNT_ACTIVIATED:
