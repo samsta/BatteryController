@@ -65,13 +65,13 @@ Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Moni
    // }
 
    // set callback to 5 secs in order to sync up to the start of a minute
-   m_timer.registerPeriodicCallback(&m_datalog_callback, 5000, "LogBatteryData5sec");
+   // m_timer.registerPeriodicCallback(&m_datalog_callback, 5000, "LogBatteryData5sec");
 }
 
 Logger::~Logger()
 {
    m_File.close();
-   m_timer.deregisterCallback(&m_datalog_callback);
+   // m_timer.deregisterCallback(&m_datalog_callback);
 
    // pthread_mutexattr_destroy(&m_Attr);
    // pthread_mutex_destroy(&m_Mutex);
