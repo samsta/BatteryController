@@ -6,7 +6,7 @@
 #include "monitor/Tesla/TeslaSlaveMonitor.hpp"
 #include "can/services/Nissan/FrameAggregator.hpp"
 #include "can/services/Nissan/GroupPoller.hpp"
-#include "can/services/Nissan/MessageFactory.hpp"
+#include "can/services/Tesla/MessageFactory.hpp"
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "can/services/Nissan/HappyPoller.hpp"
 #include "logging/logging.hpp"
@@ -37,7 +37,7 @@ private:
    contactor::Nissan::TeensyShuntCtrl     m_safety_shunt;
    monitor::Tesla::TeslaSlaveMonitor      m_monitor;
    core::Timer&                           m_timer;
-   can::services::Nissan::MessageFactory  m_message_factory;
+   can::services::Tesla::MessageFactory  m_message_factory;
    can::services::Nissan::FrameAggregator m_aggregator;
    can::services::Nissan::GroupPoller     m_poller;
    can::services::Nissan::HappyPoller     m_happy_poller;

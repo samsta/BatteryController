@@ -1,4 +1,6 @@
-target_sources(can PRIVATE DetailedCellData.cpp)
+target_sources(can PRIVATE DetailedCellData.cpp
+                           Message.cpp
+                           TSTemperatures.cpp)
 
 if(BUILD_TESTING)
   add_subdirectory(test)

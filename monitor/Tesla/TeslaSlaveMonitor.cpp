@@ -11,7 +11,7 @@ ADD LOGGING MESSAGES FOR ALL WARN AND CRITICAL VOLTS/TEMPS
 #include <monitor/Tesla/TeslaSlaveMonitor.hpp>
 #include <numeric>
 
-using namespace can::messages::Nissan;
+using namespace can::messages::Tesla;
 
 namespace monitor {
 namespace Tesla {
@@ -92,107 +92,59 @@ TeslaSlaveMonitor::TeslaSlaveMonitor(
 {
 }
 
-void TeslaSlaveMonitor::sink(const can::messages::Nissan::Message& message)
+void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
 {
    if (not message.valid()) return;
 
    switch(message.id())
    {
-   case ID_BATTERY_STATUS:
-      process(static_cast<const BatteryStatus&>(message));
+   case ID_TS_TEMPS:
+      process(static_cast<const TSTemperatures&>(message));
       break;
-   case ID_LBC_POWER_LIMITS:
-      process(static_cast<const BatteryPowerLimits&>(message));
-      break;
-   case ID_LBC_DATA_REPLY:
-      // handled in next switch
-      break;
+   // case ID_LBC_POWER_LIMITS:
+   //    process(static_cast<const BatteryPowerLimits&>(message));
+   //    break;
    default:
       // unknown id
       return;
    }
 
-   switch(message.dataGroup())
-   {
-   case GROUP_CELL_VOLTAGE_RANGE:
-      process(static_cast<const CellVoltageRange&>(message));
-      return;
-   case GROUP_PACK_TEMPERATURES:
-      process(static_cast<const PackTemperatures&>(message));
-      return;
-   case GROUP_BATTERY_STATE:
-      process(static_cast<const BatteryState&>(message));
-      return;
-   default:
-      break;
-   }
 }
 
-void TeslaSlaveMonitor::process(const CellVoltageRange& voltage_range)
+// void TeslaSlaveMonitor::process(const CellVoltageRange& voltage_range)
+// {
+//    m_min_cell_volts = voltage_range.getMin();
+//    m_max_cell_volts = voltage_range.getMax();
+//    if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE &&
+//        m_min_cell_volts > CRITICALLY_LOW_VOLTAGE    &&
+//        (m_max_cell_volts - m_min_cell_volts) < CRITICALLY_HIGH_VOLTAGE_SPREAD)
+//    {
+//       m_voltages_ok = true;
+//    }
+//    else
+//    {
+//       m_voltages_ok = false;
+//    }
+
+
+//    if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE) m_volt_temp_status &= ~CRIT_HIGH_VOLT;
+//    else m_volt_temp_status |= CRIT_HIGH_VOLT;
+
+//    if (m_min_cell_volts > CRITICALLY_LOW_VOLTAGE ) m_volt_temp_status &= ~CRIT_LOW_VOLT;
+//    else m_volt_temp_status |= CRIT_LOW_VOLT;
+
+//    if ((m_max_cell_volts - m_min_cell_volts) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_volt_temp_status &= ~CRIT_SPREAD_VOLT;
+//    else m_volt_temp_status |= CRIT_SPREAD_VOLT;
+
+//    updateOperationalSafety();
+// }
+
+void TeslaSlaveMonitor::process(const TSTemperatures& temperatures)
 {
-   m_min_cell_volts = voltage_range.getMin();
-   m_max_cell_volts = voltage_range.getMax();
-   if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE &&
-       m_min_cell_volts > CRITICALLY_LOW_VOLTAGE    &&
-       (m_max_cell_volts - m_min_cell_volts) < CRITICALLY_HIGH_VOLTAGE_SPREAD)
-   {
-      m_voltages_ok = true;
-   }
-   else
-   {
-      m_voltages_ok = false;
-   }
+   float max_temp = temperatures.getMaxTemperature();
+   float min_temp = temperatures.getMinTempeature();
 
-
-   if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE) m_volt_temp_status &= ~CRIT_HIGH_VOLT;
-   else m_volt_temp_status |= CRIT_HIGH_VOLT;
-
-   if (m_min_cell_volts > CRITICALLY_LOW_VOLTAGE ) m_volt_temp_status &= ~CRIT_LOW_VOLT;
-   else m_volt_temp_status |= CRIT_LOW_VOLT;
-
-   if ((m_max_cell_volts - m_min_cell_volts) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_volt_temp_status &= ~CRIT_SPREAD_VOLT;
-   else m_volt_temp_status |= CRIT_SPREAD_VOLT;
-
-   updateOperationalSafety();
-}
-
-void TeslaSlaveMonitor::process(const PackTemperatures& temperatures)
-{
-   unsigned num_sensors_missing = 0;
-   float max_temp = NAN, min_temp, accumulated_temp = NAN;
-   for (unsigned k = 0; k < temperatures.NUM_SENSORS; k++)
-   {
-      float temp = temperatures.getTemperature(k);
-
-      if (isnan(max_temp))
-      {
-         min_temp = max_temp = temp;
-      }
-      else
-      {
-         if (temp > max_temp) max_temp = temp;
-         if (temp < min_temp) min_temp = temp;
-      }
-
-      if (isnan(temp))
-      {
-         num_sensors_missing++;
-      }
-      else if (isnan(accumulated_temp))
-      {
-         accumulated_temp = temp;
-      }
-      else
-      {
-         accumulated_temp += temp;
-      }
-   }
-
-   m_average_temperature = accumulated_temp / (temperatures.NUM_SENSORS - num_sensors_missing);
-
-   if (max_temp < CRITICALLY_HIGH_TEMPERATURE &&
-       min_temp > CRITICALLY_LOW_TEMPERATURE  &&
-       num_sensors_missing <= MAX_TEMP_SENSORS_MISSING)
+   if (max_temp < CRITICALLY_HIGH_TEMPERATURE && min_temp > CRITICALLY_LOW_TEMPERATURE )
    {
       m_temperatures_ok = true;
    }
@@ -207,49 +159,46 @@ void TeslaSlaveMonitor::process(const PackTemperatures& temperatures)
    if (min_temp > CRITICALLY_LOW_TEMPERATURE) m_volt_temp_status &= ~CRIT_LOW_TEMP;
    else m_volt_temp_status |= CRIT_LOW_TEMP;
 
-   if (num_sensors_missing <= MAX_TEMP_SENSORS_MISSING) m_volt_temp_status &= ~MAX_TEMP_MISSING;
-   else m_volt_temp_status |= MAX_TEMP_MISSING;
-
    updateOperationalSafety();
 }
 
-void TeslaSlaveMonitor::process(const BatteryState& battery_state)
-{
-   m_bat_state_recv = true;
-   //m_soc_percent = battery_state.getSocPercent(); replaced with useable_soc
-   m_soh_percent = battery_state.getHealthPercent();
-   m_capacity_kwh = (NOMINAL_CAPACITY_KWH/100) * m_soh_percent;
-   //m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
-}
+// void TeslaSlaveMonitor::process(const BatteryState& battery_state)
+// {
+//    m_bat_state_recv = true;
+//    //m_soc_percent = battery_state.getSocPercent(); replaced with useable_soc
+//    m_soh_percent = battery_state.getHealthPercent();
+//    m_capacity_kwh = (NOMINAL_CAPACITY_KWH/100) * m_soh_percent;
+//    //m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
+// }
 
-void TeslaSlaveMonitor::process(const BatteryStatus& battery_status)
-{
-   m_bat_status_recv = true;
-   m_current = battery_status.getCurrent();
-   m_voltage = battery_status.getVoltage();
-   m_soc_percent = (float)battery_status.getUsableSOC();
-   m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
-   m_failsafe_status = battery_status.getFailsafeStatus();
-}
+// void TeslaSlaveMonitor::process(const BatteryStatus& battery_status)
+// {
+//    m_bat_status_recv = true;
+//    m_current = battery_status.getCurrent();
+//    m_voltage = battery_status.getVoltage();
+//    m_soc_percent = (float)battery_status.getUsableSOC();
+//    m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
+//    m_failsafe_status = battery_status.getFailsafeStatus();
+// }
 
-void TeslaSlaveMonitor::process(const BatteryPowerLimits& battery_power)
-{
-   m_bat_limits_recv = true;
-   m_discharge_power_limit = battery_power.getDischargePowerLimit_kW();
-   m_charge_power_limit = battery_power.getChargePowerLimit_kW();
+// void TeslaSlaveMonitor::process(const BatteryPowerLimits& battery_power)
+// {
+//    m_bat_limits_recv = true;
+//    m_discharge_power_limit = battery_power.getDischargePowerLimit_kW();
+//    m_charge_power_limit = battery_power.getChargePowerLimit_kW();
 
-   if (m_voltage > 0)
-   {
-      m_discharge_current_limit = m_discharge_power_limit * 1000.0 / m_voltage;
-      m_charge_current_limit = m_charge_power_limit * 1000.0 / m_voltage;
-   }
-   m_discharge_current_limit = m_discharge_cur_smoothing.process(m_discharge_current_limit);
-   m_charge_current_limit = m_charge_cur_smoothing.process(m_charge_current_limit);
+//    if (m_voltage > 0)
+//    {
+//       m_discharge_current_limit = m_discharge_power_limit * 1000.0 / m_voltage;
+//       m_charge_current_limit = m_charge_power_limit * 1000.0 / m_voltage;
+//    }
+//    m_discharge_current_limit = m_discharge_cur_smoothing.process(m_discharge_current_limit);
+//    m_charge_current_limit = m_charge_cur_smoothing.process(m_charge_current_limit);
 
-   // impose max value on the current limits
-   if (m_discharge_current_limit > MAX_ALLOWABLE_CURRENT) m_discharge_current_limit = MAX_ALLOWABLE_CURRENT;
-   if (m_charge_current_limit > MAX_ALLOWABLE_CURRENT) m_charge_current_limit = MAX_ALLOWABLE_CURRENT;
-}
+//    // impose max value on the current limits
+//    if (m_discharge_current_limit > MAX_ALLOWABLE_CURRENT) m_discharge_current_limit = MAX_ALLOWABLE_CURRENT;
+//    if (m_charge_current_limit > MAX_ALLOWABLE_CURRENT) m_charge_current_limit = MAX_ALLOWABLE_CURRENT;
+// }
 
 void TeslaSlaveMonitor::updateOperationalSafety()
 {
@@ -330,46 +279,46 @@ void TeslaSlaveMonitor::logStartupStatus() const
       // std::ostringstream s1;
       // s1 << "TeslaSlaveMonitor:" << m_pack_name << ": ";
       s1.append("TeslaSlaveMonitor:").append(m_pack_name).append(": ");
-      if (!m_voltages_ok) {
-         std::ostringstream s2;
-         s2 << s1 << logging::Hex(ID_LBC_DATA_REPLY) << " Voltages (in spec) not yet received";
-         if (m_log) m_log->info(s2);
-         if (CRIT_HIGH_VOLT && !isnan(m_max_cell_volts)) {
-            std::ostringstream s3;
-            s3 << "CRIT_HIGH_VOLT condition: voltage = " << m_max_cell_volts;
-            if (m_log) m_log->alarm(s3);
-         }
-         if (CRIT_LOW_VOLT && !isnan(m_min_cell_volts)) {
-            std::ostringstream s4;
-            s4 << "CRIT_LOW_VOLT condition: voltage = " << m_min_cell_volts;
-            if (m_log) m_log->alarm(s4);
-         }
-         if (CRIT_SPREAD_VOLT && !isnan(m_max_cell_volts) && !isnan(m_min_cell_volts)) {
-            std::ostringstream s5;
-            s5 << "CRIT_SPREAD_VOLT condition: voltage = " << m_max_cell_volts << " - " << m_min_cell_volts << " = " << (m_max_cell_volts-m_min_cell_volts);
-            if (m_log) m_log->alarm(s5);
-         }
-      }
+      // if (!m_voltages_ok) {
+      //    std::ostringstream s2;
+      //    s2 << s1 << logging::Hex(ID_LBC_DATA_REPLY) << " Voltages (in spec) not yet received";
+      //    if (m_log) m_log->info(s2);
+      //    if (CRIT_HIGH_VOLT && !isnan(m_max_cell_volts)) {
+      //       std::ostringstream s3;
+      //       s3 << "CRIT_HIGH_VOLT condition: voltage = " << m_max_cell_volts;
+      //       if (m_log) m_log->alarm(s3);
+      //    }
+      //    if (CRIT_LOW_VOLT && !isnan(m_min_cell_volts)) {
+      //       std::ostringstream s4;
+      //       s4 << "CRIT_LOW_VOLT condition: voltage = " << m_min_cell_volts;
+      //       if (m_log) m_log->alarm(s4);
+      //    }
+      //    if (CRIT_SPREAD_VOLT && !isnan(m_max_cell_volts) && !isnan(m_min_cell_volts)) {
+      //       std::ostringstream s5;
+      //       s5 << "CRIT_SPREAD_VOLT condition: voltage = " << m_max_cell_volts << " - " << m_min_cell_volts << " = " << (m_max_cell_volts-m_min_cell_volts);
+      //       if (m_log) m_log->alarm(s5);
+      //    }
+      // }
       if (!m_temperatures_ok) {
          std::ostringstream s2;
-         s2 << s1 << logging::Hex(ID_LBC_DATA_REPLY) << " Temperatures (in spec) not yet received";
+         s2 << s1 << logging::Hex(ID_TS_TEMPS) << " Temperatures (in spec) not yet received";
          if (m_log) m_log->info(s2);
       }
-      if (!m_bat_state_recv) {
-         std::ostringstream s2;
-         s2 << s1 << logging::Hex(ID_LBC_DATA_REPLY) << " Battery State not yet received";
-         if (m_log) m_log->info(s2);
-      }
-      if (!m_bat_status_recv) {
-         std::ostringstream s2;
-         s2 << s1 << logging::Hex(ID_BATTERY_STATUS) << " Battery Status not yet received";
-         if (m_log) m_log->info(s2);
-      }
-      if (!m_bat_limits_recv) {
-         std::ostringstream s2;
-         s2 << s1 << logging::Hex(ID_LBC_POWER_LIMITS) << " Battery Limits not yet received";
-         if (m_log) m_log->info(s2);
-      }
+      // if (!m_bat_state_recv) {
+      //    std::ostringstream s2;
+      //    s2 << s1 << logging::Hex(ID_LBC_DATA_REPLY) << " Battery State not yet received";
+      //    if (m_log) m_log->info(s2);
+      // }
+      // if (!m_bat_status_recv) {
+      //    std::ostringstream s2;
+      //    s2 << s1 << logging::Hex(ID_BATTERY_STATUS) << " Battery Status not yet received";
+      //    if (m_log) m_log->info(s2);
+      // }
+      // if (!m_bat_limits_recv) {
+      //    std::ostringstream s2;
+      //    s2 << s1 << logging::Hex(ID_LBC_POWER_LIMITS) << " Battery Limits not yet received";
+      //    if (m_log) m_log->info(s2);
+      // }
    }
 }
 
