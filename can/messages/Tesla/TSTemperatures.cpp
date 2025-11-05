@@ -68,8 +68,8 @@ void TSTemperatures::toStream(logging::ostream& os) const
       return;
    }
 
-   os << "MinTemp=" << m_min_temperature << " degC "
-      << "MaxTemp=" << m_max_temperature << " degC";
+   os << "MinTemp= " << m_min_temperature << " degC "
+      << "MaxTemp= " << m_max_temperature << " degC";
 }
 
 

@@ -46,7 +46,7 @@ float TSCellVoltages::getMinCellVoltage() const
 
 void TSCellVoltages::toStream(logging::ostream& os) const
 {
-   os << "TSCellVoltages: 0x" << logging::Hex(ID_TS_TEMPS) << " ";
+   os << "TSCellVoltages: 0x" << logging::Hex(ID_TS_CELL_VOLT) << " ";
 
    if (not valid())
    {
@@ -54,8 +54,8 @@ void TSCellVoltages::toStream(logging::ostream& os) const
       return;
    }
 
-   os << "MinTemp=" << m_min_cell_voltage << "V"
-      << "MaxTemp=" << m_max_cell_voltage << "V";
+   os << "MinCellV= " << m_min_cell_voltage << " V "
+      << "MaxCellV= " << m_max_cell_voltage << " V";
 }
 
 
