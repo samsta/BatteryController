@@ -7,6 +7,7 @@
 #include "can/FrameSink.hpp"
 #include "can/messages/Tesla/TSTemperatures.hpp"
 #include "can/messages/Tesla/TSCellVoltages.hpp"
+#include "can/messages/Tesla/TSBatteryStatus.hpp"
 #include "can/messages/Tesla/Message.hpp"
 // #include "can/messages/Nissan/BatteryState.hpp"
 // #include "can/messages/Nissan/BatteryStatus.hpp"
@@ -80,6 +81,7 @@ public:
 private:
    void process(const can::messages::Tesla::TSTemperatures&);
    void process(const can::messages::Tesla::TSCellVoltages&);
+   void process(const can::messages::Tesla::TSBatteryStatus&);
    // void process(const can::messages::Nissan::BatteryState&);
    // void process(const can::messages::Nissan::BatteryStatus&);
    // void process(const can::messages::Nissan::BatteryPowerLimits&);
@@ -87,11 +89,12 @@ private:
    char                    *m_pack_name;
    contactor::Contactor&   m_safety_shunt;
    logging::Logger         *m_log;
+   bool m_battery_status_ok;
    bool m_voltages_ok;
    bool m_temperatures_ok;
-   bool m_bat_state_recv;
    bool m_bat_status_recv;
-   bool m_bat_limits_recv;
+   bool m_bat_temps_recv;
+   bool m_bat_volts_recv;
    Pack_Status m_pack_status;
 
    float m_soc_percent;

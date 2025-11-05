@@ -65,6 +65,7 @@ TeslaSlaveMonitor::TeslaSlaveMonitor(
       m_pack_name(packname),
       m_safety_shunt(safety_shunt),
       m_log(log),
+      m_battery_status_ok(false),
       m_voltages_ok(false),
       m_temperatures_ok(false),
       m_pack_status(STARTUP),
@@ -84,12 +85,13 @@ TeslaSlaveMonitor::TeslaSlaveMonitor(
       m_charge_current_limit(0),
 	   m_volt_temp_status(pow(2,6)-1),
       m_failsafe_status(7),
-      m_bat_state_recv(false),
       m_bat_status_recv(false),
-      m_bat_limits_recv(false),
+      m_bat_temps_recv(false),
+      m_bat_volts_recv(false),
       m_charge_cur_smoothing(MAX_ALLOWABLE_CURRENT),
       m_discharge_cur_smoothing(MAX_ALLOWABLE_CURRENT)
 {
+   m_volt_temp_status &= ~MAX_TEMP_MISSING; // clear max temp missing at startup
 }
 
 void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
@@ -106,6 +108,10 @@ void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
       process(static_cast<const TSCellVoltages&>(message));
       break;
 
+   case ID_TS_BATTERY_STATUS:
+      process(static_cast<const TSBatteryStatus&>(message));
+      break;
+
    // case ID_LBC_POWER_LIMITS:
    //    process(static_cast<const BatteryPowerLimits&>(message));
    //    break;
@@ -115,8 +121,33 @@ void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
    }
 }
 
+void TeslaSlaveMonitor::process(const TSBatteryStatus& battery_status)
+{
+   m_bat_status_recv = true;
+   uint8_t status = battery_status.getBatteryStatus();
+
+   std::ostringstream ss;
+   ss << "TeslaSlaveMonitor: " << m_pack_name << ": Processing Battery Status: Status=" << (int)status;
+   if (m_log) m_log->debug(ss);
+
+   if (status == 1) // OK
+   {
+      m_battery_status_ok = true;
+   }
+   else
+   {
+      m_battery_status_ok = false;
+      // some fault condition
+      std::ostringstream sss;
+      sss << "TeslaSlaveMonitor: " << m_pack_name << ": Battery Status indicates FAULT condition: Status=" << (int)status;
+      if (m_log) m_log->alarm(sss, __FILENAME__,__LINE__);
+   }
+   updateOperationalSafety();
+}
+
 void TeslaSlaveMonitor::process(const TSCellVoltages& voltages)
 {
+   m_bat_volts_recv = true;
    m_min_cell_volts = voltages.getMinCellVoltage();
    m_max_cell_volts = voltages.getMaxCellVoltage();
    if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE &&
@@ -148,9 +179,10 @@ void TeslaSlaveMonitor::process(const TSCellVoltages& voltages)
 
 void TeslaSlaveMonitor::process(const TSTemperatures& temperatures)
 {
+   m_bat_temps_recv = true;
    float max_temp = temperatures.getMaxTemperature();
    float min_temp = temperatures.getMinTempeature();
-
+   
    std::ostringstream ss;
    ss << "TeslaSlaveMonitor: " << m_pack_name << ": Processing Temperatures: Max=" << max_temp << " degC, Min=" << min_temp << " degC";
    if (m_log) m_log->debug(ss);
@@ -235,7 +267,7 @@ void TeslaSlaveMonitor::updateOperationalSafety()
       if (m_log) m_log->alarm(s2, __FILENAME__,__LINE__);
    }
 
-   bool everything_ok = m_voltages_ok && m_temperatures_ok && m_safety_shunt.isSafeToOperate();
+   bool everything_ok = m_battery_status_ok && m_voltages_ok && m_temperatures_ok && m_safety_shunt.isSafeToOperate();
    if (!everything_ok && m_pack_status == Monitor::NORMAL_OPERATION )
    {
       // everything WAS ok, but now it isn't, trigger the safety shunt
@@ -255,7 +287,7 @@ void TeslaSlaveMonitor::updateOperationalSafety()
       s1.append(getAlarmConditionText());
       if (m_log) m_log->alarm(s1, __FILENAME__,__LINE__);
    }
-   else if (m_bat_state_recv && m_bat_status_recv && m_bat_limits_recv && everything_ok && m_pack_status == Monitor::STARTUP)
+   else if (m_bat_status_recv && m_bat_temps_recv && m_bat_volts_recv && everything_ok && m_pack_status == Monitor::STARTUP)
    {
       // battery has come right on startup
       setPackStatus(Monitor::NORMAL_OPERATION);

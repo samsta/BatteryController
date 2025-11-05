@@ -20,11 +20,11 @@ public:
    TSBatteryStatus();
    TSBatteryStatus(const DataFrame& f);
 
-   uint8_t getBatteryStatus() const;
+   uint32_t getBatteryStatus() const;
    virtual void toStream(logging::ostream&) const;
 
 private:
-   uint8_t m_battery_status;
+   uint32_t m_battery_status;
 };
 
 }

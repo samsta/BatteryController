@@ -15,7 +15,7 @@ namespace {
 
 TSBatteryStatus::TSBatteryStatus():
    Message(ID_TS_BATTERY_STATUS, GROUP_NONE),
-   m_battery_status()
+   m_battery_status(3)
 {
 }
 
@@ -26,7 +26,7 @@ TSBatteryStatus::TSBatteryStatus(const DataFrame& frame):
    if (frame.id() != id()) return;
    if (frame.size() != 8) return;
 
-   uint16_t battery_status = frame.getUnsignedShort(0);
+   uint32_t battery_status = frame.getUnsignedLong(0, 2);
    if (battery_status == 0xAAAA) {
       m_battery_status = 1;
    }
@@ -40,14 +40,14 @@ TSBatteryStatus::TSBatteryStatus(const DataFrame& frame):
    setValid();
 }
 
-uint8_t TSBatteryStatus::getBatteryStatus() const
+uint32_t TSBatteryStatus::getBatteryStatus() const
 {
    return m_battery_status;
 }
 
 void TSBatteryStatus::toStream(logging::ostream& os) const
 {
-   os << "TSBatteryStatus: 0x" << logging::Hex(ID_TS_TEMPS) << " ";
+   os << "TSBatteryStatus: 0x" << logging::Hex(ID_TS_BATTERY_STATUS) << " ";
 
    if (not valid())
    {
