@@ -16,8 +16,8 @@ TeslaSlavePack::TeslaSlavePack(
    m_timer(timer),
    m_message_factory(m_monitor, log, m_pack_name),
    m_aggregator(m_message_factory),
-   m_poller(sender, timer),
-   m_happy_poller(sender, timer),
+   // m_poller(sender, timer),
+   // m_happy_poller(sender, timer),
    m_heartbeat_callback(*this, &TeslaSlavePack::heartbeatCallback),
    m_pack_silent_counter(0),
    m_startup_counter(0),
@@ -138,8 +138,8 @@ char* TeslaSlavePack::getPackName()
 void TeslaSlavePack::sink(const can::DataFrame& f)
 {
    m_pack_silent_counter = 0;
-   m_happy_poller.received(f);
-   m_poller.received(f);
+   // m_happy_poller.received(f);
+   // m_poller.received(f);
    m_aggregator.sink(f);
 
 }

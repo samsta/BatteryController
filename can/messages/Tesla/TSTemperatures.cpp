@@ -28,8 +28,8 @@ TSTemperatures::TSTemperatures(const DataFrame& frame):
    if (frame.id() != id()) return;
    if (frame.size() != 8) return;
 
-   m_min_temperature = frame.getSignedShort(0) * 100.0f;
-   m_max_temperature = frame.getSignedShort(2) * 100.0f;
+   m_max_temperature = frame.getSignedShort(0) / 100.0f;
+   m_min_temperature = frame.getSignedShort(2) / 100.0f;
    
    setValid();
 }
@@ -60,7 +60,7 @@ float TSTemperatures::getMinTempeature() const
 
 void TSTemperatures::toStream(logging::ostream& os) const
 {
-   os << "TSTemperatures: " << logging::Hex(ID_TS_TEMPS) << " ";
+   os << "TSTemperatures: 0x" << logging::Hex(ID_TS_TEMPS) << " ";
 
    if (not valid())
    {
@@ -68,8 +68,8 @@ void TSTemperatures::toStream(logging::ostream& os) const
       return;
    }
 
-   os << "MinTemp=" << m_min_temperature << "degC "
-      << "MaxTemp=" << m_max_temperature << "degC";
+   os << "MinTemp=" << m_min_temperature << " degC "
+      << "MaxTemp=" << m_max_temperature << " degC";
 }
 
 

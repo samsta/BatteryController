@@ -2,6 +2,7 @@
 
 #include "MessageFactory.hpp"
 #include "can/messages/Tesla/TSTemperatures.hpp"
+#include "can/messages/Tesla/TSCellVoltages.hpp"
 // #include "can/messages/Nissan/CellVoltageRange.hpp"
 // #include "can/messages/Nissan/CellVoltages.hpp"
 // #include "can/messages/Nissan/BatteryState.hpp"
@@ -30,8 +31,8 @@ const Message* decode(const can::DataFrame& f, void* mem)
    msg = new(mem) TSTemperatures(f);
    if (msg->valid()) return msg;
 
-   // msg = new(mem) CellVoltages(f);
-   // if (msg->valid()) return msg;
+   msg = new(mem) TSCellVoltages(f);
+   if (msg->valid()) return msg;
 
    // msg = new(mem) PackTemperatures(f);
    // if (msg->valid()) return msg;

@@ -6,6 +6,7 @@
 #include "monitor/Monitor.hpp"
 #include "can/FrameSink.hpp"
 #include "can/messages/Tesla/TSTemperatures.hpp"
+#include "can/messages/Tesla/TSCellVoltages.hpp"
 #include "can/messages/Tesla/Message.hpp"
 // #include "can/messages/Nissan/BatteryState.hpp"
 // #include "can/messages/Nissan/BatteryStatus.hpp"
@@ -78,7 +79,7 @@ public:
 
 private:
    void process(const can::messages::Tesla::TSTemperatures&);
-   // void process(const can::messages::Nissan::CellVoltageRange&);
+   void process(const can::messages::Tesla::TSCellVoltages&);
    // void process(const can::messages::Nissan::BatteryState&);
    // void process(const can::messages::Nissan::BatteryStatus&);
    // void process(const can::messages::Nissan::BatteryPowerLimits&);

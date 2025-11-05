@@ -101,6 +101,11 @@ void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
    case ID_TS_TEMPS:
       process(static_cast<const TSTemperatures&>(message));
       break;
+
+   case ID_TS_CELL_VOLT:
+      process(static_cast<const TSCellVoltages&>(message));
+      break;
+
    // case ID_LBC_POWER_LIMITS:
    //    process(static_cast<const BatteryPowerLimits&>(message));
    //    break;
@@ -108,41 +113,47 @@ void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
       // unknown id
       return;
    }
-
 }
 
-// void TeslaSlaveMonitor::process(const CellVoltageRange& voltage_range)
-// {
-//    m_min_cell_volts = voltage_range.getMin();
-//    m_max_cell_volts = voltage_range.getMax();
-//    if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE &&
-//        m_min_cell_volts > CRITICALLY_LOW_VOLTAGE    &&
-//        (m_max_cell_volts - m_min_cell_volts) < CRITICALLY_HIGH_VOLTAGE_SPREAD)
-//    {
-//       m_voltages_ok = true;
-//    }
-//    else
-//    {
-//       m_voltages_ok = false;
-//    }
+void TeslaSlaveMonitor::process(const TSCellVoltages& voltages)
+{
+   m_min_cell_volts = voltages.getMinCellVoltage();
+   m_max_cell_volts = voltages.getMaxCellVoltage();
+   if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE &&
+       m_min_cell_volts > CRITICALLY_LOW_VOLTAGE    &&
+       (m_max_cell_volts - m_min_cell_volts) < CRITICALLY_HIGH_VOLTAGE_SPREAD)
+   {
+      m_voltages_ok = true;
+   }
+   else
+   {
+      m_voltages_ok = false;
+   }
 
+   std::ostringstream ss;
+   ss << "TeslaSlaveMonitor: " << m_pack_name << ": Processing Cell Voltages: Max=" << m_max_cell_volts << "V, Min=" << m_min_cell_volts << "V";
+   if (m_log) m_log->debug(ss);
+   
+   if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE) m_volt_temp_status &= ~CRIT_HIGH_VOLT;
+   else m_volt_temp_status |= CRIT_HIGH_VOLT;
 
-//    if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE) m_volt_temp_status &= ~CRIT_HIGH_VOLT;
-//    else m_volt_temp_status |= CRIT_HIGH_VOLT;
+   if (m_min_cell_volts > CRITICALLY_LOW_VOLTAGE ) m_volt_temp_status &= ~CRIT_LOW_VOLT;
+   else m_volt_temp_status |= CRIT_LOW_VOLT;
 
-//    if (m_min_cell_volts > CRITICALLY_LOW_VOLTAGE ) m_volt_temp_status &= ~CRIT_LOW_VOLT;
-//    else m_volt_temp_status |= CRIT_LOW_VOLT;
+   if ((m_max_cell_volts - m_min_cell_volts) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_volt_temp_status &= ~CRIT_SPREAD_VOLT;
+   else m_volt_temp_status |= CRIT_SPREAD_VOLT;
 
-//    if ((m_max_cell_volts - m_min_cell_volts) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_volt_temp_status &= ~CRIT_SPREAD_VOLT;
-//    else m_volt_temp_status |= CRIT_SPREAD_VOLT;
-
-//    updateOperationalSafety();
-// }
+   updateOperationalSafety();
+}
 
 void TeslaSlaveMonitor::process(const TSTemperatures& temperatures)
 {
    float max_temp = temperatures.getMaxTemperature();
    float min_temp = temperatures.getMinTempeature();
+
+   std::ostringstream ss;
+   ss << "TeslaSlaveMonitor: " << m_pack_name << ": Processing Temperatures: Max=" << max_temp << " degC, Min=" << min_temp << " degC";
+   if (m_log) m_log->debug(ss);
 
    if (max_temp < CRITICALLY_HIGH_TEMPERATURE && min_temp > CRITICALLY_LOW_TEMPERATURE )
    {

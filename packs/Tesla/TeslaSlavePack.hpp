@@ -39,8 +39,8 @@ private:
    core::Timer&                           m_timer;
    can::services::Tesla::MessageFactory  m_message_factory;
    can::services::Nissan::FrameAggregator m_aggregator;
-   can::services::Nissan::GroupPoller     m_poller;
-   can::services::Nissan::HappyPoller     m_happy_poller;
+   // can::services::Nissan::GroupPoller     m_poller;
+   // can::services::Nissan::HappyPoller     m_happy_poller;
    core::Callback<TeslaSlavePack>         m_heartbeat_callback;
    unsigned                               m_pack_silent_counter;
    unsigned                               m_startup_counter;
