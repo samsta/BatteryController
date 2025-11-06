@@ -13,40 +13,47 @@ namespace {
 
 }
 
-TSCellVoltages::TSCellVoltages():
+TSVoltages::TSVoltages():
    Message(ID_TS_CELL_VOLT, GROUP_NONE),
    m_min_cell_voltage(),
-   m_max_cell_voltage()
+   m_max_cell_voltage(),
+   m_pack_voltage()
 {
 }
 
-TSCellVoltages::TSCellVoltages(const DataFrame& frame):
+TSVoltages::TSVoltages(const DataFrame& frame):
    Message(ID_TS_CELL_VOLT, GROUP_NONE),
    m_min_cell_voltage(),
-   m_max_cell_voltage()
+   m_max_cell_voltage(),
+   m_pack_voltage()
 {
    if (frame.id() != id()) return;
    if (frame.size() != 8) return;
 
    m_max_cell_voltage = frame.getSignedShort(0) / 100.0f;
    m_min_cell_voltage = frame.getSignedShort(2) / 100.0f;
-   
+   m_pack_voltage     = frame.getUnsignedShort(4) / 100.0f;
    setValid();
 }
 
-float TSCellVoltages::getMaxCellVoltage() const
+float TSVoltages::getMaxCellVoltage() const
 {
    return m_max_cell_voltage;
 }
 
-float TSCellVoltages::getMinCellVoltage() const
+float TSVoltages::getMinCellVoltage() const
 {
    return m_min_cell_voltage;
 }
 
-void TSCellVoltages::toStream(logging::ostream& os) const
+float TSVoltages::getPackVoltage() const
 {
-   os << "TSCellVoltages: 0x" << logging::Hex(ID_TS_CELL_VOLT) << " ";
+   return m_pack_voltage;
+}  
+
+void TSVoltages::toStream(logging::ostream& os) const
+{
+   os << "TSVoltages: 0x" << logging::Hex(ID_TS_CELL_VOLT) << " ";
 
    if (not valid())
    {
@@ -55,7 +62,8 @@ void TSCellVoltages::toStream(logging::ostream& os) const
    }
 
    os << "MinCellV= " << m_min_cell_voltage << " V "
-      << "MaxCellV= " << m_max_cell_voltage << " V";
+      << "MaxCellV= " << m_max_cell_voltage << " V "
+      << "PackV= "     << m_pack_voltage     << " V";
 }
 
 

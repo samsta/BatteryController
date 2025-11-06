@@ -21,14 +21,14 @@ public:
    TSTemperatures(const DataFrame& f);
 
    float getMaxTemperature() const;
-   // TSTemperatures& setMaxT(float power);
    float getMinTempeature() const;
-   // TSTemperatures& setChargePowerLimit_kW(float power);
+   float getAvgTemperature() const;
    virtual void toStream(logging::ostream&) const;
 
 private:
    float m_max_temperature;
    float m_min_temperature;
+   float m_average_temperature;
 };
 
 }

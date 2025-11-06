@@ -105,7 +105,7 @@ void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
       break;
 
    case ID_TS_CELL_VOLT:
-      process(static_cast<const TSCellVoltages&>(message));
+      process(static_cast<const TSVoltages&>(message));
       break;
 
    case ID_TS_BATTERY_STATUS:
@@ -145,11 +145,13 @@ void TeslaSlaveMonitor::process(const TSBatteryStatus& battery_status)
    updateOperationalSafety();
 }
 
-void TeslaSlaveMonitor::process(const TSCellVoltages& voltages)
+void TeslaSlaveMonitor::process(const TSVoltages& voltages)
 {
    m_bat_volts_recv = true;
    m_min_cell_volts = voltages.getMinCellVoltage();
    m_max_cell_volts = voltages.getMaxCellVoltage();
+   m_voltage        = voltages.getPackVoltage();
+
    if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE &&
        m_min_cell_volts > CRITICALLY_LOW_VOLTAGE    &&
        (m_max_cell_volts - m_min_cell_volts) < CRITICALLY_HIGH_VOLTAGE_SPREAD)
@@ -182,6 +184,7 @@ void TeslaSlaveMonitor::process(const TSTemperatures& temperatures)
    m_bat_temps_recv = true;
    float max_temp = temperatures.getMaxTemperature();
    float min_temp = temperatures.getMinTempeature();
+   m_average_temperature = temperatures.getAvgTemperature();
    
    std::ostringstream ss;
    ss << "TeslaSlaveMonitor: " << m_pack_name << ": Processing Temperatures: Max=" << max_temp << " degC, Min=" << min_temp << " degC";

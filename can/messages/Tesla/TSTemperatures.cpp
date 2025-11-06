@@ -30,6 +30,7 @@ TSTemperatures::TSTemperatures(const DataFrame& frame):
 
    m_max_temperature = frame.getSignedShort(0) / 100.0f;
    m_min_temperature = frame.getSignedShort(2) / 100.0f;
+   m_average_temperature = frame.getSignedShort(4) / 100.0f;
    
    setValid();
 }
@@ -44,19 +45,10 @@ float TSTemperatures::getMinTempeature() const
    return m_min_temperature;
 }
 
-// BatteryPowerLimits& BatteryPowerLimits::setDischargePowerLimit_kW(float power)
-// {
-//    m_discharge_power_limit_kw = power;
-//    setValid();
-//    return *this;
-// }
-
-// BatteryPowerLimits& BatteryPowerLimits::setChargePowerLimit_kW(float power)
-// {
-//    m_charge_power_limit_kw = power;
-//    setValid();
-//    return *this;
-// }
+float TSTemperatures::getAvgTemperature() const
+{
+   return m_average_temperature;
+}
 
 void TSTemperatures::toStream(logging::ostream& os) const
 {

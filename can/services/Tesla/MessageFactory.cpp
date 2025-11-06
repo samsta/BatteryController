@@ -32,7 +32,7 @@ const Message* decode(const can::DataFrame& f, void* mem)
    msg = new(mem) TSTemperatures(f);
    if (msg->valid()) return msg;
 
-   msg = new(mem) TSCellVoltages(f);
+   msg = new(mem) TSVoltages(f);
    if (msg->valid()) return msg;
 
    msg = new(mem) TSBatteryStatus(f);

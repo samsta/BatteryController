@@ -80,7 +80,7 @@ public:
 
 private:
    void process(const can::messages::Tesla::TSTemperatures&);
-   void process(const can::messages::Tesla::TSCellVoltages&);
+   void process(const can::messages::Tesla::TSVoltages&);
    void process(const can::messages::Tesla::TSBatteryStatus&);
    // void process(const can::messages::Nissan::BatteryState&);
    // void process(const can::messages::Nissan::BatteryStatus&);

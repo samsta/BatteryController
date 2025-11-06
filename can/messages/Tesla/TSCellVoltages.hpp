@@ -14,19 +14,21 @@ class DataFrame;
 namespace messages {
 namespace Tesla {
 
-class TSCellVoltages: public Message
+class TSVoltages: public Message
 {
 public:
-   TSCellVoltages();
-   TSCellVoltages(const DataFrame& f);
+   TSVoltages();
+   TSVoltages(const DataFrame& f);
 
    float getMaxCellVoltage() const;
    float getMinCellVoltage() const;
+   float getPackVoltage() const;
    virtual void toStream(logging::ostream&) const;
 
 private:
    float m_max_cell_voltage;
    float m_min_cell_voltage;
+   float m_pack_voltage;
 };
 
 }
