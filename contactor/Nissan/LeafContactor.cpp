@@ -76,6 +76,7 @@ void LeafContactor::close()
 void LeafContactor::open()
 {
    m_requested_state = OPEN;
+   if (isSafeToOperate()) setSafeToOperate(false);
    updateRelays();
 }
 
