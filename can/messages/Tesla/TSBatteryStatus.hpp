@@ -17,14 +17,25 @@ namespace Tesla {
 class TSBatteryStatus: public Message
 {
 public:
+   enum Battery_Status {
+      OK,
+      ZERO_MODULES,
+      EXECESS_READ_ERROR_RATE,
+      EXCESSS_CONSECUTIVE_READ_ERRORS,
+      STARTUP,
+      UNRECOGNIZED
+   };
+
    TSBatteryStatus();
    TSBatteryStatus(const DataFrame& f);
 
-   uint32_t getBatteryStatus() const;
+   Battery_Status getBatteryStatus() const;
    virtual void toStream(logging::ostream&) const;
 
+
+
 private:
-   uint32_t m_battery_status;
+   Battery_Status m_battery_status;
 };
 
 }

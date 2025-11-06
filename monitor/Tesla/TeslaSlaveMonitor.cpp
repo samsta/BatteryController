@@ -124,13 +124,14 @@ void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
 void TeslaSlaveMonitor::process(const TSBatteryStatus& battery_status)
 {
    m_bat_status_recv = true;
-   uint8_t status = battery_status.getBatteryStatus();
+   can::messages::Tesla::TSBatteryStatus::Battery_Status status = battery_status.getBatteryStatus();
 
    std::ostringstream ss;
    ss << "TeslaSlaveMonitor: " << m_pack_name << ": Processing Battery Status: Status=" << (int)status;
    if (m_log) m_log->debug(ss);
 
-   if (status == 1) // OK
+   // JFS TODO need a case statment here for all status codes
+   if (status == can::messages::Tesla::TSBatteryStatus::Battery_Status::OK)
    {
       m_battery_status_ok = true;
    }
