@@ -60,10 +60,10 @@ inline float lower_limit(float value, const float warn_limit, const float critic
 
 TeslaSlaveMonitor::TeslaSlaveMonitor(
       char *packname,
-      contactor::Contactor& safety_shunt,
+      // contactor::Contactor& safety_shunt,
       logging::Logger* log):
       m_pack_name(packname),
-      m_safety_shunt(safety_shunt),
+      // m_safety_shunt(safety_shunt),
       m_log(log),
       m_battery_status_ok(false),
       m_voltages_ok(false),
@@ -249,33 +249,33 @@ void TeslaSlaveMonitor::process(const TSTemperatures& temperatures)
 
 void TeslaSlaveMonitor::updateOperationalSafety()
 {
-   if (!m_safety_shunt.isSafeToOperate() && m_pack_status == Monitor::STARTUP)
-   {
-      setPackStatus(Monitor::SHUNT_ACTIVIATED);
-      std::string ss;
-      ss.append("TeslaSlaveMonitor: ");
-      ss.append(m_pack_name);
-      ss.append(": SHUNT ACTIVIATED during STARTUP");
-      if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);
-   }
+   // if (!m_safety_shunt.isSafeToOperate() && m_pack_status == Monitor::STARTUP)
+   // {
+   //    setPackStatus(Monitor::SHUNT_ACTIVIATED);
+   //    std::string ss;
+   //    ss.append("TeslaSlaveMonitor: ");
+   //    ss.append(m_pack_name);
+   //    ss.append(": SHUNT ACTIVIATED during STARTUP");
+   //    if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);
+   // }
 
-   if (!m_safety_shunt.isSafeToOperate() && m_pack_status == Monitor::NORMAL_OPERATION )
-   {
-      // safety shunt has already have been triggered when state was changed to false
-      // just change pack status and report
-      setPackStatus(Monitor::SHUNT_ACTIVIATED);
-      std::string s2;
-      s2.append("TeslaSlaveMonitor: ");
-      s2.append(m_pack_name);
-      s2.append(": SHUNT ACTIVIATED during NORMAL operation");
-      if (m_log) m_log->alarm(s2, __FILENAME__,__LINE__);
-   }
+   // if (!m_safety_shunt.isSafeToOperate() && m_pack_status == Monitor::NORMAL_OPERATION )
+   // {
+   //    // safety shunt has already have been triggered when state was changed to false
+   //    // just change pack status and report
+   //    setPackStatus(Monitor::SHUNT_ACTIVIATED);
+   //    std::string s2;
+   //    s2.append("TeslaSlaveMonitor: ");
+   //    s2.append(m_pack_name);
+   //    s2.append(": SHUNT ACTIVIATED during NORMAL operation");
+   //    if (m_log) m_log->alarm(s2, __FILENAME__,__LINE__);
+   // }
 
-   bool everything_ok = m_battery_status_ok && m_voltages_ok && m_temperatures_ok && m_safety_shunt.isSafeToOperate();
+   bool everything_ok = m_battery_status_ok && m_voltages_ok && m_temperatures_ok; // && m_safety_shunt.isSafeToOperate();
    if (!everything_ok && m_pack_status == Monitor::NORMAL_OPERATION )
    {
       // everything WAS ok, but now it isn't, trigger the safety shunt
-      m_safety_shunt.setSafeToOperate(false);
+      // m_safety_shunt.setSafeToOperate(false);
       setPackStatus(Monitor::SHUNT_ACTIVIATED);
       std::string s2;
       s2.append("TeslaSlaveMonitor: ");

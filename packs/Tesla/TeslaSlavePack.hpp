@@ -34,7 +34,7 @@ public:
 private:
 
    char                                   *m_pack_name;
-   contactor::Nissan::TeensyShuntCtrl     m_safety_shunt;
+   // contactor::Nissan::TeensyShuntCtrl     m_safety_shunt;
    monitor::Tesla::TeslaSlaveMonitor      m_monitor;
    core::Timer&                           m_timer;
    can::services::Tesla::MessageFactory  m_message_factory;

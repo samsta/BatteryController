@@ -41,7 +41,7 @@ class TeslaSlaveMonitor: public monitor::Monitor, public can::messages::Tesla::M
 public:
    explicit TeslaSlaveMonitor(
             char *packname,
-            contactor::Contactor&,
+            // contactor::Contactor&,
             logging::Logger* log);
 
    virtual void sink(const can::messages::Tesla::Message&);
@@ -87,7 +87,7 @@ private:
    // void process(const can::messages::Nissan::BatteryPowerLimits&);
 
    char                    *m_pack_name;
-   contactor::Contactor&   m_safety_shunt;
+   // contactor::Contactor&   m_safety_shunt;
    logging::Logger         *m_log;
    bool m_battery_status_ok;
    bool m_voltages_ok;
