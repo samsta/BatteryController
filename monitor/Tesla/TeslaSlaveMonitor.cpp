@@ -127,22 +127,31 @@ void TeslaSlaveMonitor::process(const TSBatteryStatus& battery_status)
    can::messages::Tesla::TSBatteryStatus::Battery_Status status = battery_status.getBatteryStatus();
 
    std::ostringstream ss;
-   ss << "TeslaSlaveMonitor: " << m_pack_name << ": Processing Battery Status: Status=" << (int)status;
-   if (m_log) m_log->debug(ss);
+   ss << "TeslaSlaveMonitor: " << m_pack_name << ": Battery Status FAULT condition: ";
+   m_battery_status_ok = false;
+   switch (status)
+   {
+      case can::messages::Tesla::TSBatteryStatus::Battery_Status::OK:
+         m_battery_status_ok = true;
+         break;
 
-   // JFS TODO need a case statment here for all status codes
-   if (status == can::messages::Tesla::TSBatteryStatus::Battery_Status::OK)
-   {
-      m_battery_status_ok = true;
+      case can::messages::Tesla::TSBatteryStatus::Battery_Status::ZERO_MODULES:
+         ss << "ZERO_MODULES";
+         break;
+      case can::messages::Tesla::TSBatteryStatus::Battery_Status::EXECESS_READ_ERROR_RATE:
+         ss << "EXECESS_READ_ERROR_RATE";
+         break;   
+      case can::messages::Tesla::TSBatteryStatus::Battery_Status::EXCESSS_CONSECUTIVE_READ_ERRORS:
+         ss << "EXCESSS_CONSECUTIVE_READ_ERRORS";
+         break;
+
+      case can::messages::Tesla::TSBatteryStatus::Battery_Status::STARTUP:
+      case can::messages::Tesla::TSBatteryStatus::Battery_Status::UNRECOGNIZED:
+      default:
+         ss << "UNRECOGNIZED";
+         break;
    }
-   else
-   {
-      m_battery_status_ok = false;
-      // some fault condition
-      std::ostringstream sss;
-      sss << "TeslaSlaveMonitor: " << m_pack_name << ": Battery Status indicates FAULT condition: Status=" << (int)status;
-      if (m_log) m_log->alarm(sss, __FILENAME__,__LINE__);
-   }
+   if (!m_battery_status_ok) m_log->alarm(ss);
    updateOperationalSafety();
 }
 
@@ -209,80 +218,11 @@ void TeslaSlaveMonitor::process(const TSTemperatures& temperatures)
    updateOperationalSafety();
 }
 
-// void TeslaSlaveMonitor::process(const BatteryState& battery_state)
-// {
-//    m_bat_state_recv = true;
-//    //m_soc_percent = battery_state.getSocPercent(); replaced with useable_soc
-//    m_soh_percent = battery_state.getHealthPercent();
-//    m_capacity_kwh = (NOMINAL_CAPACITY_KWH/100) * m_soh_percent;
-//    //m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
-// }
-
-// void TeslaSlaveMonitor::process(const BatteryStatus& battery_status)
-// {
-//    m_bat_status_recv = true;
-//    m_current = battery_status.getCurrent();
-//    m_voltage = battery_status.getVoltage();
-//    m_soc_percent = (float)battery_status.getUsableSOC();
-//    m_energy_remaining_kwh = (m_capacity_kwh/100) * m_soc_percent;
-//    m_failsafe_status = battery_status.getFailsafeStatus();
-// }
-
-// void TeslaSlaveMonitor::process(const BatteryPowerLimits& battery_power)
-// {
-//    m_bat_limits_recv = true;
-//    m_discharge_power_limit = battery_power.getDischargePowerLimit_kW();
-//    m_charge_power_limit = battery_power.getChargePowerLimit_kW();
-
-//    if (m_voltage > 0)
-//    {
-//       m_discharge_current_limit = m_discharge_power_limit * 1000.0 / m_voltage;
-//       m_charge_current_limit = m_charge_power_limit * 1000.0 / m_voltage;
-//    }
-//    m_discharge_current_limit = m_discharge_cur_smoothing.process(m_discharge_current_limit);
-//    m_charge_current_limit = m_charge_cur_smoothing.process(m_charge_current_limit);
-
-//    // impose max value on the current limits
-//    if (m_discharge_current_limit > MAX_ALLOWABLE_CURRENT) m_discharge_current_limit = MAX_ALLOWABLE_CURRENT;
-//    if (m_charge_current_limit > MAX_ALLOWABLE_CURRENT) m_charge_current_limit = MAX_ALLOWABLE_CURRENT;
-// }
-
 void TeslaSlaveMonitor::updateOperationalSafety()
 {
-   // if (!m_safety_shunt.isSafeToOperate() && m_pack_status == Monitor::STARTUP)
-   // {
-   //    setPackStatus(Monitor::SHUNT_ACTIVIATED);
-   //    std::string ss;
-   //    ss.append("TeslaSlaveMonitor: ");
-   //    ss.append(m_pack_name);
-   //    ss.append(": SHUNT ACTIVIATED during STARTUP");
-   //    if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);
-   // }
-
-   // if (!m_safety_shunt.isSafeToOperate() && m_pack_status == Monitor::NORMAL_OPERATION )
-   // {
-   //    // safety shunt has already have been triggered when state was changed to false
-   //    // just change pack status and report
-   //    setPackStatus(Monitor::SHUNT_ACTIVIATED);
-   //    std::string s2;
-   //    s2.append("TeslaSlaveMonitor: ");
-   //    s2.append(m_pack_name);
-   //    s2.append(": SHUNT ACTIVIATED during NORMAL operation");
-   //    if (m_log) m_log->alarm(s2, __FILENAME__,__LINE__);
-   // }
-
-   bool everything_ok = m_battery_status_ok && m_voltages_ok && m_temperatures_ok; // && m_safety_shunt.isSafeToOperate();
-   if (!everything_ok && m_pack_status == Monitor::NORMAL_OPERATION )
+   bool volt_temp_ok = m_voltages_ok && m_temperatures_ok;;
+   if (!volt_temp_ok && m_pack_status == Monitor::NORMAL_OPERATION )
    {
-      // everything WAS ok, but now it isn't, trigger the safety shunt
-      // m_safety_shunt.setSafeToOperate(false);
-      setPackStatus(Monitor::SHUNT_ACTIVIATED);
-      std::string s2;
-      s2.append("TeslaSlaveMonitor: ");
-      s2.append(m_pack_name);
-      s2.append(": SHUNT ACTIVIATED during NORMAL operation");
-      if (m_log) m_log->alarm(s2, __FILENAME__,__LINE__);
-
       // report an alarm about the issue
       std::string s1;
       s1.append("TeslaSlaveMonitor: ");
@@ -290,8 +230,19 @@ void TeslaSlaveMonitor::updateOperationalSafety()
       s1.append(":  Alarm Condition(s) Present:");
       s1.append(getAlarmConditionText());
       if (m_log) m_log->alarm(s1, __FILENAME__,__LINE__);
+      // shutdown
+      setPackStatus(Monitor::SHUTDOWN);
    }
-   else if (m_bat_status_recv && m_bat_temps_recv && m_bat_volts_recv && everything_ok && m_pack_status == Monitor::STARTUP)
+   
+   if (!m_battery_status_ok && m_pack_status == Monitor::NORMAL_OPERATION )
+   {
+      // everything WAS ok, but now it isn't;
+      // shutdown
+      setPackStatus(Monitor::SHUTDOWN);
+   }
+   
+   bool everything_ok = m_battery_status_ok && m_voltages_ok && m_temperatures_ok;
+   if (m_bat_status_recv && m_bat_temps_recv && m_bat_volts_recv && everything_ok && m_pack_status == Monitor::STARTUP)
    {
       // battery has come right on startup
       setPackStatus(Monitor::NORMAL_OPERATION);
@@ -323,34 +274,35 @@ void TeslaSlaveMonitor::logStartupStatus() const
    if (m_pack_status == TeslaSlaveMonitor::STARTUP)
    {  
       std::string s1;
-      // std::ostringstream s1;
-      // s1 << "TeslaSlaveMonitor:" << m_pack_name << ": ";
       s1.append("TeslaSlaveMonitor:").append(m_pack_name).append(": ");
-      // if (!m_voltages_ok) {
-      //    std::ostringstream s2;
-      //    s2 << s1 << logging::Hex(ID_LBC_DATA_REPLY) << " Voltages (in spec) not yet received";
-      //    if (m_log) m_log->info(s2);
-      //    if (CRIT_HIGH_VOLT && !isnan(m_max_cell_volts)) {
-      //       std::ostringstream s3;
-      //       s3 << "CRIT_HIGH_VOLT condition: voltage = " << m_max_cell_volts;
-      //       if (m_log) m_log->alarm(s3);
-      //    }
-      //    if (CRIT_LOW_VOLT && !isnan(m_min_cell_volts)) {
-      //       std::ostringstream s4;
-      //       s4 << "CRIT_LOW_VOLT condition: voltage = " << m_min_cell_volts;
-      //       if (m_log) m_log->alarm(s4);
-      //    }
-      //    if (CRIT_SPREAD_VOLT && !isnan(m_max_cell_volts) && !isnan(m_min_cell_volts)) {
-      //       std::ostringstream s5;
-      //       s5 << "CRIT_SPREAD_VOLT condition: voltage = " << m_max_cell_volts << " - " << m_min_cell_volts << " = " << (m_max_cell_volts-m_min_cell_volts);
-      //       if (m_log) m_log->alarm(s5);
-      //    }
-      // }
+      if (!m_voltages_ok) {
+         std::ostringstream s2;
+         s2 << s1 << logging::Hex(ID_TS_CELL_VOLT) << " Voltages (in spec) not yet received";
+         if (m_log) m_log->info(s2);
+         if (CRIT_HIGH_VOLT && !isnan(m_max_cell_volts)) {
+            std::ostringstream s3;
+            s3 << "CRIT_HIGH_VOLT condition: voltage = " << m_max_cell_volts;
+            if (m_log) m_log->alarm(s3);
+         }
+         if (CRIT_LOW_VOLT && !isnan(m_min_cell_volts)) {
+            std::ostringstream s4;
+            s4 << "CRIT_LOW_VOLT condition: voltage = " << m_min_cell_volts;
+            if (m_log) m_log->alarm(s4);
+         }
+         if (CRIT_SPREAD_VOLT && !isnan(m_max_cell_volts) && !isnan(m_min_cell_volts)) {
+            std::ostringstream s5;
+            s5 << "CRIT_SPREAD_VOLT condition: voltage = " << m_max_cell_volts << " - " << m_min_cell_volts << " = " << (m_max_cell_volts-m_min_cell_volts);
+            if (m_log) m_log->alarm(s5);
+         }
+      }
       if (!m_temperatures_ok) {
          std::ostringstream s2;
          s2 << s1 << logging::Hex(ID_TS_TEMPS) << " Temperatures (in spec) not yet received";
          if (m_log) m_log->info(s2);
       }
+
+      // JFS add other message recv status
+
       // if (!m_bat_state_recv) {
       //    std::ostringstream s2;
       //    s2 << s1 << logging::Hex(ID_LBC_DATA_REPLY) << " Battery State not yet received";
@@ -484,24 +436,24 @@ std::string TeslaSlaveMonitor::getAlarmConditionText() const
 
    std::string ss;
    ss.append(m_pack_name);
-   ss.append(":  Alarm Condition(s) Present:\n\t\t\t\t\t");
+   ss.append(":  Alarm Condition(s) Present: ");
    if (m_volt_temp_status & MAX_TEMP_MISSING) {
-      ss.append("MAX_TEMP_SENSORS_MISSING\n\t\t\t\t\t");
+      ss.append("MAX_TEMP_SENSORS_MISSING: ");
    }
    if (m_volt_temp_status & CRIT_LOW_TEMP) {
-      ss.append("CRITICALLY_LOW_TEMPERATURE\n\t\t\t\t\t");
+      ss.append("CRITICALLY_LOW_TEMPERATURE: ");
    }
    if (m_volt_temp_status & CRIT_HIGH_TEMP) {
-      ss.append("CRITICALLY_HIGH_TEMPERATURE\n\t\t\t\t\t");
+      ss.append("CRITICALLY_HIGH_TEMPERATURE: ");
    }
    if (m_volt_temp_status & CRIT_SPREAD_VOLT) {
-      ss.append("CRITICALLY_HIGH_VOLTAGE_SPREAD\n\t\t\t\t\t");
+      ss.append("CRITICALLY_HIGH_VOLTAGE_SPREAD: ");
    }
    if (m_volt_temp_status & CRIT_LOW_VOLT) {
-      ss.append("CRITICALLY_LOW_VOLTAGE\n\t\t\t\t\t");
+      ss.append("CRITICALLY_LOW_VOLTAGE: ");
    }
    if (m_volt_temp_status & CRIT_HIGH_VOLT) {
-      ss.append("CRITICALLY_HIGH_VOLTAGE\n\t\t\t\t\t");
+      ss.append("CRITICALLY_HIGH_VOLTAGE:");
    }
    return ss;
 }
