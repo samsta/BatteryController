@@ -5,12 +5,15 @@
 
 #include "monitor/Monitor.hpp"
 #include "can/FrameSink.hpp"
-#include "can/messages/Nissan/Message.hpp"
-#include "can/messages/Nissan/BatteryState.hpp"
-#include "can/messages/Nissan/BatteryStatus.hpp"
-#include "can/messages/Nissan/CellVoltageRange.hpp"
-#include "can/messages/Nissan/PackTemperatures.hpp"
-#include "can/messages/Nissan/BatteryPowerLimits.hpp"
+#include "can/messages/Tesla/TSTemperatures.hpp"
+#include "can/messages/Tesla/TSCellVoltages.hpp"
+#include "can/messages/Tesla/TSBatteryStatus.hpp"
+#include "can/messages/Tesla/Message.hpp"
+// #include "can/messages/Nissan/BatteryState.hpp"
+// #include "can/messages/Nissan/BatteryStatus.hpp"
+// #include "can/messages/Nissan/CellVoltageRange.hpp"
+// #include "can/messages/Nissan/PackTemperatures.hpp"
+// #include "can/messages/Nissan/BatteryPowerLimits.hpp"
 #include "logging/logging.hpp"
 
 namespace contactor {
@@ -19,13 +22,13 @@ class Contactor;
 
 namespace can {
 namespace messages {
-namespace Nissan {
+namespace Tesla {
 class Message;
-class CellVoltageRange;
-class PackTemperatures;
-class BatteryState;
-class BatteryStatus;
-class BatteryPowerLimits;
+class TSTemperatures;
+// class CellVoltageRange;
+// class BatteryState;
+// class BatteryStatus;
+// class BatteryPowerLimits;
 }
 }
 }
@@ -33,15 +36,15 @@ class BatteryPowerLimits;
 namespace monitor {
 namespace Tesla {
 
-class TeslaSlaveMonitor: public monitor::Monitor, public can::messages::Nissan::MessageSink
+class TeslaSlaveMonitor: public monitor::Monitor, public can::messages::Tesla::MessageSink
 {
 public:
    explicit TeslaSlaveMonitor(
             char *packname,
-            contactor::Contactor&,
+            // contactor::Contactor&,
             logging::Logger* log);
 
-   virtual void sink(const can::messages::Nissan::Message&);
+   virtual void sink(const can::messages::Tesla::Message&);
 
    void updateOperationalSafety();
 
@@ -76,20 +79,22 @@ public:
    std::string getAlarmConditionText() const;
 
 private:
-   void process(const can::messages::Nissan::CellVoltageRange&);
-   void process(const can::messages::Nissan::PackTemperatures&);
-   void process(const can::messages::Nissan::BatteryState&);
-   void process(const can::messages::Nissan::BatteryStatus&);
-   void process(const can::messages::Nissan::BatteryPowerLimits&);
+   void process(const can::messages::Tesla::TSTemperatures&);
+   void process(const can::messages::Tesla::TSVoltages&);
+   void process(const can::messages::Tesla::TSBatteryStatus&);
+   // void process(const can::messages::Nissan::BatteryState&);
+   // void process(const can::messages::Nissan::BatteryStatus&);
+   // void process(const can::messages::Nissan::BatteryPowerLimits&);
 
    char                    *m_pack_name;
-   contactor::Contactor&   m_safety_shunt;
+   // contactor::Contactor&   m_safety_shunt;
    logging::Logger         *m_log;
+   bool m_battery_status_ok;
    bool m_voltages_ok;
    bool m_temperatures_ok;
-   bool m_bat_state_recv;
    bool m_bat_status_recv;
-   bool m_bat_limits_recv;
+   bool m_bat_temps_recv;
+   bool m_bat_volts_recv;
    Pack_Status m_pack_status;
 
    float m_soc_percent;

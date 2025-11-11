@@ -96,6 +96,18 @@ void USBPort::handle()
       m_log->error("Error reading from serial port.",__FILENAME__,__LINE__);
    }
    m_unprocessedSize += bytesread;
+   // // *******************************
+   // std::ostringstream ss;
+   // ss << "USBPort: bytesread: " << std::to_string(bytesread) << ": total unprocessed: " << std::to_string(m_unprocessedSize);
+   // ss << ": data:" << std::uppercase;
+   // for (size_t i = 0; i < m_unprocessedSize; ++i)
+   // {
+   //    ss << ' '
+   //       << std::hex << std::setw(2) << std::setfill('0')
+   //       << static_cast<int>(m_inBufferUnprocessed[i]);
+   // }
+   // m_log->info(ss);
+   // // *******************************
 
    uint32_t newhead = 0;
    uint32_t loopcount = 0;
@@ -145,6 +157,15 @@ void USBPort::handle()
          // this better be a hex encoded CAN message
          // find #, ID is 8 chars before it
          findhash = sbuf.find_first_of('#');
+
+                     // // *******************************
+                     // std::ostringstream hash;
+                     // hash << "findhash= " << static_cast<unsigned int>(findhash);
+                     // m_log->info(hash);  
+                     // // *******************************
+
+
+         
          if (findhash == 8 && m_unprocessedSize >= STD_MSG_SIZE)
          {
             // msg format 0P000xxx P=port xxx=msg id
@@ -200,7 +221,15 @@ void USBPort::handle()
             // display bad msg 
             if (findhash < (sizeof(cbuf)-100))
             {
-               snprintf(cbuf,sizeof(cbuf), "%s: Receive ERROR: bad msg format: fh= %d  br= %d  %.*s", m_port_name.c_str(), (int)findhash, m_unprocessedSize, m_unprocessedSize, m_inBufferUnprocessed);
+               char cbuf[1024];
+               char hexbuf[512];  // make sure it's at least 2× the buffer size + 1
+
+               int hexlen = 0;
+               for (int i = 0; i < m_unprocessedSize && hexlen < (int)sizeof(hexbuf) - 3; ++i)
+               {
+                  hexlen += snprintf(hexbuf + hexlen, sizeof(hexbuf) - hexlen, "%02X ", (unsigned char)m_inBufferUnprocessed[i]);
+               }
+               snprintf(cbuf,sizeof(cbuf), "%s: Receive ERROR: bad msg format: fh= %d  br= %d  %.*s", m_port_name.c_str(), (int)findhash, m_unprocessedSize, m_unprocessedSize, hexbuf);
             }
             else
             {
@@ -320,6 +349,13 @@ int USBPort::open_serial_port(const char * device, logging::Logger* log)
   options.c_oflag &= ~(ONLCR | OCRNL);
   options.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
 
+  // Force raw 8N1 mode
+  options.c_cflag &= ~PARENB;
+  options.c_cflag &= ~CSTOPB;
+  options.c_cflag &= ~CSIZE;
+  options.c_cflag |= CS8;
+  options.c_cflag |= (CLOCAL | CREAD);
+
   // Set up timeouts: Calls to read() will return as soon as there is
   // at least one byte available or when 100 ms has passed.
   // THE ABOVE IS ONLY TRUE, if buffer size is 1 byte,
@@ -334,7 +370,7 @@ int USBPort::open_serial_port(const char * device, logging::Logger* log)
   // when opening USB ports the baud rate setting is ignored,
   // it gets set to the USB port rate...1 MB.. or whatever it is.
   // but you need to set it, apparently
-   cfsetospeed(&options, B9600);
+   cfsetospeed(&options, B115200);
 
   result = tcsetattr(fd, TCSANOW, &options);
   if (result)

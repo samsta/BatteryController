@@ -19,7 +19,7 @@ class LeafMultiPack: public monitor::Monitor
 public:
 
    LeafMultiPack( std::vector<monitor::Monitor*> vmonitor,
-                  std::vector<contactor::Contactor*> vcontactor,
+                  // std::vector<contactor::Contactor*> vcontactor,
                   core::Timer& timer,
                   core::OutputPin& positive_relay,
                   core::OutputPin& negative_relay,
@@ -66,7 +66,7 @@ private:
    void updateFullyChargedDischargedStatus();
 
    std::vector<monitor::Monitor*>      m_vmonitor;
-   std::vector<contactor::Contactor*>  m_vsafety_shunt;
+   // std::vector<contactor::Contactor*>  m_vsafety_shunt;
    core::Timer&                        m_timer;
    contactor::Nissan::LeafContactor    m_main_contactor;
 
