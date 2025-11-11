@@ -77,6 +77,7 @@ void TeslaSlavePack::heartbeatCallback()
                   << " seconds";
             if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
             // m_safety_shunt.setSafeToOperate(false);
+            m_monitor.setPackStatus(monitor::Monitor::SHUTDOWN);
             m_monitor.updateOperationalSafety();
          }
 
