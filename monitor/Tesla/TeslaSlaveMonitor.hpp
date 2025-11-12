@@ -93,8 +93,6 @@ private:
    bool m_voltages_ok;
    bool m_temperatures_ok;
    bool m_bat_status_recv;
-   bool m_bat_temps_recv;
-   bool m_bat_volts_recv;
    Pack_Status m_pack_status;
 
    float m_soc_percent;

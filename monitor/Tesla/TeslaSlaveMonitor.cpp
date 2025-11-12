@@ -86,8 +86,6 @@ TeslaSlaveMonitor::TeslaSlaveMonitor(
 	   m_volt_temp_status(pow(2,6)-1),
       m_failsafe_status(7),
       m_bat_status_recv(false),
-      m_bat_temps_recv(false),
-      m_bat_volts_recv(false),
       m_charge_cur_smoothing(MAX_ALLOWABLE_CURRENT),
       m_discharge_cur_smoothing(MAX_ALLOWABLE_CURRENT)
 {
@@ -112,9 +110,6 @@ void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
       process(static_cast<const TSBatteryStatus&>(message));
       break;
 
-   // case ID_LBC_POWER_LIMITS:
-   //    process(static_cast<const BatteryPowerLimits&>(message));
-   //    break;
    default:
       // unknown id
       return;
@@ -157,7 +152,6 @@ void TeslaSlaveMonitor::process(const TSBatteryStatus& battery_status)
 
 void TeslaSlaveMonitor::process(const TSVoltages& voltages)
 {
-   m_bat_volts_recv = true;
    m_min_cell_volts = voltages.getMinCellVoltage();
    m_max_cell_volts = voltages.getMaxCellVoltage();
    m_voltage        = voltages.getPackVoltage();
@@ -191,7 +185,6 @@ void TeslaSlaveMonitor::process(const TSVoltages& voltages)
 
 void TeslaSlaveMonitor::process(const TSTemperatures& temperatures)
 {
-   m_bat_temps_recv = true;
    float max_temp = temperatures.getMaxTemperature();
    float min_temp = temperatures.getMinTempeature();
    m_average_temperature = temperatures.getAvgTemperature();
@@ -241,8 +234,7 @@ void TeslaSlaveMonitor::updateOperationalSafety()
       setPackStatus(Monitor::SHUTDOWN);
    }
    
-   bool everything_ok = m_battery_status_ok && m_voltages_ok && m_temperatures_ok;
-   if (m_bat_status_recv && m_bat_temps_recv && m_bat_volts_recv && everything_ok && m_pack_status == Monitor::STARTUP)
+   if (m_battery_status_ok && m_temperatures_ok && m_voltages_ok && m_pack_status == Monitor::STARTUP)
    {
       // battery has come right on startup
       setPackStatus(Monitor::NORMAL_OPERATION);
@@ -301,23 +293,11 @@ void TeslaSlaveMonitor::logStartupStatus() const
          if (m_log) m_log->info(s2);
       }
 
-      // JFS add other message recv status
-
-      // if (!m_bat_state_recv) {
-      //    std::ostringstream s2;
-      //    s2 << s1 << logging::Hex(ID_LBC_DATA_REPLY) << " Battery State not yet received";
-      //    if (m_log) m_log->info(s2);
-      // }
-      // if (!m_bat_status_recv) {
-      //    std::ostringstream s2;
-      //    s2 << s1 << logging::Hex(ID_BATTERY_STATUS) << " Battery Status not yet received";
-      //    if (m_log) m_log->info(s2);
-      // }
-      // if (!m_bat_limits_recv) {
-      //    std::ostringstream s2;
-      //    s2 << s1 << logging::Hex(ID_LBC_POWER_LIMITS) << " Battery Limits not yet received";
-      //    if (m_log) m_log->info(s2);
-      // }
+      if (m_bat_status_recv) {
+         std::ostringstream s2;
+         s2 << s1 << logging::Hex(ID_TS_BATTERY_STATUS) << " Battery Status not yet received";
+         if (m_log) m_log->info(s2);
+      }
    }
 }
 

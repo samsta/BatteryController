@@ -6,3 +6,4 @@ mitm
 mitm-log-file.csv
 .vscode/settings.json
 logging/rec-httppost/BatteryOneDataLog.txt
+._*
