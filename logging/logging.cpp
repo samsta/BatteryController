@@ -25,6 +25,7 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <regex>
 #include <logging/logging.hpp>
 
 using namespace std;
@@ -33,8 +34,8 @@ using namespace logging;
 // Log file name. File name should be change from here only
 const string logFileName = "BatteryController.log";
 const string dataFileName= "BatteryOneDataLog.txt";
-const string httpPostURL = "http://jimster.ca/BatteryOne/TEST-data-receiver.php";
-// const string httpPostURL = "http://jimster.ca/BatteryHikotron/BatteryOne-data-receiver.php";
+// const string httpPostURL = "http://jimster.ca/BatteryOne/TEST-data-receiver.php";
+const string httpPostURL = "http://jimster.ca/BatteryHikotron/BatteryOne-data-receiver.php";
 
 Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor):
    m_timer(timer),
@@ -216,11 +217,15 @@ void Logger::updateDataLog()
             }
          }
 
+         // replace any nan with 0
+         str = std::regex_replace(str, std::regex("nan"), "-99.9");
+
          // write the pertanent data to a file
          std::ofstream file;
          file.open(dataFileName.c_str(), ios::out|ios::app);
          file << str;
          file.close();
+         debug("Battery data written to file in build directory.");
 
          // see if filesize is same as str size, in which case
          // we don't need to read the file
@@ -279,8 +284,8 @@ void Logger::httpPOSTstr(std::string str)
    char msgbuf[1024];
 
    fsize = str.length();
-   // snprintf(msgbuf,sizeof(msgbuf), "Passed string size: %lu bytes.", fsize);
-   // info(msgbuf, __FILENAME__, __LINE__);
+   snprintf(msgbuf,sizeof(msgbuf), "Passed string size: %lu bytes.", fsize);
+   debug(msgbuf);
 
    /* get a curl handle */
    curl = curl_easy_init();
@@ -344,16 +349,16 @@ void Logger::httpPOSTstr(std::string str)
    //    info(msgbuf, __FILENAME__, __LINE__);
    // }
 
-   // info("httpPOSTstr finished.", __FILENAME__, __LINE__);
+   debug("httpPOSTstr finished.");
 
    // kludge city!
    // write the SOC to a file for OEMS to read
-   int soc = 0.5 + m_vmonitor[m_vmonitor.size()-1]->getSocPercent();
-   std::ofstream outFile("/home/pi/openems/SOC.txt");
-   if (outFile.is_open()) {
-      outFile << soc; // Write the integer as text
-      outFile.close();
-   }
+   // int soc = 0.5 + m_vmonitor[m_vmonitor.size()-1]->getSocPercent();
+   // std::ofstream outFile("/home/pi/openems/SOC.txt");
+   // if (outFile.is_open()) {
+   //    outFile << soc; // Write the integer as text
+   //    outFile.close();
+   // }
 }
 
 void Logger::logIntoFile(std::string& data)
