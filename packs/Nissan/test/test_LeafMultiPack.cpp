@@ -29,7 +29,7 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
   EXPECT_CALL(timer, registerPeriodicCallback(_, 1000,_)).WillOnce(SaveArg<0>(&invokable));
 
   LeafMultiPack LMP(      m_vmonitor,
-                          m_vcontactor,
+                        //   m_vcontactor,
                           timer,
                           positive_relay,
                           negative_relay,
@@ -48,7 +48,7 @@ class TestLeafMultipack1: public Test {
 public:
    TestLeafMultipack1():
       m_multipack(m_vmonitor,
-                  m_vcontactor,
+                //   m_vcontactor,
                   timer,
                   positive_relay,
                   negative_relay,
@@ -65,7 +65,7 @@ public:
    mocks::core::OutputPin pre_charge_relay;
 
    std::vector<monitor::Monitor*>         m_vmonitor = {&m_monitor1};
-   std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1};
+//    std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1};
 
     LeafMultiPack                         m_multipack;
 };
