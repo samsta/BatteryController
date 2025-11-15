@@ -192,7 +192,7 @@ int main(int argc, const char** argv)
    logger.setMonitor(vbatterymon);
 
    core::WebServer webserver(vbatterymon);
-   logger.info("Web server started on port 8080"); 
+   logger.info("Web server started on port 8090"); 
 
    #ifdef CONSOLE
    if (console.isOperational())

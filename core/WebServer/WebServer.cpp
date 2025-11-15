@@ -16,7 +16,7 @@ WebServer::WebServer(std::vector<monitor::Monitor*> &mons)
     mg_mgr_init(&mgr);
 
     // Listen on http://0.0.0.0:8080
-    mg_http_listen(&mgr, "http://0.0.0.0:8080", WebServer::eventHandler, this);
+    mg_http_listen(&mgr, "http://0.0.0.0:8090", WebServer::eventHandler, this);
 
     // Background thread
     serverThread = std::thread([this]() {
