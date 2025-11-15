@@ -18,15 +18,22 @@
 namespace core
 {
 
-
 class WebServer {
 public:
+    // monitors is a reference to your vbatterymon vector in main()
     WebServer(std::vector<monitor::Monitor*> &monitors);
     ~WebServer();
 
+    WebServer(const WebServer&) = delete;
+    WebServer& operator=(const WebServer&) = delete;
+
 private:
+    // Mongoose event handler (new API: no fn_data param)
     static void eventHandler(struct mg_connection *c, int ev, void *ev_data);
-    void handleRequest(struct mg_connection *c);
+
+    // Handlers for specific pages
+    void handleStatusPage(struct mg_connection *c, struct mg_http_message *hm);
+    void handleLogPage(struct mg_connection *c, struct mg_http_message *hm);
 
     mg_mgr mgr;
     bool running;
@@ -35,6 +42,5 @@ private:
     std::vector<monitor::Monitor*> &monitors;
 };
 
-}
-
+} // namespace core
 #endif /* CORE_WEBSERVER_WEBSERVER_HPP_ */
