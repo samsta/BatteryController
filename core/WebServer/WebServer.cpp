@@ -17,8 +17,8 @@ WebServer::WebServer(std::vector<monitor::Monitor*> &mons)
 
     mg_mgr_init(&mgr);
 
-    // Listen on http://0.0.0.0:8080
-    mg_http_listen(&mgr, "http://0.0.0.0:8080", WebServer::eventHandler, this);
+    // Listen on port
+    mg_http_listen(&mgr, m_webserverport , WebServer::eventHandler, this);
 
     // Background thread to poll Mongoose
     serverThread = std::thread([this]() {
@@ -106,7 +106,7 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
 
         html << "</table>";
     } 
-    
+
     html << "</body></html>";
 
     std::string out = html.str();

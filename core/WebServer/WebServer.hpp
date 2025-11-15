@@ -9,6 +9,7 @@
 // #include <logging/logging.hpp>
 // #include <string>
 
+
 #pragma once
 #include "mongoose.h"
 #include <vector>
@@ -27,7 +28,10 @@ public:
     WebServer(const WebServer&) = delete;
     WebServer& operator=(const WebServer&) = delete;
 
+    const char* getWebServerPort() const { return m_webserverport; }
+
 private:
+    const char* m_webserverport = "http://0.0.0.0:8888";
     // Mongoose event handler (new API: no fn_data param)
     static void eventHandler(struct mg_connection *c, int ev, void *ev_data);
 

@@ -192,9 +192,10 @@ int main(int argc, const char** argv)
    logger.setMonitor(vbatterymon);
 
    core::WebServer webserver(vbatterymon);
-   logger.info("Web server started on port 8090"); 
+   ss << "Web server started on port: " << webserver.getWebServerPort();
+   logger.info(ss);
 
-   #ifdef CONSOLE
+      #ifdef CONSOLE
    if (console.isOperational())
    {
       console.setMonitor(vbatterymon);
