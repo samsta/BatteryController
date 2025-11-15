@@ -28,6 +28,7 @@
 #include "core/Timer.hpp"
 #include "core/USBInterface/USBInterface.hpp"
 #include "core/Linux/ConsolePresenter.hpp"
+#include "core/WebServer/WebServer.hpp"
 #include "logging/colors.hpp"
 #include "logging/logging.hpp"
 #include <signal.h>
@@ -190,6 +191,9 @@ int main(int argc, const char** argv)
    // usb_port2.setSinkInbound(2, inverter_name, inverter_message_factory);
 
    logger.setMonitor(vbatterymon);
+
+   core::WebServer webserver(vbatterymon);
+   logger.info("Web server started on port 8080"); 
 
    #ifdef CONSOLE
    if (console.isOperational())
