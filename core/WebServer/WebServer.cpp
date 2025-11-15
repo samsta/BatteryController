@@ -66,7 +66,7 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
 
     html << "<html><head>"
          << "<meta charset='UTF-8'>"
-         << "<meta http-equiv='refresh' content='5'/>"
+        //  << "<meta http-equiv='refresh' content='5'/>"
          << "<title>Battery Monitor</title>"
          << "<style>"
          << "body { font-family: Arial, sans-serif; padding:20px; "
@@ -116,10 +116,6 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
 // =================== Log Page ("/log") ===================
 
 void WebServer::handleLogPage(struct mg_connection *c, struct mg_http_message * /*hm*/) {
-    std::ostringstream html;
-
-    // NOTE: This assumes BatteryController.log is in the process working dir.
-    // If your logger writes elsewhere, adjust this path.
     std::ifstream logFile("BatteryController.log");
     std::string content;
 
@@ -131,27 +127,50 @@ void WebServer::handleLogPage(struct mg_connection *c, struct mg_http_message * 
         content = "Unable to open BatteryController.log";
     }
 
+    // --- colorize ---
+    auto colorize = [](const std::string &s) {
+        std::string out = s;
+
+        // Replace known tags with HTML spans
+        auto repl = [&](const char* tag, const char* html) {
+            size_t pos = 0;
+            while ((pos = out.find(tag, pos)) != std::string::npos) {
+                out.replace(pos, strlen(tag), html);
+                pos += strlen(html);
+            }
+        };
+
+        repl("[INFO]",  "<span style='color:#4af'>[INFO]</span>");
+        repl("[ERROR]", "<span style='color:#f55;font-weight:bold'>[ERROR]</span>");
+        repl("[ALARM]", "<span style='color:#ff0;font-weight:bold'>[ALARM]</span>");
+        repl("[WARN]",  "<span style='color:#fa0'>[WARN]</span>");
+        repl("[DEBUG]", "<span style='color:#5f5'>[DEBUG]</span>");
+
+        return out;
+    };
+
+    std::string colored = colorize(content);
+
+    // --- HTML page ---
+    std::ostringstream html;
     html << "<html><head>"
          << "<meta charset='UTF-8'>"
-         << "<meta http-equiv='refresh' content='5'/>"
-         << "<title>Battery Controller Log</title>"
+         << "<title>BatteryController.log</title>"
          << "<style>"
-         << "body { font-family: monospace; padding:20px; "
-            "background:black; color:white; }"
-         << "pre { white-space: pre-wrap; font-size: 13px; line-height: 1.4; }"
-         << "a { color: #4af; text-decoration: none; }"
-         << "a:hover { text-decoration: underline; }"
+         << "body { font-family: monospace; padding:20px; background:black; color:white; }"
+         << "pre { white-space: pre-wrap; font-size: 13px; line-height: 1.3; }"
+         << "a { color: #4af; }"
          << "</style>"
          << "</head><body>";
 
     html << "<h1>BatteryController.log</h1>";
-    html << "<p><a href=\"/\">⬅ Back to Status</a></p>";
-    html << "<pre>" << content << "</pre>";
+    html << "<p><a href=\"/\">⬅ Back</a></p>";
+
+    html << "<pre>" << colored << "</pre>";
 
     html << "</body></html>";
 
-    std::string out = html.str();
-    mg_http_reply(c, 200, "Content-Type: text/html\r\n", "%s", out.c_str());
+    mg_http_reply(c, 200, "Content-Type: text/html\r\n", "%s", html.str().c_str());
 }
 
 } // namespace core
