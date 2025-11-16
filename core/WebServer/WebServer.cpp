@@ -3,6 +3,7 @@
 #include "WebServer.hpp"
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 
 extern "C" int mg_log_level;
 
@@ -114,8 +115,8 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
 }
 
 // =================== Log Page ("/log") ===================
-
 void WebServer::handleLogPage(struct mg_connection *c, struct mg_http_message * /*hm*/) {
+    // ---- READ LOG FILE ----
     std::ifstream logFile("BatteryController.log");
     std::string content;
 
@@ -127,48 +128,125 @@ void WebServer::handleLogPage(struct mg_connection *c, struct mg_http_message * 
         content = "Unable to open BatteryController.log";
     }
 
-    // --- colorize ---
-    auto colorize = [](const std::string &s) {
-        std::string out = s;
+    // ---- SPLIT INTO LINES ----
+    std::vector<std::string> lines;
+    {
+        std::stringstream ss(content);
+        std::string line;
+        while (std::getline(ss, line)) {
+            lines.push_back(line);
+        }
+    }
 
-        // Replace known tags with HTML spans
-        auto repl = [&](const char* tag, const char* html) {
-            size_t pos = 0;
-            while ((pos = out.find(tag, pos)) != std::string::npos) {
-                out.replace(pos, strlen(tag), html);
-                pos += strlen(html);
+    // ---- REVERSE ORDER (NEWEST FIRST) ----
+    std::reverse(lines.begin(), lines.end());
+
+    // ---- JOIN BACK INTO SINGLE STRING ----
+    std::string reversed;
+    for (auto &line : lines) {
+        reversed += line + "\n";
+    }
+
+    // ---- ESCAPE HTML ----
+    auto escapeHtml = [](const std::string &input) {
+        std::string out;
+        out.reserve(input.size());
+        for (char ch : input) {
+            switch (ch) {
+                case '&': out += "&amp;"; break;
+                case '<': out += "&lt;"; break;
+                case '>': out += "&gt;"; break;
+                default: out += ch;
             }
-        };
-
-        repl("[INFO]",  "<span style='color:#4af'>[INFO]</span>");
-        repl("[ERROR]", "<span style='color:#f55;font-weight:bold'>[ERROR]</span>");
-        repl("[ALARM]", "<span style='color:#ff0;font-weight:bold'>[ALARM]</span>");
-        repl("[WARN]",  "<span style='color:#fa0'>[WARN]</span>");
-        repl("[DEBUG]", "<span style='color:#5f5'>[DEBUG]</span>");
-
+        }
         return out;
     };
 
-    std::string colored = colorize(content);
+    std::string escaped = escapeHtml(reversed);
 
-    // --- HTML page ---
+    // ---- HTML + VSCODE STYLING ----
     std::ostringstream html;
-    html << "<html><head>"
-         << "<meta charset='UTF-8'>"
-         << "<title>BatteryController.log</title>"
-         << "<style>"
-         << "body { font-family: monospace; padding:20px; background:black; color:white; }"
-         << "pre { white-space: pre-wrap; font-size: 13px; line-height: 1.3; }"
-         << "a { color: #4af; }"
-         << "</style>"
-         << "</head><body>";
 
-    html << "<h1>BatteryController.log</h1>";
-    html << "<p><a href=\"/\">⬅ Back</a></p>";
+    html << R"HTML(
+<html>
+<head>
+<meta charset="UTF-8">
+<title>BatteryController.log</title>
 
-    html << "<pre>" << colored << "</pre>";
+<style>
+body {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-family: "Consolas", "Courier New", monospace;
+    padding: 20px;
+}
+h1, a {
+    color: #569cd6;
+}
+pre {
+    font-size: 13px;
+    white-space: pre-wrap;
+    padding: 15px;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 4px;
+}
+a:hover { text-decoration: underline; }
 
-    html << "</body></html>";
+/* VSCode highlight colors */
+.hljs-keyword,.hljs-selector-tag,.hljs-literal{color:#569cd6;}
+.hljs-number{color:#b5cea8;}
+.hljs-string{color:#ce9178;}
+.hljs-title,.hljs-name{color:#dcdcaa;}
+.hljs-attribute{color:#9cdcfe;}
+.hljs-comment{color:#6a9955;}
+.hljs-meta{color:#d16d9e;}
+.hljs-type{color:#4ec9b0;}
+</style>
+
+<script>
+// Minimal embedded highlighter for logs
+const hljs = {
+  highlightAll: function() {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightBlock(block);
+    });
+  },
+  highlightBlock: function(block) {
+    let html = block.innerHTML;
+
+    html = html.replace(/(\[INFO\])/g,  '<span style="color:#4aa3ff;font-weight:bold">$1</span>');
+    html = html.replace(/(\[WARN\])/g,  '<span style="color:#ff9800;font-weight:bold">$1</span>');
+    html = html.replace(/(\[ERROR\])/g,'<span style="color:#f44747;font-weight:bold">$1</span>');
+    html = html.replace(/(\[ALARM\])/g,'<span style="color:#ffea00;font-weight:bold">$1</span>');
+    html = html.replace(/(\[DEBUG\])/g,'<span style="color:#4ec9b0">$1</span>');
+
+    html = html.replace(/([A-Za-z0-9_]+\.(cpp|hpp):\d+)/g,'<span style="color:#9cdcfe">$1</span>');
+    html = html.replace(/(0x[0-9A-Fa-f]+)/g,'<span style="color:#b5cea8">$1</span>');
+    html = html.replace(/(\b\d+\b)/g,'<span style="color:#b5cea8">$1</span>');
+
+    block.innerHTML = html;
+  }
+};
+</script>
+
+</head>
+<body onload="hljs.highlightAll()">
+
+<h1>BatteryController.log (Newest First)</h1>
+<p><a href="/">⬅ Back to Status</a></p>
+
+<pre><code>
+)HTML";
+
+    html << escaped;
+
+    html << R"HTML(
+</code></pre>
+
+</body>
+</html>
+)HTML";
 
     mg_http_reply(c, 200, "Content-Type: text/html\r\n", "%s", html.str().c_str());
 }
