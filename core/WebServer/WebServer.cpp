@@ -81,45 +81,71 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
     <title>Battery Monitor Status</title>
     <meta http-equiv="refresh" content="5"/>
 
-    <style>
-        body {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        h1 {
-            color: #4aa3ff;
-        }
-        table {
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 6px 10px;
-            border: 1px solid #555;
-            text-align: center;
-        }
-        th {
-            background: #333;
-            color: #ddd;
-        }
-        td {
-            color: #eee;
-        }
-        .row-label {
-            text-align: left;
-            padding-left: 8px;
-            font-weight: bold;
-            background: #2a2a2a;
-        }
-        a {
-            color: #4aa3ff;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+<style>
+    body {
+        background: #000;           /* full black background */
+        color: #e0e0e0;             /* light grey text */
+        font-family: Arial, sans-serif;
+        padding: 20px;
+    }
+
+    h1 {
+        color: #ffffff;
+        margin-bottom: 10px;
+    }
+
+    h2 {
+        color: #ffffff;
+        margin-top: 30px;
+        margin-bottom: 8px;
+    }
+
+    a {
+        color: #4aa3ff;
+    }
+
+    /* ---- TABLE WRAPPER CARDS ---- */
+    .table-card {
+        background: #0f0f0f;        /* dark grey card */
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 25px;
+        box-shadow: 0px 0px 10px #000;
+    }
+
+    /* ---- TABLE STYLE ---- */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        background: #1a1a1a;        /* slightly lighter header */
+        color: #ddd;
+        padding: 8px;
+        border-bottom: 1px solid #333;
+    }
+
+    td {
+        padding: 8px;
+        color: #fff;
+        border-bottom: 1px solid #222;
+        text-align: center;
+    }
+
+    .row-label {
+        text-align: left;
+        background: #1a1a1a;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    /* Remove borders on last row */
+    tr:last-child td {
+        border-bottom: none;
+    }
+</style>
+
 </head>
 
 <body>
@@ -181,14 +207,14 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
     for (size_t i = 0; i < N; i++) {
         html << "<td>" << std::bitset<3>(vm[i]->getFailsafeStatus()) << "</td>";
     }
-    html << "<td>bits</td></tr>";
+    html << "</tr>";
 
     // Contactor Status (6 bits)
     html << "<tr><td class='row-label'>Contactor Status</td>";
     for (size_t i = 0; i < N; i++) {
         html << "<td>" << std::bitset<6>(vm[i]->getVoltTempStatus()) << "</td>";
     }
-    html << "<td>bits</td></tr>";
+    html << "</tr>";
 
     row_text("Voltage",                [&](auto m){ return m->getVoltage(); });
     row_text("Current",                [&](auto m){ return m->getCurrent(); });
