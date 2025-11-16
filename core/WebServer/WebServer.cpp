@@ -4,6 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
+#include "bitset"
 
 extern "C" int mg_log_level;
 
@@ -61,55 +62,151 @@ void WebServer::eventHandler(struct mg_connection *c, int ev, void *ev_data) {
 }
 
 // =================== Status Page ("/") ===================
-
 void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message * /*hm*/) {
+    auto &vm = monitors;   // alias for readability
+    const size_t N = vm.size();
+    if (N == 0) {
+        mg_http_reply(c, 200, "Content-Type: text/html\r\n",
+                      "<html><body><h1>No monitors available</h1></body></html>");
+        return;
+    }
+
+    // ---- Build the HTML page ----
     std::ostringstream html;
 
-    html << "<html><head>"
-         << "<meta charset='UTF-8'>"
-        //  << "<meta http-equiv='refresh' content='5'/>"
-         << "<title>Battery Monitor</title>"
-         << "<style>"
-         << "body { font-family: Arial, sans-serif; padding:20px; "
-            "background:black; color:white; }"
-         << "table { border-collapse: collapse; margin-bottom:30px; width: 60%; }"
-         << "th, td { padding: 8px 12px; border: 1px solid #666; color:white; }"
-         << "th { background: #333; }"
-         << "h1, h2 { color:white; }"
-         << "a { color: #4af; text-decoration: none; }"
-         << "a:hover { text-decoration: underline; }"
-         << "</style>"
-         << "</head><body>";
+    html << R"HTML(
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Battery Monitor Status</title>
+    <meta http-equiv="refresh" content="5"/>
 
-    html << "<h1>Battery Monitor Status</h1>";
-    html << "<p><a href=\"/log\">View Log</a></p>";
+    <style>
+        body {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            color: #4aa3ff;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 6px 10px;
+            border: 1px solid #555;
+            text-align: center;
+        }
+        th {
+            background: #333;
+            color: #ddd;
+        }
+        td {
+            color: #eee;
+        }
+        .row-label {
+            text-align: left;
+            padding-left: 8px;
+            font-weight: bold;
+            background: #2a2a2a;
+        }
+        a {
+            color: #4aa3ff;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
 
-    for (size_t i = 0; i < monitors.size(); i++)
-    {
-        auto *m = monitors[i];
-        
-        html << "<h2>Battery " << i << "</h2>";
-        // html << "<h2>" << m->getName() << "</h2>";
-        html << "<table>";
-        html << "<tr>"
-             << "<th>SOC (%)</th>"
-             << "<th>Voltage (V)</th>"
-             << "<th>Current (A)</th>"
-             << "<th>Temp (°C)</th>"
-             << "</tr>";
+<body>
 
-        html << "<tr>";
-        html << "<td>" << m->getSocPercent()  << "</td>";
-        html << "<td>" << m->getVoltage()     << "</td>";
-        html << "<td>" << m->getCurrent()     << "</td>";
-        html << "<td>" << m->getTemperature() << "</td>";
+<h1>Battery Monitor Status</h1>
+<p><a href="/log">View Log</a></p>
+
+)HTML";
+
+    // ---- Time section ----
+
+    // current time
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+
+    // run time
+    static auto start_time = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = now - start_time;
+    double hours = elapsed_seconds.count() / 3600.0;
+
+    html << "<p><b>Current Time:</b> " << std::ctime(&now_time) << "</p>";
+    html << "<p><b>Run Time:</b> " << hours << " hours</p>";
+
+    // ---- Main table ----
+    html << "<table>";
+
+    // HEADER ROW: Battery Numbers
+    html << "<tr><th class='row-label'>Battery Number</th>";
+    for (size_t i = 0; i < N; i++) {
+        if (i == N - 1) html << "<th>all</th>";
+        else html << "<th>" << (i + 1) << "</th>";
+    }
+    html << "</tr>";
+
+    // Macro-like lambdas to print a table row
+    auto row_text = [&](const std::string &label, auto getter) {
+        html << "<tr><td class='row-label'>" << label << "</td>";
+        for (size_t i = 0; i < N; i++) {
+            html << "<td>" << getter(vm[i]) << "</td>";
+        }
         html << "</tr>";
+    };
 
-        html << "</table>";
-    } 
+    auto row_bits = [&](const std::string &label, auto getter, int bits) {
+        html << "<tr><td class='row-label'>" << label << "</td>";
+        for (size_t i = 0; i < N; i++) {
+            html << "<td>" << std::bitset<16>(getter(vm[i])).to_string().substr(16 - bits) << "</td>";
+        }
+        html << "<td class='row-label'></td></tr>";
+    };
+
+    // ---- ROWS (exactly matching your console order & fields) ----
+
+    row_text("Pack Status",
+        [&](auto m){ return monitor::getPackStatusText(m->getPackStatus()); });
+
+    // Failsafe Status (3 bits)
+    html << "<tr><td class='row-label'>Failsafe Status</td>";
+    for (size_t i = 0; i < N; i++) {
+        html << "<td>" << std::bitset<3>(vm[i]->getFailsafeStatus()) << "</td>";
+    }
+    html << "<td>bits</td></tr>";
+
+    // Contactor Status (6 bits)
+    html << "<tr><td class='row-label'>Contactor Status</td>";
+    for (size_t i = 0; i < N; i++) {
+        html << "<td>" << std::bitset<6>(vm[i]->getVoltTempStatus()) << "</td>";
+    }
+    html << "<td>bits</td></tr>";
+
+    row_text("Voltage",                [&](auto m){ return m->getVoltage(); });
+    row_text("Current",                [&](auto m){ return m->getCurrent(); });
+    row_text("Temperature",            [&](auto m){ return m->getTemperature(); });
+    row_text("SOC",                    [&](auto m){ return m->getSocPercent(); });
+    row_text("SOH",                    [&](auto m){ return m->getSohPercent(); });
+    row_text("Energy Remaining",       [&](auto m){ return m->getEnergyRemainingKwh(); });
+    row_text("Capacity",               [&](auto m){ return m->getCapacityKwh(); });
+    row_text("Max Charge Voltage",     [&](auto m){ return m->getMaxChargeVoltage(); });
+    row_text("Min Discharge Voltage",  [&](auto m){ return m->getMinDischargeVoltage(); });
+    row_text("Charge Current Limit",   [&](auto m){ return m->getChargeCurrentLimit(); });
+    row_text("Discharge Current Lmt",  [&](auto m){ return m->getDischargeCurrentLimit(); });
+
+    html << "</table>";
 
     html << "</body></html>";
 
+    // ---- SEND PAGE ----
     std::string out = html.str();
     mg_http_reply(c, 200, "Content-Type: text/html\r\n", "%s", out.c_str());
 }
