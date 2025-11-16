@@ -141,8 +141,9 @@ void WebServer::handleLogPage(struct mg_connection *c, struct mg_http_message * 
     // ---- REVERSE ORDER (NEWEST FIRST) ----
     std::reverse(lines.begin(), lines.end());
 
-    // ---- JOIN BACK INTO SINGLE STRING ----
+    // ---- REASSEMBLE INTO ONE STRING ----
     std::string reversed;
+    reversed.reserve(content.size());
     for (auto &line : lines) {
         reversed += line + "\n";
     }
@@ -164,85 +165,103 @@ void WebServer::handleLogPage(struct mg_connection *c, struct mg_http_message * 
 
     std::string escaped = escapeHtml(reversed);
 
-    // ---- HTML + VSCODE STYLING ----
+    // ---- BUILD HTML ----
     std::ostringstream html;
 
     html << R"HTML(
 <html>
 <head>
-<meta charset="UTF-8">
-<title>BatteryController.log</title>
+    <meta charset="UTF-8">
+    <title>BatteryController.log (Newest First)</title>
 
-<style>
-body {
-    background: #1e1e1e;
-    color: #d4d4d4;
-    font-family: "Consolas", "Courier New", monospace;
-    padding: 20px;
-}
-h1, a {
-    color: #569cd6;
-}
-pre {
-    font-size: 13px;
-    white-space: pre-wrap;
-    padding: 15px;
-    background: #1e1e1e;
-    border: 1px solid #333;
-    border-radius: 4px;
-}
-a:hover { text-decoration: underline; }
+    <style>
+        body {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: Arial, sans-serif;   /* UI font matches status page */
+            padding: 20px;
+        }
 
-/* VSCode highlight colors */
-.hljs-keyword,.hljs-selector-tag,.hljs-literal{color:#569cd6;}
-.hljs-number{color:#b5cea8;}
-.hljs-string{color:#ce9178;}
-.hljs-title,.hljs-name{color:#dcdcaa;}
-.hljs-attribute{color:#9cdcfe;}
-.hljs-comment{color:#6a9955;}
-.hljs-meta{color:#d16d9e;}
-.hljs-type{color:#4ec9b0;}
-</style>
+        h1, a {
+            color: #569cd6;
+        }
 
-<script>
-// Minimal embedded highlighter for logs
-const hljs = {
-  highlightAll: function() {
-    document.querySelectorAll('pre code').forEach((block) => {
-      hljs.highlightBlock(block);
-    });
-  },
-  highlightBlock: function(block) {
-    let html = block.innerHTML;
+        pre {
+            font-size: 13px;
+            white-space: pre-wrap;
+            padding: 15px;
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 4px;
 
-    html = html.replace(/(\[INFO\])/g,  '<span style="color:#4aa3ff;font-weight:bold">$1</span>');
-    html = html.replace(/(\[WARN\])/g,  '<span style="color:#ff9800;font-weight:bold">$1</span>');
-    html = html.replace(/(\[ERROR\])/g,'<span style="color:#f44747;font-weight:bold">$1</span>');
-    html = html.replace(/(\[ALARM\])/g,'<span style="color:#ffea00;font-weight:bold">$1</span>');
-    html = html.replace(/(\[DEBUG\])/g,'<span style="color:#4ec9b0">$1</span>');
+            /* LOG TEXT = MONOSPACE for alignment */
+            font-family: "Cascadia Mono", "Consolas", "Courier New", monospace;
+        }
 
-    html = html.replace(/([A-Za-z0-9_]+\.(cpp|hpp):\d+)/g,'<span style="color:#9cdcfe">$1</span>');
-    html = html.replace(/(0x[0-9A-Fa-f]+)/g,'<span style="color:#b5cea8">$1</span>');
-    html = html.replace(/(\b\d+\b)/g,'<span style="color:#b5cea8">$1</span>');
+        a:hover {
+            text-decoration: underline;
+        }
 
-    block.innerHTML = html;
-  }
-};
-</script>
+        /* VSCode-like syntax colors */
+        .hljs-keyword, .hljs-selector-tag, .hljs-literal { color: #569cd6; }
+        .hljs-number { color: #b5cea8; }
+        .hljs-string { color: #ce9178; }
+        .hljs-title, .hljs-name { color: #dcdcaa; }
+        .hljs-attribute { color: #9cdcfe; }
+        .hljs-comment { color: #6a9955; }
+        .hljs-meta { color: #d16d9e; }
+        .hljs-type { color: #4ec9b0; }
+    </style>
 
+    <!-- Minimal embedded log highlighter -->
+    <script>
+    const hljs = {
+        highlightAll: function() {
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        },
+
+        highlightBlock: function(block) {
+            let html = block.innerHTML;
+
+            // Log levels
+            html = html.replace(/(\[INFO\])/g,  '<span style="color:#4aa3ff;font-weight:bold">$1</span>');
+            html = html.replace(/(\[WARN\])/g,  '<span style="color:#ff9800;font-weight:bold">$1</span>');
+            html = html.replace(/(\[ERROR\])/g, '<span style="color:#f44747;font-weight:bold">$1</span>');
+            html = html.replace(/(\[ALARM\])/g, '<span style="color:#ffea00;font-weight:bold">$1</span>');
+            html = html.replace(/(\[DEBUG\])/g, '<span style="color:#4ec9b0">$1</span>');
+
+            // File references
+            html = html.replace(/([A-Za-z0-9_]+\.(cpp|hpp):\d+)/g,
+                                '<span style="color:#9cdcfe">$1</span>');
+
+            // Hex values
+            html = html.replace(/(0x[0-9A-Fa-f]+)/g,
+                                '<span style="color:#b5cea8">$1</span>');
+
+            // Numbers
+            html = html.replace(/(\b\d+\b)/g,
+                                '<span style="color:#b5cea8">$1</span>');
+
+            block.innerHTML = html;
+        }
+    };
+    </script>
 </head>
+
 <body onload="hljs.highlightAll()">
 
-<h1>BatteryController.log (Newest First)</h1>
-<p><a href="/">⬅ Back to Status</a></p>
+    <h1>BatteryController.log (Newest First)</h1>
+    <p><a href="/">⬅ Back to Status</a></p>
 
-<pre><code>
+    <pre><code>
 )HTML";
 
     html << escaped;
 
     html << R"HTML(
-</code></pre>
+    </code></pre>
 
 </body>
 </html>
