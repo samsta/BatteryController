@@ -5,6 +5,7 @@
 #include <fstream>
 #include <algorithm>
 #include "bitset"
+#include <iomanip>
 
 extern "C" int mg_log_level;
 
@@ -71,6 +72,13 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
         return;
     }
 
+    // Helper: format numbers to 1 decimal place
+    auto fmt1 = [&](double v, int p=1) {
+        std::ostringstream ss;
+        ss << std::fixed << std::setprecision(p) << v;
+        return ss.str();
+    };
+
     // ---- Build the HTML page ----
     std::ostringstream html;
 
@@ -79,70 +87,48 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
 <head>
     <meta charset="UTF-8">
     <title>Battery Monitor Status</title>
-    <meta http-equiv="refresh" content="5"/>
+    <meta http-equiv="refresh" content="60"/>
 
-<style>
+    <style>
     body {
-        background: #000;           /* full black background */
-        color: #e0e0e0;             /* light grey text */
+        background: #000000;   /* PURE BLACK */
+        color: #d4d4d4;
         font-family: Arial, sans-serif;
         padding: 20px;
     }
-
     h1 {
-        color: #ffffff;
-        margin-bottom: 10px;
+        color: #4aa3ff;
     }
-
-    h2 {
-        color: #ffffff;
-        margin-top: 30px;
-        margin-bottom: 8px;
+    table {
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        border-radius: 10px;
+        overflow: hidden;
     }
-
+    th, td {
+        padding: 6px 10px;
+        border: 1px solid #555;
+        text-align: center;
+    }
+    th {
+        background: #333;
+        color: #ddd;
+    }
+    td {
+        color: #eee;
+    }
+    .row-label {
+        text-align: left;
+        padding-left: 8px;
+        font-weight: bold;
+        background: #2a2a2a;
+    }
     a {
         color: #4aa3ff;
     }
-
-    /* ---- TABLE WRAPPER CARDS ---- */
-    .table-card {
-        background: #0f0f0f;        /* dark grey card */
-        padding: 10px;
-        border-radius: 6px;
-        margin-bottom: 25px;
-        box-shadow: 0px 0px 10px #000;
-    }
-
-    /* ---- TABLE STYLE ---- */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th {
-        background: #1a1a1a;        /* slightly lighter header */
-        color: #ddd;
-        padding: 8px;
-        border-bottom: 1px solid #333;
-    }
-
-    td {
-        padding: 8px;
-        color: #fff;
-        border-bottom: 1px solid #222;
-        text-align: center;
-    }
-
-    .row-label {
-        text-align: left;
-        background: #1a1a1a;
-        font-weight: bold;
-        color: #fff;
-    }
-
-    /* Remove borders on last row */
-    tr:last-child td {
-        border-bottom: none;
+    a:hover {
+        text-decoration: underline;
     }
 </style>
 
@@ -152,7 +138,6 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
 
 <h1>Battery Monitor Status</h1>
 <p><a href="/log">View Log</a></p>
-
 )HTML";
 
     // ---- Time section ----
@@ -167,66 +152,63 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
     double hours = elapsed_seconds.count() / 3600.0;
 
     html << "<p><b>Current Time:</b> " << std::ctime(&now_time) << "</p>";
-    html << "<p><b>Run Time:</b> " << hours << " hours</p>";
+    html << "<p><b>Run Time:</b> " << fmt1(hours,2) << " hours</p>";
 
     // ---- Main table ----
     html << "<table>";
 
-    // HEADER ROW: Battery Numbers
-    html << "<tr><th class='row-label'>Battery Number</th>";
+    // HEADER ROW
+    html << "<tr><th class='row-label'>Battery</th>";
     for (size_t i = 0; i < N; i++) {
         if (i == N - 1) html << "<th>all</th>";
         else html << "<th>" << (i + 1) << "</th>";
     }
-    html << "</tr>";
+    html << "<th>Units</th></tr>";
 
-    // Macro-like lambdas to print a table row
-    auto row_text = [&](const std::string &label, auto getter) {
+    // Generic text-with-units row (all floats)
+    auto row_text_units = [&](const std::string &label, auto getter, const std::string &unit) {
         html << "<tr><td class='row-label'>" << label << "</td>";
         for (size_t i = 0; i < N; i++) {
-            html << "<td>" << getter(vm[i]) << "</td>";
+            html << "<td>" << fmt1(getter(vm[i])) << "</td>";
         }
-        html << "</tr>";
+        html << "<td>" << unit << "</td></tr>";
     };
 
-    auto row_bits = [&](const std::string &label, auto getter, int bits) {
-        html << "<tr><td class='row-label'>" << label << "</td>";
-        for (size_t i = 0; i < N; i++) {
-            html << "<td>" << std::bitset<16>(getter(vm[i])).to_string().substr(16 - bits) << "</td>";
-        }
-        html << "<td class='row-label'></td></tr>";
-    };
+    // ---- ROWS (exact console match) ----
 
-    // ---- ROWS (exactly matching your console order & fields) ----
-
-    row_text("Pack Status",
-        [&](auto m){ return monitor::getPackStatusText(m->getPackStatus()); });
+    // Pack Status (text, no units, no rounding)
+    html << "<tr><td class='row-label'>Pack Status</td>";
+    for (size_t i = 0; i < N; i++) {
+        html << "<td>" << monitor::getPackStatusText(vm[i]->getPackStatus()) << "</td>";
+    }
+    html << "<td></td></tr>";
 
     // Failsafe Status (3 bits)
     html << "<tr><td class='row-label'>Failsafe Status</td>";
     for (size_t i = 0; i < N; i++) {
         html << "<td>" << std::bitset<3>(vm[i]->getFailsafeStatus()) << "</td>";
     }
-    html << "</tr>";
+    html << "<td>bits</td></tr>";
 
     // Contactor Status (6 bits)
     html << "<tr><td class='row-label'>Contactor Status</td>";
     for (size_t i = 0; i < N; i++) {
         html << "<td>" << std::bitset<6>(vm[i]->getVoltTempStatus()) << "</td>";
     }
-    html << "</tr>";
+    html << "<td>bits</td></tr>";
 
-    row_text("Voltage",                [&](auto m){ return m->getVoltage(); });
-    row_text("Current",                [&](auto m){ return m->getCurrent(); });
-    row_text("Temperature",            [&](auto m){ return m->getTemperature(); });
-    row_text("SOC",                    [&](auto m){ return m->getSocPercent(); });
-    row_text("SOH",                    [&](auto m){ return m->getSohPercent(); });
-    row_text("Energy Remaining",       [&](auto m){ return m->getEnergyRemainingKwh(); });
-    row_text("Capacity",               [&](auto m){ return m->getCapacityKwh(); });
-    row_text("Max Charge Voltage",     [&](auto m){ return m->getMaxChargeVoltage(); });
-    row_text("Min Discharge Voltage",  [&](auto m){ return m->getMinDischargeVoltage(); });
-    row_text("Charge Current Limit",   [&](auto m){ return m->getChargeCurrentLimit(); });
-    row_text("Discharge Current Lmt",  [&](auto m){ return m->getDischargeCurrentLimit(); });
+    // Numeric rows with units (all rounded)
+    row_text_units("Voltage",               [&](auto m){ return m->getVoltage(); },               "V");
+    row_text_units("Current",               [&](auto m){ return m->getCurrent(); },               "A");
+    row_text_units("Temperature",           [&](auto m){ return m->getTemperature(); },           "°C");
+    row_text_units("SOC",                   [&](auto m){ return m->getSocPercent(); },            "%");
+    row_text_units("SOH",                   [&](auto m){ return m->getSohPercent(); },            "%");
+    row_text_units("Energy Remaining",      [&](auto m){ return m->getEnergyRemainingKwh(); },    "kWh");
+    row_text_units("Capacity",              [&](auto m){ return m->getCapacityKwh(); },           "kWh");
+    row_text_units("Max Charge Voltage",    [&](auto m){ return m->getMaxChargeVoltage(); },      "V");
+    row_text_units("Min Discharge Voltage", [&](auto m){ return m->getMinDischargeVoltage(); },   "V");
+    row_text_units("Charge Current Limit",  [&](auto m){ return m->getChargeCurrentLimit(); },    "A");
+    row_text_units("Discharge Current Lmt", [&](auto m){ return m->getDischargeCurrentLimit(); }, "A");
 
     html << "</table>";
 
