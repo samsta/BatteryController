@@ -463,12 +463,12 @@ uint32_t LeafMultiPack::getManufacturingDateUnixTime() const
 
 const char* LeafMultiPack::getManufacturerName() const
 {
-   return "TIML-LMP";
+   return "TIML";
 }
 
 const char* LeafMultiPack::getBatteryName() const
 {
-   return "LeafG2-LMP";
+   return "Hikotron-Tesla-26-Module";
 }
 
 contactor::Contactor& LeafMultiPack::getMainContactor()
