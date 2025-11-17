@@ -129,8 +129,8 @@ void LeafMultiPack::periodicCallback()
                std::ostringstream sss;
                sss << "Mulitpack status changed due to pack " << (i+1) << " having not-NORMAL_OPERATION status";
                if (m_log) m_log->alarm(sss, __FILENAME__,__LINE__);;
-               std::ostringstream ss; char text[64];
-               ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status, text);
+               std::ostringstream ss;
+               ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
                if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
             }
          }
@@ -145,8 +145,8 @@ void LeafMultiPack::periodicCallback()
          {
             // this will open the contactors
             setPackStatus(Monitor::SHUTDOWN);
-            std::ostringstream ss; char text[64];
-            ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status, text);
+            std::ostringstream ss;
+            ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
             if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
          }
          break;
@@ -156,8 +156,8 @@ void LeafMultiPack::periodicCallback()
          // display the status once
          if (m_display_shutdown_status) {
             m_display_shutdown_status = false;
-               std::ostringstream ss; char text[64];
-               ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status, text);
+               std::ostringstream ss;
+               ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
                if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
          }
          // open the contractors
@@ -463,12 +463,12 @@ uint32_t LeafMultiPack::getManufacturingDateUnixTime() const
 
 const char* LeafMultiPack::getManufacturerName() const
 {
-   return "TIML";
+   return "TIML-LMP";
 }
 
 const char* LeafMultiPack::getBatteryName() const
 {
-   return "Hikotron-Tesla-26-Module";
+   return "LeafG2-LMP";
 }
 
 contactor::Contactor& LeafMultiPack::getMainContactor()
