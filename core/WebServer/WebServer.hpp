@@ -14,6 +14,7 @@
 #include "mongoose.h"
 #include <vector>
 #include "monitor/Monitor.hpp"
+#include "contactor/Contactor.hpp"
 #include <thread>
 
 namespace core
@@ -22,7 +23,8 @@ namespace core
 class WebServer {
 public:
     // monitors is a reference to your vbatterymon vector in main()
-    WebServer(std::vector<monitor::Monitor*> &monitors);
+     WebServer(std::vector<monitor::Monitor*> &mons,
+                     contactor::Contactor* contactorPtr);
     ~WebServer();
 
     WebServer(const WebServer&) = delete;
@@ -44,6 +46,7 @@ private:
     std::thread serverThread;
 
     std::vector<monitor::Monitor*> &monitors;
+    contactor::Contactor* mainContactor;
 };
 
 } // namespace core
