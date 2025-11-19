@@ -41,12 +41,12 @@ private:
     void handleStatusPage(struct mg_connection *c, struct mg_http_message *hm);
     void handleLogPage(struct mg_connection *c, struct mg_http_message *hm);
 
-    mg_mgr mgr;
-    bool running;
-    std::thread serverThread;
+    mg_mgr m_mgr;
+    bool m_running;
+    std::thread m_server_thread;
 
-    std::vector<monitor::Monitor*> &monitors;
-    contactor::Contactor* mainContactor;
+    std::vector<monitor::Monitor*> &m_monitor;
+    contactor::Contactor* m_main_contactor;
 };
 
 } // namespace core

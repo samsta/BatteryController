@@ -13,35 +13,35 @@ namespace core {
 
 WebServer::WebServer(std::vector<monitor::Monitor*> &mons,
                      contactor::Contactor* contactorPtr)
-    : monitors(mons),
-    mainContactor(contactorPtr),
-    running(true)
+    : m_monitor(mons),
+    m_main_contactor(contactorPtr),
+    m_running(true)
 
 {
     // Disable all Mongoose logging to console
     mg_log_level = 0;
 
-    mg_mgr_init(&mgr);
+    mg_mgr_init(&m_mgr);
 
     // Listen on port
-    mg_http_listen(&mgr, m_webserverport , WebServer::eventHandler, this);
+    mg_http_listen(&m_mgr, m_webserverport , WebServer::eventHandler, this);
 
     // Background thread to poll Mongoose
-    serverThread = std::thread([this]() {
-        while (running) {
-            mg_mgr_poll(&mgr, 50);  // 50 ms
+    m_server_thread = std::thread([this]() {
+        while (m_running) {
+            mg_mgr_poll(&m_mgr, 50);  // 50 ms
         }
     });
 }
 
 WebServer::~WebServer() {
-    running = false;
+    m_running = false;
 
-    if (serverThread.joinable()) {
-        serverThread.join();
+    if (m_server_thread.joinable()) {
+        m_server_thread.join();
     }
 
-    mg_mgr_free(&mgr);
+    mg_mgr_free(&m_mgr);
 }
 
 // Static Mongoose event handler
@@ -67,7 +67,7 @@ void WebServer::eventHandler(struct mg_connection *c, int ev, void *ev_data) {
 
 // =================== Status Page ("/") ===================
 void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message * /*hm*/) {
-    auto &vm = monitors;   // alias for readability
+    auto &vm = m_monitor;   // alias for readability
     const size_t N = vm.size();
     if (N == 0) {
         mg_http_reply(c, 200, "Content-Type: text/html\r\n",
@@ -216,7 +216,7 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
     html << "</table>";
 
     // ----- Contactor status block -----
-    if (mainContactor) {
+    if (m_main_contactor) {
         html << R"HTML(
             <div style="
                 margin-top: 25px;
@@ -231,17 +231,17 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
 
         // Inverter Comm Status
         html << "<p><b>Inverter Comms Ok:</b> "
-            << (mainContactor->inverterCommsOk() ? "Yes" : "NO")
+            << (m_main_contactor->inverterCommsOk() ? "Yes" : "NO")
             << "</p>";
 
         // Safe to operate
         html << "<p><b>Contactor Safe To Operate:</b> "
-            << (mainContactor->isSafeToOperate() ? "Yes" : "NO")
+            << (m_main_contactor->isSafeToOperate() ? "Yes" : "NO")
             << "</p>";
 
         // State (open/closed)
         html << "<p><b>Contactor State:</b> "
-            << (mainContactor->isClosed() ? "CLOSED" : "OPEN")
+            << (m_main_contactor->isClosed() ? "CLOSED" : "OPEN")
             << "</p>";
 
         html << "</div>";
