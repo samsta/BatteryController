@@ -11,9 +11,12 @@ extern "C" int mg_log_level;
 
 namespace core {
 
-WebServer::WebServer(std::vector<monitor::Monitor*> &mons)
-    : running(true),
-      monitors(mons)
+WebServer::WebServer(std::vector<monitor::Monitor*> &mons,
+                     contactor::Contactor* contactorPtr)
+    : monitors(mons),
+    mainContactor(contactorPtr),
+    running(true)
+
 {
     // Disable all Mongoose logging to console
     mg_log_level = 0;
@@ -211,6 +214,29 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
     row_text_units("Discharge Current Lmt", [&](auto m){ return m->getDischargeCurrentLimit(); }, "A");
 
     html << "</table>";
+
+    // ----- Contactor status block -----
+    if (mainContactor) {
+        html << R"HTML(
+            <div style="
+                margin-top: 25px;
+                padding: 15px;
+                background: #111;
+                border: 1px solid #333;
+                border-radius: 10px;
+                width: fit-content;
+            ">
+                <h2 style="color: #4aa3ff; margin-top: 0;">Main Contactor</h2>
+        )HTML";
+
+        html << "<p><b>Safe to operate:</b> "
+            << (mainContactor->isSafeToOperate() ? "Yes" : "No") << "</p>";
+
+        html << "<p><b>State:</b> "
+            << (mainContactor->isClosed() ? "CLOSED" : "OPEN") << "</p>";
+
+        html << "</div>";
+    }
 
     html << "</body></html>";
 
