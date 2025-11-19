@@ -17,6 +17,8 @@ public:
    virtual bool isSafeToOperate() const = 0;
    virtual void close() = 0;
    virtual void open() = 0;
+   virtual void setInverterCommsOk(bool) = 0;
+   virtual bool inverterCommsOk() const = 0;
 };
 
 logging::ostream& operator<<(logging::ostream& os, const Contactor& contactor);

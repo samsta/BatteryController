@@ -226,17 +226,27 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
                 border-radius: 10px;
                 width: fit-content;
             ">
-                <h2 style="color: #4aa3ff; margin-top: 0;">Main Contactor</h2>
+                <h2 style="color: #4aa3ff; margin-top: 0;">Communications</h2>
         )HTML";
 
-        html << "<p><b>Safe to operate:</b> "
-            << (mainContactor->isSafeToOperate() ? "Yes" : "No") << "</p>";
+        // Inverter Comm Status
+        html << "<p><b>Inverter Comms Ok:</b> "
+            << (mainContactor->inverterCommsOk() ? "Yes" : "NO")
+            << "</p>";
 
-        html << "<p><b>State:</b> "
-            << (mainContactor->isClosed() ? "CLOSED" : "OPEN") << "</p>";
+        // Safe to operate
+        html << "<p><b>Contactor Safe To Operate:</b> "
+            << (mainContactor->isSafeToOperate() ? "Yes" : "NO")
+            << "</p>";
+
+        // State (open/closed)
+        html << "<p><b>Contactor State:</b> "
+            << (mainContactor->isClosed() ? "CLOSED" : "OPEN")
+            << "</p>";
 
         html << "</div>";
     }
+
 
     html << "</body></html>";
 
