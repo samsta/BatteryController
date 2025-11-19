@@ -34,7 +34,9 @@ public:
    virtual bool isClosed() const;
    virtual void close();
    virtual void open();
-
+   virtual bool inverterCommsOk() const { return m_inverter_comms_ok; }
+   virtual void setInverterCommsOk(bool comms_ok) { m_inverter_comms_ok = comms_ok; }
+    
 private:
    enum State {
       OPEN,
@@ -55,6 +57,7 @@ private:
    logging::Logger* m_log;
 
    bool  m_safe_to_operate;
+   bool  m_inverter_comms_ok;
    State m_requested_state;
    State m_state;
 
@@ -74,6 +77,8 @@ public:
    virtual bool isClosed() const;
    virtual void close();
    virtual void open();
+   virtual bool inverterCommsOk() const { return m_inverter_comms_ok; }
+   virtual void setInverterCommsOk(bool comms_ok) { m_inverter_comms_ok = comms_ok; }
 
 private:
    enum State {
@@ -89,6 +94,7 @@ private:
    logging::Logger* m_log;
    bool  m_safe_to_operate;
    State m_state;
+   bool  m_inverter_comms_ok;
 
    const uint8_t m_shunt_normal_msg[8] = { 0x55, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
    const uint8_t m_shunt_triggered_msg[8] = { 0xAA, 0xAA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };

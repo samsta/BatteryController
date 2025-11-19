@@ -6,8 +6,9 @@ namespace contactor {
 
 logging::ostream& operator<<(logging::ostream& os, const Contactor& contactor)
 {
-   os << "Safe to operate: " << (contactor.isSafeToOperate() ? "Yes" : "No") << std::endl;
-   os << "State:           " << (contactor.isClosed() ? "CLOSED" : "OPEN") << std::endl;
+   os << "Inverter Comms Ok:    " << (contactor.inverterCommsOk() ? "Yes" : "No") << std::endl;
+   os << "Cont Safe To Operate: " << (contactor.isSafeToOperate() ? "Yes" : "No") << std::endl;
+   os << "Contactor State:      " << (contactor.isClosed() ? "CLOSED" : "OPEN") << std::endl;
    return os;
 }
 
