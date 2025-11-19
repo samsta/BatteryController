@@ -32,6 +32,7 @@ public:
    virtual void sink(const can::messages::Message&);
    uint16_t getHeartbeatValue();
    bool getHbNonConsec();
+   bool inverterCommsOk() { return false; } // TODO implement properly
 
 private:
    void process(const can::messages::SINEX::InverterHeartbeat& command);

@@ -7,6 +7,8 @@ namespace inverter {
 
 class Inverter {
 
+    public:
+        virtual bool inverterCommsOk() = 0;
 };
 
 }

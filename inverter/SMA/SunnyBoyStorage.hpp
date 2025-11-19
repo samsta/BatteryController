@@ -31,6 +31,7 @@ public:
    ~SunnyBoyStorage();
 
    virtual void sink(const can::messages::Message&);
+   bool inverterCommsOk() { return false; } // TODO implement properly
    
 private:
    void process(const can::messages::SMA::InverterCommand&);
