@@ -12,9 +12,11 @@ extern "C" int mg_log_level;
 namespace core {
 
 WebServer::WebServer(std::vector<monitor::Monitor*> &mons,
-                     contactor::Contactor* contactorPtr)
-    : monitors(mons),
+                     contactor::Contactor* contactorPtr, 
+                     inverter::Inverter* inverterPtr):
+    monitors(mons),
     mainContactor(contactorPtr),
+    inverterPtr(inverterPtr),
     running(true)
 
 {
@@ -229,14 +231,26 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
                 <h2 style="color: #4aa3ff; margin-top: 0;">Main Contactor</h2>
         )HTML";
 
+        // Safe to operate
         html << "<p><b>Safe to operate:</b> "
-            << (mainContactor->isSafeToOperate() ? "Yes" : "No") << "</p>";
+            << (mainContactor->isSafeToOperate() ? "Yes" : "No")
+            << "</p>";
 
+        // NEW LINE: Inverter Comm Status
+        if (inverterPtr) {
+            html << "<p><b>Inverter Comm Status:</b> "
+                << ((inverterPtr->inverterCommsOk()) ? "Working" : "Failed")
+                << "</p>";
+        }
+
+        // State (open/closed)
         html << "<p><b>State:</b> "
-            << (mainContactor->isClosed() ? "CLOSED" : "OPEN") << "</p>";
+            << (mainContactor->isClosed() ? "CLOSED" : "OPEN")
+            << "</p>";
 
         html << "</div>";
     }
+
 
     html << "</body></html>";
 

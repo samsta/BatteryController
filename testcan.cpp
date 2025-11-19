@@ -192,7 +192,9 @@ int main(int argc, const char** argv)
 
    logger.setMonitor(vbatterymon);
 
-   core::WebServer webserver(vbatterymon, &multi_pack.getMainContactor());
+   bool x = inverter.inverterCommsOk();
+
+   core::WebServer webserver(vbatterymon, &multi_pack.getMainContactor(), &inverter);
    ss << "Web server started on port: " << webserver.getWebServerPort();
    logger.info(ss);
 

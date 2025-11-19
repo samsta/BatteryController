@@ -15,6 +15,7 @@
 #include <vector>
 #include "monitor/Monitor.hpp"
 #include "contactor/Contactor.hpp"
+#include "inverter/Inverter.hpp"
 #include <thread>
 
 namespace core
@@ -24,7 +25,9 @@ class WebServer {
 public:
     // monitors is a reference to your vbatterymon vector in main()
      WebServer(std::vector<monitor::Monitor*> &mons,
-                     contactor::Contactor* contactorPtr);
+                     contactor::Contactor* contactorPtr,
+                     inverter::Inverter* inverterPtr
+                     );
     ~WebServer();
 
     WebServer(const WebServer&) = delete;
@@ -47,6 +50,7 @@ private:
 
     std::vector<monitor::Monitor*> &monitors;
     contactor::Contactor* mainContactor;
+    inverter::Inverter* inverterPtr;
 };
 
 } // namespace core

@@ -26,6 +26,7 @@ LeafContactor::LeafContactor(
          m_pre_charge_relay(pre_charge_relay),
          m_log(log),
          m_safe_to_operate(false),
+         m_inverter_comms_ok(false),
          m_requested_state(OPEN),
          m_state(OPEN),
          m_delayed_close(*this, &LeafContactor::closePositiveRelay),
@@ -152,6 +153,16 @@ void LeafContactor::openPreChargeRelay()
    }
 }
 
+bool LeafContactor::inverterCommsOk() const
+{
+   return m_inverter_comms_ok;
+}
+
+void LeafContactor::setInverterComms(bool comms_ok)
+{
+   m_inverter_comms_ok = comms_ok;
+}
+
 //---------------------------------------------------------------------------------------------------
 TeensyShuntCtrl::TeensyShuntCtrl(char *packname, can::FrameSink& sender, uint32_t canid, logging::Logger* log):
          m_pack_name(packname),
@@ -159,6 +170,7 @@ TeensyShuntCtrl::TeensyShuntCtrl(char *packname, can::FrameSink& sender, uint32_
          m_canid(canid),
          m_log(log),
          m_safe_to_operate(true),
+         m_inverter_comms_ok(false),
          m_state(NORMAL)
 {
    // ensure shunt is closed at startup (relay de-engerized), shunt not triggered,

@@ -41,7 +41,8 @@ TSOL_H50K::TSOL_H50K(can::FrameSink& sender,
       m_contactor(contactor),
       m_log(log),
       m_periodic_callback(*this, &TSOL_H50K::periodicCallback),
-      m_inverter_silent_counter(0)
+      m_inverter_silent_counter(0),
+      m_inverter_comms_ok(false)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, 5000,"TSUNPeriodic");
 }
@@ -63,6 +64,7 @@ void TSOL_H50K::periodicCallback()
          m_inverter_silent_counter++;
       }
       m_contactor.open();
+      m_inverter_comms_ok = false;
       return;
    }
 }
@@ -91,6 +93,7 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
 {
    if (command.getInfoType() == InverterInfoRequest::ENSEMBLE)
    {
+      m_inverter_comms_ok = true;
       m_contactor.close();
 
       // do not send battery info unless the contractor is closed
@@ -164,6 +167,11 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
       }
    }
    // TODO else some kind of error reporting?
+}
+
+bool TSOL_H50K::inverterCommsOk()
+{
+   return m_inverter_comms_ok;
 }
 
 }

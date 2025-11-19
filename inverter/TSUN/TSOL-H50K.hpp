@@ -30,6 +30,7 @@ public:
    ~TSOL_H50K();
 
    virtual void sink(const can::messages::Message&);
+   bool inverterCommsOk();
 
 private:
    void process(const can::messages::TSUN::InverterInfoRequest& command);
@@ -42,6 +43,7 @@ private:
    logging::Logger       *m_log;
    core::Callback<TSOL_H50K> m_periodic_callback;
    unsigned              m_inverter_silent_counter;
+   bool                  m_inverter_comms_ok;
 };
 
 }
