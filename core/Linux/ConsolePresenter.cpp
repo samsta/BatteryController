@@ -59,7 +59,7 @@ void ConsolePresenter::refreshDisplay()
       ss << "not configured" << std::endl;
    }
 
-   ss << "Contactor:" << std::endl;
+   ss << "Communications:" << std::endl;
    ss << "--------" << std::endl;
    if (m_contactor)
    {

@@ -63,6 +63,7 @@ void TSOL_H50K::periodicCallback()
          m_inverter_silent_counter++;
       }
       m_contactor.open();
+      m_contactor.setInverterCommsOk(false);
       return;
    }
 }
@@ -91,6 +92,7 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
 {
    if (command.getInfoType() == InverterInfoRequest::ENSEMBLE)
    {
+      m_contactor.setInverterCommsOk(true);
       m_contactor.close();
 
       // do not send battery info unless the contractor is closed
