@@ -140,7 +140,10 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
 <body>
 
 <h1>Battery Monitor Status</h1>
-<p><a href="/log">View Log</a></p>
+<p>
+    <a href="/log">View Log</a> &nbsp; &nbsp; &nbsp;
+    <a href="/">Refresh</a>
+</p>
 )HTML";
 
     // ---- Time section ----
@@ -230,19 +233,31 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
         )HTML";
 
         // Inverter Comm Status
-        html << "<p><b>Inverter Comms Ok:</b> "
-            << (m_main_contactor->inverterCommsOk() ? "Yes" : "NO")
-            << "</p>";
+        {
+            bool ok = m_main_contactor->inverterCommsOk();
+            html << "<p><b>Inverter Comms Ok:</b> "
+                << "<span style=\"color:" << (ok ? "#00ff00" : "#ff4444") << ";\">"
+                << (ok ? "Yes" : "NO")
+                << "</span></p>";
+        }
 
         // Safe to operate
-        html << "<p><b>Contactor Safe To Operate:</b> "
-            << (m_main_contactor->isSafeToOperate() ? "Yes" : "NO")
-            << "</p>";
+        {
+            bool safe = m_main_contactor->isSafeToOperate();
+            html << "<p><b>Contactor Safe To Operate:</b> "
+                << "<span style=\"color:" << (safe ? "#00ff00" : "#ff4444") << ";\">"
+                << (safe ? "Yes" : "NO")
+                << "</span></p>";
+        }
 
         // State (open/closed)
-        html << "<p><b>Contactor State:</b> "
-            << (m_main_contactor->isClosed() ? "CLOSED" : "OPEN")
-            << "</p>";
+        {
+            bool closed = m_main_contactor->isClosed();
+            html << "<p><b>Contactor State:</b> "
+                << "<span style=\"color:" << (closed ? "#00ff00" : "#ff4444") << ";\">"
+                << (closed ? "CLOSED" : "OPEN")
+                << "</span></p>";
+        }
 
         html << "</div>";
     }
@@ -392,7 +407,10 @@ const hljs = {
 <body onload="hljs.highlightAll()">
 
 <h1>BatteryController.log (Newest First)</h1>
-<p><a href="/">⬅ Back to Status</a></p>
+<p>
+    <a href="/">⬅ Back to Status</a> &nbsp; &nbsp; &nbsp;
+    <a href="/log">Refresh</a>
+</p>
 
 <pre><code>
 )HTML";
