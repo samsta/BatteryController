@@ -14,6 +14,8 @@ public:
    MOCK_METHOD(bool, isSafeToOperate,(), (const));
    MOCK_METHOD(void, close,());
    MOCK_METHOD(void, open,());
+   MOCK_METHOD(void, setInverterCommsOk,(bool));
+   MOCK_METHOD(bool, inverterCommsOk,(), (const));
 };
 
 }
