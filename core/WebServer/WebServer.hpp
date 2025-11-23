@@ -47,6 +47,8 @@ private:
 
     std::vector<monitor::Monitor*> &m_monitor;
     contactor::Contactor* m_main_contactor;
+
+    std::chrono::system_clock::time_point m_start_time;
 };
 
 } // namespace core
