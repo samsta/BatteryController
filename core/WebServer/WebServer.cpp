@@ -18,6 +18,8 @@ WebServer::WebServer(std::vector<monitor::Monitor*> &mons,
     m_running(true)
 
 {
+    m_start_time = std::chrono::system_clock::now();
+
     // Disable all Mongoose logging to console
     mg_log_level = 0;
 
@@ -153,12 +155,11 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
 
     // run time
-    static auto start_time = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = now - start_time;
+    std::chrono::duration<double> elapsed_seconds = now - m_start_time;
     double hours = elapsed_seconds.count() / 3600.0;
 
     html << "<p><b>Current Time:</b> " << std::ctime(&now_time) << "</p>";
-    html << "<p><b>Run Time:</b> " << fmt1(hours,2) << " hours</p>";
+    html << "<p><b>Run Time:</b> " << fmt1(hours,3) << " hours</p>";
 
     // ---- Main table ----
     html << "<table>";
