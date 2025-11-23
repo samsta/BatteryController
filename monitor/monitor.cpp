@@ -1,5 +1,6 @@
 #include "Monitor.hpp"
 #include "bitset"
+#include <iomanip>
 #include <chrono>
 namespace monitor
 {
@@ -15,7 +16,8 @@ namespace monitor
       std::chrono::duration<double> elapsed_seconds = nowtime - start;
 
       os << "Current Time: " << std::ctime(&now_time);
-      os << "Run Time: " << 0.001 * int(1000.0 * (int(elapsed_seconds.count() + 0.5) / 3600.0)) << " hours" << std::endl;
+      os << "Run Time: " << std::fixed << std::setprecision(3) << (elapsed_seconds.count() / 3600.0) << " hours" << std::endl;
+      os << std::defaultfloat << std::setprecision(6);   
 
       os << "Battery Number:       ";
       for (i = 0; i < vm.size(); i++)
