@@ -174,9 +174,9 @@ void LeafMultiPack::periodicCallback()
 void LeafMultiPack::updateFullyChargedDischargedStatus()
 {
    bool use0to100limites =  false;
-   float batcaplow = 5.0;
+   float batcaplow = 10.0;
    float batcaphigh = 85.0;
-   float hysteresis = 10.0;
+   float hysteresis = 4.9;
    
    // check/set fully charged/discharged status with hysteresis
    if (getSocPercent() > (batcaplow + hysteresis)) {
