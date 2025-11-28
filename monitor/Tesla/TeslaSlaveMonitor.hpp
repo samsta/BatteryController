@@ -8,6 +8,7 @@
 #include "can/messages/Tesla/TSTemperatures.hpp"
 #include "can/messages/Tesla/TSCellVoltages.hpp"
 #include "can/messages/Tesla/TSBatteryStatus.hpp"
+#include "can/messages/Tesla/TSCurrentEnergy.hpp"
 #include "can/messages/Tesla/Message.hpp"
 // #include "can/messages/Nissan/BatteryState.hpp"
 // #include "can/messages/Nissan/BatteryStatus.hpp"
@@ -82,9 +83,7 @@ private:
    void process(const can::messages::Tesla::TSTemperatures&);
    void process(const can::messages::Tesla::TSVoltages&);
    void process(const can::messages::Tesla::TSBatteryStatus&);
-   // void process(const can::messages::Nissan::BatteryState&);
-   // void process(const can::messages::Nissan::BatteryStatus&);
-   // void process(const can::messages::Nissan::BatteryPowerLimits&);
+   void process(const can::messages::Tesla::TSCurrentEnergy&);
 
    char                    *m_pack_name;
    // contactor::Contactor&   m_safety_shunt;

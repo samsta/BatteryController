@@ -98,16 +98,20 @@ void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
 
    switch(message.id())
    {
-   case ID_TS_TEMPS:
+   case ID_TS_BATTERY_STATUS:
+      process(static_cast<const TSBatteryStatus&>(message));
+      break;
+
+      case ID_TS_TEMPS:
       process(static_cast<const TSTemperatures&>(message));
       break;
 
-   case ID_TS_CELL_VOLT:
+   case ID_TS_CELL_VOLT_CUR:
       process(static_cast<const TSVoltages&>(message));
       break;
 
-   case ID_TS_BATTERY_STATUS:
-      process(static_cast<const TSBatteryStatus&>(message));
+   case ID_TS_CUR_ENERGY:
+      process(static_cast<const TSCurrentEnergy&>(message));
       break;
 
    default:
@@ -155,6 +159,7 @@ void TeslaSlaveMonitor::process(const TSVoltages& voltages)
    m_min_cell_volts = voltages.getMinCellVoltage();
    m_max_cell_volts = voltages.getMaxCellVoltage();
    m_voltage        = voltages.getPackVoltage();
+   m_current        = voltages.getDCCurent();
 
    if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE &&
        m_min_cell_volts > CRITICALLY_LOW_VOLTAGE    &&
@@ -208,6 +213,18 @@ void TeslaSlaveMonitor::process(const TSTemperatures& temperatures)
    if (min_temp > CRITICALLY_LOW_TEMPERATURE) m_volt_temp_status &= ~CRIT_LOW_TEMP;
    else m_volt_temp_status |= CRIT_LOW_TEMP;
 
+   updateOperationalSafety();
+}
+
+void TeslaSlaveMonitor::process(const TSCurrentEnergy& current_energy)
+{
+   m_charge_current_limit = current_energy.getChargeCurrentLimit();
+   m_discharge_current_limit = current_energy.getDischargeCurrentLimit();
+   m_energy_remaining_kwh = current_energy.getStoredEnergy();
+   m_capacity_kwh = current_energy.getBatteryCapacity();
+
+   if (m_capacity_kwh > 0) m_soc_percent = 100.0f * m_energy_remaining_kwh / m_capacity_kwh;
+   
    updateOperationalSafety();
 }
 
@@ -269,7 +286,7 @@ void TeslaSlaveMonitor::logStartupStatus() const
       s1.append("TeslaSlaveMonitor:").append(m_pack_name).append(": ");
       if (!m_voltages_ok) {
          std::ostringstream s2;
-         s2 << s1 << logging::Hex(ID_TS_CELL_VOLT) << " Voltages (in spec) not yet received";
+         s2 << s1 << logging::Hex(ID_TS_CELL_VOLT_CUR) << " Voltages (in spec) not yet received";
          if (m_log) m_log->info(s2);
          if (CRIT_HIGH_VOLT && !isnan(m_max_cell_volts)) {
             std::ostringstream s3;

@@ -2,7 +2,6 @@
 #ifndef CAN_MESSAGES_TESLA_TS_VOLTS_HPP_
 #define CAN_MESSAGES_TESLA_TS_VOLTS_HPP_
 
-//#include "can/messages/Message.hpp"
 #include "can/StandardDataFrame.hpp"
 #include "can/messages/Tesla/Message.hpp"
 #include "logging/stream.hpp"
@@ -23,12 +22,14 @@ public:
    float getMaxCellVoltage() const;
    float getMinCellVoltage() const;
    float getPackVoltage() const;
+   float getDCCurent() const;
    virtual void toStream(logging::ostream&) const;
 
 private:
    float m_max_cell_voltage;
    float m_min_cell_voltage;
    float m_pack_voltage;
+   float m_dc_current;
 };
 
 }

@@ -14,7 +14,7 @@ namespace {
 }
 
 TSVoltages::TSVoltages():
-   Message(ID_TS_CELL_VOLT, GROUP_NONE),
+   Message(ID_TS_CELL_VOLT_CUR, GROUP_NONE),
    m_min_cell_voltage(),
    m_max_cell_voltage(),
    m_pack_voltage()
@@ -22,7 +22,7 @@ TSVoltages::TSVoltages():
 }
 
 TSVoltages::TSVoltages(const DataFrame& frame):
-   Message(ID_TS_CELL_VOLT, GROUP_NONE),
+   Message(ID_TS_CELL_VOLT_CUR, GROUP_NONE),
    m_min_cell_voltage(),
    m_max_cell_voltage(),
    m_pack_voltage()
@@ -30,9 +30,10 @@ TSVoltages::TSVoltages(const DataFrame& frame):
    if (frame.id() != id()) return;
    if (frame.size() != 8) return;
 
-   m_max_cell_voltage = frame.getSignedShort(0) / 100.0f;
-   m_min_cell_voltage = frame.getSignedShort(2) / 100.0f;
-   m_pack_voltage     = frame.getUnsignedShort(4) / 100.0f;
+   m_max_cell_voltage = frame.getUnsignedShort(0) / 100.0f;
+   m_min_cell_voltage = frame.getUnsignedShort(2) / 100.0f;
+   m_pack_voltage     = frame.getUnsignedShort(4) / 64.0f;
+   m_dc_current       = frame.getSignedShort(6) / 32.0f;
    setValid();
 }
 
@@ -51,9 +52,14 @@ float TSVoltages::getPackVoltage() const
    return m_pack_voltage;
 }  
 
+float TSVoltages::getDCCurent() const
+{
+   return m_dc_current;
+}
+
 void TSVoltages::toStream(logging::ostream& os) const
 {
-   os << "TSVoltages: 0x" << logging::Hex(ID_TS_CELL_VOLT) << " ";
+   os << "TSVoltages: 0x" << logging::Hex(ID_TS_CELL_VOLT_CUR) << " ";
 
    if (not valid())
    {
