@@ -70,7 +70,7 @@ TeslaSlaveMonitor::TeslaSlaveMonitor(
       m_temperatures_ok(false),
       m_pack_status(STARTUP),
       m_soc_percent(NAN),
-      m_soh_percent(100),
+      m_soh_percent(NAN),
       m_energy_remaining_kwh(NAN),
       m_capacity_kwh(NAN),
       m_current(NAN),
