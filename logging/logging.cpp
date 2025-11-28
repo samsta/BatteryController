@@ -35,7 +35,7 @@ using namespace logging;
 const string logFileName = "BatteryController.log";
 const string dataFileName= "BatteryOneDataLog.txt";
 // const string httpPostURL = "http://jimster.ca/BatteryOne/TEST-data-receiver.php";
-const string httpPostURL = "http://jimster.ca/BatteryHikotron/BatteryOne-data-receiver.php";
+const string httpPostURL = "http://jimster.ca/BatteryHikotron/BatteryHik-data-receiver.php";
 
 Logger::Logger(LOG_LEVEL loglevel, core::Timer& timer, std::vector<monitor::Monitor*> vmonitor):
    m_timer(timer),

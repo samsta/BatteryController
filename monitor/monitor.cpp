@@ -54,6 +54,9 @@ namespace monitor
       }
       os << "\tbits" << std::endl;
 
+      std::ios::fmtflags f = os.flags();   // save flags
+      os << std::fixed << std::setprecision(1);
+
       os << "Voltage:              ";
       for (i = 0; i < vm.size(); i++)
       {
@@ -131,6 +134,8 @@ namespace monitor
          os << "\t" << vm[i]->getMinDischargeVoltage();
       }
       os << "\tV" << std::endl;
+
+      os.flags(f);
 
       os << "Charge Current Limit: ";
       for (i = 0; i < vm.size(); i++)
