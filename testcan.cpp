@@ -44,7 +44,6 @@ namespace {
   volatile sig_atomic_t keep_on_trucking = true;
   void handle_break(int thissig) {
     if (thissig == SIGINT) keep_on_trucking = false;
-    std::cout << "ctrl-c pressed." << std::endl;
   }
 }
 
@@ -204,22 +203,35 @@ int main(int argc, const char** argv)
    }
    #endif
 
+   // ignore window resize events
+   signal(SIGWINCH, SIG_IGN);
+
    while (keep_on_trucking)
    {
+      int nfds_local;
+      // Block signals during epoll_wait
       sigprocmask(SIG_BLOCK, &all_signals, NULL);
-      nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
+      nfds_local = epoll_wait(epollfd, events, MAX_EVENTS, -1);
+      // Unblock signals after epoll_wait
       sigprocmask(SIG_UNBLOCK, &all_signals, NULL);
-      if (nfds == -1) {
+      // Handle "interrupted system call" cleanly
+      if (nfds_local == -1) {
+         if (errno == EINTR) {
+               // harmless, just continue the main loop
+               continue;
+         }
          perror("epoll_wait error");
          keep_on_trucking = false;
+         std::cout << "ctrl-c pressed." << std::endl;
+         break;
       }
 
-      for (int n = 0; n < nfds; ++n)
-      {
+      // Normal event processing
+      for (int n = 0; n < nfds_local; ++n) {
          reinterpret_cast<core::EpollHandler*>(events[n].data.ptr)->handle();
       }
    }
-
+  
    std::cout << "Program EXIT."  << std::endl;
    logger.info("Program EXIT.");
    logger.info("------------------- BatteryController STOPPED ------------------- ");
