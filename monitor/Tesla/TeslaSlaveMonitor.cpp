@@ -222,7 +222,7 @@ void TeslaSlaveMonitor::process(const TSCurrentEnergy& current_energy)
    m_discharge_current_limit = current_energy.getDischargeCurrentLimit();
    m_energy_remaining_kwh = current_energy.getStoredEnergy();
    m_capacity_kwh = current_energy.getBatteryCapacity();
-   if (m_capacity_kwh > 0) m_soc_percent = 100.0f * m_energy_remaining_kwh / m_capacity_kwh;
+   if (m_capacity_kwh > 0) m_soc_percent = std::round((100.0f * m_energy_remaining_kwh / m_capacity_kwh) * 10.0f) / 10.0f;
 
    std::ostringstream ss;
    ss << "TeslaSlaveMonitor: " << m_pack_name << ": Processing Cur+Engy: ChCurLmt= " << m_charge_current_limit << " A "
