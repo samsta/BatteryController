@@ -387,7 +387,8 @@ float LeafMultiPack::getSocPercent() const
       }
    }
    if (count > 0) {
-      return (avg / count);
+      // return with 1 decimal precision
+      return std::round((avg / count) * 10.0f) / 10.0f;
    }
    else return NAN;
 }
