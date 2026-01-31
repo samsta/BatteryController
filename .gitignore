@@ -7,3 +7,4 @@ mitm-log-file.csv
 .vscode/settings.json
 logging/rec-httppost/BatteryOneDataLog.txt
 ._*
+AutoStartupBC/BOOT-Msg.txt

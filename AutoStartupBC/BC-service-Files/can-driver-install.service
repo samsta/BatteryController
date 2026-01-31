@@ -1,0 +1,25 @@
+[Unit]
+Description=Install CAN driver at boot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/home/pi/Documents/Projects/BatteryController/AutoStartupBC
+
+# send all output to the same file, append mode
+StandardOutput=append:/home/pi/Documents/Projects/BatteryController/AutoStartupBC/BOOT-Msg.txt
+StandardError=inherit
+
+# Write a timestamp
+ExecStartPre=/usr/bin/date
+
+# Install CAN driver
+ExecStart=/home/pi/Documents/Projects/BatteryController/AutoStartupBC/CANDriverInstall.sh
+
+RemainAfterExit=yes
+TimeoutStartSec=20
+
+[Install]
+WantedBy=multi-user.target

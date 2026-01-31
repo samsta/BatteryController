@@ -1,0 +1,11 @@
+sudo systemctl daemon-reload
+sudo systemctl enable can-driver-install.service
+sudo systemctl start can-driver-install.service
+
+systemctl status can-driver-install.service
+
+
+sudo systemctl status start-battery-controller.service
+
+#use this to see the recent log messages, after doing a status (above)
+sudo journalctl -xe | tail -50
