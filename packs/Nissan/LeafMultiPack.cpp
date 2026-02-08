@@ -139,8 +139,10 @@ void LeafMultiPack::periodicCallback()
             }
          }
 
+         m_start_button_state = m_start_button.get();
          if (m_start_button_state != m_prev_sb_state)
          {
+            m_prev_sb_state = m_start_button_state;
             std::ostringstream ss;
             ss << "Start Button State Changed: " << m_start_button_state;
             if (m_log) m_log->info(ss, __FILENAME__,__LINE__);;
