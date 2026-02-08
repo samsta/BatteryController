@@ -279,9 +279,11 @@ void TeslaSlaveMonitor::setPackStatus(Monitor::Pack_Status p)
    m_pack_status = p;
 
    std::ostringstream ss;
-   char text[64];
    ss << "TeslaSlaveMonitor: " << m_pack_name << ": pack status set to " << getPackStatusTEXT(p);
-   if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
+   if (m_log) {
+      if (getPackStatus() == Monitor::Pack_Status::NORMAL_OPERATION) m_log->info(ss, __FILENAME__, __LINE__);
+      else m_log->alarm(ss, __FILENAME__, __LINE__);
+   }
 }
 
 void TeslaSlaveMonitor::logStartupStatus() const
