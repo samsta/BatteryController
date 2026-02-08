@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 #include "monitor/Monitor.hpp"
+#include "core/LibGpiod/InputPin.hpp"
 #include "contactor/Contactor.hpp"
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "monitor/Nissan/LeafMonitor.hpp"
@@ -24,6 +25,7 @@ public:
                   core::OutputPin& positive_relay,
                   core::OutputPin& negative_relay,
                   core::OutputPin& pre_charge_relay,
+                  core::InputPin& start_button,
                   logging::Logger *log);
 
    ~LeafMultiPack();
@@ -68,6 +70,7 @@ private:
    std::vector<monitor::Monitor*>      m_vmonitor;
    std::vector<contactor::Contactor*>  m_vsafety_shunt;
    core::Timer&                        m_timer;
+   core::InputPin&                     m_start_button;
    contactor::Nissan::LeafContactor    m_main_contactor;
 
    logging ::Logger* m_log;
@@ -95,6 +98,8 @@ private:
    bool m_display_shutdown_status;
 
    Pack_Status m_multipack_status;
+
+   bool m_start_button_state, m_prev_sb_state;
 
    uint m_startup_callback_count;
    uint m_shutdown_callback_count;

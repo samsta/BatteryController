@@ -1,4 +1,4 @@
-add_library(core OutputPin.cpp)
+add_library(core OutputPin.cpp InputPin.cpp)
 target_include_directories(core PUBLIC ../ ${CMAKE_BINARY_DIR})
 
 add_subdirectory(LibGpiod)

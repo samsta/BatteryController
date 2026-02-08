@@ -5,3 +5,4 @@ if(NOT LibGpiod_FOUND)
 endif()
 
 target_sources(core PRIVATE OutputPin.cpp)
+target_sources(core PRIVATE InputPin.cpp)

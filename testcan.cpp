@@ -21,6 +21,7 @@
 //#include "inverter/SINEX/SE-PWS2.hpp"
 
 #include "contactor/Nissan/LeafContactor.hpp"
+#include "core/LibGpiod/InputPin.hpp"
 #include "core/LibGpiod/OutputPin.hpp"
 #include "core/SocketCan/CanPort.hpp"
 #include "core/Linux/EpollTimer.hpp"
@@ -97,6 +98,7 @@ int main(int argc, const char** argv)
    OutputPin pre_charge_relay_1(0, 4, "relay_prechg_1",core::OutputPin::HIGH);
    OutputPin positive_relay_1(0, 5, "relay_pos_1",core::OutputPin::HIGH);
    OutputPin negative_relay_1(0, 6, "relay_neg_1",core::OutputPin::HIGH);
+   InputPin start_button_1(0, 26, "start_button_1");
 
    #ifdef CONSOLE
    core::ConsolePresenter console(timer, vbatterymon);
@@ -169,6 +171,7 @@ int main(int argc, const char** argv)
                      positive_relay_1,
                      negative_relay_1,
                      pre_charge_relay_1,
+                     start_button_1,
                      &logger);
    // add the multipack to the battery list
    // multi_pack (above) will not see this addition
