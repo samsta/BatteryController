@@ -12,6 +12,7 @@ LeafMultiPack::LeafMultiPack(
             core::OutputPin& positive_relay,
             core::OutputPin& negative_relay,
             core::OutputPin& pre_charge_relay,
+            core::InputPin& start_button,
             logging::Logger *log):
 
       m_vmonitor(vmonitor),
@@ -23,6 +24,7 @@ LeafMultiPack::LeafMultiPack(
          negative_relay,
          pre_charge_relay,
          log),
+      m_start_button(start_button),
       m_log(log),
       m_periodic_callback(*this, &LeafMultiPack::periodicCallback),
       // m_voltages_ok(false),
@@ -52,6 +54,8 @@ LeafMultiPack::LeafMultiPack(
    if (m_log) m_log->info(ss);
    sss << "LeafMultiPack: number of packs: " << (int(m_vmonitor.size()));
    if (m_log) m_log->info(sss);
+   m_start_button_state = m_start_button.get();
+   m_prev_sb_state = m_start_button_state;
 }
 
 LeafMultiPack::~LeafMultiPack()
@@ -134,6 +138,14 @@ void LeafMultiPack::periodicCallback()
                if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
             }
          }
+
+         if (m_start_button_state != m_prev_sb_state)
+         {
+            std::ostringstream ss;
+            ss << "Start Button State Changed: " << m_start_button_state;
+            if (m_log) m_log->info(ss, __FILENAME__,__LINE__);;
+         }
+
          break;
 
       case Monitor::SHUTTING_DOWN:
@@ -156,7 +168,7 @@ void LeafMultiPack::periodicCallback()
          // display the status once
          if (m_display_shutdown_status) {
             m_display_shutdown_status = false;
-               std::ostringstream ss; char text[64];
+               std::ostringstream ss;
                ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
                if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
          }
