@@ -153,6 +153,7 @@ void LeafMultiPack::periodicCallback()
                if (m_log) m_log->info("Start Button Pressed: contactor close requested");
                m_main_contactor.close();
             }
+         }
          break;
 
       case Monitor::SHUTTING_DOWN:
