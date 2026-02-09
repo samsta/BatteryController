@@ -24,7 +24,7 @@ namespace TSUN {
 namespace {
 
 
-const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 6; // period is 5 seconds
+const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 10;
 
 BatteryStatus localBatteryStatus(BatteryStatus::BASIC_STATUS_IDLE);
 
@@ -43,7 +43,7 @@ TSOL_H50K::TSOL_H50K(can::FrameSink& sender,
       m_periodic_callback(*this, &TSOL_H50K::periodicCallback),
       m_inverter_silent_counter(0)
 {
-   m_timer.registerPeriodicCallback(&m_periodic_callback, 5000,"TSUNPeriodic");
+   m_timer.registerPeriodicCallback(&m_periodic_callback, 10000,"TSUNPeriodic");
 }
 
 TSOL_H50K::~TSOL_H50K()
@@ -64,6 +64,9 @@ void TSOL_H50K::periodicCallback()
       }
       m_contactor.open();
       m_contactor.setInverterCommsOk(false);
+      // below line added to prevent push button from closing contactors after
+      // inverter silence triggered
+      if (m_contactor.isSafeToOperate()) m_contactor.setSafeToOperate(false);
       return;
    }
 }
