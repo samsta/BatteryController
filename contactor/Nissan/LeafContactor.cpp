@@ -114,7 +114,7 @@ void LeafContactor::closeNegativeRelay()
    if (m_log)
    {
       std::ostringstream ss;
-      ss << "LeafContactor: closing... (neg and precharge CLOSED)";
+      ss << "LeafContactor: closing... (negative and precharge CLOSED)";
       m_log->info(ss);
    }
    m_negative_relay.set(OutputPin::LOW);
@@ -135,7 +135,7 @@ void LeafContactor::closePositiveRelay()
    if (m_log)
    {
       std::ostringstream ss;
-      ss << "LeafContactor: contactor CLOSED";
+      ss << "LeafContactor: positive contactor CLOSED";
       m_log->info(ss);
    }
    m_state = CLOSED;
