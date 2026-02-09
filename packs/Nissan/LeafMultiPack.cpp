@@ -146,13 +146,13 @@ void LeafMultiPack::periodicCallback()
             std::ostringstream ss;
             ss << "Start Button State Changed: " << m_start_button_state;
             if (m_log) m_log->info(ss, __FILENAME__,__LINE__);;
+            // see if we should close the contactor on start button press
+            if (m_start_button_state && m_main_contactor.isSafeToOperate() && !m_main_contactor.isClosed() )
+            {
+               m_main_contactor.close();
+            }
          }
 
-         // see if we should close the contactor on start button press
-         if (m_start_button_state && m_main_contactor.isSafeToOperate() && !m_main_contactor.isClosed() )
-         {
-            m_main_contactor.close();
-         }
          break;
 
       case Monitor::SHUTTING_DOWN:
