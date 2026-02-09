@@ -41,7 +41,8 @@ TSOL_H50K::TSOL_H50K(can::FrameSink& sender,
       m_contactor(contactor),
       m_log(log),
       m_periodic_callback(*this, &TSOL_H50K::periodicCallback),
-      m_inverter_silent_counter(0)
+      m_inverter_silent_counter(0),
+      m_inverter_first_msg_revd(false)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, 10000,"TSUNPeriodic");
 }
@@ -93,6 +94,12 @@ void TSOL_H50K::sink(const Message& message)
 
 void TSOL_H50K::process(const InverterInfoRequest& command)
 {
+   if (!m_inverter_first_msg_revd)
+   {
+      m_inverter_first_msg_revd = true;
+      if (m_log) m_log->info("Inverter: First CAN message received.", __FILENAME__, __LINE__);
+   }
+
    if (command.getInfoType() == InverterInfoRequest::ENSEMBLE)
    {
       m_contactor.setInverterCommsOk(true);

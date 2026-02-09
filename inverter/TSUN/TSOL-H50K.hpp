@@ -42,6 +42,7 @@ private:
    logging::Logger       *m_log;
    core::Callback<TSOL_H50K> m_periodic_callback;
    unsigned              m_inverter_silent_counter;
+   bool                  m_inverter_first_msg_revd;
 };
 
 }
