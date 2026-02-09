@@ -90,7 +90,7 @@ void LeafContactor::openBothRelays()
    if (m_log)
    {
       std::ostringstream ss;
-      ss <<  "LeafContactor: contactor opened";
+      ss <<  "LeafContactor: all contactors open";
       m_log->info(ss);
    }
    m_state = OPEN;
