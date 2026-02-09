@@ -66,7 +66,7 @@ void TSOL_H50K::periodicCallback()
       m_contactor.setInverterCommsOk(false);
       // below line added to prevent push button from closing contactors after
       // inverter silence triggered
-      m_contactor.setSafeToOperate(false);
+      if (m_contactor.isSafeToOperate()) m_contactor.setSafeToOperate(false);
       return;
    }
 }
