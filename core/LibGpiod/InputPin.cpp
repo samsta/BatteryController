@@ -43,18 +43,21 @@ InputPin::InputPin(
 
 bool InputPin::get()
 {
-   if (not isOpen())
+   if (!isOpen())
    {
-      std::cerr << "ERROR: InputPin " << m_name <<
-            ": failed getting state as it is not open" << std::endl;
-            // ": failed getting pin " << pin_number << " as it is not open" << std::endl;
-      return false;  // default!
+      std::cerr << "ERROR: InputPin " << m_name
+                << ": failed getting state as it is not open" << std::endl;
+      return false;
    }
-   int line_state = gpiod_line_get_value(m_gpio);
-   if (line_state = 0) input_state = false;
-   else input_state = true;
 
-   return input_state;
+   int v = gpiod_line_get_value(m_gpio);
+   if (v < 0)
+   {
+      std::cerr << "ERROR: InputPin " << m_name
+                << ": failed reading value: " << strerror(errno) << std::endl;
+      return false;
+   }
+   return (v != 0);
 }
 
 bool InputPin::isOpen() const
