@@ -41,8 +41,8 @@ private:
    contactor::Contactor& m_contactor;
    logging::Logger       *m_log;
    core::Callback<TSOL_H50K> m_periodic_callback;
-   const unsigned CALLBACK_PERIOD_ms = 5000;
-   const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 12;
+   const unsigned CALLBACK_PERIOD_ms = 10000;
+   const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 6;
    unsigned              m_inverter_silent_counter;
    bool                  m_inverter_first_msg_revd;
 };
