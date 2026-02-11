@@ -116,13 +116,6 @@ TEST_F(TSOL_H50KAtStartupTest, requestsToOpenContactorWhenInverterNotAlive)
 {
    EXPECT_NO_CALL(contactor, open());
 
-   // inverter_alive_callback->invoke();
-   // inverter_alive_callback->invoke();
-   // inverter_alive_callback->invoke();
-   inverter_alive_callback->invoke();
-   inverter_alive_callback->invoke();
-   inverter_alive_callback->invoke();
-   inverter_alive_callback->invoke();
    inverter_alive_callback->invoke();
    inverter_alive_callback->invoke();
    inverter_alive_callback->invoke();
@@ -137,13 +130,6 @@ TEST_F(TSOL_H50KAtStartupTest, requestsToCloseContactorWhenInverterAliveAgain)
 {
    EXPECT_NO_CALL(contactor, open());
 
-   // inverter_alive_callback->invoke();
-   // inverter_alive_callback->invoke();
-   // inverter_alive_callback->invoke();
-   inverter_alive_callback->invoke();
-   inverter_alive_callback->invoke();
-   inverter_alive_callback->invoke();
-   inverter_alive_callback->invoke();
    inverter_alive_callback->invoke();
    inverter_alive_callback->invoke();
    inverter_alive_callback->invoke();
