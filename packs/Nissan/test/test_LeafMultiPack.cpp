@@ -3,6 +3,7 @@
 #include "mocks/contactor/Contactor.hpp"
 #include "mocks/monitor/Monitor.hpp"
 #include "mocks/core/OutputPin.hpp"
+#include "mocks/core/InputPin.hpp"
 #include "mocks/core/Timer.hpp"
 #include "logging/colors.hpp"
 
@@ -19,6 +20,7 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
   mocks::core::OutputPin positive_relay;
   mocks::core::OutputPin negative_relay;
   mocks::core::OutputPin pre_charge_relay;
+  mocks::core::InputPin start_button;
   std::vector<monitor::Monitor*>         m_vmonitor = {&m_monitor1};
   std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1};
 
@@ -27,6 +29,7 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
   core::Invokable* invokable;
   EXPECT_CALL(timer, registerPeriodicCallback(_, 1000,_)).WillOnce(SaveArg<0>(&invokable));
+  EXPECT_CALL(start_button, get());
 
   LeafMultiPack LMP(      m_vmonitor,
                           m_vcontactor,
@@ -34,6 +37,7 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
                           positive_relay,
                           negative_relay,
                           pre_charge_relay,
+                          start_button,
                           nullptr);
 
 
@@ -53,6 +57,7 @@ public:
                   positive_relay,
                   negative_relay,
                   pre_charge_relay,
+                  start_button,
                   nullptr)
    {
    }
@@ -63,6 +68,7 @@ public:
    mocks::core::OutputPin positive_relay;
    mocks::core::OutputPin negative_relay;
    mocks::core::OutputPin pre_charge_relay;
+   mocks::core::InputPin start_button;
 
    std::vector<monitor::Monitor*>         m_vmonitor = {&m_monitor1};
    std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1};
