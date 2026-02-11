@@ -23,9 +23,6 @@ namespace inverter {
 namespace TSUN {
 namespace {
 
-
-const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 10;
-
 BatteryStatus localBatteryStatus(BatteryStatus::BASIC_STATUS_IDLE);
 
 }
@@ -44,7 +41,11 @@ TSOL_H50K::TSOL_H50K(can::FrameSink& sender,
       m_inverter_silent_counter(0),
       m_inverter_first_msg_revd(false)
 {
-   m_timer.registerPeriodicCallback(&m_periodic_callback, 10000,"TSUNPeriodic");
+   m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms,"TSUNPeriodic");
+   unsigned period = CALLBACK_PERIOD_ms * INVERTER_SILENT_TIMEOUT_PERIODS / 1000;
+   char buf[128];
+   snprintf(buf, sizeof(buf), "Inverter CAN bus timeout period is %u seconds", period);
+   if (m_log) m_log->info(buf);
 }
 
 TSOL_H50K::~TSOL_H50K()
