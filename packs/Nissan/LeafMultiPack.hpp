@@ -7,7 +7,7 @@
 #include <vector>
 #include <iostream>
 #include "monitor/Monitor.hpp"
-#include "core/LibGpiod/InputPin.hpp"
+#include "core/InputPin.hpp"
 #include "contactor/Contactor.hpp"
 #include "contactor/Nissan/LeafContactor.hpp"
 #include "monitor/Nissan/LeafMonitor.hpp"
