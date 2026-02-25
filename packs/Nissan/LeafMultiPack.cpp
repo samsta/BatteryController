@@ -51,7 +51,8 @@ LeafMultiPack::LeafMultiPack(
       m_shutdown_callback_count(0),
       m_fully_charged(true),
       m_fully_discharged(true),
-      m_display_shutdown_status(true)
+      m_display_shutdown_status(true),
+      m_button_on_count(0)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms, "LeafMultiPackPeriodic");
    if (m_log) m_log->info("LeafMultiPack: status set to STARTUP");
@@ -87,6 +88,15 @@ void LeafMultiPack::periodicCallback()
    //    recalulate values for big battery
    //    operate shunt if neecessary (resend shunt trigger)
    //    open main contactor if necessary (extreme case, like loss fo USB comms)
+
+   // startup: ready off
+   // normal: while contactor open: readyLED slow flash, hvLED off
+   //       : if contactor closed: readyLED on, hvLED on
+   // !normal : if contactor open hvLED off
+   //         : readyLED fast flash
+
+   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   // SHOULD CONTACTOR BE IN CHARGE OF THE HV LED???? I THINK SO
 
    switch (m_multipack_status) {
 
@@ -149,31 +159,44 @@ void LeafMultiPack::periodicCallback()
          }
 
          m_start_button_state = m_start_button.get();
+         // count continuous on states
+         if (m_start_button_state) m_button_on_count++;
+         else m_button_on_count = 0;
+
          if (m_start_button_state != m_prev_sb_state)
          {
             m_prev_sb_state = m_start_button_state;
             std::ostringstream ss;
-
-            if (m_start_button_state) {
-               m_hv_led.set(core::OutputPin::LOW);
-               m_ready_led.set(core::OutputPin::HIGH);
-               m_timer.schedule(&m_ready_led_delayed_off, 50,"ReadyLEDOff");
-            }
-            else {
-               m_ready_led.set(core::OutputPin::LOW);
-               m_hv_led.set(core::OutputPin::HIGH);
-            }
-
-
-
             ss << "Start Button State Changed: " << (m_start_button_state ? "PRESSED" : "RELEASED");
+
+
             if (m_log) m_log->info(ss);
             // see if we should close the contactor on start button press
-            if (m_start_button_state && m_main_contactor.isSafeToOperate() && !m_main_contactor.isClosed() )
+            if (m_button_on_count > BUTTON_ON_COUNT && m_main_contactor.isSafeToOperate() && !m_main_contactor.isClosed() )
             {
                if (m_log) m_log->info("Start Button Pressed: contactor close requested");
                m_main_contactor.close();
             }
+            //  if (m_start_button_state) {
+            //    m_hv_led.set(core::OutputPin::LOW);
+            //    m_ready_led.set(core::OutputPin::HIGH);
+            //    m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
+            // }
+            // else {
+            //    m_ready_led.set(core::OutputPin::LOW);
+            //    m_hv_led.set(core::OutputPin::HIGH);
+            // }
+         }
+
+         // control the ready LED
+         if (m_main_contactor.isSafeToOperate()) m_ready_led.set(core::OutputPin::HIGH);
+         else m_slow_flash_count++;
+
+         if (m_slow_flash_count > SLOW_FLASH_COUNT)
+         {
+            m_slow_flash_count = 0;
+            m_ready_led.set(core::OutputPin::HIGH);
+            m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
          }
          break;
 

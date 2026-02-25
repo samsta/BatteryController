@@ -105,6 +105,8 @@ private:
    Pack_Status m_multipack_status;
 
    bool m_start_button_state, m_prev_sb_state;
+   uint m_button_on_count;
+   const uint BUTTON_ON_COUNT = 4*5;
 
    uint m_startup_callback_count;
    uint m_shutdown_callback_count;
@@ -113,6 +115,8 @@ private:
    const uint SHUTTING_DOWN_COUNT = 10*5;  // number of callback periods 
 
    core::Callback<LeafMultiPack> m_ready_led_delayed_off;
+   uint m_slow_flash_count;
+   const uint SLOW_FLASH_COUNT = 3;
 };
 
 }
