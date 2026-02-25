@@ -99,6 +99,8 @@ int main(int argc, const char** argv)
    OutputPin positive_relay_1(0, 5, "relay_pos_1",core::OutputPin::HIGH);
    OutputPin negative_relay_1(0, 6, "relay_neg_1",core::OutputPin::HIGH);
    InputPin start_button_1(0, 26, "start_button_1");
+   OutputPin ready_led_1(0, 17, "read_led_1",core::OutputPin::LOW);
+   OutputPin hv_led_1(0, 27, "hv_led_1",core::OutputPin::LOW);
 
    #ifdef CONSOLE
    core::ConsolePresenter console(timer, vbatterymon);
@@ -172,6 +174,8 @@ int main(int argc, const char** argv)
                      negative_relay_1,
                      pre_charge_relay_1,
                      start_button_1,
+                     ready_led_1,
+                     hv_led_1,
                      &logger);
    // add the multipack to the battery list
    // multi_pack (above) will not see this addition

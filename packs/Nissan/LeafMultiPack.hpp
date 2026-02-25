@@ -26,6 +26,8 @@ public:
                   core::OutputPin& negative_relay,
                   core::OutputPin& pre_charge_relay,
                   core::InputPin& start_button,
+                  core::OutputPin& ready_led,
+                  core::OutputPin& hv_led,
                   logging::Logger *log);
 
    ~LeafMultiPack();
@@ -72,6 +74,8 @@ private:
    core::Timer&                        m_timer;
    core::InputPin&                     m_start_button;
    contactor::Nissan::LeafContactor    m_main_contactor;
+   core::OutputPin&                    m_ready_led;
+   core::OutputPin&                    m_hv_led;
 
    logging ::Logger* m_log;
 

@@ -13,6 +13,8 @@ LeafMultiPack::LeafMultiPack(
             core::OutputPin& negative_relay,
             core::OutputPin& pre_charge_relay,
             core::InputPin& start_button,
+                  core::OutputPin& ready_led,
+                  core::OutputPin& hv_led,
             logging::Logger *log):
 
       m_vmonitor(vmonitor),
@@ -23,8 +25,11 @@ LeafMultiPack::LeafMultiPack(
          positive_relay,
          negative_relay,
          pre_charge_relay,
+
          log),
       m_start_button(start_button),
+      m_ready_led(ready_led),
+      m_hv_led(hv_led),
       m_log(log),
       m_periodic_callback(*this, &LeafMultiPack::periodicCallback),
       // m_voltages_ok(false),
@@ -56,6 +61,9 @@ LeafMultiPack::LeafMultiPack(
    if (m_log) m_log->info(sss);
    m_start_button_state = m_start_button.get();
    m_prev_sb_state = m_start_button_state;
+   m_ready_led.set(core::OutputPin::LOW);
+   m_hv_led.set(core::OutputPin::LOW);
+
 }
 
 LeafMultiPack::~LeafMultiPack()
@@ -142,6 +150,11 @@ void LeafMultiPack::periodicCallback()
          {
             m_prev_sb_state = m_start_button_state;
             std::ostringstream ss;
+
+            if (m_start_button_state) m_ready_led.set(core::OutputPin::HIGH);
+            else m_ready_led.set(core::OutputPin::LOW);
+
+
 
             ss << "Start Button State Changed: " << (m_start_button_state ? "PRESSED" : "RELEASED");
             if (m_log) m_log->info(ss);
