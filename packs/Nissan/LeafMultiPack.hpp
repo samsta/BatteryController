@@ -68,6 +68,7 @@ public:
 private:
    void periodicCallback();
    void updateFullyChargedDischargedStatus();
+   void readyLEDOff();
 
    std::vector<monitor::Monitor*>      m_vmonitor;
    // std::vector<contactor::Contactor*>  m_vsafety_shunt;
@@ -111,6 +112,7 @@ private:
    const uint MAX_STARTUP_COUNT = 30*5;  // number of callback periods 
    const uint SHUTTING_DOWN_COUNT = 10*5;  // number of callback periods 
 
+   core::Callback<LeafMultiPack> m_ready_led_delayed_off;
 };
 
 }

@@ -32,6 +32,7 @@ LeafMultiPack::LeafMultiPack(
       m_hv_led(hv_led),
       m_log(log),
       m_periodic_callback(*this, &LeafMultiPack::periodicCallback),
+      m_ready_led_delayed_off(*this, &LeafMultiPack::readyLEDOff),
       // m_voltages_ok(false),
       // m_temperatures_ok(false),
       // m_soc_percent(NAN),
@@ -69,6 +70,8 @@ LeafMultiPack::LeafMultiPack(
 LeafMultiPack::~LeafMultiPack()
 {
    m_timer.deregisterCallback(&m_periodic_callback);
+   m_ready_led.set(core::OutputPin::LOW);
+   m_hv_led.set(core::OutputPin::LOW);
 }
 
 void LeafMultiPack::periodicCallback()
@@ -151,8 +154,15 @@ void LeafMultiPack::periodicCallback()
             m_prev_sb_state = m_start_button_state;
             std::ostringstream ss;
 
-            if (m_start_button_state) m_ready_led.set(core::OutputPin::HIGH);
-            else m_ready_led.set(core::OutputPin::LOW);
+            if (m_start_button_state) {
+               m_hv_led.set(core::OutputPin::LOW);
+               m_ready_led.set(core::OutputPin::HIGH);
+               m_timer.schedule(&m_ready_led_delayed_off, 50,"ReadyLEDOff");
+            }
+            else {
+               m_ready_led.set(core::OutputPin::LOW);
+               m_hv_led.set(core::OutputPin::HIGH);
+            }
 
 
 
@@ -506,6 +516,11 @@ const char* LeafMultiPack::getBatteryName() const
 contactor::Contactor& LeafMultiPack::getMainContactor()
 {
    return m_main_contactor;
+}
+
+void LeafMultiPack::readyLEDOff()
+{
+   m_ready_led.set(core::OutputPin::LOW);
 }
 
 void LeafMultiPack::logStartupStatus() const
