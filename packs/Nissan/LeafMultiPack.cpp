@@ -189,7 +189,7 @@ void LeafMultiPack::periodicCallback()
          }
 
          // control the ready LED
-         if (m_main_contactor.isSafeToOperate()) m_ready_led.set(core::OutputPin::HIGH);
+         if (m_main_contactor.isClosed()) m_ready_led.set(core::OutputPin::HIGH);
          else m_slow_flash_count++;
 
          if (m_slow_flash_count > SLOW_FLASH_COUNT)
