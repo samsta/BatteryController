@@ -29,8 +29,8 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
   EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
   EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
-//   EXPECT_CALL(ready_led, set(mocks::core::OutputPin::LOW));
-//   EXPECT_CALL(hv_led, set(mocks::core::OutputPin::LOW));
+  EXPECT_CALL(ready_led, set(mocks::core::OutputPin::LOW));
+  EXPECT_CALL(hv_led, set(mocks::core::OutputPin::LOW));
   core::Invokable* invokable;
   EXPECT_CALL(timer, registerPeriodicCallback(_, 200,_)).WillOnce(SaveArg<0>(&invokable));
   EXPECT_CALL(start_button, get());
@@ -51,6 +51,8 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
   EXPECT_CALL(positive_relay, set(mocks::core::OutputPin::HIGH));
   EXPECT_CALL(negative_relay, set(mocks::core::OutputPin::HIGH));
   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
+  EXPECT_CALL(ready_led, set(mocks::core::OutputPin::LOW));
+  EXPECT_CALL(hv_led, set(mocks::core::OutputPin::LOW));
   EXPECT_CALL(timer, deregisterCallback(invokable));
 }
 
