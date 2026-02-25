@@ -65,8 +65,6 @@ LeafMultiPack::~LeafMultiPack()
 
 void LeafMultiPack::periodicCallback()
 {
-   // user interface data? (via sockets?)
-
    // start up proceedure... find healty batteries.
 
    // calculate inital values for big battery, to pass to inverter

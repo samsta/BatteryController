@@ -103,9 +103,9 @@ private:
 
    uint m_startup_callback_count;
    uint m_shutdown_callback_count;
-   const uint CALLBACK_PERIOD_ms = 1000;
-   const uint MAX_STARTUP_COUNT = 30;  // number of callback periods 
-   const uint SHUTTING_DOWN_COUNT = 10;  // number of callback periods 
+   const uint CALLBACK_PERIOD_ms = 1000/5;
+   const uint MAX_STARTUP_COUNT = 30*5;  // number of callback periods 
+   const uint SHUTTING_DOWN_COUNT = 10*5;  // number of callback periods 
 
 };
 
