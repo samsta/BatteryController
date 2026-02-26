@@ -61,11 +61,7 @@ void TSOL_H50K::periodicCallback()
       m_inverter_silent_counter++;
       if (m_inverter_silent_counter > INVERTER_SILENT_TIMEOUT_PERIODS)
       {
-         if (m_inverter_silent_counter == INVERTER_SILENT_TIMEOUT_PERIODS)
-         {
-            if (m_log) m_log->alarm("Inverter CAN bus has gone silent", __FILENAME__, __LINE__);
-            m_inverter_silent_counter++;
-         }
+         if (m_log) m_log->alarm("Inverter CAN bus has gone silent", __FILENAME__, __LINE__);
          // change pack status will cause contactors to open
          m_contactor.setInverterCommsOk(false);
          // no point in delaying shutdown (using shutting_down) as the inverter isn't listening

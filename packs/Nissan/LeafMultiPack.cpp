@@ -250,7 +250,7 @@ void LeafMultiPack::readyLEDOff()
          break;
 
       case ReadyLedState::SLOW_FLASH:
-         m_timer.schedule(&m_ready_led_delayed_on, 700 /* ms */,"ReadyLEDOn");
+         m_timer.schedule(&m_ready_led_delayed_on, 800 /* ms */,"ReadyLEDOn");
          break;
 
       case ReadyLedState::FAST_FLASH:
