@@ -151,7 +151,8 @@ void TeslaSlaveMonitor::process(const TSBatteryStatus& battery_status)
          ss << "UNRECOGNIZED";
          break;
    }
-   if (status != m_prev_battery_status && !m_battery_status_ok) m_log->alarm(ss);
+   if (status != m_prev_battery_status && !m_battery_status_ok) m_log->alarm(ss,__FILENAME__,__LINE__);
+   m_prev_battery_status = status;
    updateOperationalSafety();
 }
 
