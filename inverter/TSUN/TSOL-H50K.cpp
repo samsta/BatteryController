@@ -55,22 +55,25 @@ TSOL_H50K::~TSOL_H50K()
 
 void TSOL_H50K::periodicCallback()
 {
-   m_inverter_silent_counter++;
-
-   if (m_inverter_silent_counter >= INVERTER_SILENT_TIMEOUT_PERIODS)
+   // only timeout after we are connected to the inverter (contactors are closed)
+   if (m_contactor.isClosed())
    {
-      if (m_inverter_silent_counter == INVERTER_SILENT_TIMEOUT_PERIODS)
+      m_inverter_silent_counter++;
+      if (m_inverter_silent_counter > INVERTER_SILENT_TIMEOUT_PERIODS)
       {
-         if (m_log) m_log->alarm("Inverter CAN bus has gone silent", __FILENAME__, __LINE__);
-         m_inverter_silent_counter++;
+         if (m_inverter_silent_counter == INVERTER_SILENT_TIMEOUT_PERIODS)
+         {
+            if (m_log) m_log->alarm("Inverter CAN bus has gone silent", __FILENAME__, __LINE__);
+            m_inverter_silent_counter++;
+         }
+         // change pack status will cause contactors to open
+         if (m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION) m_monitor.setPackStatus(monitor::Monitor::SHUTTING_DOWN);
+         m_contactor.setInverterCommsOk(false);
+         // below line added to prevent push button from closing contactors after
+         // inverter silence triggered
+         if (m_contactor.isSafeToOperate()) m_contactor.setSafeToOperate(false);
+         return;
       }
-      // change pack status will cause contactors to open
-      if (m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION) m_monitor.setPackStatus(monitor::Monitor::SHUTTING_DOWN);
-      m_contactor.setInverterCommsOk(false);
-      // below line added to prevent push button from closing contactors after
-      // inverter silence triggered
-      if (m_contactor.isSafeToOperate()) m_contactor.setSafeToOperate(false);
-      return;
    }
 }
 

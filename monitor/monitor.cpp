@@ -168,6 +168,9 @@ namespace monitor
       case Monitor::Pack_Status::SHUNT_ACT_FAILED:
          return "shnt_fl";
          break;
+      case Monitor::Pack_Status::SHUTTING_DOWN:
+         return "shuttng";
+         break;
       case Monitor::Pack_Status::SHUTDOWN:
          return "shutdwn";
          break;
