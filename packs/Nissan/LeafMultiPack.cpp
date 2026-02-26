@@ -92,9 +92,6 @@ void LeafMultiPack::periodicCallback()
    // !normal : if contactor open hvLED off
    //         : readyLED fast flash
 
-   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   // SHOULD CONTACTOR BE IN CHARGE OF THE HV LED???? I THINK SO
-
    switch (m_multipack_status) {
 
       case Monitor::STARTUP:
@@ -174,15 +171,6 @@ void LeafMultiPack::periodicCallback()
                if (m_log) m_log->info("Start Button Pressed: contactor close requested");
                m_main_contactor.close();
             }
-            //  if (m_start_button_state) {
-            //    m_hv_led.set(core::OutputPin::LOW);
-            //    m_ready_led.set(core::OutputPin::HIGH);
-            //    m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
-            // }
-            // else {
-            //    m_ready_led.set(core::OutputPin::LOW);
-            //    m_hv_led.set(core::OutputPin::HIGH);
-            // }
          }
 
          // control the ready LED
@@ -210,6 +198,9 @@ void LeafMultiPack::periodicCallback()
             ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
             if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
          }
+         // fast flash
+         m_ready_led.set(core::OutputPin::HIGH);
+         m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
          break;
       case Monitor::SHUNT_ACTIVIATED:
       case Monitor::SHUNT_ACT_FAILED:
@@ -225,6 +216,9 @@ void LeafMultiPack::periodicCallback()
          if (m_main_contactor.isSafeToOperate()) {
              m_main_contactor.setSafeToOperate(false);
          }
+         // fast flash
+         m_ready_led.set(core::OutputPin::HIGH);
+         m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
          break;
 
       default:

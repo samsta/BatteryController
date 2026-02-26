@@ -64,7 +64,8 @@ void TSOL_H50K::periodicCallback()
          if (m_log) m_log->alarm("Inverter CAN bus has gone silent", __FILENAME__, __LINE__);
          m_inverter_silent_counter++;
       }
-      m_contactor.open();
+      m_monitor.setPackStatus(monitor::Monitor::SHUTTING_DOWN);
+      // m_contactor.open();
       m_contactor.setInverterCommsOk(false);
       // below line added to prevent push button from closing contactors after
       // inverter silence triggered
