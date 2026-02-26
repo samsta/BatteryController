@@ -68,6 +68,7 @@ public:
 private:
    void periodicCallback();
    void updateFullyChargedDischargedStatus();
+   void readyLEDOn();
    void readyLEDOff();
 
    std::vector<monitor::Monitor*>      m_vmonitor;
@@ -105,17 +106,25 @@ private:
 
    bool m_start_button_state, m_prev_sb_state;
    int m_button_on_count;
-   const int BUTTON_ON_COUNT = 4*5;
+   const int BUTTON_ON_COUNT = 4;
 
    uint m_startup_callback_count;
    uint m_shutdown_callback_count;
-   const uint CALLBACK_PERIOD_ms = 1000/5;
-   const uint MAX_STARTUP_COUNT = 30*5;  // number of callback periods 
-   const uint SHUTTING_DOWN_COUNT = 10*5;  // number of callback periods 
+   const uint CALLBACK_PERIOD_ms = 1000;
+   const uint MAX_STARTUP_COUNT = 30;  // number of callback periods 
+   const uint SHUTTING_DOWN_COUNT = 10;  // number of callback periods 
 
    core::Callback<LeafMultiPack> m_ready_led_delayed_off;
-   uint m_slow_flash_count;
-   const uint SLOW_FLASH_COUNT = 4;
+   core::Callback<LeafMultiPack> m_ready_led_delayed_on;
+   
+   enum class ReadyLedState
+   {
+      ON,
+      OFF,
+      SLOW_FLASH,
+      FAST_FLASH
+   };
+   ReadyLedState m_ready_led_state;
 };
 
 }

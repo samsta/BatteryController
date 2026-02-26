@@ -32,6 +32,7 @@ LeafMultiPack::LeafMultiPack(
       m_log(log),
       m_periodic_callback(*this, &LeafMultiPack::periodicCallback),
       m_ready_led_delayed_off(*this, &LeafMultiPack::readyLEDOff),
+      m_ready_led_delayed_on(*this, &LeafMultiPack::readyLEDOn),
       // m_voltages_ok(false),
       // m_temperatures_ok(false),
       // m_soc_percent(NAN),
@@ -51,7 +52,8 @@ LeafMultiPack::LeafMultiPack(
       m_fully_charged(true),
       m_fully_discharged(true),
       m_display_shutdown_status(true),
-      m_button_on_count(0)
+      m_button_on_count(0),
+      m_ready_led_state(ReadyLedState::OFF)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms, "LeafMultiPackPeriodic");
    if (m_log) m_log->info("LeafMultiPack: status set to STARTUP");
@@ -174,15 +176,8 @@ void LeafMultiPack::periodicCallback()
          }
 
          // control the ready LED
-         if (m_main_contactor.isClosed()) m_ready_led.set(core::OutputPin::HIGH);
-         else m_slow_flash_count++;
-
-         if (m_slow_flash_count > SLOW_FLASH_COUNT)
-         {
-            m_slow_flash_count = 0;
-            m_ready_led.set(core::OutputPin::HIGH);
-            m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
-         }
+         if (m_main_contactor.isClosed()) m_ready_led_state = ReadyLedState::ON;
+         else m_ready_led_state = ReadyLedState::SLOW_FLASH;
          break;
 
       case Monitor::SHUTTING_DOWN:
@@ -199,9 +194,9 @@ void LeafMultiPack::periodicCallback()
             if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
          }
          // fast flash
-         m_ready_led.set(core::OutputPin::HIGH);
-         m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
+         m_ready_led_state = ReadyLedState::FAST_FLASH;
          break;
+
       case Monitor::SHUNT_ACTIVIATED:
       case Monitor::SHUNT_ACT_FAILED:
       case Monitor::SHUTDOWN:
@@ -217,11 +212,67 @@ void LeafMultiPack::periodicCallback()
              m_main_contactor.setSafeToOperate(false);
          }
          // fast flash
+         m_ready_led_state = ReadyLedState::FAST_FLASH;
+         break;
+
+      default:
+         break;
+   }
+
+   switch(m_ready_led_state) {
+      case ReadyLedState::ON:
+         m_ready_led.set(core::OutputPin::HIGH);
+         break;
+
+      case ReadyLedState::SLOW_FLASH:
+      case ReadyLedState::FAST_FLASH:
          m_ready_led.set(core::OutputPin::HIGH);
          m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
          break;
 
+      case ReadyLedState::OFF:
       default:
+         m_ready_led.set(core::OutputPin::LOW);
+         break;
+   }
+}
+
+void LeafMultiPack::readyLEDOff()
+{
+   m_ready_led.set(core::OutputPin::LOW);
+   switch(m_ready_led_state) {
+      case ReadyLedState::ON:
+         m_ready_led.set(core::OutputPin::HIGH);
+         break;
+
+      case ReadyLedState::SLOW_FLASH:
+         m_timer.schedule(&m_ready_led_delayed_on, 700 /* ms */,"ReadyLEDOn");
+         break;
+
+      case ReadyLedState::FAST_FLASH:
+         m_timer.schedule(&m_ready_led_delayed_on, 100 /* ms */,"ReadyLEDOn");
+         break;
+
+      case ReadyLedState::OFF:
+         m_ready_led.set(core::OutputPin::LOW);
+         break;
+   }
+}
+
+void LeafMultiPack::readyLEDOn()
+{
+   m_ready_led.set(core::OutputPin::HIGH);
+   switch(m_ready_led_state) {
+      case ReadyLedState::ON:
+         break;
+
+      case ReadyLedState::SLOW_FLASH:
+      case ReadyLedState::FAST_FLASH:
+         m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
+         break;
+
+      case ReadyLedState::OFF:
+         m_ready_led.set(core::OutputPin::LOW);
          break;
    }
 }
@@ -530,11 +581,6 @@ const char* LeafMultiPack::getBatteryName() const
 contactor::Contactor& LeafMultiPack::getMainContactor()
 {
    return m_main_contactor;
-}
-
-void LeafMultiPack::readyLEDOff()
-{
-   m_ready_led.set(core::OutputPin::LOW);
 }
 
 void LeafMultiPack::logStartupStatus() const
