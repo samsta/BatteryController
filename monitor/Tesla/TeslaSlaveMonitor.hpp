@@ -88,6 +88,7 @@ private:
    char                    *m_pack_name;
    // contactor::Contactor&   m_safety_shunt;
    logging::Logger         *m_log;
+   can::messages::Tesla::TSBatteryStatus::Battery_Status m_prev_battery_status;
    bool m_battery_status_ok;
    bool m_voltages_ok;
    bool m_temperatures_ok;

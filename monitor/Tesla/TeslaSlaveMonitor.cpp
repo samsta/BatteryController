@@ -87,7 +87,8 @@ TeslaSlaveMonitor::TeslaSlaveMonitor(
       m_failsafe_status(7),
       m_bat_status_recv(false),
       m_charge_cur_smoothing(MAX_ALLOWABLE_CURRENT),
-      m_discharge_cur_smoothing(MAX_ALLOWABLE_CURRENT)
+      m_discharge_cur_smoothing(MAX_ALLOWABLE_CURRENT),
+      m_prev_battery_status(can::messages::Tesla::TSBatteryStatus::Battery_Status::OK)
 {
    m_volt_temp_status &= ~MAX_TEMP_MISSING; // clear max temp missing at startup
 }
@@ -150,7 +151,7 @@ void TeslaSlaveMonitor::process(const TSBatteryStatus& battery_status)
          ss << "UNRECOGNIZED";
          break;
    }
-   if (!m_battery_status_ok) m_log->alarm(ss);
+   if (status != m_prev_battery_status && !m_battery_status_ok) m_log->alarm(ss);
    updateOperationalSafety();
 }
 
