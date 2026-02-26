@@ -67,8 +67,9 @@ void TSOL_H50K::periodicCallback()
             m_inverter_silent_counter++;
          }
          // change pack status will cause contactors to open
-         if (m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION) m_monitor.setPackStatus(monitor::Monitor::SHUTTING_DOWN);
          m_contactor.setInverterCommsOk(false);
+         // no point in delaying shutdown (using shutting_down) as the inverter isn't listening
+         if (m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION) m_monitor.setPackStatus(monitor::Monitor::SHUTDOWN);
          // below line added to prevent push button from closing contactors after
          // inverter silence triggered
          if (m_contactor.isSafeToOperate()) m_contactor.setSafeToOperate(false);
