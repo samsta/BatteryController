@@ -168,7 +168,7 @@ void LeafMultiPack::periodicCallback()
          // see if we should close the contactor on start button press
          if (m_button_on_count > BUTTON_ON_COUNT && m_main_contactor.isSafeToOperate() && !m_main_contactor.isClosed() )
          {
-            m_button_on_count = -10;
+            m_button_on_count = -20*5;
             if (m_log) m_log->info("Start Button Pressed: contactor close requested");
             m_main_contactor.close();
          }

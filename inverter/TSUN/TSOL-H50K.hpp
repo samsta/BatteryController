@@ -42,7 +42,7 @@ private:
    logging::Logger       *m_log;
    core::Callback<TSOL_H50K> m_periodic_callback;
    const unsigned CALLBACK_PERIOD_ms = 10000;
-   const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 1;
+   const unsigned INVERTER_SILENT_TIMEOUT_PERIODS = 2;
    unsigned              m_inverter_silent_counter;
    bool                  m_inverter_first_msg_revd;
 };

@@ -123,6 +123,7 @@ void LeafContactor::closeNegativeRelay()
    m_negative_relay.set(OutputPin::LOW);
    // also close the precharge relay
    m_pre_charge_relay.set(OutputPin::LOW);
+   m_hv_led.set(core::OutputPin::HIGH);
 
    // the next line delays by DELAY_CLOSE_MS then calls m_delayed_close(callback), m_delayed_close is 
    // intialized in the class constructor to call closePositiveRelay... clear as mud.
@@ -134,7 +135,6 @@ void LeafContactor::closeNegativeRelay()
 void LeafContactor::closePositiveRelay()
 {
    m_positive_relay.set(OutputPin::LOW);
-   m_hv_led.set(core::OutputPin::HIGH);
 
    if (m_log)
    {
