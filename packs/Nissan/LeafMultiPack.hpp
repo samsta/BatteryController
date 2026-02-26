@@ -115,7 +115,7 @@ private:
 
    core::Callback<LeafMultiPack> m_ready_led_delayed_off;
    uint m_slow_flash_count;
-   const uint SLOW_FLASH_COUNT = 3;
+   const uint SLOW_FLASH_COUNT = 4;
 };
 
 }
