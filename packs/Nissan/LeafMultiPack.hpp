@@ -125,6 +125,7 @@ private:
       FAST_FLASH
    };
    ReadyLedState m_ready_led_state;
+   ReadyLedState m_prev_ready_led_state;
 };
 
 }

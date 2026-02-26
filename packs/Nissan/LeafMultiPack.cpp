@@ -53,7 +53,8 @@ LeafMultiPack::LeafMultiPack(
       m_fully_discharged(true),
       m_display_shutdown_status(true),
       m_button_on_count(0),
-      m_ready_led_state(ReadyLedState::OFF)
+      m_ready_led_state(ReadyLedState::OFF),
+      m_prev_ready_led_state(ReadyLedState::OFF)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms, "LeafMultiPackPeriodic");
    if (m_log) m_log->info("LeafMultiPack: status set to STARTUP");
@@ -219,21 +220,24 @@ void LeafMultiPack::periodicCallback()
          break;
    }
 
-   switch(m_ready_led_state) {
-      case ReadyLedState::ON:
-         m_ready_led.set(core::OutputPin::HIGH);
-         break;
+   if (m_ready_led_state != m_prev_ready_led_state) {
+      m_prev_ready_led_state = m_ready_led_state;
+      switch(m_ready_led_state) {
+         case ReadyLedState::ON:
+            m_ready_led.set(core::OutputPin::HIGH);
+            break;
 
-      case ReadyLedState::SLOW_FLASH:
-      case ReadyLedState::FAST_FLASH:
-         m_ready_led.set(core::OutputPin::HIGH);
-         m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
-         break;
+         case ReadyLedState::SLOW_FLASH:
+         case ReadyLedState::FAST_FLASH:
+            m_ready_led.set(core::OutputPin::HIGH);
+            m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
+            break;
 
-      case ReadyLedState::OFF:
-      default:
-         m_ready_led.set(core::OutputPin::LOW);
-         break;
+         case ReadyLedState::OFF:
+         default:
+            m_ready_led.set(core::OutputPin::LOW);
+            break;
+      }
    }
 }
 
