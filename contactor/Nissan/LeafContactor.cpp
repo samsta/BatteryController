@@ -19,11 +19,13 @@ LeafContactor::LeafContactor(
    OutputPin& positive_relay,
    OutputPin& negative_relay,
    OutputPin& pre_charge_relay,
+   core::OutputPin& hv_led,
    logging::Logger* log):
          m_timer(timer),
          m_positive_relay(positive_relay),
          m_negative_relay(negative_relay),
          m_pre_charge_relay(pre_charge_relay),
+         m_hv_led(hv_led),
          m_log(log),
          m_safe_to_operate(false),
          m_inverter_comms_ok(false),
@@ -86,6 +88,7 @@ void LeafContactor::openBothRelays()
    m_negative_relay.set(OutputPin::HIGH);
    m_positive_relay.set(OutputPin::HIGH);
    m_pre_charge_relay.set(OutputPin::HIGH);
+   m_hv_led.set(core::OutputPin::LOW);
 
    if (m_log)
    {
@@ -131,6 +134,7 @@ void LeafContactor::closeNegativeRelay()
 void LeafContactor::closePositiveRelay()
 {
    m_positive_relay.set(OutputPin::LOW);
+   m_hv_led.set(core::OutputPin::HIGH);
 
    if (m_log)
    {

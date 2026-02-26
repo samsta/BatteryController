@@ -76,7 +76,6 @@ private:
    core::InputPin&                     m_start_button;
    contactor::Nissan::LeafContactor    m_main_contactor;
    core::OutputPin&                    m_ready_led;
-   core::OutputPin&                    m_hv_led;
 
    logging ::Logger* m_log;
 

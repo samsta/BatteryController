@@ -13,8 +13,8 @@ LeafMultiPack::LeafMultiPack(
             core::OutputPin& negative_relay,
             core::OutputPin& pre_charge_relay,
             core::InputPin& start_button,
-                  core::OutputPin& ready_led,
-                  core::OutputPin& hv_led,
+            core::OutputPin& ready_led,
+            core::OutputPin& hv_led,
             logging::Logger *log):
 
       m_vmonitor(vmonitor),
@@ -25,11 +25,10 @@ LeafMultiPack::LeafMultiPack(
          positive_relay,
          negative_relay,
          pre_charge_relay,
-
+         hv_led,
          log),
       m_start_button(start_button),
       m_ready_led(ready_led),
-      m_hv_led(hv_led),
       m_log(log),
       m_periodic_callback(*this, &LeafMultiPack::periodicCallback),
       m_ready_led_delayed_off(*this, &LeafMultiPack::readyLEDOff),
@@ -64,7 +63,6 @@ LeafMultiPack::LeafMultiPack(
    m_start_button_state = m_start_button.get();
    m_prev_sb_state = m_start_button_state;
    m_ready_led.set(core::OutputPin::LOW);
-   m_hv_led.set(core::OutputPin::LOW);
 
 }
 
@@ -72,7 +70,6 @@ LeafMultiPack::~LeafMultiPack()
 {
    m_timer.deregisterCallback(&m_periodic_callback);
    m_ready_led.set(core::OutputPin::LOW);
-   m_hv_led.set(core::OutputPin::LOW);
 }
 
 void LeafMultiPack::periodicCallback()

@@ -24,7 +24,8 @@ public:
    LeafContactor(core::Timer& timer,
                  core::OutputPin& positive_relay,
                  core::OutputPin& negative_relay,
-                 core::OutputPin& indicator,
+                 core::OutputPin& pre_charge_relay,
+                 core::OutputPin& hv_led,
                  logging::Logger* log);
 
    ~LeafContactor();
@@ -54,6 +55,7 @@ private:
    core::OutputPin&  m_positive_relay;
    core::OutputPin&  m_negative_relay;
    core::OutputPin&  m_pre_charge_relay;
+   core::OutputPin&  m_hv_led;
    logging::Logger* m_log;
 
    bool  m_safe_to_operate;
