@@ -345,6 +345,37 @@ void LeafMultiPack::setPackStatus(Monitor::Pack_Status p)
    ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
    if (m_log) m_log->info(ss);
 
+   switch(m_multipack_status) {
+      case STARTUP:
+         m_ready_led_state = ReadyLedState::SLOW_FLASH;
+         break;
+      case SHUTDOWN:
+         m_ready_led_state = ReadyLedState::FAST_FLASH;
+         break;
+   }
+
+
+
+
+
+         switch(m_ready_led_state) {
+            case ReadyLedState::ON:
+               m_ready_led.set(core::OutputPin::HIGH);
+               break;
+
+            case ReadyLedState::SLOW_FLASH:
+            case ReadyLedState::FAST_FLASH:
+               m_ready_led.set(core::OutputPin::HIGH);
+               m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
+               break;
+
+            case ReadyLedState::OFF:
+            default:
+               m_ready_led.set(core::OutputPin::LOW);
+               break;
+         }
+   
+
 }
 
 uint32_t LeafMultiPack::getFailsafeStatus() const
