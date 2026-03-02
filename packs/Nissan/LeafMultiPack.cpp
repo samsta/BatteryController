@@ -35,15 +35,6 @@ LeafMultiPack::LeafMultiPack(
       m_periodic_callback(*this, &LeafMultiPack::periodicCallback),
       m_ready_led_delayed_off(*this, &LeafMultiPack::readyLEDOff),
       m_ready_led_delayed_on(*this, &LeafMultiPack::readyLEDOn),
-      // m_voltages_ok(false),
-      // m_temperatures_ok(false),
-      // m_soc_percent(NAN),
-      // m_soh_percent(NAN),
-      // m_energy_remaining_kwh(NAN),
-      // m_capacity_kwh(NAN),
-      // m_current(NAN),
-      // m_voltage(NAN),
-      // m_average_temperature(NAN),
       m_discharge_power_limit(NAN),
       m_charge_power_limit(NAN),
       m_discharge_current_limit(0),
@@ -54,8 +45,6 @@ LeafMultiPack::LeafMultiPack(
       m_fully_charged(true),
       m_fully_discharged(true),
       m_display_shutdown_status(true),
-      // m_start_button_on_count(0),
-      // m_stop_button_on_count(0),
       m_ready_led_state(ReadyLedState::OFF),
       m_prev_ready_led_state(ReadyLedState::OFF)
 {
@@ -66,9 +55,6 @@ LeafMultiPack::LeafMultiPack(
    if (m_log) m_log->info(ss);
    sss << "LeafMultiPack: number of packs: " << (int(m_vmonitor.size()));
    if (m_log) m_log->info(sss);
-   // m_start_button_state = m_start_button.get();
-   // m_stop_button_state = m_stop_button.get();
-   // m_prev_start_button_state = m_start_button_state;
    m_start_activated.update();
    m_stop_activated.update();
    m_ready_led.set(core::OutputPin::LOW);
@@ -94,12 +80,6 @@ void LeafMultiPack::periodicCallback()
    //    recalulate values for big battery
    //    operate shunt if neecessary (resend shunt trigger)
    //    open main contactor if necessary (extreme case, like loss fo USB comms)
-
-   // startup: ready off
-   // normal: while contactor open: readyLED slow flash, hvLED off
-   //       : if contactor closed: readyLED on, hvLED on
-   // !normal : if contactor open hvLED off
-   //         : readyLED fast flash
 
    m_start_activated.update();
    m_stop_activated.update();
@@ -143,20 +123,7 @@ void LeafMultiPack::periodicCallback()
          break;
 
       case Monitor::START_BUTTON_WAIT:
-         // m_start_button_state = m_start_button.get();
-         // // count continuous on states
-         // if (m_start_button_state) m_start_button_on_count++;
-         // else m_start_button_on_count = 0;
-
-         // if (m_start_button_state != m_prev_start_button_state)
-         // {
-         //    m_prev_start_button_state = m_start_button_state;
-         //    std::ostringstream ss;
-         //    ss << "Start Button State Changed: " << (m_start_button_state ? "PRESSED" : "RELEASED");
-         //    if (m_log) m_log->info(ss);
-         // }
-
-         // see if we should close the contactor on start button press
+         // wait for start button press to close the contactors
          if (m_start_activated.consumeOn())
          {
             if (m_log) m_log->info("Start Button Pressed: contactor CLOSE requested");
@@ -176,7 +143,6 @@ void LeafMultiPack::periodicCallback()
       case Monitor::NORMAL_OPERATION:
          // DURING NORMAL OPERATION:
          // the inverter is driving the operation by polling for data
-
          updateFullyChargedDischargedStatus();
 
          for (uint i=0; i<m_vmonitor.size(); i++)
@@ -193,23 +159,9 @@ void LeafMultiPack::periodicCallback()
             }
          }
 
-         // m_stop_button_state = m_stop_button.get();
-         // // count continuous on states
-         // if (m_stop_button_state) m_stop_button_on_count++;
-         // else m_stop_button_on_count = 0;
-
-         // if (m_stop_button_state != m_prev_stop_button_state)
-         // {
-         //    m_prev_stop_button_state = m_stop_button_state;
-         //    std::ostringstream ss;
-         //    ss << "STOP Button State Changed: " << (m_stop_button_state ? "PRESSED" : "RELEASED");
-         //    if (m_log) m_log->info(ss);
-         // }
-
-         // if (m_stop_button_on_count > STOP_BUTTON_ON_COUNT)
+         // initiate shutdown if stop button pressed
          if (m_stop_activated.consumeOn())
          {
-            // m_stop_button_on_count = -20*5;
             if (m_log) m_log->info("Stop Button Pressed: contactor OPEN requested");
             setPackStatus(SHUTTING_DOWN);
          }
@@ -228,10 +180,12 @@ void LeafMultiPack::periodicCallback()
          if ((fabs(getCurrent()) < 1.0) || (m_shutting_down_count > SHUTTING_DOWN_COUNT))
          {
             if (fabs(getCurrent()) < 1.0) {
-               if (m_log) m_log->alarm("Minimal Current present (<1A)", __FILENAME__,__LINE__);
+               if (m_log) m_log->info("Minimal Current present (<1A)", __FILENAME__,__LINE__);
             }
             // this will open the contactors
             setPackStatus(Monitor::SHUTDOWN);
+            // fast flash
+            m_ready_led_state = ReadyLedState::FAST_FLASH;
             std::ostringstream ss; char text[64];
             ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
             if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);
@@ -255,9 +209,8 @@ void LeafMultiPack::periodicCallback()
          if (m_main_contactor.isSafeToOperate()) {
              m_main_contactor.setSafeToOperate(false);
          }
-         // fast flash
-         m_ready_led_state = ReadyLedState::FAST_FLASH;
 
+         // got back to startup if stop button pressed
          if (m_stop_activated.consumeOn())
          {
             std::ostringstream ss;
