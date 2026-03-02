@@ -213,16 +213,15 @@ void LeafMultiPack::periodicCallback()
          // got back to startup if stop button pressed
          if (m_stop_activated.consumeOn())
          {
-            std::ostringstream ss;
-            ss << "STOP Button Pressed to RESET program state";
-            // reset states
-            m_ready_led_state = ReadyLedState::OFF;
-            m_startup_callback_count = 0;
+            if (m_log) m_log->info("STOP Button Pressed to RESET program state");
+            if (m_log) m_log->info("------------------- BatteryController RESET ------------------- ",__FILENAME__, __LINE__);
             for (uint i=0; i<m_vmonitor.size(); i++)
             {
                m_vmonitor[i]->setPackStatus(STARTUP);
             }
-            if (m_log) m_log->info(ss);
+            // reset states
+            m_ready_led_state = ReadyLedState::OFF;
+            m_startup_callback_count = 0;
             setPackStatus(STARTUP);
          }
          break;
