@@ -249,10 +249,8 @@ void LeafMultiPack::periodicCallback()
          // fast flash
          m_ready_led_state = ReadyLedState::FAST_FLASH;
 
-         m_stop_button_state = m_stop_button.get();
-         if (m_stop_button_state != m_prev_stop_button_state)
+         if (m_stop_button.get())
          {
-            m_prev_stop_button_state = m_stop_button_state;
             std::ostringstream ss;
             ss << "STOP Button State Changed: " << (m_stop_button_state ? "PRESSED" : "RELEASED");
             if (m_log) m_log->info(ss);
