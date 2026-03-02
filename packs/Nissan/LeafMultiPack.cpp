@@ -202,7 +202,7 @@ void LeafMultiPack::periodicCallback()
             if (m_log) m_log->info(ss);
          }
 
-         if (m_stop_button_on_count > STOP_BUTTON_ON_COUNT && m_main_contactor.isSafeToOperate() && !m_main_contactor.isClosed() )
+         if (m_stop_button_on_count > STOP_BUTTON_ON_COUNT)
          {
             m_stop_button_on_count = -20*5;
             if (m_log) m_log->info("Stop Button Pressed: contactor OPEN requested");

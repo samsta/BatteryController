@@ -111,7 +111,7 @@ private:
    int m_start_button_on_count;
    int m_stop_button_on_count;
    const int START_BUTTON_ON_COUNT = 3;
-   const int STOP_BUTTON_ON_COUNT = 3;
+   const int STOP_BUTTON_ON_COUNT = 1;
 
    uint m_startup_callback_count;
    uint m_shutdown_callback_count;
