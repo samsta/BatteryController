@@ -106,15 +106,15 @@ private:
 
    Pack_Status m_multipack_status;
 
-   core::OnDelayButton m_start_activated {m_start_button, 3};
-   core::OnDelayButton m_stop_activated {m_stop_button, 1};
+   core::OnDelayButton m_start_activated {m_start_button, 4};
+   core::OnDelayButton m_stop_activated {m_stop_button, 2};
 
-   bool m_start_button_state, m_prev_start_button_state;
-   bool m_stop_button_state, m_prev_stop_button_state;
-   int m_start_button_on_count;
-   int m_stop_button_on_count;
-   const int START_BUTTON_ON_COUNT = 3;
-   const int STOP_BUTTON_ON_COUNT = 1;
+   // bool m_start_button_state, m_prev_start_button_state;
+   // bool m_stop_button_state, m_prev_stop_button_state;
+   // int m_start_button_on_count;
+   // int m_stop_button_on_count;
+   // const int START_BUTTON_ON_COUNT = 3;
+   // const int STOP_BUTTON_ON_COUNT = 1;
 
    uint m_startup_callback_count;
    uint m_shutting_down_count;

@@ -54,8 +54,8 @@ LeafMultiPack::LeafMultiPack(
       m_fully_charged(true),
       m_fully_discharged(true),
       m_display_shutdown_status(true),
-      m_start_button_on_count(0),
-      m_stop_button_on_count(0),
+      // m_start_button_on_count(0),
+      // m_stop_button_on_count(0),
       m_ready_led_state(ReadyLedState::OFF),
       m_prev_ready_led_state(ReadyLedState::OFF)
 {
@@ -66,9 +66,11 @@ LeafMultiPack::LeafMultiPack(
    if (m_log) m_log->info(ss);
    sss << "LeafMultiPack: number of packs: " << (int(m_vmonitor.size()));
    if (m_log) m_log->info(sss);
-   m_start_button_state = m_start_button.get();
-   m_stop_button_state = m_stop_button.get();
-   m_prev_start_button_state = m_start_button_state;
+   // m_start_button_state = m_start_button.get();
+   // m_stop_button_state = m_stop_button.get();
+   // m_prev_start_button_state = m_start_button_state;
+   m_start_activated.update();
+   m_stop_activated.update();
    m_ready_led.set(core::OutputPin::LOW);
 
 }
@@ -193,22 +195,23 @@ void LeafMultiPack::periodicCallback()
             }
          }
 
-         m_stop_button_state = m_stop_button.get();
-         // count continuous on states
-         if (m_stop_button_state) m_stop_button_on_count++;
-         else m_stop_button_on_count = 0;
+         // m_stop_button_state = m_stop_button.get();
+         // // count continuous on states
+         // if (m_stop_button_state) m_stop_button_on_count++;
+         // else m_stop_button_on_count = 0;
 
-         if (m_stop_button_state != m_prev_stop_button_state)
-         {
-            m_prev_stop_button_state = m_stop_button_state;
-            std::ostringstream ss;
-            ss << "STOP Button State Changed: " << (m_stop_button_state ? "PRESSED" : "RELEASED");
-            if (m_log) m_log->info(ss);
-         }
+         // if (m_stop_button_state != m_prev_stop_button_state)
+         // {
+         //    m_prev_stop_button_state = m_stop_button_state;
+         //    std::ostringstream ss;
+         //    ss << "STOP Button State Changed: " << (m_stop_button_state ? "PRESSED" : "RELEASED");
+         //    if (m_log) m_log->info(ss);
+         // }
 
-         if (m_stop_button_on_count > STOP_BUTTON_ON_COUNT)
+         // if (m_stop_button_on_count > STOP_BUTTON_ON_COUNT)
+         if (m_stop_activated.isOn())
          {
-            m_stop_button_on_count = -20*5;
+            // m_stop_button_on_count = -20*5;
             if (m_log) m_log->info("Stop Button Pressed: contactor OPEN requested");
             setPackStatus(SHUTTING_DOWN);
          }
@@ -257,10 +260,10 @@ void LeafMultiPack::periodicCallback()
          // fast flash
          m_ready_led_state = ReadyLedState::FAST_FLASH;
 
-         if (m_stop_button.get())
+         if (m_stop_activated.isOn())
          {
             std::ostringstream ss;
-            ss << "STOP Button State Changed: " << (m_stop_button_state ? "PRESSED" : "RELEASED");
+            ss << "STOP Button Pressed to RESET program state";
             if (m_log) m_log->info(ss);
             setPackStatus(STARTUP);
          }
