@@ -157,12 +157,10 @@ void LeafMultiPack::periodicCallback()
          // }
 
          // see if we should close the contactor on start button press
-         // if (m_start_button_on_count > START_BUTTON_ON_COUNT)
-         if (m_start_activated.isOn())
+         if (m_start_activated.consumeOn())
          {
-            // m_start_button_on_count = -20*5;
-            setPackStatus(NORMAL_OPERATION);
             if (m_log) m_log->info("Start Button Pressed: contactor CLOSE requested");
+            setPackStatus(NORMAL_OPERATION);
             m_main_contactor.setSafeToOperate(true);
             m_main_contactor.close();
          }
@@ -209,7 +207,7 @@ void LeafMultiPack::periodicCallback()
          // }
 
          // if (m_stop_button_on_count > STOP_BUTTON_ON_COUNT)
-         if (m_stop_activated.isOn())
+         if (m_stop_activated.consumeOn())
          {
             // m_stop_button_on_count = -20*5;
             if (m_log) m_log->info("Stop Button Pressed: contactor OPEN requested");
@@ -260,7 +258,7 @@ void LeafMultiPack::periodicCallback()
          // fast flash
          m_ready_led_state = ReadyLedState::FAST_FLASH;
 
-         if (m_stop_activated.isOn())
+         if (m_stop_activated.consumeOn())
          {
             std::ostringstream ss;
             ss << "STOP Button Pressed to RESET program state";

@@ -106,7 +106,7 @@ private:
 
    Pack_Status m_multipack_status;
 
-   core::OnDelayButton m_start_activated {m_start_button, 4};
+   core::OnDelayButton m_start_activated {m_start_button, 3};
    core::OnDelayButton m_stop_activated {m_stop_button, 2};
 
    // bool m_start_button_state, m_prev_start_button_state;

@@ -44,6 +44,7 @@ public:
         {
             counter_ = 0;
             on_ = false;
+            fired_ = false;   // re-arm when released
             return;
         }
 
@@ -66,6 +67,17 @@ public:
         return on_;
     }
 
+    // returns true once per ON cycle
+    bool consumeOn()
+    {
+        if (on_ && !fired_)
+        {
+            fired_ = true;
+            return true;
+        }
+        return false;
+    }
+
 private:
     InputPin& pin_;
 
@@ -73,6 +85,7 @@ private:
     unsigned counter_ = 0;
 
     bool on_ = false;
+    bool fired_ = false;
 };
 
 }
