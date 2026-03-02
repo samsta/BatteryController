@@ -124,13 +124,13 @@ void LeafMultiPack::periodicCallback()
             if (pack_startup_fail < m_vmonitor.size())
             {
                // there are normal packs, wait for start button push
-               m_multipack_status = Monitor::START_BUTTON_WAIT;
+               setPackStatus(START_BUTTON_WAIT);
                if (m_log) m_log->info("LeafMultiPack: status set to START_BUTTON_WAIT");
             }
             else
             {
                // no packs started, running is pointless
-               m_multipack_status = Monitor::SHUTDOWN;
+               setPackStatus(SHUTDOWN);
                if (m_log) m_log->info("LeafMultiPack: no packs have started, status set to SHUTDOWN");
             }
          }
@@ -155,7 +155,7 @@ void LeafMultiPack::periodicCallback()
          if (m_start_button_on_count > START_BUTTON_ON_COUNT)
          {
             m_start_button_on_count = -20*5;
-            m_multipack_status = Monitor::NORMAL_OPERATION;
+            setPackStatus(NORMAL_OPERATION);
             if (m_log) m_log->info("LeafMultiPack: status set to NORMAL_OPERATION");
             if (m_log) m_log->info("Start Button Pressed: contactor close requested");
             m_main_contactor.setSafeToOperate(true);
@@ -184,7 +184,7 @@ void LeafMultiPack::periodicCallback()
                std::ostringstream sss;
                sss << "Mulitpack status changed due to pack " << (i+1) << " having not-NORMAL_OPERATION status";
                if (m_log) m_log->alarm(sss, __FILENAME__,__LINE__);;
-               std::ostringstream ss; char text[64];
+               std::ostringstream ss;
                ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
                if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
             }
@@ -199,15 +199,15 @@ void LeafMultiPack::periodicCallback()
          {
             m_prev_stop_button_state = m_stop_button_state;
             std::ostringstream ss;
-            ss << "Start Button State Changed: " << (m_stop_button_state ? "PRESSED" : "RELEASED");
+            ss << "STOP Button State Changed: " << (m_stop_button_state ? "PRESSED" : "RELEASED");
             if (m_log) m_log->info(ss);
          }
 
          if (m_stop_button_on_count > STOP_BUTTON_ON_COUNT && m_main_contactor.isSafeToOperate() && !m_main_contactor.isClosed() )
          {
-            // m_stop_button_on_count = -20*5;
-            // if (m_log) m_log->info("Start Button Pressed: contactor close requested");
-            // m_main_contactor.close();
+            m_stop_button_on_count = -20*5;
+            if (m_log) m_log->info("Stop Button Pressed: contactor OPEN requested");
+            setPackStatus(SHUTTING_DOWN);
          }
 
          // control the ready LED
@@ -365,6 +365,10 @@ monitor::Monitor::Pack_Status LeafMultiPack::getPackStatus() const
 void LeafMultiPack::setPackStatus(Monitor::Pack_Status p)
 {
    m_multipack_status = p;
+   std::ostringstream ss;
+   ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
+   if (m_log) m_log->alarm(ss);
+
 }
 
 uint32_t LeafMultiPack::getFailsafeStatus() const
