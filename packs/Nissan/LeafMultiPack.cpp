@@ -126,13 +126,12 @@ void LeafMultiPack::periodicCallback()
             {
                // there are normal packs, wait for start button push
                setPackStatus(START_BUTTON_WAIT);
-               if (m_log) m_log->info("LeafMultiPack: status set to START_BUTTON_WAIT");
             }
             else
             {
                // no packs started, running is pointless
-               setPackStatus(SHUTDOWN);
                if (m_log) m_log->info("LeafMultiPack: no packs have started, status set to SHUTDOWN");
+               setPackStatus(SHUTDOWN);
             }
          }
          }
@@ -157,8 +156,7 @@ void LeafMultiPack::periodicCallback()
          {
             m_start_button_on_count = -20*5;
             setPackStatus(NORMAL_OPERATION);
-            if (m_log) m_log->info("LeafMultiPack: status set to NORMAL_OPERATION");
-            if (m_log) m_log->info("Start Button Pressed: contactor close requested");
+            if (m_log) m_log->info("Start Button Pressed: contactor CLOSE requested");
             m_main_contactor.setSafeToOperate(true);
             m_main_contactor.close();
          }
@@ -220,6 +218,7 @@ void LeafMultiPack::periodicCallback()
          // below the charge and discharge current limits will be returning 0
          // so the the inverter will go to idle mode for safe
          // opening of the contractors
+         m_ready_led_state = ReadyLedState::OFF;
          m_shutdown_callback_count++;
          if (m_shutdown_callback_count > SHUTTING_DOWN_COUNT)
          {
@@ -249,6 +248,16 @@ void LeafMultiPack::periodicCallback()
          }
          // fast flash
          m_ready_led_state = ReadyLedState::FAST_FLASH;
+
+         m_start_button_state = m_start_button.get();
+         if (m_start_button_state != m_prev_start_button_state)
+         {
+            m_prev_start_button_state = m_start_button_state;
+            std::ostringstream ss;
+            ss << "Start Button State Changed: " << (m_start_button_state ? "PRESSED" : "RELEASED");
+            if (m_log) m_log->info(ss);
+            setPackStatus(STARTUP);
+         }
          break;
 
       default:
@@ -368,7 +377,7 @@ void LeafMultiPack::setPackStatus(Monitor::Pack_Status p)
    m_multipack_status = p;
    std::ostringstream ss;
    ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
-   if (m_log) m_log->alarm(ss);
+   if (m_log) m_log->info(ss);
 
 }
 
