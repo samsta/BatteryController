@@ -220,8 +220,11 @@ void LeafMultiPack::periodicCallback()
          // opening of the contractors
          m_ready_led_state = ReadyLedState::OFF;
          m_shutting_down_count++;
-         if (m_shutting_down_count > SHUTTING_DOWN_COUNT)
+         if ((fabs(getCurrent()) < 1.0) || (m_shutting_down_count > SHUTTING_DOWN_COUNT))
          {
+            if (fabs(getCurrent()) < 1.0) {
+               if (m_log) m_log->alarm("Minimal Current present (<1A)", __FILENAME__,__LINE__);
+            }
             // this will open the contactors
             setPackStatus(Monitor::SHUTDOWN);
             std::ostringstream ss; char text[64];

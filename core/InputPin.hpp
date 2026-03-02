@@ -26,6 +26,54 @@ private:
    bool input_state;
 };
 
+class OnDelayButton
+{
+public:
+    OnDelayButton(InputPin& pin, unsigned on_delay_counts)
+        : pin_(pin),
+          on_delay_counts_(on_delay_counts)
+    {
+    }
+
+    // call once per second
+    void update()
+    {
+        bool pressed = pin_.get();
+
+        if (!pressed)
+        {
+            counter_ = 0;
+            on_ = false;
+            return;
+        }
+
+        if (!on_)
+        {
+            if (counter_ < on_delay_counts_)
+            {
+                counter_++;
+            }
+
+            if (counter_ >= on_delay_counts_)
+            {
+                on_ = true;
+            }
+        }
+    }
+
+    bool isOn() const
+    {
+        return on_;
+    }
+
+private:
+    InputPin& pin_;
+
+    unsigned on_delay_counts_;
+    unsigned counter_ = 0;
+
+    bool on_ = false;
+};
 
 }
 
