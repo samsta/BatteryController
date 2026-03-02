@@ -50,7 +50,7 @@ LeafMultiPack::LeafMultiPack(
       m_charge_current_limit(0),
       m_multipack_status(monitor::Monitor::STARTUP),
       m_startup_callback_count(0),
-      m_shutdown_callback_count(0),
+      m_shutting_down_count(0),
       m_fully_charged(true),
       m_fully_discharged(true),
       m_display_shutdown_status(true),
@@ -219,14 +219,15 @@ void LeafMultiPack::periodicCallback()
          // so the the inverter will go to idle mode for safe
          // opening of the contractors
          m_ready_led_state = ReadyLedState::OFF;
-         m_shutdown_callback_count++;
-         if (m_shutdown_callback_count > SHUTTING_DOWN_COUNT)
+         m_shutting_down_count++;
+         if (m_shutting_down_count > SHUTTING_DOWN_COUNT)
          {
             // this will open the contactors
             setPackStatus(Monitor::SHUTDOWN);
             std::ostringstream ss; char text[64];
             ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
-            if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
+            if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);
+            m_shutting_down_count = 0;
          }
          // fast flash
          m_ready_led_state = ReadyLedState::FAST_FLASH;
