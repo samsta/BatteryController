@@ -67,6 +67,7 @@ LeafMultiPack::LeafMultiPack(
    sss << "LeafMultiPack: number of packs: " << (int(m_vmonitor.size()));
    if (m_log) m_log->info(sss);
    m_start_button_state = m_start_button.get();
+   m_stop_button_state = m_stop_button.get();
    m_prev_start_button_state = m_start_button_state;
    m_ready_led.set(core::OutputPin::LOW);
 

@@ -21,6 +21,7 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
   mocks::core::OutputPin negative_relay;
   mocks::core::OutputPin pre_charge_relay;
   mocks::core::InputPin start_button;
+  mocks::core::InputPin stop_button;
   mocks::core::OutputPin ready_led;
   mocks::core::OutputPin hv_led;
   std::vector<monitor::Monitor*>         m_vmonitor = {&m_monitor1};
@@ -34,6 +35,7 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
   core::Invokable* invokable;
   EXPECT_CALL(timer, registerPeriodicCallback(_, 1000,_)).WillOnce(SaveArg<0>(&invokable));
   EXPECT_CALL(start_button, get());
+  EXPECT_CALL(stop_button, get());
 
   LeafMultiPack LMP(      m_vmonitor,
                         //   m_vcontactor,
@@ -42,6 +44,7 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
                           negative_relay,
                           pre_charge_relay,
                           start_button,
+                          stop_button,
                           ready_led,
                           hv_led,
                           nullptr);
@@ -66,6 +69,7 @@ public:
                   negative_relay,
                   pre_charge_relay,
                   start_button,
+                  stop_button,
                   ready_led,
                   hv_led,
                   nullptr)
@@ -79,6 +83,7 @@ public:
    mocks::core::OutputPin negative_relay;
    mocks::core::OutputPin pre_charge_relay;
    mocks::core::InputPin start_button;
+   mocks::core::InputPin stop_button;
    mocks::core::OutputPin ready_led;
    mocks::core::OutputPin hv_led;
 
