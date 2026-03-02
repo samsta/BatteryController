@@ -13,6 +13,7 @@ LeafMultiPack::LeafMultiPack(
             core::OutputPin& negative_relay,
             core::OutputPin& pre_charge_relay,
             core::InputPin& start_button,
+            core::InputPin& stop_button,
             core::OutputPin& ready_led,
             core::OutputPin& hv_led,
             logging::Logger *log):
@@ -28,6 +29,7 @@ LeafMultiPack::LeafMultiPack(
          hv_led,
          log),
       m_start_button(start_button),
+      m_stop_button(stop_button),
       m_ready_led(ready_led),
       m_log(log),
       m_periodic_callback(*this, &LeafMultiPack::periodicCallback),
@@ -52,7 +54,8 @@ LeafMultiPack::LeafMultiPack(
       m_fully_charged(true),
       m_fully_discharged(true),
       m_display_shutdown_status(true),
-      m_button_on_count(0),
+      m_start_button_on_count(0),
+      m_stop_button_on_count(0),
       m_ready_led_state(ReadyLedState::OFF),
       m_prev_ready_led_state(ReadyLedState::OFF)
 {
@@ -64,7 +67,7 @@ LeafMultiPack::LeafMultiPack(
    sss << "LeafMultiPack: number of packs: " << (int(m_vmonitor.size()));
    if (m_log) m_log->info(sss);
    m_start_button_state = m_start_button.get();
-   m_prev_sb_state = m_start_button_state;
+   m_prev_start_button_state = m_start_button_state;
    m_ready_led.set(core::OutputPin::LOW);
 
 }
@@ -120,10 +123,9 @@ void LeafMultiPack::periodicCallback()
             // check that there are normal packs (that is, not all packs have failed to startup)
             if (pack_startup_fail < m_vmonitor.size())
             {
-               // there are normal packs, give the 'ok' to close the main contactors (doesn't close the contractors)
-               m_multipack_status = Monitor::NORMAL_OPERATION;
-               m_main_contactor.setSafeToOperate(true);
-               if (m_log) m_log->info("LeafMultiPack: status set to NORMAL_OPERATION");
+               // there are normal packs, wait for start button push
+               m_multipack_status = Monitor::START_BUTTON_WAIT;
+               if (m_log) m_log->info("LeafMultiPack: status set to START_BUTTON_WAIT");
             }
             else
             {
@@ -133,6 +135,39 @@ void LeafMultiPack::periodicCallback()
             }
          }
          }
+         break;
+
+      case Monitor::START_BUTTON_WAIT:
+         m_start_button_state = m_start_button.get();
+         // count continuous on states
+         if (m_start_button_state) m_start_button_on_count++;
+         else m_start_button_on_count = 0;
+
+         if (m_start_button_state != m_prev_start_button_state)
+         {
+            m_prev_start_button_state = m_start_button_state;
+            std::ostringstream ss;
+            ss << "Start Button State Changed: " << (m_start_button_state ? "PRESSED" : "RELEASED");
+            if (m_log) m_log->info(ss);
+         }
+
+         // see if we should close the contactor on start button press
+         if (m_start_button_on_count > START_BUTTON_ON_COUNT)
+         {
+            m_start_button_on_count = -20*5;
+            m_multipack_status = Monitor::NORMAL_OPERATION;
+            if (m_log) m_log->info("LeafMultiPack: status set to NORMAL_OPERATION");
+            if (m_log) m_log->info("Start Button Pressed: contactor close requested");
+            m_main_contactor.setSafeToOperate(true);
+            m_main_contactor.close();
+         }
+         
+         // set ready led state
+         if (m_ready_led_state != ReadyLedState::SLOW_FLASH) {
+            m_ready_led.set(core::OutputPin::HIGH);
+            m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
+         }
+         m_ready_led_state = ReadyLedState::SLOW_FLASH;
          break;
 
       case Monitor::NORMAL_OPERATION:
@@ -155,29 +190,28 @@ void LeafMultiPack::periodicCallback()
             }
          }
 
-         m_start_button_state = m_start_button.get();
+         m_stop_button_state = m_stop_button.get();
          // count continuous on states
-         if (m_start_button_state) m_button_on_count++;
-         else m_button_on_count = 0;
+         if (m_stop_button_state) m_stop_button_on_count++;
+         else m_stop_button_on_count = 0;
 
-         if (m_start_button_state != m_prev_sb_state)
+         if (m_stop_button_state != m_prev_stop_button_state)
          {
-            m_prev_sb_state = m_start_button_state;
+            m_prev_stop_button_state = m_stop_button_state;
             std::ostringstream ss;
-            ss << "Start Button State Changed: " << (m_start_button_state ? "PRESSED" : "RELEASED");
+            ss << "Start Button State Changed: " << (m_stop_button_state ? "PRESSED" : "RELEASED");
             if (m_log) m_log->info(ss);
          }
 
-         // see if we should close the contactor on start button press
-         if (m_button_on_count > BUTTON_ON_COUNT && m_main_contactor.isSafeToOperate() && !m_main_contactor.isClosed() )
+         if (m_stop_button_on_count > STOP_BUTTON_ON_COUNT && m_main_contactor.isSafeToOperate() && !m_main_contactor.isClosed() )
          {
-            m_button_on_count = -20*5;
-            if (m_log) m_log->info("Start Button Pressed: contactor close requested");
-            m_main_contactor.close();
+            // m_stop_button_on_count = -20*5;
+            // if (m_log) m_log->info("Start Button Pressed: contactor close requested");
+            // m_main_contactor.close();
          }
 
          // control the ready LED
-         if (m_main_contactor.isClosed()) m_ready_led_state = ReadyLedState::ON;
+         if (m_main_contactor.inverterCommsOk() && m_main_contactor.isClosed()) m_ready_led_state = ReadyLedState::ON;
          else m_ready_led_state = ReadyLedState::SLOW_FLASH;
          break;
 

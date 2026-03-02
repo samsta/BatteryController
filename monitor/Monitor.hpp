@@ -17,6 +17,7 @@ public:
    enum Pack_Status {
       STARTUP,
       STARTUP_FAILED,
+      START_BUTTON_WAIT,
       NORMAL_OPERATION,
       SHUNT_ACTIVIATED,
       SHUNT_ACT_FAILED,

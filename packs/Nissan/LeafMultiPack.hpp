@@ -26,6 +26,7 @@ public:
                   core::OutputPin& negative_relay,
                   core::OutputPin& pre_charge_relay,
                   core::InputPin& start_button,
+                  core::InputPin& stop_button,
                   core::OutputPin& ready_led,
                   core::OutputPin& hv_led,
                   logging::Logger *log);
@@ -75,6 +76,7 @@ private:
    // std::vector<contactor::Contactor*>  m_vsafety_shunt;
    core::Timer&                        m_timer;
    core::InputPin&                     m_start_button;
+   core::InputPin&                     m_stop_button;
    contactor::Nissan::LeafContactor    m_main_contactor;
    core::OutputPin&                    m_ready_led;
 
@@ -104,9 +106,12 @@ private:
 
    Pack_Status m_multipack_status;
 
-   bool m_start_button_state, m_prev_sb_state;
-   int m_button_on_count;
-   const int BUTTON_ON_COUNT = 4;
+   bool m_start_button_state, m_prev_start_button_state;
+   bool m_stop_button_state, m_prev_stop_button_state;
+   int m_start_button_on_count;
+   int m_stop_button_on_count;
+   const int START_BUTTON_ON_COUNT = 3;
+   const int STOP_BUTTON_ON_COUNT = 3;
 
    uint m_startup_callback_count;
    uint m_shutdown_callback_count;

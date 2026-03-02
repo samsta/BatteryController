@@ -159,6 +159,9 @@ namespace monitor
       case Monitor::Pack_Status::STARTUP_FAILED:
          return "strt_fl";
          break;
+      case Monitor::Pack_Status::START_BUTTON_WAIT:
+         return "stbn_wt";
+         break;
       case Monitor::Pack_Status::NORMAL_OPERATION:
          return "normal";
          break;
@@ -188,6 +191,9 @@ namespace monitor
          break;
       case Monitor::Pack_Status::STARTUP_FAILED:
          return "STARTUP_FAILED";
+         break;
+      case Monitor::Pack_Status::START_BUTTON_WAIT:
+         return "START_BUTTON_WAIT";
          break;
       case Monitor::Pack_Status::NORMAL_OPERATION:
          return "NORMAL_OPERATION";
