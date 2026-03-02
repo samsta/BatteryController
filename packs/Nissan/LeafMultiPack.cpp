@@ -99,6 +99,9 @@ void LeafMultiPack::periodicCallback()
    // !normal : if contactor open hvLED off
    //         : readyLED fast flash
 
+   m_start_activated.update();
+   m_stop_activated.update();
+
    switch (m_multipack_status) {
 
       case Monitor::STARTUP:
@@ -138,23 +141,24 @@ void LeafMultiPack::periodicCallback()
          break;
 
       case Monitor::START_BUTTON_WAIT:
-         m_start_button_state = m_start_button.get();
-         // count continuous on states
-         if (m_start_button_state) m_start_button_on_count++;
-         else m_start_button_on_count = 0;
+         // m_start_button_state = m_start_button.get();
+         // // count continuous on states
+         // if (m_start_button_state) m_start_button_on_count++;
+         // else m_start_button_on_count = 0;
 
-         if (m_start_button_state != m_prev_start_button_state)
-         {
-            m_prev_start_button_state = m_start_button_state;
-            std::ostringstream ss;
-            ss << "Start Button State Changed: " << (m_start_button_state ? "PRESSED" : "RELEASED");
-            if (m_log) m_log->info(ss);
-         }
+         // if (m_start_button_state != m_prev_start_button_state)
+         // {
+         //    m_prev_start_button_state = m_start_button_state;
+         //    std::ostringstream ss;
+         //    ss << "Start Button State Changed: " << (m_start_button_state ? "PRESSED" : "RELEASED");
+         //    if (m_log) m_log->info(ss);
+         // }
 
          // see if we should close the contactor on start button press
-         if (m_start_button_on_count > START_BUTTON_ON_COUNT)
+         // if (m_start_button_on_count > START_BUTTON_ON_COUNT)
+         if (m_start_activated.isOn())
          {
-            m_start_button_on_count = -20*5;
+            // m_start_button_on_count = -20*5;
             setPackStatus(NORMAL_OPERATION);
             if (m_log) m_log->info("Start Button Pressed: contactor CLOSE requested");
             m_main_contactor.setSafeToOperate(true);
