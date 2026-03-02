@@ -215,6 +215,13 @@ void LeafMultiPack::periodicCallback()
          {
             std::ostringstream ss;
             ss << "STOP Button Pressed to RESET program state";
+            // reset states
+            m_ready_led_state = ReadyLedState::OFF;
+            m_startup_callback_count = 0;
+            for (uint i=0; i<m_vmonitor.size(); i++)
+            {
+               m_vmonitor[i]->setPackStatus(STARTUP);
+            }
             if (m_log) m_log->info(ss);
             setPackStatus(STARTUP);
          }
