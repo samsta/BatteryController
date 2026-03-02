@@ -249,12 +249,12 @@ void LeafMultiPack::periodicCallback()
          // fast flash
          m_ready_led_state = ReadyLedState::FAST_FLASH;
 
-         m_start_button_state = m_start_button.get();
-         if (m_start_button_state != m_prev_start_button_state)
+         m_stop_button_state = m_stop_button.get();
+         if (m_stop_button_state != m_prev_stop_button_state)
          {
-            m_prev_start_button_state = m_start_button_state;
+            m_prev_stop_button_state = m_stop_button_state;
             std::ostringstream ss;
-            ss << "Start Button State Changed: " << (m_start_button_state ? "PRESSED" : "RELEASED");
+            ss << "STOP Button State Changed: " << (m_stop_button_state ? "PRESSED" : "RELEASED");
             if (m_log) m_log->info(ss);
             setPackStatus(STARTUP);
          }
