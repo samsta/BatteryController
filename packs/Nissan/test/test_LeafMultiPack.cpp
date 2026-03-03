@@ -32,7 +32,9 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
   EXPECT_CALL(pre_charge_relay, set(mocks::core::OutputPin::HIGH));
   EXPECT_CALL(ready_led, set(mocks::core::OutputPin::LOW));
   EXPECT_CALL(hv_led, set(mocks::core::OutputPin::LOW));
+  EXPECT_CALL(ready_led, set(mocks::core::OutputPin::HIGH));
   core::Invokable* invokable;
+//   EXPECT_CALL(timer, registerPeriodicCallback(_, 100,_)).WillOnce(SaveArg<0>(&invokable));
   EXPECT_CALL(timer, registerPeriodicCallback(_, 1000,_)).WillOnce(SaveArg<0>(&invokable));
   EXPECT_CALL(start_button, get());
   EXPECT_CALL(stop_button, get());
