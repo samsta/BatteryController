@@ -110,8 +110,9 @@ private:
    {
       ON,
       OFF,
+      FAST_FLASH,
       SLOW_FLASH,
-      FAST_FLASH
+      VERY_SLOW_FLASH
    };
    ReadyLedState m_ready_led_state;
    ReadyLedState m_prev_ready_led_state;
