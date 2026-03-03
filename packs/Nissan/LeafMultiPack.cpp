@@ -44,12 +44,10 @@ LeafMultiPack::LeafMultiPack(
       m_shutting_down_count(0),
       m_fully_charged(true),
       m_fully_discharged(true),
-      m_display_shutdown_status(true),
-      m_ready_led_state(ReadyLedState::OFF),
-      m_prev_ready_led_state(ReadyLedState::OFF)
+      m_display_shutdown_status(true)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms, "LeafMultiPackPeriodic");
-   if (m_log) m_log->info("LeafMultiPack: status set to STARTUP");
+   setPackStatus(STARTUP);
    std::ostringstream ss,sss;
    ss << "LeafMultiPack: pack startup wait time = " << CALLBACK_PERIOD_ms * MAX_STARTUP_COUNT / 1000 << " seconds";
    if (m_log) m_log->info(ss);
@@ -131,13 +129,6 @@ void LeafMultiPack::periodicCallback()
             m_main_contactor.setSafeToOperate(true);
             m_main_contactor.close();
          }
-         
-         // set ready led state
-         // if (m_ready_led_state != ReadyLedState::SLOW_FLASH) {
-         //    m_ready_led.set(core::OutputPin::HIGH);
-         //    m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
-         // }
-         // m_ready_led_state = ReadyLedState::SLOW_FLASH;
          break;
 
       case Monitor::NORMAL_OPERATION:
@@ -175,7 +166,6 @@ void LeafMultiPack::periodicCallback()
          // below the charge and discharge current limits will be returning 0
          // so the the inverter will go to idle mode for safe
          // opening of the contractors
-         // m_ready_led_state = ReadyLedState::OFF;
          m_shutting_down_count++;
          if ((fabs(getCurrent()) < 1.0) || (m_shutting_down_count > SHUTTING_DOWN_COUNT))
          {
@@ -184,15 +174,11 @@ void LeafMultiPack::periodicCallback()
             }
             // this will open the contactors
             setPackStatus(Monitor::SHUTDOWN);
-            // fast flash
-            // m_ready_led_state = ReadyLedState::FAST_FLASH;
             std::ostringstream ss; char text[64];
             ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
             if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);
             m_shutting_down_count = 0;
          }
-         // fast flash
-         // m_ready_led_state = ReadyLedState::FAST_FLASH;
          break;
 
       case Monitor::SHUNT_ACTIVIATED:
@@ -220,7 +206,6 @@ void LeafMultiPack::periodicCallback()
                m_vmonitor[i]->setPackStatus(STARTUP);
             }
             // reset states
-            // m_ready_led_state = ReadyLedState::OFF;
             m_startup_callback_count = 0;
             setPackStatus(STARTUP);
          }
@@ -229,26 +214,6 @@ void LeafMultiPack::periodicCallback()
       default:
          break;
    }
-
-   // if (m_ready_led_state != m_prev_ready_led_state) {
-   //    m_prev_ready_led_state = m_ready_led_state;
-   //    switch(m_ready_led_state) {
-   //       case ReadyLedState::ON:
-   //          m_ready_led.set(core::OutputPin::HIGH);
-   //          break;
-
-   //       case ReadyLedState::SLOW_FLASH:
-   //       case ReadyLedState::FAST_FLASH:
-   //          m_ready_led.set(core::OutputPin::HIGH);
-   //          m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
-   //          break;
-
-   //       case ReadyLedState::OFF:
-   //       default:
-   //          m_ready_led.set(core::OutputPin::LOW);
-   //          break;
-   //    }
-   // }
 }
 
 void LeafMultiPack::readyLEDOff()
