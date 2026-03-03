@@ -195,6 +195,8 @@ void LeafMultiPack::periodicCallback()
          if (m_main_contactor.isSafeToOperate()) {
              m_main_contactor.setSafeToOperate(false);
          }
+         // default inverter comms to off, this only matters when the contactors are closed
+         m_main_contactor.setInverterCommsOk(false);
 
          // got back to startup if stop button pressed
          if (m_stop_activated.consumeOn())
@@ -324,7 +326,7 @@ void LeafMultiPack::setPackStatus(Monitor::Pack_Status p)
          break;
 
       case NORMAL_OPERATION:
-         m_ready_led_state = ReadyLedState::ON;
+         m_ready_led_state = ReadyLedState::SLOW_FLASH   ;
          break;
 
       case SHUTTING_DOWN:
