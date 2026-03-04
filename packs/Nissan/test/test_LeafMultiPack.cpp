@@ -16,14 +16,14 @@ TEST(TestLeafMultipack1, setsOutputPinsToDefault)
 {
   NiceMock<mocks::monitor::Monitor>     m_monitor1;
   NiceMock<mocks::contactor::Contactor> m_contactor1;
-  mocks::core::Timer timer;
-  mocks::core::OutputPin positive_relay;
-  mocks::core::OutputPin negative_relay;
-  mocks::core::OutputPin pre_charge_relay;
-  mocks::core::InputPin start_button;
-  mocks::core::InputPin stop_button;
-  mocks::core::OutputPin ready_led;
-  mocks::core::OutputPin hv_led;
+  NiceMock<mocks::core::Timer> timer;
+  NiceMock<mocks::core::OutputPin> positive_relay;
+  NiceMock<mocks::core::OutputPin> negative_relay;
+  NiceMock<mocks::core::OutputPin> pre_charge_relay;
+  NiceMock<mocks::core::InputPin> start_button;
+  NiceMock<mocks::core::InputPin> stop_button;
+  NiceMock<mocks::core::OutputPin> ready_led;
+  NiceMock<mocks::core::OutputPin> hv_led;
   std::vector<monitor::Monitor*>         m_vmonitor = {&m_monitor1};
   std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1};
 
@@ -80,14 +80,14 @@ public:
 
    NiceMock<mocks::monitor::Monitor>     m_monitor1;
    NiceMock<mocks::contactor::Contactor> m_contactor1;
-   mocks::core::Timer timer;
-   mocks::core::OutputPin positive_relay;
-   mocks::core::OutputPin negative_relay;
-   mocks::core::OutputPin pre_charge_relay;
-   mocks::core::InputPin start_button;
-   mocks::core::InputPin stop_button;
-   mocks::core::OutputPin ready_led;
-   mocks::core::OutputPin hv_led;
+   NiceMock<mocks::core::Timer> timer;
+   NiceMock<mocks::core::OutputPin> positive_relay;
+   NiceMock<mocks::core::OutputPin> negative_relay;
+   NiceMock<mocks::core::OutputPin> pre_charge_relay;
+   NiceMock<mocks::core::InputPin> start_button;
+   NiceMock<mocks::core::InputPin> stop_button;
+   NiceMock<mocks::core::OutputPin> ready_led;
+   NiceMock<mocks::core::OutputPin> hv_led;
 
    std::vector<monitor::Monitor*>         m_vmonitor = {&m_monitor1};
 //    std::vector<contactor::Contactor*>     m_vcontactor = {&m_contactor1};
