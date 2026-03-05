@@ -38,11 +38,10 @@ const float WARN_LOW_TEMPERATURE(5);
 const float CRITICALLY_LOW_TEMPERATURE(2);
 const float MAX_TEMP_SENSORS_MISSING(1);
 
-const float NOMINAL_CAPACITY_KWH(24);
-//const float NOMINAL_CURRENT_LIMIT(20);
-
-const unsigned NUM_MODULES(24);
-const unsigned NUM_CELLS(96);
+// values for HIKOTRON Battery
+const float NOMINAL_CAPACITY_KWH(125);
+const unsigned NUM_MODULES(26);
+const unsigned NUM_CELLS(26*6);
 
 const float TEMPERATURE_LIMIT_RESOLUTION(1);
 const float VOLTAGE_LIMIT_RESOLUTION(0.001);
