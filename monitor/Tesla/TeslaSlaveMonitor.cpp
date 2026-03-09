@@ -18,9 +18,9 @@ namespace Tesla {
 
 namespace {
 
-const float CRITICALLY_HIGH_VOLTAGE(4.15);
-const float WARN_HIGH_VOLTAGE(4.1);
-const float WARN_LOW_VOLTAGE(3.3);
+const float CRITICALLY_HIGH_VOLTAGE(4.2);
+const float WARN_HIGH_VOLTAGE(4.15);
+const float WARN_LOW_VOLTAGE(3.1);
 const float CRITICALLY_LOW_VOLTAGE(3);
 const float CRITICALLY_HIGH_VOLTAGE_SPREAD(0.5);
 
