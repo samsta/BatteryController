@@ -170,12 +170,12 @@ void TSOL_H50K::process(const InverterInfoRequest& command)
          m_sender.sink(BatteryHWSWVersion());
 
          m_sender.sink(BatteryModCapacity()
-               .setTotalCellAmount(120)
-               .setModulesInSeries(4)
-               .setCellsPerModule(30)
-               .setVoltageLevel(384)
+               .setTotalCellAmount(6*26)
+               .setModulesInSeries(26)
+               .setCellsPerModule(6)
+               .setVoltageLevel(645)
                // Ah = Wh / V
-               .setAhCapacity(37));
+               .setAhCapacity(200));
       }
    }
    // TODO else some kind of error reporting?
