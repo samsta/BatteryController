@@ -32,7 +32,7 @@ private:
     std::thread m_thread;
     std::atomic<bool> m_running{false};
     int m_server_sock{-1};
-    uint16_t m_heartbeat{0};
+    uint16_t m_heartbeat{65533};
 };
 
 } // namespace core

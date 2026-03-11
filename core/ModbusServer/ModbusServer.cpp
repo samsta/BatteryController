@@ -87,9 +87,6 @@ void ModbusServer::handleClient(int clientSock) {
             for (uint16_t i = 0; i < qty; ++i) {
                 uint16_t addr = start + i;
                 uint16_t val = 0;
-                // New mapping: expose registers starting at 100
-                // 100 -> Voltage, 101 -> Current, 102 -> Temperature,
-                // 103 -> SOC, 104 -> SOH, 105 -> Energy Remaining
                 if (!m_monitor.empty()) {
                     // Use the last monitor (aggregate / multi-pack) so behavior
                     // matches the WebServer output which shows all monitors including
@@ -103,12 +100,10 @@ void ModbusServer::handleClient(int clientSock) {
                                 case 0: // 100 = bms_status (0=off,1=running,2=error)
                                     {
                                         auto status = m->getPackStatus();
-                                        uint16_t bms = 0;
                                         using Pack = monitor::Monitor::Pack_Status;
-                                        if (status == Pack::NORMAL_OPERATION) bms = 1;
-                                        else if (status == Pack::STARTUP_FAILED || status == Pack::SHUNT_ACT_FAILED) bms = 2;
-                                        else bms = 0;
-                                        val = bms;
+                                        if (status == Pack::NORMAL_OPERATION) val = 1;
+                                        else if (status != Pack::START_BUTTON_WAIT) val = 2;
+                                        else val = 0;
                                     }
                                     break;
                                 case 1: // 101 = heartbeat_counter
@@ -152,7 +147,6 @@ void ModbusServer::handleClient(int clientSock) {
                                     break;
                             }
                         }
-                        // Sensor mapping: place previous sensor registers starting at 105
                         else if (addr >= 105 && addr <= 110) {
                             uint16_t mapped = addr - 105; // 0..5
                             switch (mapped) {
