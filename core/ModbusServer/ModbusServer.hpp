@@ -9,6 +9,7 @@
 #include <vector>
 #include <thread>
 #include <atomic>
+#include <cstdint>
 
 namespace monitor { class Monitor; }
 
@@ -31,6 +32,7 @@ private:
     std::thread m_thread;
     std::atomic<bool> m_running{false};
     int m_server_sock{-1};
+    uint16_t m_heartbeat{0};
 };
 
 } // namespace core

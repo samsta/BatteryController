@@ -10,7 +10,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstring>
+#include <cmath>
 #include <iostream>
+#include <fstream>
 
 namespace core {
 
@@ -75,7 +77,10 @@ void ModbusServer::handleClient(int clientSock) {
             if (qty == 0) qty = 1;
             if (qty > 125) qty = 125; // Modbus spec max
 
-            // Prepare register values from first monitor (or zeros)
+            // Heartbeat: increment once per request (wraps at 65535)
+            m_heartbeat = static_cast<uint16_t>(m_heartbeat + 1);
+
+            // Prepare register values
             std::vector<uint16_t> regs;
             regs.reserve(qty);
 
@@ -85,36 +90,114 @@ void ModbusServer::handleClient(int clientSock) {
                 // New mapping: expose registers starting at 100
                 // 100 -> Voltage, 101 -> Current, 102 -> Temperature,
                 // 103 -> SOC, 104 -> SOH, 105 -> Energy Remaining
-                if (!m_monitor.empty() && m_monitor[0]) {
-                    auto *m = m_monitor[0];
-                    if (addr >= 100 && addr <= 105) {
-                        uint16_t mapped = addr - 100;
-                        switch (mapped) {
-                            case 0: // Voltage (V * 10)
-                                val = static_cast<uint16_t>(m->getVoltage() * 10.0);
-                                break;
-                            case 1: // Current (A * 10)
-                                val = static_cast<uint16_t>(m->getCurrent() * 10.0);
-                                break;
-                            case 2: // Temperature (C * 10)
-                                val = static_cast<uint16_t>(m->getTemperature() * 10.0);
-                                break;
-                            case 3: // SOC (% * 100)
-                                val = static_cast<uint16_t>(m->getSocPercent() * 100.0);
-                                break;
-                            case 4: // SOH (% * 100)
-                                val = static_cast<uint16_t>(m->getSohPercent() * 100.0);
-                                break;
-                            case 5: // Energy Remaining (kWh * 100)
-                                val = static_cast<uint16_t>(m->getEnergyRemainingKwh() * 100.0);
-                                break;
-                            default:
-                                val = 0;
-                                break;
+                if (!m_monitor.empty()) {
+                    // Use the last monitor (aggregate / multi-pack) so behavior
+                    // matches the WebServer output which shows all monitors including
+                    // the combined pack at the end of the vector.
+                    monitor::Monitor* m = m_monitor.back();
+                    if (m) {
+                        // New mapping: 100..104 are the requested control/status registers
+                        if (addr >= 100 && addr <= 104) {
+                            uint16_t mapped = addr - 100;
+                            switch (mapped) {
+                                case 0: // 100 = bms_status (0=off,1=running,2=error)
+                                    {
+                                        auto status = m->getPackStatus();
+                                        uint16_t bms = 0;
+                                        using Pack = monitor::Monitor::Pack_Status;
+                                        if (status == Pack::NORMAL_OPERATION) bms = 1;
+                                        else if (status == Pack::STARTUP_FAILED || status == Pack::SHUNT_ACT_FAILED) bms = 2;
+                                        else bms = 0;
+                                        val = bms;
+                                    }
+                                    break;
+                                case 1: // 101 = heartbeat_counter
+                                    val = m_heartbeat;
+                                    break;
+                                case 2: // 102 = max_charge_current_limit_dc (no scaling)
+                                    {
+                                        float v = m->getChargeCurrentLimit();
+                                        if (std::isnan(v)) val = 0;
+                                        else {
+                                            if (v < 0) v = 0;
+                                            if (v > 65535) v = 65535;
+                                            val = static_cast<uint16_t>(std::lrint(v));
+                                        }
+                                    }
+                                    break;
+                                case 3: // 103 = max_discharge_current_limit_dc (no scaling)
+                                    {
+                                        float v = m->getDischargeCurrentLimit();
+                                        if (std::isnan(v)) val = 0;
+                                        else {
+                                            if (v < 0) v = 0;
+                                            if (v > 65535) v = 65535;
+                                            val = static_cast<uint16_t>(std::lrint(v));
+                                        }
+                                    }
+                                    break;
+                                case 4: // 104 = soc (no scaling)
+                                    {
+                                        float v = m->getSocPercent();
+                                        if (std::isnan(v)) val = 0;
+                                        else {
+                                            if (v < 0) v = 0;
+                                            if (v > 65535) v = 65535;
+                                            val = static_cast<uint16_t>(std::lrint(v));
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    val = 0;
+                                    break;
+                            }
                         }
-                    } else {
-                        // address outside the published range -> 0
-                        val = 0;
+                        // Sensor mapping: place previous sensor registers starting at 105
+                        else if (addr >= 105 && addr <= 110) {
+                            uint16_t mapped = addr - 105; // 0..5
+                            switch (mapped) {
+                                case 0: // 105 -> Voltage (V * 10)
+                                    val = static_cast<uint16_t>(m->getVoltage() * 10.0);
+                                    break;
+                                case 1: // 106 -> Current (signed int16, A * 10)
+                                    {
+                                        float cur = m->getCurrent();
+                                        if (!std::isnan(cur)) {
+                                            int16_t sreg = static_cast<int16_t>(std::lrint(cur * 10.0));
+                                            val = static_cast<uint16_t>(static_cast<uint16_t>(sreg));
+                                        } else {
+                                            val = 0;
+                                        }
+                                    }
+                                    break;
+                                case 2: // 107 -> Temperature (signed int16, C * 10)
+                                    {
+                                        float temp = m->getTemperature();
+                                        if (!std::isnan(temp)) {
+                                            int16_t sreg = static_cast<int16_t>(std::lrint(temp * 10.0));
+                                            val = static_cast<uint16_t>(static_cast<uint16_t>(sreg));
+                                        } else {
+                                            val = 0;
+                                        }
+                                    }
+                                    break;
+                                case 3: // 108 -> SOC (% * 100)
+                                    val = static_cast<uint16_t>(m->getSocPercent() * 100.0);
+                                    break;
+                                case 4: // 109 -> SOH (% * 100)
+                                    val = static_cast<uint16_t>(m->getSohPercent() * 100.0);
+                                    break;
+                                case 5: // 110 -> Energy Remaining (kWh * 100)
+                                    val = static_cast<uint16_t>(m->getEnergyRemainingKwh() * 100.0);
+                                    break;
+                                default:
+                                    val = 0;
+                                    break;
+                            }
+                        }
+                        else {
+                            val = 0;
+                        }
                     }
                 }
                 regs.push_back(val);

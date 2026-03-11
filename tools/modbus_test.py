@@ -2,7 +2,7 @@
 """Simple Modbus TCP test client (reads holding registers).
 
 Usage:
-  python3 tools/modbus_test.py --host 192.168.2.110 --port 5021 --unit 1 --start 100 --count 6
+  python3 tools/modbus_test.py --host 192.168.2.110 --port 5021 --unit 1 --start 100 --count 11
 
 This script builds a raw MBAP + PDU Read Holding Registers request (function 3)
 and prints the returned registers and scaled values matching the server mapping.
@@ -52,17 +52,39 @@ def parse_response(resp):
 
 
 def scale_register(addr, raw):
+    # New mapping: 100..104 are control/status, 105..110 are sensors
     if addr == 100:
-        return raw / 10.0, 'V'
+        return raw, 'bms_status'
     if addr == 101:
-        return raw / 10.0, 'A'
+        return raw, 'heartbeat'
     if addr == 102:
-        return raw / 10.0, '°C'
+        return raw, 'max_charge_current_limit_dc'
     if addr == 103:
-        return raw / 100.0, '%'
+        return raw, 'max_discharge_current_limit_dc'
     if addr == 104:
-        return raw / 100.0, '%'
+        return raw, 'soc_percent'
+    # sensors at 105..
     if addr == 105:
+        return raw / 10.0, 'V'
+    if addr == 106:
+        # signed current
+        if raw & 0x8000:
+            raw_signed = raw - 0x10000
+        else:
+            raw_signed = raw
+        return raw_signed / 10.0, 'A'
+    if addr == 107:
+        # signed temperature
+        if raw & 0x8000:
+            raw_signed = raw - 0x10000
+        else:
+            raw_signed = raw
+        return raw_signed / 10.0, '°C'
+    if addr == 108:
+        return raw / 100.0, '%'
+    if addr == 109:
+        return raw / 100.0, '%'
+    if addr == 110:
         return raw / 100.0, 'kWh'
     return raw, 'raw'
 
@@ -105,7 +127,15 @@ def main():
         for i, r in enumerate(regs):
             addr = args.start + i
             scaled, unit_label = scale_register(addr, r)
-            print(f'R{addr:03d}: raw=0x{r:04x} ({r}) -> {scaled} {unit_label}')
+            # For signed registers (current at 101) also show signed value
+            if addr == 101:
+                if r & 0x8000:
+                    r_signed = r - 0x10000
+                else:
+                    r_signed = r
+                print(f'R{addr:03d}: raw=0x{r:04x} unsigned={r} signed={r_signed} -> {scaled} {unit_label}')
+            else:
+                print(f'R{addr:03d}: raw=0x{r:04x} ({r}) -> {scaled} {unit_label}')
 
     finally:
         s.close()
