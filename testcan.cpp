@@ -30,6 +30,7 @@
 #include "core/USBInterface/USBInterface.hpp"
 #include "core/Linux/ConsolePresenter.hpp"
 #include "core/WebServer/WebServer.hpp"
+#include "core/ModbusServer/ModbusServer.hpp"
 #include "logging/colors.hpp"
 #include "logging/logging.hpp"
 #include <signal.h>
@@ -203,6 +204,10 @@ int main(int argc, const char** argv)
    core::WebServer webserver(vbatterymon, &multi_pack.getMainContactor());
    ss << "Web server started on port: " << webserver.getWebServerPort();
    logger.info(ss);
+
+   // Start Modbus TCP server (port 5021 requested)
+   core::ModbusServer modbus(vbatterymon, 5021);
+   logger.info("Modbus server started on port 5021");
 
    #ifdef CONSOLE
    if (console.isOperational())
