@@ -23,7 +23,7 @@ namespace core
 class WebServer {
 public:
     // monitors is a reference to your vbatterymon vector in main()
-     WebServer(std::vector<monitor::Monitor*> &mons,
+     WebServer(const char* version, std::vector<monitor::Monitor*> &mons,
                      contactor::Contactor* contactorPtr);
     ~WebServer();
 
@@ -49,6 +49,7 @@ private:
     contactor::Contactor* m_main_contactor;
 
     std::chrono::system_clock::time_point m_start_time;
+    const char* m_version;
 };
 
 } // namespace core

@@ -356,8 +356,6 @@ void LeafMultiPack::setPackStatus(Monitor::Pack_Status p)
          m_ready_led.set(core::OutputPin::LOW);
          break;
    }
-   
-
 }
 
 uint32_t LeafMultiPack::getFailsafeStatus() const
