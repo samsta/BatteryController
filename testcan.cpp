@@ -1,9 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-/*
- * This file is prototyping code - don't judge.
- */
-
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -11,6 +7,7 @@
 #include <fstream>
 #include <vector>
 
+#define VERSION_NUMBER "0001"
 #include "packs/Nissan/LeafPack.hpp"
 #include "packs/Nissan/LeafMultiPack.hpp"
 // #include "can/services/SMA/MessageFactory.hpp"
@@ -85,6 +82,10 @@ int main(int argc, const char** argv)
    timer.setLogger(&logger);
    logger.info("------------------- BatteryController Started ------------------- ",__FILENAME__, __LINE__);
    std::string smsg;
+   smsg.append("VERSION NUMBER: ");
+   smsg += VERSION_NUMBER;
+   logger.info(smsg);
+   smsg.clear();
    smsg.append("LOGGER_LEVEL: ");
    smsg.append(argv[1]);
    logger.info(smsg);
@@ -190,7 +191,7 @@ int main(int argc, const char** argv)
 
    logger.setMonitor(vbatterymon);
 
-   core::WebServer webserver(vbatterymon, &multi_pack.getMainContactor());
+   core::WebServer webserver(VERSION_NUMBER, vbatterymon, &multi_pack.getMainContactor());
    ss << "Web server started on port: " << webserver.getWebServerPort();
    logger.info(ss);
 
