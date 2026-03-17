@@ -11,11 +11,12 @@ extern "C" int mg_log_level;
 
 namespace core {
 
-WebServer::WebServer(std::vector<monitor::Monitor*> &mons,
+WebServer::WebServer(const char* version, std::vector<monitor::Monitor*> &mons,
                      contactor::Contactor* contactorPtr)
     : m_monitor(mons),
     m_main_contactor(contactorPtr),
-    m_running(true)
+    m_running(true),
+    m_version(version)
 
 {
     m_start_time = std::chrono::system_clock::now();
@@ -160,6 +161,7 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
 
     html << "<p><b>Current Time:</b> " << std::ctime(&now_time) << "</p>";
     html << "<p><b>Run Time:</b> " << fmt1(hours,3) << " hours</p>";
+    html << "<p><b>Software Version:</b> " << m_version << "</p>";
 
     // ---- Main table ----
     html << "<table>";
