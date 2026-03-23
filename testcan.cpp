@@ -6,6 +6,8 @@
 #include <sys/epoll.h>
 #include <fstream>
 #include <vector>
+#include <cstring>  // for std::strerror
+#include <cerrno>   // for errno symbols
 
 #define VERSION_NUMBER "0001"
 #include "packs/Nissan/LeafPack.hpp"
@@ -203,18 +205,36 @@ int main(int argc, const char** argv)
    }
    #endif
 
+   // ignore window resize events
+   signal(SIGWINCH, SIG_IGN);
+
    while (keep_on_trucking)
    {
+      int nfds_local;
+      // Block signals during epoll_wait
       sigprocmask(SIG_BLOCK, &all_signals, NULL);
-      nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
+      nfds_local = epoll_wait(epollfd, events, MAX_EVENTS, -1);
+      // Unblock signals after epoll_wait
       sigprocmask(SIG_UNBLOCK, &all_signals, NULL);
-      if (nfds == -1) {
-         perror("epoll_wait error");
+      // Handle "interrupted system call" cleanly
+      if (nfds_local == -1) {
+         if (errno == EINTR) {
+               // harmless, just continue the main loop
+               continue;
+         }
+         int err = errno;
+         std::ostringstream ss;
+         ss << "epoll_wait error: " << std::strerror(err) << " (errno=" << err << ")";
+         // optional extra:
+         ss << " (events=" << MAX_EVENTS << " fd=" << epollfd << ")";
+         logger.info(ss, __FILENAME__, __LINE__);
          keep_on_trucking = false;
+         std::cout << "ctrl-c pressed." << std::endl;
+         break;
       }
 
-      for (int n = 0; n < nfds; ++n)
-      {
+      // Normal event processing
+      for (int n = 0; n < nfds_local; ++n) {
          reinterpret_cast<core::EpollHandler*>(events[n].data.ptr)->handle();
       }
    }
