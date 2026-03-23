@@ -1,0 +1,16 @@
+[Unit]
+Description=Start Battery Controller (visible terminal)
+After=graphical.target
+Wants=graphical.target
+
+[Service]
+Type=simple
+User=pi
+Environment=DISPLAY=:0
+Environment=NO_AT_BRIDGE=1
+WorkingDirectory=/home/pi/Documents/Projects/BatteryController
+ExecStart=/home/pi/Documents/Projects/BatteryController/AutoStartupBC/start_battery_controller.sh
+Restart=no
+
+[Install]
+WantedBy=graphical.target

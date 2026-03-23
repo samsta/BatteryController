@@ -1,0 +1,12 @@
+[Unit]
+Description=Start OpenEMS Edge
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=sh /home/pi/openems/start_openems_edge.sh
+User=pi
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=default.target
