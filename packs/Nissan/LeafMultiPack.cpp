@@ -350,10 +350,15 @@ void LeafMultiPack::setPackStatus(Monitor::Pack_Status p)
          break;
 
       case ReadyLedState::FAST_FLASH:
+         m_ready_led.set(core::OutputPin::HIGH);
+         m_timer.schedule(&m_ready_led_delayed_off, LED_ON_FAST_FLASH_ON_ms /* ms */,"ReadyLEDOff");
+         break;
+
+
       case ReadyLedState::SLOW_FLASH:
       case ReadyLedState::VERY_SLOW_FLASH:
          m_ready_led.set(core::OutputPin::HIGH);
-         m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
+         m_timer.schedule(&m_ready_led_delayed_off, LED_ON_SLOW_FLASH_ms /* ms */,"ReadyLEDOff");
          break;
 
       case ReadyLedState::OFF:
