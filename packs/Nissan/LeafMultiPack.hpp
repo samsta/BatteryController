@@ -114,6 +114,13 @@ private:
       SLOW_FLASH,
       VERY_SLOW_FLASH
    };
+   // times for led flash rate
+   const uint LED_ON_SLOW_FLASH_ms = 100;
+   const uint LED_ON_FAST_FLASH_ON_ms = 50;
+   const uint LED_OFF_VERY_SLOW_FLASH_ms = 1900;
+   const uint LED_OFF_SLOW_FLASH_ms = 1100;
+   const uint LED_OFF_FAST_FLASH_ms = 500;
+
    ReadyLedState m_ready_led_state;
    // ReadyLedState m_prev_ready_led_state;
 };

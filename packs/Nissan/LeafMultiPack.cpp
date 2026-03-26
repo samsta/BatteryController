@@ -227,15 +227,16 @@ void LeafMultiPack::readyLEDOff()
          break;
 
       case ReadyLedState::VERY_SLOW_FLASH:
-         m_timer.schedule(&m_ready_led_delayed_on, 1000 /* ms */,"ReadyLEDOn");
+                                          // at this time slow and very slow are the same
+         m_timer.schedule(&m_ready_led_delayed_on, LED_OFF_SLOW_FLASH_ms /* ms */,"ReadyLEDOn");
          break;
 
          case ReadyLedState::SLOW_FLASH:
-         m_timer.schedule(&m_ready_led_delayed_on, 700 /* ms */,"ReadyLEDOn");
+         m_timer.schedule(&m_ready_led_delayed_on, LED_OFF_SLOW_FLASH_ms /* ms */,"ReadyLEDOn");
          break;
 
       case ReadyLedState::FAST_FLASH:
-         m_timer.schedule(&m_ready_led_delayed_on, 100 /* ms */,"ReadyLEDOn");
+         m_timer.schedule(&m_ready_led_delayed_on, LED_OFF_FAST_FLASH_ms /* ms */,"ReadyLEDOn");
          break;
 
       case ReadyLedState::OFF:
@@ -252,8 +253,12 @@ void LeafMultiPack::readyLEDOn()
          break;
 
       case ReadyLedState::SLOW_FLASH:
+      case ReadyLedState::VERY_SLOW_FLASH:
+         m_timer.schedule(&m_ready_led_delayed_off, LED_ON_SLOW_FLASH_ms /* ms */,"ReadyLEDOff");
+         break;
+
       case ReadyLedState::FAST_FLASH:
-         m_timer.schedule(&m_ready_led_delayed_off, 100 /* ms */,"ReadyLEDOff");
+         m_timer.schedule(&m_ready_led_delayed_off, LED_ON_FAST_FLASH_ON_ms /* ms */,"ReadyLEDOff");
          break;
 
       case ReadyLedState::OFF:
