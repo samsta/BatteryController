@@ -195,7 +195,7 @@ void LeafMultiPack::updateFullyChargedDischargedStatus()
 {
    bool use0to100limites =  false;
    float batcaplow = 5.0;
-   float batcaphigh = 90.0;
+   float batcaphigh = 85.0;
    float hysteresis = 0;
    
    // check/set fully charged/discharged status with hysteresis
