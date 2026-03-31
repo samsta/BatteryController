@@ -142,18 +142,10 @@ void ModbusServer::handleClient(int clientSock) {
                                         }
                                     }
                                     break;
-                                default:
-                                    val = 0;
-                                    break;
-                            }
-                        }
-                        else if (addr >= 105 && addr <= 110) {
-                            uint16_t mapped = addr - 105; // 0..5
-                            switch (mapped) {
-                                case 0: // 105 -> Voltage (V * 10)
+                                case 5: // 105 -> Voltage (V * 10)
                                     val = static_cast<uint16_t>(m->getVoltage() * 10.0);
                                     break;
-                                case 1: // 106 -> Current (signed int16, A * 10)
+                                case 6: // 106 -> Current (signed int16, A * 10)
                                     {
                                         float cur = m->getCurrent();
                                         if (!std::isnan(cur)) {
@@ -164,7 +156,7 @@ void ModbusServer::handleClient(int clientSock) {
                                         }
                                     }
                                     break;
-                                case 2: // 107 -> Temperature (signed int16, C * 10)
+                                case 7: // 107 -> Temperature (signed int16, C * 10)
                                     {
                                         float temp = m->getTemperature();
                                         if (!std::isnan(temp)) {
@@ -175,15 +167,16 @@ void ModbusServer::handleClient(int clientSock) {
                                         }
                                     }
                                     break;
-                                case 3: // 108 -> SOC (% * 100)
+                                case 8: // 108 -> SOC (% * 100)
                                     val = static_cast<uint16_t>(m->getSocPercent() * 100.0);
                                     break;
-                                case 4: // 109 -> SOH (% * 100)
+                                case 9: // 109 -> SOH (% * 100)
                                     val = static_cast<uint16_t>(m->getSohPercent() * 100.0);
                                     break;
-                                case 5: // 110 -> Energy Remaining (kWh * 100)
+                                case 10: // 110 -> Energy Remaining (kWh * 100)
                                     val = static_cast<uint16_t>(m->getEnergyRemainingKwh() * 100.0);
                                     break;
+
                                 default:
                                     val = 0;
                                     break;
