@@ -94,7 +94,7 @@ void ModbusServer::handleClient(int clientSock) {
                     monitor::Monitor* m = m_monitor.back();
                     if (m) {
                         // New mapping: 100..104 are the requested control/status registers
-                        if (addr >= 100 && addr <= 104) {
+                        if (addr >= 100 && addr <= 110) {
                             uint16_t mapped = addr - 100;
                             switch (mapped) {
                                 case 0: // 100 = bms_status (0=off,1=running,2=error)
