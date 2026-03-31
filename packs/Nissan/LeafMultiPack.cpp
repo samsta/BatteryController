@@ -129,6 +129,21 @@ void LeafMultiPack::periodicCallback()
             m_main_contactor.setSafeToOperate(true);
             m_main_contactor.close();
          }
+         // check status of packs
+         for (uint i=0; i<m_vmonitor.size(); i++)
+         {
+            if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
+            {
+               setPackStatus(Monitor::SHUTTING_DOWN);
+               std::ostringstream sss;
+               sss << "Mulitpack status changed due to pack " << (i+1) << " having not-NORMAL_OPERATION status";
+               if (m_log) m_log->alarm(sss, __FILENAME__,__LINE__);;
+               std::ostringstream ss;
+               ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
+               if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
+            }
+         }
+
          break;
 
       case Monitor::NORMAL_OPERATION:
@@ -136,6 +151,7 @@ void LeafMultiPack::periodicCallback()
          // the inverter is driving the operation by polling for data
          updateFullyChargedDischargedStatus();
 
+         // check status of packs
          for (uint i=0; i<m_vmonitor.size(); i++)
          {
             if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
