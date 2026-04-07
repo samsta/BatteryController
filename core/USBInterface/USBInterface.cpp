@@ -219,26 +219,34 @@ void USBPort::handle()
          {
             // error, discard data
             // display bad msg 
-            if (findhash < (sizeof(cbuf)-100))
-            {
-               char cbuf[1024];
-               char hexbuf[512];  // make sure it's at least 2× the buffer size + 1
-
+            // if (findhash < (sizeof(cbuf)-100))
+               char errbuf[1024];
+               char errbuf2[1024];
+               char hexbuf[1024]; 
+               char charbuf[1024];
                int hexlen = 0;
+               int charlen = 0;
+
                for (int i = 0; i < m_unprocessedSize && hexlen < (int)sizeof(hexbuf) - 3; ++i)
                {
                   hexlen += snprintf(hexbuf + hexlen, sizeof(hexbuf) - hexlen, "%02X ", (unsigned char)m_inBufferUnprocessed[i]);
+                  charlen += snprintf(charbuf + charlen, sizeof(charbuf) - charlen, "%c", isprint(m_inBufferUnprocessed[i]) ? m_inBufferUnprocessed[i] : '.');
                }
-               snprintf(cbuf,sizeof(cbuf), "%s: Receive ERROR: bad msg format: fh= %d  br= %d  %.*s", m_port_name.c_str(), (int)findhash, m_unprocessedSize, m_unprocessedSize, hexbuf);
-            }
-            else
-            {
-               snprintf(cbuf,sizeof(cbuf),"%s: Receive ERROR: bad msg format: MESSAGE OVERSIZE, CAN'T BE DISPLAYED", m_port_name.c_str());
-            }
-
-            if (m_log) m_log->error(cbuf, __FILENAME__,__LINE__);
-            m_unprocessedSize = 0;
-
+               snprintf(errbuf,sizeof(errbuf), "%s: Receive ERROR: bad msg format: len= %d  %.*s", m_port_name.c_str(), m_unprocessedSize, 3 *m_unprocessedSize, hexbuf);
+               snprintf(errbuf2,sizeof(errbuf2), "%.*s", m_unprocessedSize, charbuf);
+               // check for boot messages from ESP32
+               if (charbuf[0] == ':' || charbuf[0] == 'D' || charbuf[0] == 'd' || charbuf[0] == 'e' || charbuf[0] == 'S')
+               {
+                  // these are boot messages from ESP32
+                  if (m_log) m_log->info(errbuf2, __FILENAME__,__LINE__);
+                  if (m_log) m_log->info(errbuf);
+               }
+               else {
+                  // unknown messages
+                  if (m_log) m_log->error(errbuf2, __FILENAME__,__LINE__);
+                  if (m_log) m_log->error(errbuf);
+               }
+               m_unprocessedSize = 0;
          }
       }
       // adjust the data in inbuf
