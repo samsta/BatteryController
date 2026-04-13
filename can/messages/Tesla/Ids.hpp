@@ -15,8 +15,8 @@ enum Ids {
    ID_TS_TEMPS          = 0x101,
    ID_TS_CELL_VOLT_CUR  = 0x102,
    ID_TS_CUR_ENERGY     = 0x103,
-   ID_TS_PK_ALL_CELLS   = 0x104,
-   ID_TS_PK_V_TEMPS     = 0x105
+   ID_TS_MOD_CELLS_VOLTS= 0x104,
+   ID_TS_MOD_V_TEMPS    = 0x105
 };
 
 enum LbcDataGroups {

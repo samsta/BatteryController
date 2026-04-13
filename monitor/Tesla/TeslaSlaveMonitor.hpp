@@ -7,6 +7,7 @@
 #include "can/FrameSink.hpp"
 #include "can/messages/Tesla/TSTemperatures.hpp"
 #include "can/messages/Tesla/TSCellVoltages.hpp"
+#include "can/messages/Tesla/TSModCellVoltages.hpp"
 #include "can/messages/Tesla/TSBatteryStatus.hpp"
 #include "can/messages/Tesla/TSCurrentEnergy.hpp"
 #include "can/messages/Tesla/Message.hpp"
@@ -84,6 +85,7 @@ private:
    void process(const can::messages::Tesla::TSVoltages&);
    void process(const can::messages::Tesla::TSBatteryStatus&);
    void process(const can::messages::Tesla::TSCurrentEnergy&);
+   // void process(const can::messages::Tesla::TSModVoltages&);
 
    char                    *m_pack_name;
    // contactor::Contactor&   m_safety_shunt;
