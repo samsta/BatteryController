@@ -45,6 +45,7 @@
 #include "core/Timer.hpp"
 #include "monitor/Monitor.hpp"
 #include "AvgMinMax.hpp"
+#include "can/messages/Tesla/TSModCellVoltages.hpp"
 
 // POSIX Socket Header File(s)
 // #include <errno.h>
@@ -144,6 +145,8 @@ namespace logging
          void enableConsoleLogging();
          void enableFileLogging();
 
+         void ModCellVolts(const can::messages::Tesla::TSModCellVoltages::CellVoltageData &mod_cell_volts);
+
          // Interfaces to control roll over mechanism
          // void updateMaxLogFiles(const ssize_t maxFiles);
          // void updateLogSize(const ssize_t size);
@@ -186,6 +189,7 @@ namespace logging
          #define MAX_BATTERIES 6
          #define DATA_COUNT 9
          AvgMinMax m_bat_data[DATA_COUNT][MAX_BATTERIES];
+
 
          // unsigned int		 logSize; // Size of a log file in bytes
          // unsigned int		 maxLogFiles; // Maximum number of log files

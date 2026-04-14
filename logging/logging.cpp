@@ -34,6 +34,7 @@ using namespace logging;
 // Log file name. File name should be change from here only
 const string logFileName = "BatteryController.log";
 const string dataFileName= "BatteryOneDataLog.txt";
+const string dataFileNameMods= "BatteryOneModuleDataLog.txt";
 // const string httpPostURL = "http://jimster.ca/BatteryOne/TEST-data-receiver.php";
 const string httpPostURL = "http://jimster.ca/BatteryHikotron/BatteryHikotron-data-receiver.php";
 
@@ -104,6 +105,16 @@ void Logger::setMonitor(std::vector<monitor::Monitor*> vmonitor)
       error("MAX_BATTERIES exceeded in data logging, that's all, the program will likely crash but at least you've been warned.", __FILENAME__, __LINE__);
       // that's all, the program will likely crash but at least you've been warned.
    }
+}
+
+void Logger::ModCellVolts(const can::messages::Tesla::TSModCellVoltages::CellVoltageData &mod_cell_volts)
+{
+   std::ostringstream ss;
+   ss << "Module " << mod_cell_volts.module_num << " Cell Voltages: ";
+   for (unsigned i=0; i<6; i++)   {
+      ss << mod_cell_volts.voltages[i] << " ";
+   }
+   info(ss, __FILENAME__, __LINE__);
 }
 
 void Logger::updateDataLog()
