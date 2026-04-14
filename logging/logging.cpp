@@ -119,7 +119,9 @@ void Logger::ModCellVolts(const can::messages::Tesla::TSModCellVoltages::CellVol
 
 void Logger::ModVoltTemps(const can::messages::Tesla::TSModVoltTemp::VoltTempData &mod_volt_temp_data)
 {
-   info("volt/temp data received in logger");
+   std::ostringstream ss;
+   ss << "Module " << mod_volt_temp_data.module_num << " Voltage: " << mod_volt_temp_data.voltage << " V, Temperatures: " << mod_volt_temp_data.temperatures[0] << " C, " << mod_volt_temp_data.temperatures[1] << " C";
+   info(ss, __FILENAME__, __LINE__);
 }
 
 void Logger::updateDataLog()
