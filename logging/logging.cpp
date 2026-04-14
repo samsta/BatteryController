@@ -146,7 +146,8 @@ void Logger::ModVoltTemps(const can::messages::Tesla::TSModVoltTemp::VoltTempDat
    }
    strstm << "\"" << floatToString(mod_volt_temp_data.voltage) << "\",";
    strstm << "\"" << floatToString(mod_volt_temp_data.temperatures[0]) << "\",";
-   strstm << "\"" << floatToString(mod_volt_temp_data.temperatures[1]) << "\"\n";
+   strstm << "\"" << floatToString(mod_volt_temp_data.temperatures[1]) << "\",";
+   strstm << "\"" << to_string((int)(m_vmonitor[m_vmonitor.size()-1]->getCurrent())) << "\"\n";
    str = strstm.str();
 
    // replace any nan with -99.9

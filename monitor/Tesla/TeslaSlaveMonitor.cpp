@@ -87,10 +87,8 @@ TeslaSlaveMonitor::TeslaSlaveMonitor(
       m_bat_status_recv(false),
       m_charge_cur_smoothing(MAX_ALLOWABLE_CURRENT),
       m_discharge_cur_smoothing(MAX_ALLOWABLE_CURRENT),
-      m_prev_battery_status(can::messages::Tesla::TSBatteryStatus::Battery_Status::OK)
-      // m_mod_cell_data(m_mod_cell_data)
-      // , // initialize reference to avoid compiler error, will be set properly when message is received)
-      // m_mod_volt_temp_data(m_mod_volt_temp_data) // initialize reference to avoid compiler error, will be set properly when message is received)
+      m_prev_battery_status(can::messages::Tesla::TSBatteryStatus::Battery_Status::OK),
+      m_modcellvolts_sent(false)
 {
    m_volt_temp_status &= ~MAX_TEMP_MISSING; // clear max temp missing at startup
 }
@@ -131,15 +129,27 @@ void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
    }
 }
 
-void TeslaSlaveMonitor::process(const can::messages::Tesla::TSModVoltTemp& mod_volt_temp)
-{
-   m_log->ModVoltTemps( mod_volt_temp.getVoltTempData());
-}
-
 void TeslaSlaveMonitor::process(const can::messages::Tesla::TSModCellVoltages& mod_cell_volts)
 {
-   m_log->ModCellVolts(mod_cell_volts.getCellVoltages());
+   // cell voltages arrive first for each module
+   const float MIN_CURRENT_LOGGING = 4.9;
+   if (fabs(m_current) > MIN_CURRENT_LOGGING)
+   {
+      m_log->ModCellVolts(mod_cell_volts.getCellVoltages());
+      m_modcellvolts_sent = true;
+   }
 }
+
+void TeslaSlaveMonitor::process(const can::messages::Tesla::TSModVoltTemp& mod_volt_temp)
+{
+   // volt/temp data arrives after cell volts for each module
+   if (m_modcellvolts_sent)
+   {
+      m_log->ModVoltTemps( mod_volt_temp.getVoltTempData());
+      m_modcellvolts_sent = false;
+   }
+}
+
 
 void TeslaSlaveMonitor::process(const TSBatteryStatus& battery_status)
 {
