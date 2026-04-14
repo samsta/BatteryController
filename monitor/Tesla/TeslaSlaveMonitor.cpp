@@ -134,16 +134,11 @@ void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
 void TeslaSlaveMonitor::process(const can::messages::Tesla::TSModVoltTemp& mod_volt_temp)
 {
    m_log->ModVoltTemps( mod_volt_temp.getVoltTempData());
-   // jfs m_log->info("volt/temp data received", __FILENAME__, __LINE__);
 }
 
 void TeslaSlaveMonitor::process(const can::messages::Tesla::TSModCellVoltages& mod_cell_volts)
 {
-   // jfs m_mod_cell_data = mod_cell_volts.getCellVoltages();
-
    m_log->ModCellVolts(mod_cell_volts.getCellVoltages());
-
-   // jfs m_log->info("cell data received", __FILENAME__, __LINE__);
 }
 
 void TeslaSlaveMonitor::process(const TSBatteryStatus& battery_status)

@@ -121,9 +121,6 @@ private:
    uint32_t m_volt_temp_status;
    uint32_t m_failsafe_status;
 
-   // can::messages::Tesla::TSModCellVoltages::CellVoltageData &m_mod_cell_data;
-   // can::messages::Tesla::TSModVoltTemp::VoltTempData &m_mod_volt_temp_data;
-
    class CurrentLimitSmoothing {
    public:
       CurrentLimitSmoothing(float init_value);

@@ -192,6 +192,7 @@ namespace logging
          #define DATA_COUNT 9
          AvgMinMax m_bat_data[DATA_COUNT][MAX_BATTERIES];
 
+         can::messages::Tesla::TSModCellVoltages::CellVoltageData m_mod_cell_volts;
 
          // unsigned int		 logSize; // Size of a log file in bytes
          // unsigned int		 maxLogFiles; // Maximum number of log files

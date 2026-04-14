@@ -109,19 +109,59 @@ void Logger::setMonitor(std::vector<monitor::Monitor*> vmonitor)
 
 void Logger::ModCellVolts(const can::messages::Tesla::TSModCellVoltages::CellVoltageData &mod_cell_volts)
 {
-   std::ostringstream ss;
-   ss << "Module " << mod_cell_volts.module_num << " Cell Voltages: ";
-   for (unsigned i=0; i<6; i++)   {
-      ss << mod_cell_volts.voltages[i] << " ";
-   }
-   info(ss, __FILENAME__, __LINE__);
+   // the code assumes that data is received in order!
+   // ModCelVotls first, then ModVoltTemp
+   // so that the module cell volts and module volt/temp data are in sync
+   // when they are logged to file in ModVoltTemps() function 
+   memcpy(&m_mod_cell_volts, &mod_cell_volts, sizeof(mod_cell_volts));
+
+   // std::ostringstream ss;
+   // ss << "Module " << mod_cell_volts.module_num << " Cell Voltages: ";
+   // for (unsigned i=0; i<6; i++)   {
+   //    ss << mod_cell_volts.voltages[i] << " ";
+   // }
+   // info(ss, __FILENAME__, __LINE__);
 }
 
 void Logger::ModVoltTemps(const can::messages::Tesla::TSModVoltTemp::VoltTempData &mod_volt_temp_data)
 {
-   std::ostringstream ss;
-   ss << "Module " << mod_volt_temp_data.module_num << " Voltage: " << mod_volt_temp_data.voltage << " V, Temperatures: " << mod_volt_temp_data.temperatures[0] << " C, " << mod_volt_temp_data.temperatures[1] << " C";
-   info(ss, __FILENAME__, __LINE__);
+   // see comment above in ModCellVolts() function about data being received in order
+   // write module cell voltage and total voltage and temps to a file
+   std:stringstream strstm;
+   std::string str,strt;
+   struct stat file_info;
+   unsigned long fsize;
+   char msgbuf[1024];  
+
+   std::time_t t = std::time(0);
+   std::tm* now = std::localtime(&t);
+
+   // write the date and time in quotes            
+   strstm << std::put_time(now, "\"%Y-%m-%d %H:%M:%S\",");
+   // write the data in quotes
+   strstm << "\"" << to_string(mod_volt_temp_data.module_num) << "\",";
+   for (unsigned i=0; i<6; i++)
+   {
+   strstm << "\"" << floatToString(m_mod_cell_volts.voltages[i]) << "\",";
+   }
+   strstm << "\"" << floatToString(mod_volt_temp_data.voltage) << "\",";
+   strstm << "\"" << floatToString(mod_volt_temp_data.temperatures[0]) << "\",";
+   strstm << "\"" << floatToString(mod_volt_temp_data.temperatures[1]) << "\"\n";
+   str = strstm.str();
+
+   // replace any nan with -99.9
+   str = std::regex_replace(str, std::regex("nan"), "-99.9");
+
+   // write the pertanent data to a file
+   std::ofstream file;
+   file.open(dataFileNameMods.c_str(), ios::out|ios::app);
+   file << str;
+   file.close();
+   debug("Module data written to file in build directory.");
+
+   // std::ostringstream ss;
+   // ss << "Module " << mod_volt_temp_data.module_num << " Voltage: " << mod_volt_temp_data.voltage << " V, Temperatures: " << mod_volt_temp_data.temperatures[0] << " C, " << mod_volt_temp_data.temperatures[1] << " C";
+   // info(ss, __FILENAME__, __LINE__);
 }
 
 void Logger::updateDataLog()
