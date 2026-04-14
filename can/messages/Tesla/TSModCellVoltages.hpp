@@ -16,16 +16,21 @@ namespace Tesla {
 class TSModCellVoltages: public Message
 {
 public:
+   struct CellVoltageData {
+      uint16_t module_num;
+      float voltages[6];
+   };
+
    TSModCellVoltages();
    TSModCellVoltages(const DataFrame& f);
 
    uint16_t getModuleNum() const;
    float getCellVoltage(uint cell) const;
+   const CellVoltageData& getCellVoltages() const { return m_cell_data; }
    virtual void toStream(logging::ostream&) const;
 
 private:
-   float m_cell_voltage[6];
-   uint16_t m_module_num;
+   CellVoltageData m_cell_data;
 };
 
 }

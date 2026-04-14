@@ -87,7 +87,9 @@ TeslaSlaveMonitor::TeslaSlaveMonitor(
       m_bat_status_recv(false),
       m_charge_cur_smoothing(MAX_ALLOWABLE_CURRENT),
       m_discharge_cur_smoothing(MAX_ALLOWABLE_CURRENT),
-      m_prev_battery_status(can::messages::Tesla::TSBatteryStatus::Battery_Status::OK)
+      m_prev_battery_status(can::messages::Tesla::TSBatteryStatus::Battery_Status::OK),
+      m_mod_cell_data(m_mod_cell_data), // initialize reference to avoid compiler error, will be set properly when message is received)
+      m_mod_volt_temp_data(m_mod_volt_temp_data) // initialize reference to avoid compiler error, will be set properly when message is received)
 {
    m_volt_temp_status &= ~MAX_TEMP_MISSING; // clear max temp missing at startup
 }
@@ -113,11 +115,34 @@ void TeslaSlaveMonitor::sink(const can::messages::Tesla::Message& message)
    case ID_TS_CUR_ENERGY:
       process(static_cast<const TSCurrentEnergy&>(message));
       break;
+   
+   case ID_TS_MOD_CELLS_VOLTS:
+      process(static_cast<const TSModCellVoltages&>(message));
+      break;
+
+   case ID_TS_MOD_VOLT_TEMP:
+      process(static_cast<const TSModVoltTemp&>(message));
+      break;
 
    default:
       // unknown id
       return;
    }
+}
+
+void TeslaSlaveMonitor::process(const can::messages::Tesla::TSModVoltTemp& mod_volt_temp)
+{
+   m_mod_volt_temp_data = mod_volt_temp.getVoltTempData();
+
+   m_log->info("volt/temp data received", __FILENAME__, __LINE__);
+}
+
+void TeslaSlaveMonitor::process(const can::messages::Tesla::TSModCellVoltages& mod_cell_volts)
+{
+   m_mod_cell_data = mod_cell_volts.getCellVoltages();
+
+   m_log->info("cell data received", __FILENAME__, __LINE__);
+
 }
 
 void TeslaSlaveMonitor::process(const TSBatteryStatus& battery_status)

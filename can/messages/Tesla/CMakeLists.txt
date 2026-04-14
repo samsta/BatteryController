@@ -4,6 +4,7 @@ target_sources(can PRIVATE DetailedCellData.cpp
                            TSCellVoltages.cpp
                            TSBatteryStatus.cpp
                            TSCurrentEnergy.cpp
+                           TSModVoltTemp.cpp
                            TSModCellVoltages.cpp)
 
 if(BUILD_TESTING)

@@ -15,38 +15,35 @@ namespace {
 
 TSModCellVoltages::TSModCellVoltages():
    Message(ID_TS_MOD_CELLS_VOLTS, GROUP_NONE),
-   m_cell_voltage(),
-   m_module_num()
+   m_cell_data()
 {
 }
 
 TSModCellVoltages::TSModCellVoltages(const DataFrame& frame):
    Message(ID_TS_MOD_CELLS_VOLTS, GROUP_NONE),
-   m_cell_voltage(),
-   m_module_num()
+   m_cell_data()
 {
    if (frame.id() != id()) return;
    if (frame.size() != 8) return;
 
-   m_module_num = frame.getByte(1);
+   m_cell_data.module_num = frame.getByte(1);
 
    for (int i=0; i < 6; i++)
    {
-      m_cell_voltage[i] = 2.0 + (frame.getByte(i+2) / 100.0f);
+      m_cell_data.voltages[i] = 2.0 + (frame.getByte(i+2) / 100.0f);
    }
    setValid();
 }
 
 float TSModCellVoltages::getCellVoltage(uint cell) const
 {
-   return m_cell_voltage[cell];
+   return m_cell_data.voltages[cell];
 }
 
 uint16_t TSModCellVoltages::getModuleNum() const
 {
-   return m_module_num;
+   return m_cell_data.module_num;
 }
-
 
 void TSModCellVoltages::toStream(logging::ostream& os) const
 {
@@ -58,11 +55,8 @@ void TSModCellVoltages::toStream(logging::ostream& os) const
       return;
    }
 
-   os << "ModNum= " << m_module_num << " V ";
-      // << "MaxCellV= " << m_max_cell_voltage << " V "
-      // << "PackV= "     << m_pack_voltage     << " V";
+   os << "ModNum= " << m_cell_data.module_num;
 }
-
 
 }
 }
