@@ -4,7 +4,7 @@
 #include "can/messages/Tesla/TSTemperatures.hpp"
 #include "can/messages/Tesla/TSCellVoltages.hpp"
 #include "can/messages/Tesla/TSModCellVoltages.hpp"
-// #include "can/messages/Tesla/TSModVoltTemp.hpp"
+#include "can/messages/Tesla/TSModVoltTemp.hpp"
 #include "can/messages/Tesla/TSBatteryStatus.hpp"
 #include "can/messages/Tesla/TSCurrentEnergy.hpp"
 #include "logging/colors.hpp"
@@ -42,8 +42,8 @@ const Message* decode(const can::DataFrame& f, void* mem)
    msg = new(mem) TSModCellVoltages(f);
    if (msg->valid()) return msg;
 
-   // msg = new(mem) TSModVoltTemp(f);
-   // if (msg->valid()) return msg;
+   msg = new(mem) TSModVoltTemp(f);
+   if (msg->valid()) return msg;
 
    // msg = new(mem) PackTemperatures(f);
    // if (msg->valid()) return msg;
