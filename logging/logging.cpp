@@ -117,6 +117,11 @@ void Logger::ModCellVolts(const can::messages::Tesla::TSModCellVoltages::CellVol
    info(ss, __FILENAME__, __LINE__);
 }
 
+void Logger::ModVoltTemps(const can::messages::Tesla::TSModVoltTemp::VoltTempData &mod_volt_temp_data)
+{
+   info("volt/temp data received in logger");
+}
+
 void Logger::updateDataLog()
 {
    // called once per DATALOG_CALLBACK_PERIOD

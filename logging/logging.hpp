@@ -46,6 +46,7 @@
 #include "monitor/Monitor.hpp"
 #include "AvgMinMax.hpp"
 #include "can/messages/Tesla/TSModCellVoltages.hpp"
+#include "can/messages/Tesla/TSModVoltTemp.hpp"
 
 // POSIX Socket Header File(s)
 // #include <errno.h>
@@ -146,6 +147,7 @@ namespace logging
          void enableFileLogging();
 
          void ModCellVolts(const can::messages::Tesla::TSModCellVoltages::CellVoltageData &mod_cell_volts);
+         void ModVoltTemps(const can::messages::Tesla::TSModVoltTemp::VoltTempData &mod_volt_temp_data);
 
          // Interfaces to control roll over mechanism
          // void updateMaxLogFiles(const ssize_t maxFiles);
