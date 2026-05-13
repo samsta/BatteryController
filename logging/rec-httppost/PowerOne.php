@@ -121,6 +121,23 @@
 
     $resultInvmm = $con->query($query);
     //--------------------------------------------------------------------------------------------------------------
+    $con = new mysqli($servername, $username, $password, $dbname);
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
+    else
+    {
+        // echo ("Connect Successfully\n");
+    }
+    $query =" SELECT TimeStamp, " . 
+    "EnergyConsumed, EnergyProduced" .
+    " FROM PowerOne" .
+     " WHERE " . $timerange;
+
+    // echo ($query);
+
+    $resultDCPower = $con->query($query);
+    //--------------------------------------------------------------------------------------------------------------
 $time = $_GET['time'];
 if ($time != "yd" and $time != "td") {
     echo '<h1 style="font-size:2em">Charts for Last 3 Hours</h1>';
@@ -372,6 +389,43 @@ elseif ($time == "td") {
         chartInvmm.draw(dataInvmm, optionsInvmm);
 
         //--------------------------------------------------------------------------------------------------------------
+        var dataDC = new google.visualization.DataTable();
+        dataDC.addColumn('datetime', 'TimeStamp');
+        dataDC.addColumn('number', 'EnergyConsumed');
+        dataDC.addColumn('number', 'EnergyProduced');
+
+        dataDC.addRows([
+                <?php
+                  $row = mysqli_fetch_assoc($resultDCPower);
+                  $dt = $row["TimeStamp"];
+                  $yr = substr($dt,0,4);
+                  $mo = substr($dt,5,2);
+                  $day = substr($dt,8,2);
+                  $hr = substr($dt,11,2);
+                  $min = substr($dt,14,2);
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["EnergyConsumed"].", ".$row["EnergyProduced"]."]";
+
+                  while($row = mysqli_fetch_assoc($resultDCPower)){
+                    $dt = $row["TimeStamp"];
+                    $yr = substr($dt,0,4);
+                    $mo = substr($dt,5,2);
+                    $day = substr($dt,8,2);
+                    $hr = substr($dt,11,2);
+                    $min = substr($dt,14,2);
+                    echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["EnergyConsumed"].", ".$row["EnergyProduced"]."]";
+
+                  }
+                ?>
+               ])
+        var optionsDC = {
+          title: 'DC Power (W)',
+          legend: { position: 'bottom' },
+
+        };
+        var chartDC = new google.visualization.LineChart(document.getElementById('curve_chartDC'));
+        chartDC.draw(dataDC, optionsDC);
+
+        //--------------------------------------------------------------------------------------------------------------
 
       }
     </script>
@@ -379,6 +433,7 @@ elseif ($time == "td") {
   <body>
     <div id="curve_chartPAvg" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartInvmm" style="width: 1000px; height: 500px"></div>
+    <div id="curve_chartDC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartP1mm" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartP2mm" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartP3mm" style="width: 1000px; height: 500px"></div>
