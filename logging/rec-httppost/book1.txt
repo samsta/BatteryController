@@ -9,16 +9,26 @@ https://jimster.ca/BatteryOne/BatteryOneAll.php?time=yd
 Enter Time Period
 https://jimster.ca/BatteryOne/BatteryOneAllIndexAT.php
 -Title
-Last 2 hours - Individual Batteries
-Battery 1 Last 2 Hours
+Power Meter Data
+3 hours
+https://jimster.ca/BatteryOne/PowerOne.php
+Today
+https://jimster.ca/BatteryOne/PowerOne.php?time=td
+Yesterday
+https://jimster.ca/BatteryOne/PowerOne.php?time=yd
+Enter Time Period
+https://jimster.ca/BatteryOne/PowerOneIndexAT.php
+-Title
+Last 3 hours - Individual Batteries
+Battery 1 Last 3 Hours
 https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=1
-Battery 2 Last 2 Hours
+Battery 2 Last 3 Hours
 https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=2
-Battery 3 Last 2 Hours
+Battery 3 Last 3 Hours
 https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=3
-Battery 4 Last 2 Hours
+Battery 4 Last 3 Hours
 https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=4
-Battery 5 Last 2 Hours
+Battery 5 Last 3 Hours
 https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=5
 -Title
 Today - Individual Batteries
@@ -44,12 +54,4 @@ Battery 4 Yesterday
 https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=4&time=yd
 Battery 5 Yesterday
 https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=5&time=yd
--Title
-Power Meter Data
-3 hours
-https://jimster.ca/BatteryOne/PowerOne.php
-Today
-https://jimster.ca/BatteryOne/PowerOne.php?time=td
-Yesterday
-https://jimster.ca/BatteryOne/PowerOne.php?time=yd
 
