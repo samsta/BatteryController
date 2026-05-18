@@ -329,13 +329,15 @@ float LeafMultiPack::getChargeCurrentLimit() const
    // if full, no charging allowed
    if (m_fully_charged) return 0.0;
 
-   // check if any of the batteries are reporting 0A charge limit
+   // check if any of the batteries are reporting a very low charge limit
    for (uint i=0; i<m_vmonitor.size(); i++)
    {
       if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
-         if (m_vmonitor[i]->getChargeCurrentLimit() < 0.01) {
+         if (m_vmonitor[i]->getChargeCurrentLimit() < 5.0) {
             // return 0 for the limit
-            return 0.0;
+            // return 0.0;
+            // return this for the total
+            return m_vmonitor[i]->getChargeCurrentLimit();
          }
       }
    }
