@@ -7,7 +7,7 @@
 #include <fstream>
 #include <vector>
 
-#define VERSION_NUMBER "0002"
+#define VERSION_NUMBER "0003"
 
 // #include "packs/Nissan/LeafPack.hpp"
 #include "packs/Tesla/TeslaSlavePack.hpp"

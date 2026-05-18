@@ -33,7 +33,7 @@ using namespace logging;
 
 // Log file name. File name should be change from here only
 const string logFileName = "BatteryController.log";
-const string dataFileName= "BatteryOneDataLog.txt";
+const string dataFileName= "BatteryHikotronDataLog.txt";
 const string dataFileNameMods= "BatteryOneModuleDataLog.txt";
 // const string httpPostURL = "http://jimster.ca/BatteryOne/TEST-data-receiver.php";
 const string httpPostURL = "http://jimster.ca/BatteryHikotron/BatteryHikotron-data-receiver.php";
@@ -286,41 +286,41 @@ void Logger::updateDataLog()
          file.close();
          debug("Battery data written to file in build directory.");
 
-         // // see if filesize is same as str size, in which case
-         // // we don't need to read the file
-         // if(stat(dataFileName.c_str(), &file_info)) {
-         //    snprintf(msgbuf,sizeof(msgbuf), "Couldn't open '%s': %s", dataFileName.c_str(), strerror(errno));
-         //    error(msgbuf, __FILENAME__, __LINE__);
-         //    return;
-         // }
-         // fsize = (unsigned long)file_info.st_size;
+         // see if filesize is same as str size, in which case
+         // we don't need to read the file
+         if(stat(dataFileName.c_str(), &file_info)) {
+            snprintf(msgbuf,sizeof(msgbuf), "Couldn't open '%s': %s", dataFileName.c_str(), strerror(errno));
+            error(msgbuf, __FILENAME__, __LINE__);
+            return;
+         }
+         fsize = (unsigned long)file_info.st_size;
 
-         // if (fsize != str.length())
-         // {
-         //    snprintf(msgbuf,sizeof(msgbuf), "Reading datalog file from disk.  file size: %lu != string size: %lu", fsize, str.length());
-         //    info(msgbuf, __FILENAME__, __LINE__);
-         //    // read the file into str
-         //    str.clear();
-         //    std::stringstream buffer;
-         //    // Open the file for reading
-         //    std::ifstream file(dataFileName);
-         //    // Read the file contents into the stringstream
-         //    buffer << file.rdbuf();
-         //    str = buffer.str();
-         // }
+         if (fsize != str.length())
+         {
+            snprintf(msgbuf,sizeof(msgbuf), "Reading datalog file from disk.  file size: %lu != string size: %lu", fsize, str.length());
+            info(msgbuf, __FILENAME__, __LINE__);
+            // read the file into str
+            str.clear();
+            std::stringstream buffer;
+            // Open the file for reading
+            std::ifstream file(dataFileName);
+            // Read the file contents into the stringstream
+            buffer << file.rdbuf();
+            str = buffer.str();
+         }
 
-         // // transfer the file to web host in a separate thread
-         // // because internet access can block and take some time to complete
-         // try {
-         //    httpPostThread =  std::thread(&Logger::httpPOSTstr, this, str);
-         //    httpPostThread.detach();
-         // }
-         // catch (const std::system_error& e)
-         // {
-         //    std::ostringstream ss;
-         //    ss << "std::thread failed, failed to transfer battery log data to web host. error:" << e.what();
-         //    error(ss, __FILENAME__, __LINE__);
-         // }
+         // transfer the file to web host in a separate thread
+         // because internet access can block and take some time to complete
+         try {
+            httpPostThread =  std::thread(&Logger::httpPOSTstr, this, str);
+            httpPostThread.detach();
+         }
+         catch (const std::system_error& e)
+         {
+            std::ostringstream ss;
+            ss << "std::thread failed, failed to transfer battery log data to web host. error:" << e.what();
+            error(ss, __FILENAME__, __LINE__);
+         }
       }
    }
 }
