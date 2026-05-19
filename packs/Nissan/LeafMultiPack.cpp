@@ -329,15 +329,28 @@ float LeafMultiPack::getChargeCurrentLimit() const
    // if full, no charging allowed
    if (m_fully_charged) return 0.0;
 
+   // THIS IS A STOP GAP. NEED TO FIGURE OUT WHY THIS WAS REPORTING HIGH CCL (>40A) TO INVERTER 
+   // DISPITE LEAF BATTERIES REPORTING <2A EACH FOR CCL
+   const float CRITICALLY_HIGH_VOLTAGE(4.15);
+   const float WARN_HIGH_VOLTAGE(4.1);
+   if (getMaxCellVolts() >= WARN_HIGH_VOLTAGE + 0.01)
+   {
+      std::ostringstream ss;
+      ss << "LeafMultiPack: MaxCellVolts = " << getMaxCellVolts() << " V. Charge Current set to 0.";
+      return 0.0;
+   }
+
    // check if any of the batteries are reporting a very low charge limit
    for (uint i=0; i<m_vmonitor.size(); i++)
    {
       if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
-         if (m_vmonitor[i]->getChargeCurrentLimit() < 5.0) {
-            // return 0 for the limit
-            // return 0.0;
+         if (m_vmonitor[i]->getChargeCurrentLimit() < 2.0) {
+            std::ostringstream ss;
+            ss << "LeafMultiPack: a pack has report a ChargeCurrentLimit  = " << m_vmonitor[i]->getChargeCurrentLimit() << " A. Charge Current is now set to this value.";
             // return this for the total
             return m_vmonitor[i]->getChargeCurrentLimit();
+            // return 0 for the limit
+            // return 0.0;
          }
       }
    }
@@ -361,13 +374,24 @@ float LeafMultiPack::getDischargeCurrentLimit() const
    // if empty, no discharging allowed
    if (m_fully_discharged) return 0.0;
 
-   // check if any of the batteries are reporting 0A discharge limit
+   const float WARN_LOW_VOLTAGE(3.3);
+   const float CRITICALLY_LOW_VOLTAGE(3);
+   if (getMinCellVolts() <= WARN_LOW_VOLTAGE - 0.01)
+   {
+      std::ostringstream ss;
+      ss << "LeafMultiPack: MinCellVolts = " << getMinCellVolts() << " V. Charge Current set to 0.";
+      return 0.0;
+   }
+
+   // check if any of the batteries are reporting LOW discharge limit
    for (uint i=0; i<m_vmonitor.size(); i++)
    {
       if (m_vmonitor[i]->getPackStatus() == Monitor::NORMAL_OPERATION) {
-         if (m_vmonitor[i]->getDischargeCurrentLimit() < 0.01) {
+         if (m_vmonitor[i]->getDischargeCurrentLimit() < 2.0) {
+            // return this for total
+            return m_vmonitor[i]->getDischargeCurrentLimit();
             // return 0 for the limit
-            return 0.0;
+            // return 0.0;
          }
       }
    }
