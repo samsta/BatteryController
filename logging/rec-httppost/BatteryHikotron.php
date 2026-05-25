@@ -1,14 +1,14 @@
   <?php
-    include "BatteryOneinsertdataqt.php";
+    include "BatteryHikotroninsertdataqt.php";
     $servername = "jstulen.netfirmsmysql.com";
     $username = "timluser";
     $password = "userML";  //your database password
     $dbname = "battery_data";  //your database name
     //--------------------------------------------------------------------------------------------------------------
 
-    // 2 hours
-    $timerange = " Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
-    $t0timerange = " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -2 HOUR)";
+    // 3 hours
+    $timerange = " Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00'), INTERVAL -3 HOUR)";
+    $t0timerange = " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00'), INTERVAL -3 HOUR)";
     $time = $_GET['time'];
     // today
     if ($time == "td") {
@@ -33,7 +33,7 @@
         // echo ("Connect Successfully");
     }
     $query = " SELECT TimeStamp, Voltage, VoltageMin, VoltageMax " .
-    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange; 
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange; 
 
     //  echo ($query);
     $resultV = $con->query($query);
@@ -48,7 +48,7 @@
     }
     $query =" SELECT TimeStamp, Current, " . 
     " (Current * Voltage * 0.001) as Power " .
-    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultAllC = $con->query($query);
@@ -62,7 +62,7 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, ChargeCurrentLimit, ChargeCurrentLimitMin, ChargeCurrentLimitMax" .
-    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultCL = $con->query($query);
@@ -76,7 +76,7 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp,DischargeCurrentLimit, DischargeCurrentLimitMin, DischargeCurrentLimitMax" .
-    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultDCL = $con->query($query);
@@ -90,7 +90,7 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, StoredEnergy, SOCPercent, Temperature" .
-    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultSE = $con->query($query);
@@ -104,7 +104,7 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, Current, CurrentMin, CurrentMax" .
-    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultCC = $con->query($query);
@@ -118,7 +118,7 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, CellVoltageMin, CellVoltageMax" .
-    " FROM BatteryOne" . $wherebatnum . " AND " . $timerange;
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultCV = $con->query($query);
@@ -132,7 +132,7 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
-    " FROM BatteryOne" . $wherebatnum .
+    " FROM BatteryHik" . $wherebatnum .
     " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
 
     $resultTBL = $con->query($query);

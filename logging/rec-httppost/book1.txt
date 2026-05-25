@@ -1,55 +1,8 @@
 -Title
-All Batteries (summation of all Batteries)
+Hikotron TIML Battery
 3 hours
-https://jimster.ca/BatteryOne/BatteryOneAll2h.php
+https://jimster.ca/BatteryHikotron/BatteryHikotron.php?batnum=0
 Today
-https://jimster.ca/BatteryOne/BatteryOneAll.php?time=td
+https://jimster.ca/BatteryHikotron/BatteryHikotron.php?batnum=0&time=td
 Yesterday
-https://jimster.ca/BatteryOne/BatteryOneAll.php?time=yd
-Enter Time Period
-https://jimster.ca/BatteryOne/BatteryOneAllIndexAT.php
--Title
-Last 2 hours - Individual Batteries
-Battery 1 Last 2 Hours
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=1
-Battery 2 Last 2 Hours
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=2
-Battery 3 Last 2 Hours
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=3
-Battery 4 Last 2 Hours
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=4
-Battery 5 Last 2 Hours
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=5
--Title
-Today - Individual Batteries
-Battery 1 Today
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=1&time=td
-Battery 2 Today
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=2&time=td
-Battery 3 Today
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=3&time=td
-Battery 4 Today
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=4&time=td
-Battery 5 Today
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=5&time=td
--Title
-Yesterday - Individual Batteries
-Battery 1 Yesterday
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=1&time=yd
-Battery 2 Yesterday
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=2&time=yd
-Battery 3 Yesterday
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=3&time=yd
-Battery 4 Yesterday
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=4&time=yd
-Battery 5 Yesterday
-https://jimster.ca/BatteryOne/BatteryOneIndividual.php?batnum=5&time=yd
--Title
-Power Meter Data
-3 hours
-https://jimster.ca/BatteryOne/PowerOne.php
-Today
-https://jimster.ca/BatteryOne/PowerOne.php?time=td
-Yesterday
-https://jimster.ca/BatteryOne/PowerOne.php?time=yd
-
+https://jimster.ca/BatteryHikotron/BatteryHikotron.php?batnum=0&time=yd
