@@ -10,7 +10,7 @@
 # -s7	800 kbit/s
 # -s8	1 Mbit/s
 
-sudo slcand -o -c -s6 -t hw /dev/ttyACM0 can0
+sudo slcand -o -c -s6 -t hw /dev/ttyCANABLE can0
 sudo ifconfig can0 txqueuelen 1000
 sudo ifconfig can0 up
 
