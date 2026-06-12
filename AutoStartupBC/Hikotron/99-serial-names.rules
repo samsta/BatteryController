@@ -1,5 +1,5 @@
 # copy this file to /etc/udev/rules.d/99-serial-names.rules
-# ESP32 to be plugged in to top right USB port, is will be ttyUSB0
+# ESP32 to be plugged in to top left USB port, is will be ttyUSB0
 # CANABLE dongle to be in lower left USB port, must be a dongle that appears as ttyACMx
 # RS485 dongle to be in upper right USB port, must be a dongle that appears as ttyACMx
 SUBSYSTEM=="tty", ENV{ID_PATH}=="platform-xhci-hcd.0-usb-0:1:1.0", SYMLINK+="ttyCANABLE"
