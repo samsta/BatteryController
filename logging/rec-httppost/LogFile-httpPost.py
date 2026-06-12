@@ -45,10 +45,10 @@ def post_file(file_path: str):
         r = requests.post(URL, data=data, headers=headers, timeout=15)
 
         if r.status_code == 200:
-            print(f"{datetime.now().strftime('%H:%M:%S')} uploaded {len(data)} bytes")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} uploaded {len(data)} bytes")
             os.remove(file_path)
         else:
-            print(f"{datetime.now().strftime('%H:%M:%S')} POST failed {r.status_code}")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} POST failed {r.status_code}")
 
     except Exception as e:
         print(f"post error: {e}")
