@@ -1,107 +1,123 @@
 import os
+import time
 import shutil
 import requests
-import time
 from datetime import datetime
 
-original_file="BatteryController.log",
-copy_file="BatteryControllerCOPY.log",
-diff_file="BatteryControllerDIFF.log"
+URL = "http://jimster.ca/BatteryOne/BatteryOne-log-receiver.php"
 
-# ***********************************************************************************************
-# Define the function to post the file
-def post_file():
-    url = "http://jimster.ca/BatteryOne/BatteryOne-log-receiver.php"
+ORIGINAL_FILE = "BatteryController.log"
+SNAPSHOT_FILE = "BatteryControllerCOPY.log"
+DIFF_FILE = "BatteryControllerDIFF.log"
+PENDING_FILE = "BatteryControllerPENDING.log"
 
-    file_path = diff_file
 
-    # Check if the file exists
+# --------------------------------------------------------------------------------------
+def post_file(file_path: str) -> bool:
     if not os.path.exists(file_path):
-        print(f"File '{file_path}' does not exist. Skipping this attempt.")
-        return  # Exit the function if the file is missing
-
-    # Get the size of the file in bytes
-    file_size = os.path.getsize(file_path)
-    print(f"Size of the file '{file_path}': {file_size} bytes")
-
-    with open(file_path, 'r') as file:
-        data = file.read()
+        return True  # nothing to send, treat as success
 
     try:
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            data = f.read()
+
         headers = {
             "Accept": "*/*",
             "Content-Type": "text/plain",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            "User-Agent": "RPi-BatteryLogger/1.0"
         }
 
-        response = requests.post(url, data=data, headers=headers)
+        r = requests.post(URL, data=data, headers=headers, timeout=15)
 
-        if response.status_code == 200:
-            print(f"File successfully posted at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        if r.status_code == 200:
+            print(f"{datetime.now()} uploaded {len(data)} bytes")
             os.remove(file_path)
-            print(f"File '{file_path}' successfully deleted.")
-        else:
-            print(f"Failed to post the file. Status Code: {response.status_code}")
-            print("Headers:", response.headers)
-            print("Text:", response.text)
+            return True
 
-    except requests.exceptions.RequestException as e:
-        print(f"Error posting file: {e}")
-        # Ignore the exception and continue
-
-
-# ***********************************************************************************************
-def log_changed(original_file, copy_file, diff_file):
-    # first run
-    if not os.path.exists(copy_file):
-        shutil.copy2(original_file, copy_file)
-        return True
-
-    # quick check
-    if os.path.getsize(original_file) == os.path.getsize(copy_file):
+        print(f"POST failed: {r.status_code} {r.text}")
         return False
 
-    # file has grown, get new lines
-    with open(original_file, "r", encoding="utf-8", errors="ignore") as f:
-        original_lines = f.readlines()
+    except requests.RequestException as e:
+        print(f"network error: {e}")
+        return False
 
-    with open(copy_file, "r", encoding="utf-8", errors="ignore") as f:
-        copy_lines = f.readlines()
 
-    new_lines = original_lines[len(copy_lines):]
+# --------------------------------------------------------------------------------------
+def log_changed(original_file: str, snapshot_file: str, diff_file: str) -> bool:
+    if not os.path.exists(original_file):
+        return False
 
-    with open(diff_file, "w", encoding="utf-8") as f:
-        f.writelines(new_lines)
+    # first run recovery
+    if not os.path.exists(snapshot_file):
+        shutil.copy2(original_file, snapshot_file)
+        return False
 
-    # update snapshot
-    shutil.copy2(original_file, copy_file)
+    orig_size = os.path.getsize(original_file)
+    snap_size = os.path.getsize(snapshot_file)
+
+    if orig_size == snap_size:
+        return False
+
+    # append-only assumption: read only new bytes
+    with open(original_file, "rb") as f:
+        f.seek(snap_size)
+        new_data = f.read()
+
+    if not new_data:
+        return False
+
+    # write diff atomically
+    tmp_diff = diff_file + ".tmp"
+    with open(tmp_diff, "wb") as f:
+        f.write(new_data)
+
+    os.replace(tmp_diff, diff_file)
+
+    # update snapshot ONLY after diff is safely written
+    shutil.copy2(original_file, snapshot_file)
 
     return True
 
-# ***********************************************************************************************
-# Function to sleep until 30 seconds after the top of the minute
-def sleep_until_10s_after_the_minute():
-    now = datetime.now()
-    seconds_to_wait = 60 - now.second + 10  # Calculate wait time
 
-    if seconds_to_wait >= 60:
-        seconds_to_wait -= 60  # Adjust if it overflows
-    if seconds_to_wait < 5:
-        seconds_to_wait += 60  # Ensure a proper wait if very close to the mark
+# --------------------------------------------------------------------------------------
+def sleep_to_next_minute(offset_seconds: int = 10):
+    now = time.time()
+    next_tick = (int(now // 60) + 1) * 60 + offset_seconds
+    time.sleep(max(1, next_tick - now))
 
-    print(f"Waiting for {seconds_to_wait} seconds to post the file...")
-    time.sleep(seconds_to_wait)
 
-# ***********************************************************************************************
-# Main program
-if __name__ == "__main__":
-    post_file()
+# --------------------------------------------------------------------------------------
+def main():
+    print("Battery log forwarder started")
+
+    # recovery: if crash happened with pending diff, resend it
+    post_file(PENDING_FILE)
+
     while True:
-         sleep_until_10s_after_the_minute()
-         if log_changed(original_file, copy_file, diff_file):
-            print(f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Log file has changed. Posting new data...")
-            post_file()
-         else:
-            print(f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: No changes detected in the log file.")
+        try:
+            changed = log_changed(ORIGINAL_FILE, SNAPSHOT_FILE, DIFF_FILE)
 
-      
+            if changed:
+                print(f"{datetime.now()} log updated")
+
+                # move diff -> pending so we never lose it
+                if os.path.exists(DIFF_FILE):
+                    shutil.move(DIFF_FILE, PENDING_FILE)
+
+                ok = post_file(PENDING_FILE)
+
+                if not ok:
+                    print("will retry pending data next cycle")
+
+            else:
+                print(f"{datetime.now()} no changes")
+
+        except Exception as e:
+            print(f"loop error: {e}")
+
+        sleep_to_next_minute()
+
+
+# --------------------------------------------------------------------------------------
+if __name__ == "__main__":
+    main()
