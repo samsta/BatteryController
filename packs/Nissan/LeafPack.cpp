@@ -93,7 +93,14 @@ void LeafPack::heartbeatCallback()
             std::ostringstream ss;
             ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
             if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
-            m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
+
+            // diabling reboot at this time want to see the failsafe come on and see what happens.
+            ss.clear();
+            ss << "LeafPack: " << m_pack_name << ": NO REBOOT PERFORMED. **** CHECK FAILSAFE VALUEF ****";
+            if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
+
+            // m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
+
          }
          else if (m_reboot_in_process && (m_reboot_wait_count > REBOOT_POWERDOWN_PERIODS))
          {
