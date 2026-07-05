@@ -79,6 +79,7 @@ void LeafMultiPack::periodicCallback()
    //    operate shunt if neecessary (resend shunt trigger)
    //    open main contactor if necessary (extreme case, like loss fo USB comms)
 
+   bool set_message_ignore =  false;
    switch (m_multipack_status) {
 
       case Monitor::STARTUP:
@@ -127,6 +128,7 @@ void LeafMultiPack::periodicCallback()
 
          for (uint i=0; i<m_vmonitor.size(); i++)
          {
+            // check pack status
             if (m_vmonitor[i]->getPackStatus() != Monitor::NORMAL_OPERATION)
             {
                setPackStatus(Monitor::SHUTTING_DOWN);
@@ -136,6 +138,24 @@ void LeafMultiPack::periodicCallback()
                std::ostringstream ss; char text[64];
                ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
                if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
+            }
+
+            // check message ignore status
+            if (m_vmonitor[i]->getMonitorMessageIgnore())
+            {
+               // catch where on of the batteries is set to ignore
+               set_message_ignore =  true;
+            }
+         }
+
+         // if one battery is set to ignore, set all batteries to ignore
+         if (set_message_ignore)
+         {
+            // set all monitors to ignore messages for a spell
+            set_message_ignore = false;
+            for (uint i=0; i<m_vmonitor.size(); i++)
+            {
+               m_vmonitor[i]->setMonitorMessageIgnore(false);
             }
          }
 
@@ -524,6 +544,15 @@ contactor::Contactor& LeafMultiPack::getMainContactor()
 
 void LeafMultiPack::logStartupStatus() const
 {
+}
+
+void LeafMultiPack::setMonitorMessageIgnore(bool status)
+{
+}
+
+bool LeafMultiPack::getMonitorMessageIgnore()
+{
+   return false;
 }
 
 }

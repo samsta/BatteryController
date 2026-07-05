@@ -88,13 +88,25 @@ LeafMonitor::LeafMonitor(
       m_bat_status_recv(false),
       m_bat_limits_recv(false),
       m_charge_cur_smoothing(MAX_ALLOWABLE_CURRENT),
-      m_discharge_cur_smoothing(MAX_ALLOWABLE_CURRENT)
+      m_discharge_cur_smoothing(MAX_ALLOWABLE_CURRENT),
+      m_message_ignore_count(0),
+      m_message_ignore_active(false)
 {
 }
 
 void LeafMonitor::sink(const can::messages::Nissan::Message& message)
 {
    if (not message.valid()) return;
+
+   // see if we should ignore messages for a spell
+   if (m_message_ignore_count > 0)
+   {
+      m_message_ignore_count--;
+      std::ostringstream oss;
+      oss << "LeafMonitor: " << m_pack_name << " ignoring battery messages: count: " << m_message_ignore_count;
+      return;
+   }
+
 
    switch(message.id())
    {
@@ -126,6 +138,24 @@ void LeafMonitor::sink(const can::messages::Nissan::Message& message)
    default:
       break;
    }
+}
+
+void LeafMonitor::setMonitorMessageIgnore(bool status)
+{
+   m_message_ignore_active = status; // this is used to signal the other battery monitors
+   m_message_ignore_count = 30;
+   std::ostringstream oss;
+   oss << "LeafMonitor: " << m_pack_name << " message ignore count set: count: " << m_message_ignore_count;
+}
+
+bool LeafMonitor::getMonitorMessageIgnore()
+{
+   if (m_message_ignore_active)
+   {
+      m_message_ignore_active = false;
+      return true;
+   }
+   return false;
 }
 
 void LeafMonitor::process(const CellVoltageRange& voltage_range)

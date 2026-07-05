@@ -58,6 +58,8 @@ public:
 
    virtual uint32_t getVoltTempStatus() const;
    virtual uint32_t getFailsafeStatus() const;
+   virtual void setMonitorMessageIgnore(bool status);
+   virtual bool getMonitorMessageIgnore();
 
    // no need for getMonitor as this (LeafMultiPack) is the montior
    // need to pass internal contactor to inverter

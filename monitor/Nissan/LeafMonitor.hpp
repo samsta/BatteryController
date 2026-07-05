@@ -74,6 +74,8 @@ public:
    virtual uint32_t getVoltTempStatus() const;
    virtual uint32_t getFailsafeStatus() const;
    std::string getAlarmConditionText() const;
+   virtual void setMonitorMessageIgnore(bool status);
+   virtual bool getMonitorMessageIgnore();
 
 private:
    void process(const can::messages::Nissan::CellVoltageRange&);
@@ -113,6 +115,8 @@ private:
 
    uint32_t m_volt_temp_status;
    uint32_t m_failsafe_status;
+   uint32_t m_message_ignore_count;
+   bool m_message_ignore_active;
 
    class CurrentLimitSmoothing {
    public:

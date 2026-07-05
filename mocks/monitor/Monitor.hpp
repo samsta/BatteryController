@@ -39,6 +39,8 @@ public:
 
    MOCK_METHOD(uint32_t, getVoltTempStatus, (),  (const));
    MOCK_METHOD(uint32_t, getFailsafeStatus, (),  (const));
+   MOCK_METHOD(void, setMonitorMessageIgnore, (bool), ());
+   MOCK_METHOD(bool, getMonitorMessageIgnore, (), ());
 };
 
 }

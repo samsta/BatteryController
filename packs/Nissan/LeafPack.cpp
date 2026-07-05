@@ -103,6 +103,9 @@ void LeafPack::heartbeatCallback()
                std::ostringstream ss;
                ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
                if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
+               // ignore messages from the pack for a period after reboot
+               m_monitor.setMonitorMessageIgnore(true);
+               // power off the pack(s)
                m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
             }            
          }
@@ -113,6 +116,7 @@ void LeafPack::heartbeatCallback()
             ss << "LeafPack: " << m_pack_name << ": Reboot complete, cannot reboot again for "
                   << REBOOT_WAIT_PERIODS * PACK_CALLBACK_PERIOD_ms / 1000 << " seconds";
             if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
+            // power on the pack(s)
             m_power_relay.setState(contactor::Nissan::TeensyRelay::DE_ENERGIZED);
          }
          else
@@ -185,7 +189,6 @@ void LeafPack::sink(const can::DataFrame& f)
    m_aggregator.sink(f);
 
 }
-
 
 }
 }
