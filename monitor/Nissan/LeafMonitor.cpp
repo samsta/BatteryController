@@ -145,7 +145,13 @@ void LeafMonitor::process(const CellVoltageRange& voltage_range)
 
 
    if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE) m_volt_temp_status &= ~CRIT_HIGH_VOLT;
-   else m_volt_temp_status |= CRIT_HIGH_VOLT;
+   // else m_volt_temp_status |= CRIT_HIGH_VOLT;
+   else {
+      m_volt_temp_status |= CRIT_HIGH_VOLT;
+      std::ostringstream oss;
+      oss << "LeafMonitor: " << m_pack_name << "  CRIT_HIGH_VOLT val=" << m_max_cell_volts;
+      if (m_log) m_log->alarm(oss, __FILENAME__,__LINE__);
+   }   
 
    if (m_min_cell_volts > CRITICALLY_LOW_VOLTAGE ) m_volt_temp_status &= ~CRIT_LOW_VOLT;
    else m_volt_temp_status |= CRIT_LOW_VOLT;
