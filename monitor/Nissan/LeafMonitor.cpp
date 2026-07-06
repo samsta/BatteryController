@@ -145,7 +145,8 @@ void LeafMonitor::setMonitorMessageIgnore(bool status)
    m_message_ignore_active = status; // this is used to signal the other battery monitors
    m_message_ignore_count = 30;
    std::ostringstream oss;
-   oss << "LeafMonitor: " << m_pack_name << " message ignore count set: count: " << m_message_ignore_count;
+   oss << "LeafMonitor: " << m_pack_name << " message ignore count set: count: " << m_message_ignore_count << "  status:" << (status ? "true" : "false");
+   if (m_log) m_log->alarm(oss, __FILENAME__, __LINE__);
 }
 
 bool LeafMonitor::getMonitorMessageIgnore()
