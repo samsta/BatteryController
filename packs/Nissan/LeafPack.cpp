@@ -26,7 +26,6 @@ LeafPack::LeafPack(
    m_reboot_in_process(false),
    m_shunt_fail_msg_logged(false),
    m_reboot_wait_count(0),
-   // m_failsafe_count(0),
    m_log(log)
 {
    std::string pcname; pcname.append(m_pack_name).append("_LeafPackPeriodic");
@@ -89,22 +88,19 @@ void LeafPack::heartbeatCallback()
                && m_reboot_wait_count > REBOOT_WAIT_PERIODS
                && m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION)
          {
-            // // failsafe has to be on for FAILSAFE_COUNT consecutive periods
-            // m_failsafe_count++;
-            // std::ostringstream sss;
-            // sss << "LeafPack: " << m_pack_name << ": Failsafe Status indicator on: count = " << m_failsafe_count;
-            // if (m_log) m_log->alarm(sss, __FILENAME__, __LINE__);
-            // if (m_failsafe_count > FAILSAFE_COUNT)
-            // {
-               // reboot
-               // m_failsafe_count = 0;
-               m_reboot_wait_count = 0;
-               m_reboot_in_process = true;
-               std::ostringstream ss;
-               ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
-               if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
-               m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
-            // }            
+            m_reboot_wait_count = 0;
+            m_reboot_in_process = true;
+            std::ostringstream ss;
+            ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
+            if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
+
+            // diabling reboot at this time want to see the failsafe come on and see what happens.
+            ss.clear();
+            ss << "LeafPack: " << m_pack_name << ": NO REBOOT PERFORMED. **** CHECK FAILSAFE VALUEF ****";
+            if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
+
+            // m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
+
          }
          else if (m_reboot_in_process && (m_reboot_wait_count > REBOOT_POWERDOWN_PERIODS))
          {
@@ -115,10 +111,6 @@ void LeafPack::heartbeatCallback()
             if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
             m_power_relay.setState(contactor::Nissan::TeensyRelay::DE_ENERGIZED);
          }
-         // else
-         // {
-         //    m_failsafe_count = 0;
-         // }
          break;
 
       case monitor::Monitor::STARTUP_FAILED:

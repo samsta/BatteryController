@@ -145,28 +145,13 @@ void LeafMonitor::process(const CellVoltageRange& voltage_range)
 
 
    if (m_max_cell_volts < CRITICALLY_HIGH_VOLTAGE) m_volt_temp_status &= ~CRIT_HIGH_VOLT;
-   else {
-      m_volt_temp_status |= CRIT_HIGH_VOLT;
-      // std::ostringstream oss;
-      // oss << "LeafMonitor: " << m_pack_name << "  CRIT_HIGH_VOLT val=" << m_max_cell_volts;
-      // if (m_log) m_log->alarm(oss, __FILENAME__,__LINE__);
-   }
+   else m_volt_temp_status |= CRIT_HIGH_VOLT;
 
    if (m_min_cell_volts > CRITICALLY_LOW_VOLTAGE ) m_volt_temp_status &= ~CRIT_LOW_VOLT;
-   else {
-      m_volt_temp_status |= CRIT_LOW_VOLT;
-      // std::ostringstream oss;
-      // oss << "LeafMonitor: " << m_pack_name << "  CRIT_LOW_VOLT val=" << m_min_cell_volts;
-      // if (m_log) m_log->alarm(oss, __FILENAME__,__LINE__);
-   }
+   else m_volt_temp_status |= CRIT_LOW_VOLT;
 
    if ((m_max_cell_volts - m_min_cell_volts) < CRITICALLY_HIGH_VOLTAGE_SPREAD ) m_volt_temp_status &= ~CRIT_SPREAD_VOLT;
-   else {
-      m_volt_temp_status |= CRIT_SPREAD_VOLT;
-      // std::ostringstream oss;
-      // oss << "LeafMonitor: " << m_pack_name << "  CRIT_SPREAD_VOLT val=" << (m_max_cell_volts - m_min_cell_volts);
-      // if (m_log) m_log->alarm(oss, __FILENAME__,__LINE__);
-   }
+   else m_volt_temp_status |= CRIT_SPREAD_VOLT;
 
    updateOperationalSafety();
 }
@@ -217,28 +202,13 @@ void LeafMonitor::process(const PackTemperatures& temperatures)
    }
 
    if (max_temp < CRITICALLY_HIGH_TEMPERATURE) m_volt_temp_status &= ~CRIT_HIGH_TEMP;
-   else {
-      m_volt_temp_status |= CRIT_HIGH_TEMP;
-      // std::ostringstream oss;
-      // oss << "LeafMonitor: " << m_pack_name << "  CRIT_HIGH_TEMP val=" << max_temp;
-      // if (m_log) m_log->alarm(oss, __FILENAME__,__LINE__);
-   }
+   else m_volt_temp_status |= CRIT_HIGH_TEMP;
 
    if (min_temp > CRITICALLY_LOW_TEMPERATURE) m_volt_temp_status &= ~CRIT_LOW_TEMP;
-   else {
-      m_volt_temp_status |= CRIT_LOW_TEMP;
-      // std::ostringstream oss;
-      // oss << "LeafMonitor: " << m_pack_name << "  CRIT_LOW_TEMP val=" << min_temp;
-      // if (m_log) m_log->alarm(oss, __FILENAME__,__LINE__);
-   }
+   else m_volt_temp_status |= CRIT_LOW_TEMP;
 
    if (num_sensors_missing <= MAX_TEMP_SENSORS_MISSING) m_volt_temp_status &= ~MAX_TEMP_MISSING;
-   else {
-      m_volt_temp_status |= MAX_TEMP_MISSING;
-      // std::ostringstream oss;
-      // oss << "LeafMonitor: " << m_pack_name << "  MAX_TEMP_MISSING val=" << num_sensors_missing;
-      // if (m_log) m_log->alarm(oss, __FILENAME__,__LINE__);
-   }
+   else m_volt_temp_status |= MAX_TEMP_MISSING;
 
    updateOperationalSafety();
 }
@@ -519,24 +489,24 @@ std::string LeafMonitor::getAlarmConditionText() const
    std::string ss;
    ss.append(m_pack_name);
    ss.append(":  Alarm Condition(s) Present:\n\t\t\t\t\t");
-   // if (m_volt_temp_status & MAX_TEMP_MISSING) {
-   //    ss.append("MAX_TEMP_SENSORS_MISSING  ");
-   // }
-   // if (m_volt_temp_status & CRIT_LOW_TEMP) {
-   //    ss.append("CRITICALLY_LOW_TEMPERATURE  ");
-   // }
-   // if (m_volt_temp_status & CRIT_HIGH_TEMP) {
-   //    ss.append("CRITICALLY_HIGH_TEMPERATURE  ");
-   // }
-   // if (m_volt_temp_status & CRIT_SPREAD_VOLT) {
-   //    ss.append("CRITICALLY_HIGH_VOLTAGE_SPREAD  ");
-   // }
-   // if (m_volt_temp_status & CRIT_LOW_VOLT) {
-   //    ss.append("CRITICALLY_LOW_VOLTAGE  ");
-   // }
-   // if (m_volt_temp_status & CRIT_HIGH_VOLT) {
-   //    ss.append("CRITICALLY_HIGH_VOLTAGE  ");
-   // }
+   if (m_volt_temp_status & MAX_TEMP_MISSING) {
+      ss.append("MAX_TEMP_SENSORS_MISSING\n\t\t\t\t\t");
+   }
+   if (m_volt_temp_status & CRIT_LOW_TEMP) {
+      ss.append("CRITICALLY_LOW_TEMPERATURE\n\t\t\t\t\t");
+   }
+   if (m_volt_temp_status & CRIT_HIGH_TEMP) {
+      ss.append("CRITICALLY_HIGH_TEMPERATURE\n\t\t\t\t\t");
+   }
+   if (m_volt_temp_status & CRIT_SPREAD_VOLT) {
+      ss.append("CRITICALLY_HIGH_VOLTAGE_SPREAD\n\t\t\t\t\t");
+   }
+   if (m_volt_temp_status & CRIT_LOW_VOLT) {
+      ss.append("CRITICALLY_LOW_VOLTAGE\n\t\t\t\t\t");
+   }
+   if (m_volt_temp_status & CRIT_HIGH_VOLT) {
+      ss.append("CRITICALLY_HIGH_VOLTAGE\n\t\t\t\t\t");
+   }
    return ss;
 }
 

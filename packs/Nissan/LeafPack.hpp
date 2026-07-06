@@ -51,13 +51,11 @@ private:
    bool m_reboot_in_process;
    bool m_shunt_fail_msg_logged;
    unsigned m_reboot_wait_count;
-   const uint REBOOT_WAIT_PERIODS = 5 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms; 
-   // unsigned m_failsafe_count;
-   // const uint FAILSAFE_COUNT = 10 * 1000 / PACK_CALLBACK_PERIOD_ms;
 
    void heartbeatCallback();
    const uint PACK_CALLBACK_PERIOD_ms = 1000;
    const uint PACK_SILENT_TIMEOUT_PERIODS = 60 * 1000 / PACK_CALLBACK_PERIOD_ms;
+   const uint REBOOT_WAIT_PERIODS = 5 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms; 
    const uint REBOOT_POWERDOWN_PERIODS = 10 * 1000 / PACK_CALLBACK_PERIOD_ms; 
    const float MAX_SHUNT_OPEN_CURRENT = 1.01;
    const uint MAX_PACK_STARTUP_COUNT = 5 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms;
