@@ -239,19 +239,31 @@ TeensyRelay::~TeensyRelay()
 
 void TeensyRelay::setState(enum TeensyRelay::State state)
 {
+   // don't send a command if the state is not being changed
+   if (m_state == state)
+   {
+      std::ostringstream ss;
+      if (state == ENERGIZED)
+         ss << "TeensyRelay: " << m_pack_name << ": ENERGIZED.  (state not changed, no command sent)";
+      else
+         ss << "TeensyRelay: " << m_pack_name << ": DE-ENERGIZED.  (state not changed, no command sent)";
+      if (m_log) m_log->info(ss, __FILENAME__,__LINE__);
+      return;
+   }
+
    m_state = state;
    if (m_state == ENERGIZED)
    {
       close();
       std::ostringstream ss;
-      ss << "TeensyRelay: " << m_pack_name << ": CLOSED (energized)";
+      ss << "TeensyRelay: " << m_pack_name << ": ENERGIZED";
       if (m_log) m_log->info(ss, __FILENAME__,__LINE__);
    }
    else
    {
       open();
       std::ostringstream ss;
-      ss << "TeensyRelay: " << m_pack_name << ": OPEN (de-energized)";
+      ss << "TeensyRelay: " << m_pack_name << ": DE-ENERGIZED";
       if (m_log) m_log->info(ss, __FILENAME__,__LINE__);
    }
 }
