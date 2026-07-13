@@ -104,6 +104,7 @@ void LeafMonitor::sink(const can::messages::Nissan::Message& message)
       m_message_ignore_count--;
       std::ostringstream oss;
       oss << "LeafMonitor: " << m_pack_name << " ignoring battery messages: count: " << m_message_ignore_count;
+      if (m_log) m_log->alarm(oss, __FILENAME__, __LINE__);
       return;
    }
 
