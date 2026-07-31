@@ -6,6 +6,8 @@ Today
 https://jimster.ca/BatteryHikotron/BatteryHikotron.php?batnum=0&time=td
 Yesterday
 https://jimster.ca/BatteryHikotron/BatteryHikotron.php?batnum=0&time=yd
+Enter Time Period
+https://jimster.ca/BatteryHikotron/BatteryHikotronAllIndexAT.php
 -Title
 Battery Controller Log
 Log File
