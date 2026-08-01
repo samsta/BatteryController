@@ -197,57 +197,9 @@
 
 ?>
 <html>
-<h4><p><?=$thetimeis?></p></h4>
 
-<head>
-<style>
-table, th, td {
-  border: 1px solid black;
-  border-collapse: collapse;
-}
-<meta charset="UTF-8">
-    <title>Battery One</title>
-    <style>
-        table,
-        td,
-        th {
-            border: 1px solid;
-            padding: 20px;
-        }
- 
-        table {
-            text-align: center;
-        }
-    </style>
-</style>
-</head>
 
-<body>
-<table style="width: 70%;">
-  <tr>
-    <th>Bat</th>
-    <th>SOC</th>
-    <th>Energy</th>
-    <th>Current</th>
-    <th>Power</th>
-    <th>Chg.Cur.Lmt</th>
-    <th>DChg.Cur.Lmt</th>
-    <th>Voltage</th>
-    <th>Temperature</th>
-  </tr>
-  <tr>
-    <td><p><?=$batnum?></p></td>
-    <td><p><?=round($SOC,1)?> %</p></td>
-    <td><p><?=round($StoredEnergy,1)?> kWh</p></td>
-    <td><p><?=round($Current,1)?> A</p></td>
-    <td><p><?=round($Voltage*$Current/1000,1)?> kW</p></td>
-    <td><p><?=round($ChargeCurrentLimit,1)?> A</p></td>
-    <td><p><?=round($DischargeCurrentLimit,1)?> A</p></td>
-    <td><p><?=round($Voltage,1)?> V</p></td>
-    <td><p><?=round($Temperature,1)?> C</p></td>
-  </tr>
-</table>
-</body>
+
 <!-------------------------------------------------------------------------------------------------------------------------->
 <head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
