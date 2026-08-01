@@ -1,4 +1,5 @@
 <?php
+include "BatteryHikotroninsertdataqt.php";
 session_start();
 
 ini_set('display_errors', 'On');
@@ -46,7 +47,7 @@ date_default_timezone_set("Pacific/Auckland");
 echo "ALL Graphs Anytime" . "<br><br>";
 echo "The time is " . date("H:i:s") . "<br><br>";
 ?>
-<form autocomplete="off" action="BatteryOneAllActionAT.php"  method="post">
+<form autocomplete="off" action="BatteryHikotronAllActionAT.php"  method="post">
 Start Time
 <input name="StartYR" type="text" size="4" value="<?=$syr?>">
 -<input name="StartMO" type="text" size="2" value="<?=$smo?>">
@@ -63,7 +64,7 @@ Start Time
 <input type="Submit" value="Draw Chart">
 </form>
 </font>
-<br><A HREF="https://jimster.ca/BatteryOne/index.php" >Main Menu</A>
+<br><A HREF="https://jimster.ca/BatteryHikotron/index.php" >Main Menu</A>
 </body>
 </html>
 

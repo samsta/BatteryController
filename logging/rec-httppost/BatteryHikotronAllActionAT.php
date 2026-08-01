@@ -64,7 +64,11 @@
     $timerange = " Timestamp >= '" . $starttext . "' AND Timestamp <= '" . $endtext . "'";
     $t0timerange = " t0.Timestamp >= '" . $starttext . "' AND t0.Timestamp <= '" . $endtext . "'";
 
-    //--------------------------------------------------------------------------------------------------------------
+    $batnum = 0;
+    $wherebatnum = "  WHERE BatNum = " . $batnum;
+
+
+        //--------------------------------------------------------------------------------------------------------------
     $con = new mysqli($servername, $username, $password, $dbname);
     if ($con->connect_error) {
         die("Connection failed: " . $con->connect_error);
@@ -74,9 +78,7 @@
         // echo ("Connect Successfully");
     }
     $query = " SELECT TimeStamp, Voltage, VoltageMin, VoltageMax " .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND " . $timerange; 
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange; 
 
     //  echo ($query);
     $resultV = $con->query($query);
@@ -90,13 +92,8 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, Current, " . 
-    " (Current * Voltage * 0.001) as Power, " .
-    " SOCPercent " .
-    // " DischargeCurrentLimit, " .
-    // " ChargeCurrentLimit " .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND " . $timerange;
+    " (Current * Voltage * 0.001) as Power " .
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultAllC = $con->query($query);
@@ -109,72 +106,8 @@
     {
         // echo ("Connect Successfully\n");
     }
-    $query = "SELECT t0.TimeStamp, t0.Current as CurrentTotal," .
-    " t1.TimeStamp, t1.Current as Current1," .
-    " t2.TimeStamp, t2.Current as Current2," .
-    " t3.TimeStamp, t3.Current as Current3," .
-    " t4.TimeStamp, t4.Current as Current4," .
-    " t5.TimeStamp, t5.Current as Current5" .
-    " FROM BatteryOne as t0" .
-    " join BatteryOne as t1 ON t0.TimeStamp = t1.TimeStamp" .
-    " join BatteryOne as t2 ON t0.TimeStamp = t2.TimeStamp" .
-    " join BatteryOne as t3 ON t0.TimeStamp = t3.TimeStamp" .
-    " join BatteryOne as t4 ON t0.TimeStamp = t4.TimeStamp" .
-    " join BatteryOne as t5 ON t0.TimeStamp = t5.TimeStamp" .
-    " WHERE" .
-    " t0.BatNum = 0 AND" .
-    " t1.BatNum = 1 AND" .
-    " t2.BatNum = 2 AND" .
-    " t3.BatNum = 3 AND" .
-    " t4.BatNum = 4 AND" .
-    " t5.BatNum = 5 AND " .$t0timerange;
-
-    //  echo ($query);
-    $resultC = $con->query($query);
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
-    $query = "SELECT t0.TimeStamp, t0.SOCPercent as SOCPercentBigBat," .
-    " t1.TimeStamp, t1.SOCPercent as SOCPercent1," .
-    " t2.TimeStamp, t2.SOCPercent as SOCPercent2," .
-    " t4.TimeStamp, t4.SOCPercent as SOCPercent4," .
-    " t5.TimeStamp, t5.SOCPercent as SOCPercent5," .
-    " t3.TimeStamp, t3.SOCPercent as SOCPercent3" .
-    " FROM BatteryOne as t0" .
-    " join BatteryOne as t1 ON t0.TimeStamp = t1.TimeStamp" .
-    " join BatteryOne as t2 ON t0.TimeStamp = t2.TimeStamp" .
-    " join BatteryOne as t4 ON t0.TimeStamp = t4.TimeStamp" .
-    " join BatteryOne as t5 ON t0.TimeStamp = t5.TimeStamp" .
-    " join BatteryOne as t3 ON t0.TimeStamp = t3.TimeStamp" .
-    " WHERE" .
-    " t0.BatNum = 0 AND" .
-    " t1.BatNum = 1 AND" .
-    " t2.BatNum = 2 AND" .
-    " t4.BatNum = 4 AND" .
-    " t5.BatNum = 5 AND" .
-    " t3.BatNum = 3 AND " .$t0timerange;
-
-    //  echo ($query);
-    $resultSOC = $con->query($query);
-    //--------------------------------------------------------------------------------------------------------------
-    $con = new mysqli($servername, $username, $password, $dbname);
-    if ($con->connect_error) {
-        die("Connection failed: " . $con->connect_error);
-    }
-    else
-    {
-        // echo ("Connect Successfully\n");
-    }
     $query =" SELECT TimeStamp, ChargeCurrentLimit, ChargeCurrentLimitMin, ChargeCurrentLimitMax" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND " . $timerange;
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultCL = $con->query($query);
@@ -187,10 +120,8 @@
     {
         // echo ("Connect Successfully\n");
     }
-    $query =" SELECT TimeStamp, DischargeCurrentLimit, DischargeCurrentLimitMin, DischargeCurrentLimitMax" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND " . $timerange;
+    $query =" SELECT TimeStamp,DischargeCurrentLimit, DischargeCurrentLimitMin, DischargeCurrentLimitMax" .
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultDCL = $con->query($query);
@@ -204,9 +135,7 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, StoredEnergy, SOCPercent, Temperature" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND " . $timerange;
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultSE = $con->query($query);
@@ -220,9 +149,7 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, Current, CurrentMin, CurrentMax" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND " . $timerange;
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultCC = $con->query($query);
@@ -236,17 +163,92 @@
         // echo ("Connect Successfully\n");
     }
     $query =" SELECT TimeStamp, CellVoltageMin, CellVoltageMax" .
-    " FROM BatteryOne" .
-    " WHERE BatNum = 0" .
-    " AND " . $timerange;
+    " FROM BatteryHik" . $wherebatnum . " AND " . $timerange;
 
     //  echo ($query);
     $resultCV = $con->query($query);
     //--------------------------------------------------------------------------------------------------------------
+    $con = new mysqli($servername, $username, $password, $dbname);
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
+    else
+    {
+        // echo ("Connect Successfully\n");
+    }
+    $query =" SELECT TimeStamp, SOCPercent, StoredEnergy, Current, DischargeCurrentLimit, ChargeCurrentLimit, Voltage, Temperature" .
+    " FROM BatteryHik" . $wherebatnum .
+    " AND Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00'), INTERVAL -1 HOUR) ORDER BY TimeStamp DESC LIMIT 1";
+
+    $resultTBL = $con->query($query);
+    $rows = mysqli_fetch_assoc($resultTBL);
+    $SOC = $rows["SOCPercent"];
+    $StoredEnergy = $rows["StoredEnergy"];
+    $Current = $rows["Current"];
+    $DischargeCurrentLimit = $rows["DischargeCurrentLimit"];
+    $ChargeCurrentLimit = $rows["ChargeCurrentLimit"];
+    $Voltage = $rows["Voltage"];
+    $Temperature = $rows["Temperature"];
+    $DTm = $rows["TimeStamp"];
+    //--------------------------------------------------------------------------------------------------------------
+  	date_default_timezone_set("Pacific/Auckland");
+	  // $thetimeis = "<h4>The time is " . date("H:i:s") . "</h4>"
+	  $thetimeis = "Newest Data: " . $DTm;
 
 ?>
 <html>
-<!-------------------------------------------------------------------------------------------------------------->
+<h4><p><?=$thetimeis?></p></h4>
+
+<head>
+<style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+<meta charset="UTF-8">
+    <title>Battery One</title>
+    <style>
+        table,
+        td,
+        th {
+            border: 1px solid;
+            padding: 20px;
+        }
+ 
+        table {
+            text-align: center;
+        }
+    </style>
+</style>
+</head>
+
+<body>
+<table style="width: 70%;">
+  <tr>
+    <th>Bat</th>
+    <th>SOC</th>
+    <th>Energy</th>
+    <th>Current</th>
+    <th>Power</th>
+    <th>Chg.Cur.Lmt</th>
+    <th>DChg.Cur.Lmt</th>
+    <th>Voltage</th>
+    <th>Temperature</th>
+  </tr>
+  <tr>
+    <td><p><?=$batnum?></p></td>
+    <td><p><?=round($SOC,1)?> %</p></td>
+    <td><p><?=round($StoredEnergy,1)?> kWh</p></td>
+    <td><p><?=round($Current,1)?> A</p></td>
+    <td><p><?=round($Voltage*$Current/1000,1)?> kW</p></td>
+    <td><p><?=round($ChargeCurrentLimit,1)?> A</p></td>
+    <td><p><?=round($DischargeCurrentLimit,1)?> A</p></td>
+    <td><p><?=round($Voltage,1)?> V</p></td>
+    <td><p><?=round($Temperature,1)?> C</p></td>
+  </tr>
+</table>
+</body>
+<!-------------------------------------------------------------------------------------------------------------------------->
 <head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
@@ -257,8 +259,7 @@
          //--------------------------------------------------------------------------------------------------------------
          var dataAllC = new google.visualization.DataTable();
         dataAllC.addColumn('datetime', 'TimeStamp');
-        // dataAllC.addColumn('number', 'Current');
-        dataAllC.addColumn('number', 'SOCPercent');
+        dataAllC.addColumn('number', 'Current');
         dataAllC.addColumn('number', 'Power');
 
         dataAllC.addRows([
@@ -270,8 +271,7 @@
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  // echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["SOCPercent"].", ".$row["Power"]."]";
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercent"].", ".$row["Power"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["Power"]."]";
                   while($row = mysqli_fetch_assoc($resultAllC)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -279,28 +279,13 @@
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        // echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["SOCPercent"].", ".$row["Power"]."]";
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercent"].", ".$row["Power"]."]";
-                      }
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["Current"].", ".$row["Power"]."]";
+                    }
                 ?>
                ])
         var optionsAllC = {
-          title: 'SOC (%), Power (kW)',
-          legend: { position: 'bottom' },
-          vAxes: {
-            0: {viewWindow: { min: 0, max: 100}, ticks: [0,25,50,75,100] },
-            1: {viewWindow: { min: -20, max: 20}, ticks: [-20,-10,0,10,20] }
-          },
-          series: {
-            0:{targetAxisIndex:0},
-            1:{targetAxisIndex:1}
-          }
-
-
-
-          // vAxis: { viewWindow: { min: -30, max: 30} }//,
-          // vAxis: { ticks: [-15,-10,-5,0,5,10,15] }
-
+          title: 'Current(A), Power(kW)',
+          legend: { position: 'bottom' }//,
         };
         var chartAllC = new google.visualization.LineChart(document.getElementById('curve_chartAllC'));
         chartAllC.draw(dataAllC, optionsAllC);
@@ -340,80 +325,6 @@
         };
         var chartV = new google.visualization.LineChart(document.getElementById('curve_chartV'));
         chartV.draw(dataV, optionsV);
-         //--------------------------------------------------------------------------------------------------------------
-         var dataC = new google.visualization.DataTable();
-        dataC.addColumn('datetime', 'TimeStamp');
-        dataC.addColumn('number', 'CurrentTotal');
-        dataC.addColumn('number', 'Current1');
-        dataC.addColumn('number', 'Current2');
-        dataC.addColumn('number', 'Current3');
-        dataC.addColumn('number', 'Current4');
-        dataC.addColumn('number', 'Current5');
-        
-        dataC.addRows([
-                <?php
-                  $row = mysqli_fetch_assoc($resultC);
-                  $dt = $row["TimeStamp"];
-                  $yr = substr($dt,0,4);
-                  $mo = substr($dt,5,2);
-                  $day = substr($dt,8,2);
-                  $hr = substr($dt,11,2);
-                  $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["CurrentTotal"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"].", ".$row["Current4"].", ".$row["Current5"]."]";
-                  while($row = mysqli_fetch_assoc($resultC)){
-                        $dt = $row["TimeStamp"];
-                        $yr = substr($dt,0,4);
-                        $mo = substr($dt,5,2);
-                        $day = substr($dt,8,2);
-                        $hr = substr($dt,11,2);
-                        $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["CurrentTotal"].", ".$row["Current1"].", ".$row["Current2"].", ".$row["Current3"].", ".$row["Current4"].", ".$row["Current5"]."]";
-                    }
-                ?>
-               ])
-        var optionsC = {
-          title: 'Current(A) for each Pack and Combined Total',
-          legend: { position: 'bottom' }//,
-        };
-        var chartC = new google.visualization.LineChart(document.getElementById('curve_chartC'));
-        chartC.draw(dataC, optionsC);
-         //--------------------------------------------------------------------------------------------------------------
-         var dataSOC = new google.visualization.DataTable();
-        dataSOC.addColumn('datetime', 'TimeStamp');
-        dataSOC.addColumn('number', 'SOCPercentBigBat');
-        dataSOC.addColumn('number', 'SOCPercent1');
-        dataSOC.addColumn('number', 'SOCPercent2');
-        dataSOC.addColumn('number', 'SOCPercent3');
-        dataSOC.addColumn('number', 'SOCPercent4');
-        dataSOC.addColumn('number', 'SOCPercent5');
-        
-        dataSOC.addRows([
-                <?php
-                  $row = mysqli_fetch_assoc($resultSOC);
-                  $dt = $row["TimeStamp"];
-                  $yr = substr($dt,0,4);
-                  $mo = substr($dt,5,2);
-                  $day = substr($dt,8,2);
-                  $hr = substr($dt,11,2);
-                  $min = substr($dt,14,2);
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercentBigBat"].", ".$row["SOCPercent1"].", ".$row["SOCPercent2"].", ".$row["SOCPercent3"].", ".$row["SOCPercent4"].", ".$row["SOCPercent5"]."]";
-                  while($row = mysqli_fetch_assoc($resultSOC)){
-                        $dt = $row["TimeStamp"];
-                        $yr = substr($dt,0,4);
-                        $mo = substr($dt,5,2);
-                        $day = substr($dt,8,2);
-                        $hr = substr($dt,11,2);
-                        $min = substr($dt,14,2);
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["SOCPercentBigBat"].", ".$row["SOCPercent1"].", ".$row["SOCPercent2"].", ".$row["SOCPercent3"].", ".$row["SOCPercent4"].", ".$row["SOCPercent5"]."]";
-                    }
-                ?>
-               ])
-        var optionsSOC = {
-          title: 'SOC (%) for each Pack and Combined Total',
-          legend: { position: 'bottom' }//,
-        };
-        var chartSOC = new google.visualization.LineChart(document.getElementById('curve_chartSOC'));
-        chartSOC.draw(dataSOC, optionsSOC);
          //--------------------------------------------------------------------------------------------------------------
          var dataCL = new google.visualization.DataTable();
         dataCL.addColumn('datetime', 'TimeStamp');
@@ -520,7 +431,7 @@
          var dataSE = new google.visualization.DataTable();
         dataSE.addColumn('datetime', 'TimeStamp');
         dataSE.addColumn('number', 'StoredEnergy');
-        // dataSE.addColumn('number', 'SOCPercent');
+        dataSE.addColumn('number', 'SOCPercent');
         dataSE.addColumn('number', 'Temperature');
 
         dataSE.addRows([
@@ -532,8 +443,7 @@
                   $day = substr($dt,8,2);
                   $hr = substr($dt,11,2);
                   $min = substr($dt,14,2);
-                  // echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
-                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["Temperature"]."]";
+                  echo "[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
                   while($row = mysqli_fetch_assoc($resultSE)){
                         $dt = $row["TimeStamp"];
                         $yr = substr($dt,0,4);
@@ -541,24 +451,13 @@
                         $day = substr($dt,8,2);
                         $hr = substr($dt,11,2);
                         $min = substr($dt,14,2);
-                        // echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
-                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["Temperature"]."]";
+                        echo ",[new Date(".$yr.",".$mo."-1,".$day.",".$hr.",".$min."), ".$row["StoredEnergy"].", ".$row["SOCPercent"].", ".$row["Temperature"]."]";
                     }
                 ?>
                ])
         var optionsSE = {
           title: 'Stored Energy (kWh)  SOC (%)  Temperature (degC)',
           legend: { position: 'bottom' }//,
-//           backgroundColor: '#000',
-//           legendTextStyle: { color: '#FFF' },
-//           titleTextStyle: { color: '#FFF' },
-//           hAxis: {
-// 			textStyle:{color: '#FFF'}
-// 		  },
-// 	      vAxis: {
-// 			textStyle:{color: '#FFF'}
-// 		  }
-
         };
         var chartSE = new google.visualization.LineChart(document.getElementById('curve_chartSE'));
         chartSE.draw(dataSE, optionsSE);
@@ -601,18 +500,16 @@
     </script>
   </head>
   <body>
-    <form action="BatteryOneAllIndexAT.php">
+    <form action="BatteryHikotronAllIndexAT.php">
     <input type="Submit" value="RETURN">
     </form>
-    <br><A HREF="https://jimster.ca/BatteryOne/index.php" >Main Menu</A>
+    <br><A HREF="https://jimster.ca/BatteryHikotron/index.php" >Main Menu</A>
 
-    <div id="curve_chartAllC" style="width: 1000px; height: 500px"></div>
+  <div id="curve_chartAllC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartSE" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCL" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartDCL" style="width: 1000px; height: 500px"></div>
-    <div id="curve_chartSOC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartV" style="width: 1000px; height: 500px"></div>
-    <div id="curve_chartC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCC" style="width: 1000px; height: 500px"></div>
     <div id="curve_chartCV" style="width: 1000px; height: 500px"></div>
   </body>
