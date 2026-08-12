@@ -32,7 +32,7 @@ const uint32_t CRIT_HIGH_TEMP(1 << 2);
 const uint32_t CRIT_LOW_TEMP(1 << 1);
 const uint32_t MAX_TEMP_MISSING(1 << 0);
 
-const float CRITICALLY_HIGH_TEMPERATURE(50);
+const float CRITICALLY_HIGH_TEMPERATURE(52);
 const float WARN_HIGH_TEMPERATURE(40);
 const float WARN_LOW_TEMPERATURE(-10);
 const float CRITICALLY_LOW_TEMPERATURE(-20);
