@@ -363,6 +363,7 @@ def main():
     load_queue_index()
     recover_orphan_queue_files()
     initial_snapshot_setup()
+    process_diff()  # ensure baseline is synchronized at startup
 
     # sender worker
     sender = threading.Thread(target=sender_loop, daemon=True)
