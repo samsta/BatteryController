@@ -62,6 +62,7 @@ public:
    virtual bool getMonitorMessageIgnore();
    virtual void setTriggerBatReboot();
    virtual bool getTriggerBatReboot();
+   virtual void resetTriggerBatReboot();
 
    // no need for getMonitor as this (LeafMultiPack) is the montior
    // need to pass internal contactor to inverter

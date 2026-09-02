@@ -43,6 +43,7 @@ public:
    MOCK_METHOD(bool, getMonitorMessageIgnore, (), ());
    MOCK_METHOD(void, setTriggerBatReboot, (), ());
    MOCK_METHOD(bool, getTriggerBatReboot, (), ());
+   MOCK_METHOD(void, resetTriggerBatReboot, (), ());
 };
 
 }

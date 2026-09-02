@@ -56,6 +56,7 @@ public:
    virtual bool getMonitorMessageIgnore() = 0;
    virtual void setTriggerBatReboot() = 0;
    virtual bool getTriggerBatReboot() = 0;
+   virtual void resetTriggerBatReboot() = 0;
 };
 
 logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*> vmonitor);

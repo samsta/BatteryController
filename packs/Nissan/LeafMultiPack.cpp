@@ -564,6 +564,10 @@ bool LeafMultiPack::getTriggerBatReboot()
    return false;
 }
 
+void LeafMultiPack::resetTriggerBatReboot()
+{
+}
+
 } // namespace Nissan
 } // namespace packs
 

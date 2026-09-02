@@ -101,9 +101,10 @@ void LeafPack::heartbeatCallback()
             if (m_failsafe_count > FAILSAFE_COUNT || m_monitor.getTriggerBatReboot())
             {
                // reboot
+               m_monitor.resetTriggerBatReboot();
+               m_reboot_in_process = true;
                m_failsafe_count = 0;
                m_reboot_wait_count = 0;
-               m_reboot_in_process = true;
                std::ostringstream ss;
                if (m_monitor.getFailsafeStatus() & 0b100) {
                   ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";

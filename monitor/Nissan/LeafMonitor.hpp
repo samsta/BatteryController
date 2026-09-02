@@ -78,6 +78,7 @@ public:
    virtual bool getMonitorMessageIgnore();
    virtual void setTriggerBatReboot();
    virtual bool getTriggerBatReboot();
+   virtual void resetTriggerBatReboot();
 
 private:
    void process(const can::messages::Nissan::CellVoltageRange&);
