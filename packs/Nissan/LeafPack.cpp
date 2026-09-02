@@ -92,16 +92,22 @@ void LeafPack::heartbeatCallback()
             // failsafe has to be on for FAILSAFE_COUNT consecutive periods
             m_failsafe_count++;
             std::ostringstream sss;
-            sss << "LeafPack: " << m_pack_name << ": Failsafe Status indicator on: count = " << m_failsafe_count;
+            if (m_monitor.getFailsafeStatus() & 0b100) {
+               sss << "LeafPack: " << m_pack_name << ": Failsafe Status indicator on: count = " << m_failsafe_count;
+            } else {
+               sss << "LeafPack: " << m_pack_name << ": TriggerBatReboot";
+            }
             if (m_log) m_log->alarm(sss, __FILENAME__, __LINE__);
-            if (m_failsafe_count > FAILSAFE_COUNT)
+            if (m_failsafe_count > FAILSAFE_COUNT || m_monitor.getTriggerBatReboot())
             {
                // reboot
                m_failsafe_count = 0;
                m_reboot_wait_count = 0;
                m_reboot_in_process = true;
                std::ostringstream ss;
-               ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
+               if (m_monitor.getFailsafeStatus() & 0b100) {
+                  ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
+               }
                if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
                // ignore messages from the pack for a period after reboot
                m_monitor.setMonitorMessageIgnore(true);

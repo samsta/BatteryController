@@ -169,14 +169,14 @@ void LeafMonitor::setTriggerBatReboot() {
 }
 
 bool LeafMonitor::getTriggerBatReboot() {
-   bool ret_val = m_trigger_bat_reboot;
-   m_trigger_bat_reboot = false;
-   if (ret_val) {
+   if (m_trigger_bat_reboot) {
+      m_trigger_bat_reboot = false;
       std::ostringstream oss;
       oss << "LeafMonitor: " << m_pack_name << " getTriggerBatReboot() returned true";
       if (m_log) m_log->alarm(oss, __FILENAME__, __LINE__);
+      return true;
    }
-   return ret_val;
+   return false;
 }
 
 void LeafMonitor::process(const CellVoltageRange& voltage_range)
