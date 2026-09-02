@@ -41,6 +41,8 @@ public:
    MOCK_METHOD(uint32_t, getFailsafeStatus, (),  (const));
    MOCK_METHOD(void, setMonitorMessageIgnore, (bool), ());
    MOCK_METHOD(bool, getMonitorMessageIgnore, (), ());
+   MOCK_METHOD(void, setTriggerBatReboot, (), ());
+   MOCK_METHOD(bool, getTriggerBatReboot, (), ());
 };
 
 }

@@ -40,6 +40,7 @@ private:
     // Handlers for specific pages
     void handleStatusPage(struct mg_connection *c, struct mg_http_message *hm);
     void handleLogPage(struct mg_connection *c, struct mg_http_message *hm);
+    void handleRebootPage(struct mg_connection *c, struct mg_http_message *hm);
 
     mg_mgr m_mgr;
     bool m_running;

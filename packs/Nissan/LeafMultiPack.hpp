@@ -60,6 +60,8 @@ public:
    virtual uint32_t getFailsafeStatus() const;
    virtual void setMonitorMessageIgnore(bool status);
    virtual bool getMonitorMessageIgnore();
+   virtual void setTriggerBatReboot();
+   virtual bool getTriggerBatReboot();
 
    // no need for getMonitor as this (LeafMultiPack) is the montior
    // need to pass internal contactor to inverter

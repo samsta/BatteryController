@@ -143,7 +143,7 @@ void LeafMultiPack::periodicCallback()
             // check message ignore status
             if (m_vmonitor[i]->getMonitorMessageIgnore())
             {
-               // catch where on of the batteries is set to ignore
+               // catch where one of the batteries is set to ignore
                set_message_ignore =  true;
             }
          }
@@ -555,8 +555,18 @@ bool LeafMultiPack::getMonitorMessageIgnore()
    return false;
 }
 
+void LeafMultiPack::setTriggerBatReboot()
+{
 }
+
+bool LeafMultiPack::getTriggerBatReboot()
+{
+   return false;
 }
+
+} // namespace Nissan
+} // namespace packs
+
 
 
 

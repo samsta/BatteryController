@@ -62,6 +62,8 @@ void WebServer::eventHandler(struct mg_connection *c, int ev, void *ev_data) {
     // Route based on URI (latest Mongoose: use mg_strcmp + mg_str)
     if (mg_strcmp(hm->uri, mg_str("/log")) == 0) {
         self->handleLogPage(c, hm);
+    } else if (mg_strcmp(hm->uri, mg_str("/reboot")) == 0) {
+        self->handleRebootPage(c, hm);
     } else {
         // Default: status page
         self->handleStatusPage(c, hm);
@@ -428,6 +430,118 @@ const hljs = {
 )HTML";
 
     mg_http_reply(c, 200, "Content-Type: text/html\r\n", "%s", html.str().c_str());
+}
+
+// =================== Reboot Page ("/reboot") ===================
+void WebServer::handleRebootPage(struct mg_connection *c, struct mg_http_message *hm) {
+    const bool is_post = mg_strcmp(hm->method, mg_str("POST")) == 0;
+
+    if (is_post) {
+        // Put your custom code here. This runs when the button is pressed.
+        // Keep any long-running work short or hand it off to another thread.
+        // set all packs to reboot
+        for (uint i=0; i<m_monitor.size(); i++)
+        {
+            m_monitor[i]->setTriggerBatReboot();
+        }
+
+        std::ostringstream html;
+        html << R"HTML(
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Action Executed</title>
+    <style>
+        body {
+            background: #000000;
+            color: #d4d4d4;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        a {
+            color: #4aa3ff;
+        }
+        .panel {
+            margin-top: 20px;
+            padding: 16px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            width: fit-content;
+        }
+    </style>
+</head>
+<body>
+    <h1>Action Executed</h1>
+    <div class="panel">
+        <p>The button press was received and the server-side code ran.</p>
+        <p><a href="/">Back to status page</a></p>
+    </div>
+</body>
+</html>
+)HTML";
+
+        std::string out = html.str();
+        mg_http_reply(c, 200, "Content-Type: text/html\r\n", "%s", out.c_str());
+        return;
+    }
+
+    std::ostringstream html;
+    html << R"HTML(
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reboot / Action Page</title>
+    <style>
+        body {
+            background: #000000;
+            color: #d4d4d4;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            color: #4aa3ff;
+        }
+        a {
+            color: #4aa3ff;
+        }
+        .panel {
+            margin-top: 20px;
+            padding: 16px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            width: fit-content;
+        }
+        button {
+            font-size: 18px;
+            padding: 12px 20px;
+            border: 0;
+            border-radius: 8px;
+            background: #d9534f;
+            color: #fff;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #e86b66;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reboot / Action Page</h1>
+    <p><a href="/">Back to status page</a></p>
+    <div class="panel">
+        <p>Press the button below to REBOOT all packs.</p>
+        <form method="POST" action="/reboot">
+            <button type="submit">REBOOT ALL PACKS</button>
+        </form>
+    </div>
+</body>
+</html>
+)HTML";
+
+    std::string out = html.str();
+    mg_http_reply(c, 200, "Content-Type: text/html\r\n", "%s", out.c_str());
 }
 
 } // namespace core

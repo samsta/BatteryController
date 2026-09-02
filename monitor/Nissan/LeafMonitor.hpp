@@ -76,6 +76,8 @@ public:
    std::string getAlarmConditionText() const;
    virtual void setMonitorMessageIgnore(bool status);
    virtual bool getMonitorMessageIgnore();
+   virtual void setTriggerBatReboot();
+   virtual bool getTriggerBatReboot();
 
 private:
    void process(const can::messages::Nissan::CellVoltageRange&);
@@ -117,6 +119,7 @@ private:
    uint32_t m_failsafe_status;
    uint32_t m_message_ignore_count;
    bool m_message_ignore_active;
+   bool m_trigger_bat_reboot;
 
    class CurrentLimitSmoothing {
    public:

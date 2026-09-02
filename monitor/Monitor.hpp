@@ -54,6 +54,8 @@ public:
    virtual uint32_t getFailsafeStatus() const = 0;
    virtual void setMonitorMessageIgnore(bool status) = 0;
    virtual bool getMonitorMessageIgnore() = 0;
+   virtual void setTriggerBatReboot() = 0;
+   virtual bool getTriggerBatReboot() = 0;
 };
 
 logging::ostream& operator<<(logging::ostream& os, std::vector<monitor::Monitor*> vmonitor);

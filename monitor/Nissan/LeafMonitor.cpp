@@ -90,7 +90,8 @@ LeafMonitor::LeafMonitor(
       m_charge_cur_smoothing(MAX_ALLOWABLE_CURRENT),
       m_discharge_cur_smoothing(MAX_ALLOWABLE_CURRENT),
       m_message_ignore_count(0),
-      m_message_ignore_active(false)
+      m_message_ignore_active(false),
+      m_trigger_bat_reboot(false)
 {
 }
 
@@ -158,6 +159,24 @@ bool LeafMonitor::getMonitorMessageIgnore()
       return true;
    }
    return false;
+}
+
+void LeafMonitor::setTriggerBatReboot() {
+   m_trigger_bat_reboot = true;
+   std::ostringstream oss;
+   oss << "LeafMonitor: " << m_pack_name << " setTriggerBatReboot() has been set";
+   if (m_log) m_log->alarm(oss, __FILENAME__, __LINE__);
+}
+
+bool LeafMonitor::getTriggerBatReboot() {
+   bool ret_val = m_trigger_bat_reboot;
+   m_trigger_bat_reboot = false;
+   if (ret_val) {
+      std::ostringstream oss;
+      oss << "LeafMonitor: " << m_pack_name << " getTriggerBatReboot() returned true";
+      if (m_log) m_log->alarm(oss, __FILENAME__, __LINE__);
+   }
+   return ret_val;
 }
 
 void LeafMonitor::process(const CellVoltageRange& voltage_range)
@@ -605,5 +624,5 @@ float LeafMonitor::CurrentLimitSmoothing::process(float input) {
    return (sum / HIST_SIZE);
 }
 
-}
-}
+} // namespace Nissan
+} // namespace monitor
