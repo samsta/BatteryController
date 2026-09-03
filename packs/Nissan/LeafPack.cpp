@@ -25,7 +25,7 @@ LeafPack::LeafPack(
    m_shunt_trip_counter(0),
    m_reboot_in_process(false),
    m_shunt_fail_msg_logged(false),
-   m_reboot_wait_count(REBOOT_WAIT_PERIODS),
+   m_reboot_wait_count(REBOOT_WAIT_PERIODS+10),
    m_failsafe_count(0),
    m_log(log)
 {
@@ -85,9 +85,9 @@ void LeafPack::heartbeatCallback()
          // reboot is the only way to reset failsafe status
          // possible future issue https://github.com/samsta/BatteryController/issues/17
          m_reboot_wait_count++;
-         if (m_reboot_wait_count > REBOOT_WAIT_PERIODS &&
-            m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION &&
-            (m_monitor.getFailsafeStatus() & 0b100))
+         if ((m_monitor.getFailsafeStatus() & 0b100) &&
+            (m_reboot_wait_count > REBOOT_WAIT_PERIODS) &&
+            (m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION))
          {
             // failsafe has to be on for FAILSAFE_COUNT consecutive periods
             m_failsafe_count++;
@@ -111,9 +111,9 @@ void LeafPack::heartbeatCallback()
          }
 
          // see if a reboot has been triggered manually
-         else if (m_reboot_wait_count > REBOOT_WAIT_PERIODS &&
-                  m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION &&
-                  m_monitor.getTriggerBatReboot())
+         else if ((m_monitor.getTriggerBatReboot()) &&
+            (m_reboot_wait_count > REBOOT_WAIT_PERIODS) &&
+            (m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION))
          {
             std::ostringstream sss;
             sss << "LeafPack: " << m_pack_name << ": TriggerBatReboot";
@@ -128,6 +128,7 @@ void LeafPack::heartbeatCallback()
             m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
          }
 
+         // finish the reboot process
          else if (m_reboot_in_process && (m_reboot_wait_count > REBOOT_POWERDOWN_PERIODS))
          {
             m_reboot_in_process = false;
