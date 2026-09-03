@@ -145,7 +145,7 @@ void LeafMonitor::sink(const can::messages::Nissan::Message& message)
 void LeafMonitor::setMonitorMessageIgnore(bool status)
 {
    m_message_ignore_active = status; // this is used to signal the other battery monitors
-   m_message_ignore_count = 11; // ignore messages for 11 seconds (reboot takes 5 seconds, so really only ignoring for 6 seconds)
+   m_message_ignore_count = 5; // ignore messages for 5 seconds 
    std::ostringstream oss;
    oss << "LeafMonitor: " << m_pack_name << " message ignore count set: count: " << m_message_ignore_count << "  status:" << (status ? "true" : "false");
    if (m_log) m_log->alarm(oss, __FILENAME__, __LINE__);
