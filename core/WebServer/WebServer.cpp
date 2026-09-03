@@ -439,11 +439,9 @@ void WebServer::handleRebootPage(struct mg_connection *c, struct mg_http_message
     if (is_post) {
         // Put your custom code here. This runs when the button is pressed.
         // Keep any long-running work short or hand it off to another thread.
-        // set all packs to reboot
-        for (uint i=0; i<m_monitor.size(); i++)
-        {
-            m_monitor[i]->setTriggerBatReboot();
-        }
+        
+        // only call reboot trigger on LeafMultiPack (the last monitor in the vector)
+        m_monitor[m_monitor.size()-1]->setTriggerBatReboot();
 
         std::ostringstream html;
         html << R"HTML(

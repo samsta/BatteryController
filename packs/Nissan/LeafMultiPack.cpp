@@ -548,24 +548,43 @@ void LeafMultiPack::logStartupStatus() const
 
 void LeafMultiPack::setMonitorMessageIgnore(bool status)
 {
+   std::ostringstream ss;
+   ss << "LeafMultiPack:  setMonitorMessageIgnore called. This is a no-op for LeafMultiPack.";
+   if (m_log) m_log->alarm(ss);
 }
 
 bool LeafMultiPack::getMonitorMessageIgnore()
 {
+   std::ostringstream ss;
+   ss << "LeafMultiPack:  getMonitorMessageIgnore called. This is a no-op for LeafMultiPack.";
+   if (m_log) m_log->alarm(ss);
    return false;
 }
 
 void LeafMultiPack::setTriggerBatReboot()
 {
+   std::ostringstream ss;
+   ss << "LeafMultiPack:  setTriggerBatReboot called.";
+   if (m_log) m_log->alarm(ss);
+   // reboot packs 1 and 4, this will effective reboot all the packs
+   // 1,2,3 are on the same power relay, 4,5 are on the same power relay
+   m_vmonitor[0]->setTriggerBatReboot();
+   m_vmonitor[3]->setTriggerBatReboot();   
 }
 
 bool LeafMultiPack::getTriggerBatReboot()
 {
+   std::ostringstream ss;
+   ss << "LeafMultiPack:  getTriggerBatReboot called. This is a no-op for LeafMultiPack.";
+   if (m_log) m_log->alarm (ss);
    return false;
 }
 
 void LeafMultiPack::resetTriggerBatReboot()
 {
+   std::ostringstream ss;
+   ss << "LeafMultiPack:  resetTriggerBatReboot called. This is a no-op for LeafMultiPack.";
+   if (m_log) m_log->alarm(ss);
 }
 
 } // namespace Nissan
