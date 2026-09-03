@@ -25,7 +25,7 @@ LeafPack::LeafPack(
    m_shunt_trip_counter(0),
    m_reboot_in_process(false),
    m_shunt_fail_msg_logged(false),
-   m_reboot_wait_count(0),
+   m_reboot_wait_count(REBOOT_WAIT_PERIODS),
    m_failsafe_count(0),
    m_log(log)
 {
@@ -85,30 +85,23 @@ void LeafPack::heartbeatCallback()
          // reboot is the only way to reset failsafe status
          // possible future issue https://github.com/samsta/BatteryController/issues/17
          m_reboot_wait_count++;
-         if (((m_monitor.getFailsafeStatus() & 0b100) || m_monitor.getTriggerBatReboot())
-               && m_reboot_wait_count > REBOOT_WAIT_PERIODS
-               && m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION)
+         if (m_reboot_wait_count > REBOOT_WAIT_PERIODS &&
+            m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION &&
+            (m_monitor.getFailsafeStatus() & 0b100))
          {
             // failsafe has to be on for FAILSAFE_COUNT consecutive periods
             m_failsafe_count++;
             std::ostringstream sss;
-            if (m_monitor.getFailsafeStatus() & 0b100) {
-               sss << "LeafPack: " << m_pack_name << ": Failsafe Status indicator on: count = " << m_failsafe_count;
-            } else {
-               sss << "LeafPack: " << m_pack_name << ": TriggerBatReboot";
-            }
+            sss << "LeafPack: " << m_pack_name << ": Failsafe Status indicator on: count = " << m_failsafe_count;
             if (m_log) m_log->alarm(sss, __FILENAME__, __LINE__);
-            if (m_failsafe_count > FAILSAFE_COUNT || m_monitor.getTriggerBatReboot())
+            if (m_failsafe_count > FAILSAFE_COUNT)
             {
                // reboot
-               m_monitor.resetTriggerBatReboot();
                m_reboot_in_process = true;
                m_failsafe_count = 0;
                m_reboot_wait_count = 0;
                std::ostringstream ss;
-               if (m_monitor.getFailsafeStatus() & 0b100) {
-                  ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
-               }
+               ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
                if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
                // ignore messages from the pack for a period after reboot
                m_monitor.setMonitorMessageIgnore(true);
@@ -116,6 +109,25 @@ void LeafPack::heartbeatCallback()
                m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
             }            
          }
+
+         // see if a reboot has been triggered manually
+         else if (m_reboot_wait_count > REBOOT_WAIT_PERIODS &&
+                  m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION &&
+                  m_monitor.getTriggerBatReboot())
+         {
+            std::ostringstream sss;
+            sss << "LeafPack: " << m_pack_name << ": TriggerBatReboot";
+            if (m_log) m_log->alarm(sss, __FILENAME__, __LINE__);
+            // reboot
+            m_monitor.resetTriggerBatReboot();
+            m_reboot_in_process = true;
+            m_reboot_wait_count = 0;
+            // ignore messages from the pack for a period after reboot
+            m_monitor.setMonitorMessageIgnore(true);
+            // power off the pack(s)
+            m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
+         }
+
          else if (m_reboot_in_process && (m_reboot_wait_count > REBOOT_POWERDOWN_PERIODS))
          {
             m_reboot_in_process = false;
