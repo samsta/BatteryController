@@ -470,9 +470,9 @@ void WebServer::handleRebootPage(struct mg_connection *c, struct mg_http_message
     </style>
 </head>
 <body>
-    <h1>Action Executed</h1>
+    <h1>Reboot has been Executed</h1>
     <div class="panel">
-        <p>The button press was received and the server-side code ran.</p>
+        <p>The button press was received.</p>
         <p><a href="/">Back to status page</a></p>
     </div>
 </body>
@@ -526,7 +526,7 @@ void WebServer::handleRebootPage(struct mg_connection *c, struct mg_http_message
     </style>
 </head>
 <body>
-    <h1>Reboot / Action Page</h1>
+    <h1>Reboot Action Page</h1>
     <p><a href="/">Back to status page</a></p>
     <div class="panel">
         <p>Press the button below to REBOOT all packs.</p>
