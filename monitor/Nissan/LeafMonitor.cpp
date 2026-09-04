@@ -594,38 +594,41 @@ std::string LeafMonitor::getAlarmConditionText() const
    return ss;
 }
 
-LeafMonitor::CurrentLimitSmoothing::CurrentLimitSmoothing(float max) {
-   m_max_current = max;
-
-   // initialize array values
-   for (int i=0; i<HIST_SIZE; i++) {
-      m_hist_data[i] = 0.0;
-   }
-
+LeafMonitor::CurrentLimitSmoothing::CurrentLimitSmoothing(float max, float alpha)
+        : m_max_current(max),
+          m_alpha(alpha),
+          m_output(0.0f),
+          m_initialized(false)
+{
 }
 
 float LeafMonitor::CurrentLimitSmoothing::process(float input) {
-   // test for near zero, if true reset the history data to 0s
-   if (input < 0.1) {
-      for (int i=0; i<HIST_SIZE; i++) {
-         m_hist_data[i] = 0.0;
-      }
+   if (input <= 0.1f) {
+       m_output = 0.0f;
+       m_initialized = false;
+       return 0.0f;
    }
-   else if (input > m_max_current) {
-      input = m_max_current;
-   }
-   // insert new data
-   m_hist_data[m_hist_index] = input;
-   // calculate sum
-   float sum = 0;
-   for (int i=0; i<HIST_SIZE; i++) {
-      sum += m_hist_data[i];
-   }
-   // move the index
-   m_hist_index = (m_hist_index+1) % HIST_SIZE;
 
-   return (sum / HIST_SIZE);
+   if (input > m_max_current) {
+       input = m_max_current;
+   }
+
+   if (!m_initialized) {
+       m_output = input;
+       m_initialized = true;
+       return m_output;
+   }
+
+   m_output = m_output + m_alpha * (input - m_output);
+
+   // optional: prevent output from exceeding input
+   if (m_output > input) {
+       m_output = input;
+   }
+
+   return m_output;
 }
+
 
 } // namespace Nissan
 } // namespace monitor

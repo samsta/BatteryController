@@ -124,14 +124,15 @@ private:
 
    class CurrentLimitSmoothing {
    public:
-      CurrentLimitSmoothing(float init_value);
+      CurrentLimitSmoothing(float max, float alpha = 0.2f);
       float process(float input);
 
    private:
-      float m_max_current;
-      uint16_t m_hist_index;
       static const uint16_t HIST_SIZE = 10;
-      float m_hist_data[HIST_SIZE];
+      float m_max_current;
+      float m_alpha;
+      float m_output;
+      bool m_initialized;
 
    };
    CurrentLimitSmoothing m_charge_cur_smoothing;
