@@ -111,6 +111,7 @@ private:
    const uint CALLBACK_PERIOD_ms = 1000;
    const uint MAX_STARTUP_COUNT = 5 * 60;  // number of callback periods 
    const uint SHUTTING_DOWN_COUNT = 10;  // number of callback periods 
+   uint m_zero_current_count;
 
 };
 

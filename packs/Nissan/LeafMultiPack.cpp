@@ -45,7 +45,8 @@ LeafMultiPack::LeafMultiPack(
       m_shutdown_callback_count(0),
       m_fully_charged(true),
       m_fully_discharged(true),
-      m_display_shutdown_status(true)
+      m_display_shutdown_status(true),
+      m_zero_current_count(0)
 {
    m_timer.registerPeriodicCallback(&m_periodic_callback, CALLBACK_PERIOD_ms, "LeafMultiPackPeriodic");
    if (m_log) m_log->info("LeafMultiPack: status set to STARTUP");
@@ -158,6 +159,15 @@ void LeafMultiPack::periodicCallback()
                m_vmonitor[i]->setMonitorMessageIgnore(false);
             }
          }
+
+         if (m_zero_current_count > 0)
+         {
+            m_zero_current_count--;
+            std::ostringstream ss;
+            ss << "LeafMultiPack: current set to 0 for " << m_zero_current_count << " more callbacks";
+            if (m_log) m_log->info(ss);
+         }
+
 
          m_start_button_state = m_start_button.get();
          if (m_start_button_state != m_prev_sb_state)
@@ -343,14 +353,16 @@ float LeafMultiPack::getMinDischargeVoltage() const
 
 float LeafMultiPack::getChargeCurrentLimit() const
 {
-   // if shutting down return 0
-   if (getPackStatus() == Monitor::SHUTTING_DOWN) return 0.0;
+   // if shutting down or in zero state return 0
+   if (getPackStatus() == Monitor::SHUTTING_DOWN || (m_zero_current_count > 0)) return 0.0;
 
    // if full, no charging allowed
    if (m_fully_charged) return 0.0;
 
    // THIS IS A STOP GAP. NEED TO FIGURE OUT WHY THIS WAS REPORTING HIGH CCL (>40A) TO INVERTER 
    // DISPITE LEAF BATTERIES REPORTING <2A EACH FOR CCL
+   // I believe this was being caused by faulty current smoothing code in LeafMonitor.cpp
+   // Code has been changed (in previous version) but leaving this here for now
    const float CRITICALLY_HIGH_VOLTAGE(4.15);
    const float WARN_HIGH_VOLTAGE(4.1);
    if (getMaxCellVolts() >= WARN_HIGH_VOLTAGE + 0.01)
@@ -389,7 +401,7 @@ float LeafMultiPack::getChargeCurrentLimit() const
 float LeafMultiPack::getDischargeCurrentLimit() const
 {
    // if shutting down return 0
-   if (getPackStatus() == Monitor::SHUTTING_DOWN) return 0.0;
+   if (getPackStatus() == Monitor::SHUTTING_DOWN || (m_zero_current_count > 0)) return 0.0;
 
    // if empty, no discharging allowed
    if (m_fully_discharged) return 0.0;
@@ -570,6 +582,7 @@ void LeafMultiPack::setTriggerBatReboot()
    // 1,2,3 are on the same power relay, 4,5 are on the same power relay
    m_vmonitor[0]->setTriggerBatReboot();
    m_vmonitor[3]->setTriggerBatReboot();   
+   m_zero_current_count = 15; 
 }
 
 bool LeafMultiPack::getTriggerBatReboot()

@@ -7,7 +7,7 @@
 #include <fstream>
 #include <vector>
 
-#define VERSION_NUMBER "0003"
+#define VERSION_NUMBER "0005"
 #include "packs/Nissan/LeafPack.hpp"
 #include "packs/Nissan/LeafMultiPack.hpp"
 // #include "can/services/SMA/MessageFactory.hpp"
