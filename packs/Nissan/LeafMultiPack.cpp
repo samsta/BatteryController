@@ -136,7 +136,7 @@ void LeafMultiPack::periodicCallback()
                std::ostringstream sss;
                sss << "Mulitpack status changed due to pack " << (i+1) << " having not-NORMAL_OPERATION status";
                if (m_log) m_log->alarm(sss, __FILENAME__,__LINE__);;
-               std::ostringstream ss; char text[64];
+               std::ostringstream ss;
                ss << "LeafMultiPack: status is " << monitor::getPackStatusTEXT(m_multipack_status);
                if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
             }
@@ -154,10 +154,16 @@ void LeafMultiPack::periodicCallback()
          {
             // set all monitors to ignore messages for a spell
             set_message_ignore = false;
+            // also set current to 0 for a spell
+            m_zero_current_count = 15; 
+
             for (uint i=0; i<m_vmonitor.size(); i++)
             {
                m_vmonitor[i]->setMonitorMessageIgnore(false);
             }
+            std::ostringstream ss;
+            ss << "LeafMultiPack: message ignore status acted upon, current set to 0";
+            if (m_log) m_log->alarm(ss, __FILENAME__,__LINE__);;
          }
 
          if (m_zero_current_count > 0)
@@ -582,7 +588,6 @@ void LeafMultiPack::setTriggerBatReboot()
    // 1,2,3 are on the same power relay, 4,5 are on the same power relay
    m_vmonitor[0]->setTriggerBatReboot();
    m_vmonitor[3]->setTriggerBatReboot();   
-   m_zero_current_count = 15; 
 }
 
 bool LeafMultiPack::getTriggerBatReboot()
