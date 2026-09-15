@@ -102,6 +102,7 @@ void LeafMonitor::sink(const can::messages::Nissan::Message& message)
    // see if we should ignore messages for a spell
    if (m_message_ignore_count > 0)
    {
+      // this is only counting when messages are being received, which starts after the battery is (re)powered up
       m_message_ignore_count--;
       std::ostringstream oss;
       oss << "LeafMonitor: " << m_pack_name << " ignoring battery messages: count: " << m_message_ignore_count;
@@ -145,7 +146,7 @@ void LeafMonitor::sink(const can::messages::Nissan::Message& message)
 void LeafMonitor::setMonitorMessageIgnore(bool status)
 {
    m_message_ignore_active = status; // this is used to signal the other battery monitors
-   m_message_ignore_count = 5; // ignore messages for 5 seconds 
+   m_message_ignore_count = MESSAGE_IGNORE_PERIODS;
    std::ostringstream oss;
    oss << "LeafMonitor: " << m_pack_name << " message ignore count set: count: " << m_message_ignore_count << "  status:" << (status ? "true" : "false");
    if (m_log) m_log->alarm(oss, __FILENAME__, __LINE__);

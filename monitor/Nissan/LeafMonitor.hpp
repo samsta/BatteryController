@@ -120,6 +120,7 @@ private:
    uint32_t m_failsafe_status;
    uint32_t m_message_ignore_count;
    bool m_message_ignore_active;
+   const uint MESSAGE_IGNORE_PERIODS = 5; // ignore messages for 5 seconds
    bool m_trigger_bat_reboot;
 
    class CurrentLimitSmoothing {
@@ -128,7 +129,6 @@ private:
       float process(float input);
 
    private:
-      static const uint16_t HIST_SIZE = 10;
       float m_max_current;
       float m_alpha;
       float m_output;

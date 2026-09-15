@@ -155,7 +155,7 @@ void LeafMultiPack::periodicCallback()
             // set all monitors to ignore messages for a spell
             set_message_ignore = false;
             // also set current to 0 for a spell
-            m_zero_current_count = 15; 
+            m_zero_current_count = ZERO_CURRENT_PERIODS; 
 
             for (uint i=0; i<m_vmonitor.size(); i++)
             {

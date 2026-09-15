@@ -54,10 +54,13 @@ private:
    void heartbeatCallback();
    const uint PACK_CALLBACK_PERIOD_ms = 1000;
    const uint PACK_SILENT_TIMEOUT_PERIODS = 60 * 1000 / PACK_CALLBACK_PERIOD_ms;
-   const uint REBOOT_POWERDOWN_PERIODS = 5 * 1000 / PACK_CALLBACK_PERIOD_ms; 
+   // the number of periods to keep the battery powered off (10 seconds)
+   const uint REBOOT_POWERDOWN_PERIODS = 10 * 1000 / PACK_CALLBACK_PERIOD_ms; 
    unsigned m_reboot_wait_count;
-   const uint REBOOT_WAIT_PERIODS = 9 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms; 
+   // the number of periods to wait before allow another reboot (10 minutes (10*60))
+   const uint REBOOT_WAIT_PERIODS = 10 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms; 
    unsigned m_failsafe_count;
+   // the number of periiods failsafe has to be active before a reboot is triggered (10 seconds)
    const uint FAILSAFE_COUNT = 10 * 1000 / PACK_CALLBACK_PERIOD_ms;
 
    const float MAX_SHUNT_OPEN_CURRENT = 1.01;
