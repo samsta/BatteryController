@@ -11,9 +11,21 @@
     //--------------------------------------------------------------------------------------------------------------
 
     // 3 hours
-    $timerange = " Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -3 HOUR)";
-    $t0timerange = " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -3 HOUR)";
+    $timerange = " Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00'), INTERVAL -3 HOUR)";
+    $t0timerange = " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+12:00'), INTERVAL -3 HOUR)";
     $time = $_GET['time'];
+    // 12 hours
+    if ($time == "one") {
+      $timerange = " Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -1 HOUR)";
+      $t0timerange = " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -1 HOUR)";
+      $time = $_GET['time'];
+    } 
+    // 12 hours
+    if ($time == "twlv") {
+      $timerange = " Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -12 HOUR)";
+      $t0timerange = " t0.Timestamp > DATE_ADD( CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00'), INTERVAL -12 HOUR)";
+      $time = $_GET['time'];
+    } 
     // today
     if ($time == "td") {
       $timerange = " Timestamp > CAST(CONVERT_TZ(UTC_TIMESTAMP ,'+00:00','+13:00') as DATE)";
@@ -139,14 +151,20 @@
     $resultDCPower = $con->query($query);
     //--------------------------------------------------------------------------------------------------------------
 $time = $_GET['time'];
-if ($time != "yd" and $time != "td") {
-    echo '<h1 style="font-size:2em">Charts for Last 3 Hours</h1>';
-}
-elseif ($time == "yd") {
+if ($time == "yd") {
     echo '<h1 style="font-size:2em">Charts for Yesterday</h1>';
 }
 elseif ($time == "td") {
   echo '<h1 style="font-size:2em">Charts for Today</h1>';
+}
+elseif ($time == "twlv") {
+  echo '<h1 style="font-size:2em">Charts for Last 12 Hours</h1>';
+}
+elseif ($time == "one") {
+  echo '<h1 style="font-size:2em">Charts for Last One Hour</h1>';
+}
+else {
+    echo '<h1 style="font-size:2em">Charts for Last 3 Hours</h1>';
 }
 ?>
 <html>

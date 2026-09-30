@@ -2,6 +2,8 @@
 All Batteries (summation of all Batteries)
 3 hours
 https://jimster.ca/BatteryOne/BatteryOneAll2h.php
+12 hours
+https://jimster.ca/BatteryOne/BatteryOneAll12h.php
 Today
 https://jimster.ca/BatteryOne/BatteryOneAll.php?time=td
 Yesterday
@@ -10,14 +12,24 @@ Enter Time Period
 https://jimster.ca/BatteryOne/BatteryOneAllIndexAT.php
 -Title
 Power Meter Data
+1 hour
+https://jimster.ca/BatteryOne/PowerOne.php?time=one
 3 hours
 https://jimster.ca/BatteryOne/PowerOne.php
+12 hours
+https://jimster.ca/BatteryOne/PowerOne.php?time=twlv
 Today
 https://jimster.ca/BatteryOne/PowerOne.php?time=td
 Yesterday
 https://jimster.ca/BatteryOne/PowerOne.php?time=yd
 Enter Time Period
 https://jimster.ca/BatteryOne/PowerOneIndexAT.php
+-Title
+BatteryController
+Status
+http://192.168.2.11:8888
+Log
+http://192.168.2.11:8888/log
 -Title
 Last 3 hours - Individual Batteries
 Battery 1 Last 3 Hours
