@@ -91,22 +91,26 @@ void LeafPack::heartbeatCallback()
          {
             // failsafe has to be on for FAILSAFE_COUNT consecutive periods
             m_failsafe_count++;
+            m_monitor.setFailsafeCount(m_failsafe_count);
             std::ostringstream sss;
             sss << "LeafPack: " << m_pack_name << ": Failsafe Status indicator on: count = " << m_failsafe_count;
             if (m_log) m_log->alarm(sss, __FILENAME__, __LINE__);
             if (m_failsafe_count > FAILSAFE_COUNT)
             {
-               // reboot
-               m_reboot_in_process = true;
+               // reboot NOT, functionallity moved to LeafMultiPack
+               // m_reboot_in_process = true;
                m_failsafe_count = 0;
-               m_reboot_wait_count = 0;
+               m_monitor.setFailsafeCount(m_failsafe_count);
+               // m_reboot_wait_count = 0;
                std::ostringstream ss;
-               ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
+               ss << "LeafPack: " << m_pack_name << ": Failsafe Reboot Trigger, THIS SHOULD NOT HAPPEN, IS NOW TRIGGERED FROM LeafMultiPack";
                if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
+               // ss << "LeafPack: " << m_pack_name << ": Failsafe Status indicates Pack needs a reboot";
+               // if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
                // ignore messages from the pack for a period after reboot
-               m_monitor.setMonitorMessageIgnore(true);
+               // m_monitor.setMonitorMessageIgnore(true);
                // power off the pack(s)
-               m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
+               // m_power_relay.setState(contactor::Nissan::TeensyRelay::ENERGIZED);
             }            
          }
 
@@ -142,6 +146,7 @@ void LeafPack::heartbeatCallback()
          else
          {
             m_failsafe_count = 0;
+            m_monitor.setFailsafeCount(m_failsafe_count);
          }
          break;
 

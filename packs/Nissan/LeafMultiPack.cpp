@@ -147,6 +147,13 @@ void LeafMultiPack::periodicCallback()
                // catch where one of the batteries is set to ignore
                set_message_ignore =  true;
             }
+
+            // check failsafe count HARDCODED AT 10
+            if (m_vmonitor[i]->getFailsafeCount()>15)
+            {
+               // trigger a reboot of all packs
+               setTriggerBatReboot();
+            }
          }
 
          // if one battery is set to ignore, set all batteries to ignore
@@ -281,7 +288,24 @@ void LeafMultiPack::setPackStatus(Monitor::Pack_Status p)
 
 uint32_t LeafMultiPack::getFailsafeStatus() const
 {
-	return m_vmonitor[0]->getFailsafeStatus();
+	// return m_vmonitor[0]->getFailsafeStatus();
+   std::ostringstream ss;
+   ss << "LeafMultiPack:  getFailsafeStatus called. This is a no-op for LeafMultiPack.";
+   if (m_log) m_log->alarm (ss);
+   return 0;
+}
+uint32_t LeafMultiPack::getFailsafeCount() const
+{
+   std::ostringstream ss;
+   ss << "LeafMultiPack:  getFailsafeCount called. This is a no-op for LeafMultiPack.";
+   if (m_log) m_log->alarm (ss);
+   return 0;
+}
+void LeafMultiPack::setFailsafeCount(uint32_t count)
+{
+   std::ostringstream ss;
+   ss << "LeafMultiPack:  setFailsafeCount called. This is a no-op for LeafMultiPack.";
+   if (m_log) m_log->alarm (ss);
 }
 
 uint32_t LeafMultiPack::getVoltTempStatus() const

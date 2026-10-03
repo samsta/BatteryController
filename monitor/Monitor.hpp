@@ -52,6 +52,8 @@ public:
 
    virtual uint32_t getVoltTempStatus() const = 0;
    virtual uint32_t getFailsafeStatus() const = 0;
+   virtual uint32_t getFailsafeCount() const = 0;
+   virtual void setFailsafeCount(uint32_t count) = 0;
    virtual void setMonitorMessageIgnore(bool status) = 0;
    virtual bool getMonitorMessageIgnore() = 0;
    virtual void setTriggerBatReboot() = 0;

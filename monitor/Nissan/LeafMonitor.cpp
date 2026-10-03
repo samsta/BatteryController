@@ -84,6 +84,7 @@ LeafMonitor::LeafMonitor(
       m_charge_current_limit(0),
 	   m_volt_temp_status(pow(2,6)-1),
       m_failsafe_status(7),
+      m_failsafe_count(0),
       m_bat_state_recv(false),
       m_bat_status_recv(false),
       m_bat_limits_recv(false),
@@ -402,9 +403,14 @@ void LeafMonitor::setPackStatus(Monitor::Pack_Status p)
    m_pack_status = p;
 
    std::ostringstream ss;
-   char text[64];
    ss << "LeafMonitor: " << m_pack_name << ": pack status set to " << getPackStatusTEXT(p);
-   if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
+   if (p == Monitor::Pack_Status::NORMAL_OPERATION)
+   {
+      if (m_log) m_log->info(ss, __FILENAME__, __LINE__);
+
+   } else {
+      if (m_log) m_log->alarm(ss, __FILENAME__, __LINE__);
+   }
 }
 
 void LeafMonitor::logStartupStatus() const
@@ -566,6 +572,15 @@ uint32_t LeafMonitor::getVoltTempStatus() const
 uint32_t LeafMonitor::getFailsafeStatus() const
 {
 	return m_failsafe_status;
+}
+
+uint32_t LeafMonitor::getFailsafeCount() const
+{
+   return m_failsafe_count;
+}
+void LeafMonitor::setFailsafeCount(uint32_t count)
+{
+   m_failsafe_count = count;
 }
 
 std::string LeafMonitor::getAlarmConditionText() const

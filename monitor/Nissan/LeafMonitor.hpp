@@ -73,6 +73,8 @@ public:
    
    virtual uint32_t getVoltTempStatus() const;
    virtual uint32_t getFailsafeStatus() const;
+   virtual uint32_t getFailsafeCount() const;
+   virtual void setFailsafeCount(uint32_t count);
    std::string getAlarmConditionText() const;
    virtual void setMonitorMessageIgnore(bool status);
    virtual bool getMonitorMessageIgnore();
@@ -118,6 +120,7 @@ private:
 
    uint32_t m_volt_temp_status;
    uint32_t m_failsafe_status;
+   uint32_t m_failsafe_count;
    uint32_t m_message_ignore_count;
    bool m_message_ignore_active;
    const uint MESSAGE_IGNORE_PERIODS = 5; // ignore messages for 5 seconds
