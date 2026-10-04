@@ -196,14 +196,14 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
 
     // Failsafe Status (3 bits)
     html << "<tr><td class='row-label'>Failsafe Status</td>";
-    for (size_t i = 0; i < N; i++) {
+    for (size_t i = 0; i < N-1; i++) {
         html << "<td>" << std::bitset<3>(vm[i]->getFailsafeStatus()) << "</td>";
     }
     html << "<td>bits</td></tr>";
 
     // Contactor Status (6 bits)
     html << "<tr><td class='row-label'>Contactor Status</td>";
-    for (size_t i = 0; i < N; i++) {
+    for (size_t i = 0; i < N-1; i++) {
         html << "<td>" << std::bitset<6>(vm[i]->getVoltTempStatus()) << "</td>";
     }
     html << "<td>bits</td></tr>";

@@ -61,7 +61,7 @@ private:
    const uint REBOOT_WAIT_PERIODS = 10 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms; 
    unsigned m_failsafe_count;
    // the number of periiods failsafe has to be active before a reboot is triggered (30 seconds)
-   const uint FAILSAFE_COUNT = 30 * 1000 / PACK_CALLBACK_PERIOD_ms;
+   const uint FAILSAFE_COUNT = 60 * 1000 / PACK_CALLBACK_PERIOD_ms;
 
    const float MAX_SHUNT_OPEN_CURRENT = 1.01;
    const uint MAX_PACK_STARTUP_COUNT = 5 * 60 * 1000 / PACK_CALLBACK_PERIOD_ms;

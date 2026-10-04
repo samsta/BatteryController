@@ -148,10 +148,11 @@ void LeafMultiPack::periodicCallback()
                set_message_ignore =  true;
             }
 
-            // check failsafe count HARDCODED AT 10
-            if (m_vmonitor[i]->getFailsafeCount()>15)
+            // check failsafe count HARDCODED AT 15
+            if (m_vmonitor[i]->getFailsafeCount() > 15)
             {
                // trigger a reboot of all packs
+               // this will clear any failsafe set on any pack
                setTriggerBatReboot();
             }
          }
