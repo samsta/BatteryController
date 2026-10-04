@@ -45,6 +45,7 @@ namespace monitor
       {
          os << "\t" << std::bitset<3>(vm[i]->getFailsafeStatus());
       }
+      os << "\txxx";
       os << "\tbits" << std::endl;
 
       os << "Contactor Status      ";
@@ -52,6 +53,7 @@ namespace monitor
       {
          os << "\t" << std::bitset<6>(vm[i]->getVoltTempStatus());
       }
+      os << "\txxxxxx";
       os << "\tbits" << std::endl;
 
       os << "Voltage:              ";
