@@ -199,6 +199,7 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
     for (size_t i = 0; i < N-1; i++) {
         html << "<td>" << std::bitset<3>(vm[i]->getFailsafeStatus()) << "</td>";
     }
+    html << "<td>xxx</td>";
     html << "<td>bits</td></tr>";
 
     // Contactor Status (6 bits)
@@ -206,6 +207,7 @@ void WebServer::handleStatusPage(struct mg_connection *c, struct mg_http_message
     for (size_t i = 0; i < N-1; i++) {
         html << "<td>" << std::bitset<6>(vm[i]->getVoltTempStatus()) << "</td>";
     }
+    html << "<td>xxxxxx</td>";
     html << "<td>bits</td></tr>";
 
     // Numeric rows with units (all rounded)
