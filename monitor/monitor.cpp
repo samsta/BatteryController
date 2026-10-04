@@ -41,14 +41,14 @@ namespace monitor
       os << std::endl;
 
       os << "Failsafe Status       ";
-      for (i = 0; i < vm.size(); i++)
+      for (i = 0; i < vm.size()-1; i++)
       {
          os << "\t" << std::bitset<3>(vm[i]->getFailsafeStatus());
       }
       os << "\tbits" << std::endl;
 
       os << "Contactor Status      ";
-      for (i = 0; i < vm.size(); i++)
+      for (i = 0; i < vm.size()-1; i++)
       {
          os << "\t" << std::bitset<6>(vm[i]->getVoltTempStatus());
       }
