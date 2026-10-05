@@ -233,8 +233,8 @@ void Logger::updateDataLog()
 
          if (fsize != str.length())
          {
-            snprintf(msgbuf,sizeof(msgbuf), "Reading datalog file from disk.  file size: %lu != string size: %lu", fsize, str.length());
-            info(msgbuf, __FILENAME__, __LINE__);
+            // snprintf(msgbuf,sizeof(msgbuf), "Reading datalog file from disk.  file size: %lu != string size: %lu", fsize, str.length());
+            // info(msgbuf, __FILENAME__, __LINE__);
             // read the file into str
             str.clear();
             std::stringstream buffer;
@@ -308,7 +308,7 @@ void Logger::httpPOSTstr(std::string str)
    res = curl_easy_perform(curl);
    if (res != CURLE_OK) {
       snprintf(msgbuf, sizeof(msgbuf), "curl_easy_perform() failed: %s. Most likely due to loss of internet connection.", curl_easy_strerror(res));
-      error(msgbuf, __FILENAME__, __LINE__);
+      alarm(msgbuf, __FILENAME__, __LINE__);
       curl_easy_cleanup(curl);
       if (headers) curl_slist_free_all(headers);
       curl_global_cleanup();
