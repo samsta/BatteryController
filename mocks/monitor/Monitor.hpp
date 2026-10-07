@@ -40,7 +40,7 @@ public:
    MOCK_METHOD(uint32_t, getVoltTempStatus, (),  (const));
    MOCK_METHOD(uint32_t, getFailsafeStatus, (),  (const));
    MOCK_METHOD(uint32_t, getFailsafeCount, (),  (const));
-   MOCK_METHOD(void, setFailsafeCount, (),  ());
+   MOCK_METHOD(void, setFailsafeCount, (uint32_t count),  ());
    MOCK_METHOD(void, setMonitorMessageIgnore, (bool), ());
    MOCK_METHOD(bool, getMonitorMessageIgnore, (), ());
    MOCK_METHOD(void, setTriggerBatReboot, (), ());
