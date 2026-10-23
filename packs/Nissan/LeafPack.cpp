@@ -115,7 +115,7 @@ void LeafPack::heartbeatCallback()
          }
 
          // see if a reboot has been triggered manually
-         else if ((m_monitor.getTriggerBatReboot()) &&
+         if ((m_monitor.getTriggerBatReboot()) &&
             (m_reboot_wait_count > REBOOT_WAIT_PERIODS) &&
             (m_monitor.getPackStatus() == monitor::Monitor::NORMAL_OPERATION))
          {
